@@ -1,3 +1,9 @@
+/*
+  Copyright (c) 2004-2009, The Dojo Foundation All Rights Reserved.
+  Available via the new BSD license.
+  see: http://code.google.com/p/runjs/ for details
+*/
+
 ;(function() {
   //Change this version number for each release.
   var version = [0, 0, 1, ""];
