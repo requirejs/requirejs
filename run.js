@@ -226,6 +226,7 @@
       //Not in the right context now, hold on to it until
       //the current context finishes all its loading.
       contextLoads.push(arguments);
+
     } else {
       //First derive the path name for the module.
       var url = run.convertNameToPath(moduleName, contextName);
@@ -281,8 +282,10 @@
     //See if anything is still in flight.
     var loaded = context.loaded,
         empty = {},
-        noLoads = "";
+        noLoads = "",
+        hasLoadedProp = false;
     for (var prop in loaded) {
+      hasLoadedProp = true;
       if (!(prop in empty)) {
         if (!loaded[prop]) {
           if (expired) {
@@ -296,6 +299,12 @@
           }
         }
       }
+    }
+
+    //If the loaded object had no items, then the rest of
+    //the work below does not need to be done.
+    if (!hasLoadedProp) {
+      return;
     }
 
     //If wait time expired, throw error of unloaded modules.
