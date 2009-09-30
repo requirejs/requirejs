@@ -26,10 +26,6 @@
   /**
    * The function that loads modules or executes code that has dependencies
    * on other modules.
-   *
-   * @param {Object} args the argument object that defines the code.
-   *
-   * 
    */
   run = function(name, deps, callback, contextName) {
     var config = null;
@@ -44,7 +40,7 @@
         deps = [];
       }
 
-      contextName = contextName || currContextName;
+      contextName = contextName || run._currContextName;
 
       //If module already defined for context, leave.
       var context = contexts[contextName];
@@ -75,15 +71,15 @@
         deps = [];
       }
 
-      contextName = contextName || config.context || currContextName;
+      contextName = contextName || config.context || run._currContextName;
     }
 
-    contextName = contextName || currContextName;
+    contextName = contextName || run._currContextName;
 
-    if (contextName != "currContextName") {
+    if (contextName != "run._currContextName") {
       //If nothing is waiting on being loaded in the current context,
-      //then switch currContextName to current contextName.
-      var loaded = contexts[currContextName] && contexts[currContextName].loaded,
+      //then switch run._currContextName to current contextName.
+      var loaded = contexts[run._currContextName] && contexts[run._currContextName].loaded,
           empty = {},
           canSetContext = true;
       if (loaded) {
@@ -97,7 +93,7 @@
         }
       }
       if (canSetContext) {
-        currContextName = contextName;
+        run._currContextName = contextName;
       }
     }
 
@@ -193,7 +189,7 @@
   //Set up storage for modules that is partitioned by context. Create a
   //default context too.
   var defContextName = "_runDefault";
-  var currContextName = defContextName;
+  run._currContextName = defContextName;
   var contexts = {};
   var contextLoads = [];
 
@@ -222,7 +218,7 @@
    * the environment and the circumstance of the load call.
    */
   run.load = function(moduleName, contextName) {
-    if (contextName != currContextName) {
+    if (contextName != run._currContextName) {
       //Not in the right context now, hold on to it until
       //the current context finishes all its loading.
       contextLoads.push(arguments);
@@ -233,10 +229,6 @@
       run.attach(url, contextName, moduleName);
       contexts[contextName].startTime = (new Date()).getTime();
     }
-
-    //BIG TODO: if it is a different contextName from currContextName,
-    //then wait to load ones for contextName until ones for currContextName
-    //have finished loading.
   }
 
   run.jsExtRegExp = /\.js$/;
@@ -274,7 +266,7 @@
    * new ones in right dependency order.
    */
   run.checkLoaded = function(contextName) {
-    var context = contexts[contextName || currContextName];
+    var context = contexts[contextName || run._currContextName];
     var waitInterval = context.waitSeconds * 1000;
     //It is possible to disable the wait interval by using waitSeconds of 0.
     var expired = waitInterval && (context.startTime + waitInterval) < (new Date()).getTime();
@@ -382,7 +374,7 @@
       }
 
       if (allDone) {
-        currContextName = contextLoads[0][1];
+        run._currContextName = contextLoads[0][1];
         var loads = contextLoads;
         //Reset contextLoads in case some of the waiting loads
         //are for yet another context.
@@ -393,10 +385,13 @@
       }
     } else {
       //Make sure we reset to default context.
-      currContextName = defContextName;
+      run._currContextName = defContextName;
     }
   }
 
+  /**
+   * Figures out the right sequence to call module callbacks.
+   */
   run.traceDeps = function(moduleChain, orderedModules, waiting, defined) {
     while (moduleChain.length > 0) {
       var module = moduleChain[moduleChain.length - 1];
@@ -510,6 +505,9 @@
     }
   }
 
+  /**
+   * Registers functions to call when the page is loaded
+   */
   run.ready = function(callback) {
     if (isPageLoaded) {
       callback();
