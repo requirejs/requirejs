@@ -23,6 +23,9 @@
     }
   }
 
+  //regexp for matching nls (i18n) module names.
+  var nlsRegExp = /(^.*(^|\.)nls(\.|$))([^\.]*)\.?([^\.]*)/;
+
   /**
    * The function that loads modules or executes code that has dependencies
    * on other modules.
@@ -34,7 +37,7 @@
     if (typeof name == "string") {
       //Defining a module.
       //First check if there are no dependencies, and adjust args.
-      if (typeof deps == "function" || deps instanceof Function) {
+      if (!(deps instanceof Array) && typeof deps != "array") {
         contextName = callback;
         callback = deps;
         deps = [];
@@ -43,7 +46,7 @@
       contextName = contextName || run._currContextName;
 
       //If module already defined for context, leave.
-      var context = contexts[contextName];
+      var context = run._contexts[contextName];
       if (context && context.specified && context.specified[name]) {
         return run;
       }
@@ -76,10 +79,10 @@
 
     contextName = contextName || run._currContextName;
 
-    if (contextName != "run._currContextName") {
+    if (contextName != run._currContextName) {
       //If nothing is waiting on being loaded in the current context,
       //then switch run._currContextName to current contextName.
-      var loaded = contexts[run._currContextName] && contexts[run._currContextName].loaded,
+      var loaded = run._contexts[run._currContextName] && run._contexts[run._currContextName].loaded,
           empty = {},
           canSetContext = true;
       if (loaded) {
@@ -98,9 +101,12 @@
     }
 
     //Grab the context, or create a new one for the given context name.
-    var context = contexts[contextName] || (contexts[contextName] = {
+    var context = run._contexts[contextName] || (run._contexts[contextName] = {
       waiting: [],
+      nlsWaiting: {},
       baseUrl: run.baseUrl || "./",
+      locale: typeof navigator == "undefined"? "root" :
+                (navigator.language || navigator.userLanguage || "root").toLowerCase(),
       paths: {},
       waitSeconds: 7,
       specified: {
@@ -120,7 +126,8 @@
           }
           return run.apply(window, args);
         }
-      }
+      },
+      nls: {}
     });
 
     //If have a config object, update the context object with
@@ -147,6 +154,10 @@
           }
         }
       }
+      
+      if (config.locale) {
+        context.locale = config.locale.toLowerCase();
+      }
     }
 
     //Store the module for later evaluation.
@@ -167,15 +178,104 @@
       context.specified[name] = true;
     }
 
+    //If the callback is not an actual function, it means it already
+    //has the definition of the module as a literal value.
+    if (callback && typeof callback  != "function" && !(callback instanceof Function)) {
+      context.defined[name] = callback;
+    }
+
+
+    //See if the modules is an nls module and handle it special.
+    var match = nlsRegExp.exec(name);
+    if (match) {
+      //Reconstruct the master bundle name from parts of the regexp match
+      //nlsRegExp.exec("foo.bar.baz.nls.en-ca.foo") gives:
+      //["foo.bar.baz.nls.en-ca.foo", "foo.bar.baz.nls.", ".", ".", "en-ca", "foo"]
+      //nlsRegExp.exec("foo.bar.baz.nls.foo") gives:
+      //["foo.bar.baz.nls.foo", "foo.bar.baz.nls.", ".", ".", "foo", ""]
+      //so, if match[5] is blank, it means this is the top bundle definition,
+      //so it does not have to be handled. Only deal with ones that have a locale
+      //(a match[4] value but no match[5])
+      if (match[5]) {
+        var master = match[1] + match[5];
+
+        //Track what locale bundle need to be generated once all the modules load.
+        var nlsw = (context.nlsWaiting[master] || (context.nlsWaiting[master] = {}));
+        nlsw[match[4]] = 1;
+
+        var bundle = context.nls[master];
+        if (!bundle) {
+          //No master bundle yet, ask for it.
+          context.defined.run([master]);
+          bundle = context.nls[master] = {};
+        }
+        //For nls modules, the callback is just a regular object,
+        //so save it off in the bundle now.
+        bundle[match[4]] = callback;
+      }
+    }
+
     //Figure out if all the modules are loaded. If the module is not
     //being loaded or already loaded, add it to the "to load" list,
     //and request it to be loaded.
     var needLoad = false;
     for (var i = 0, dep; dep = deps[i]; i++) {
-      if (!(dep in context.loaded)) {
-        context.loaded[dep] = false;
-        run.load(dep, contextName);
-        needLoad = true;
+      //If it is a string, then a plain dependency
+      if (typeof dep == "string") {
+        if (!(dep in context.loaded)) {
+          context.loaded[dep] = false;
+          run.load(dep, contextName);
+          needLoad = true;
+        }
+      } else {
+        //dep is an object, so it is an i18n nls thing.
+        //Track it in the nls section of the context.
+        //It may have already been created via a specific locale
+        //request, so just mixin values in that case, to preserve
+        //the specific locale bundle object.
+        var bundle = context.nls[name];
+        if (bundle) {
+          run.mixin(bundle, dep);
+        } else {
+          context.nls[name] = dep;
+        }
+
+        //Break apart the locale to get the parts.
+        var parts = context.locale.split("-");
+        
+        //Now see what bundles exist for each country/locale.
+        //Want to walk up the chain, so if locale is en-us-foo,
+        //look for en-us-foo, en-us, en, then root.
+        var toLoad = [];
+        var longestMatch = null;
+        var nlsw = context.nlsWaiting[name] || (context.nlsWaiting[name] = {});
+        for (var j = parts.length; j > -1; j--) {
+          var loc = j == 0 ? "root" : parts.slice(0, j).join("-");
+          var val = dep[loc];
+          if (val) {
+            //Store which bundle to use for the default bundle definition.
+            if (!nlsw.__match) {
+              nlsw.__match = loc;
+            }
+
+            //Track that the locale needs to be resolved with its parts.
+            nlsw[loc] = 1;
+
+            //If locale value is a string, it means it is a resource that
+            //needs to be loaded. Track it to load if it has not already
+            //been asked for.
+            if (typeof val == "string"
+                && !context.specified[val]
+                && !(val in context.loaded)) {
+              toLoad.push(val);
+            }
+          }
+        }
+
+        //Load any bundles that are still needed.
+        if (toLoad.length) {
+          context.defined.run(toLoad);
+        }
       }
     }
 
@@ -190,7 +290,7 @@
   //default context too.
   var defContextName = "_runDefault";
   run._currContextName = defContextName;
-  var contexts = {};
+  run._contexts = {};
   var contextLoads = [];
 
   //Set state for page loading.
@@ -227,7 +327,7 @@
       //First derive the path name for the module.
       var url = run.convertNameToPath(moduleName, contextName);
       run.attach(url, contextName, moduleName);
-      contexts[contextName].startTime = (new Date()).getTime();
+      run._contexts[contextName].startTime = (new Date()).getTime();
     }
   }
 
@@ -242,7 +342,7 @@
       return moduleName;
     } else {
       //A module that needs to be converted to a path.
-      var paths = contexts[contextName].paths;
+      var paths = run._contexts[contextName].paths;
       var syms = moduleName.split(".");
       for (var i = syms.length; i > 0; i--) {
         var parentModule = syms.slice(0, i).join(".");
@@ -257,7 +357,7 @@
 
       //Join the path parts together, then figure out if baseUrl is needed.
       var url = syms.join("/") + ".js";
-      return ((url.charAt(0) == '/' || url.match(/^\w+:/)) ? "" : contexts[contextName].baseUrl) + url;
+      return ((url.charAt(0) == '/' || url.match(/^\w+:/)) ? "" : run._contexts[contextName].baseUrl) + url;
     }
   }
 
@@ -266,7 +366,7 @@
    * new ones in right dependency order.
    */
   run.checkLoaded = function(contextName) {
-    var context = contexts[contextName || run._currContextName];
+    var context = run._contexts[contextName || run._currContextName];
     var waitInterval = context.waitSeconds * 1000;
     //It is possible to disable the wait interval by using waitSeconds of 0.
     var expired = waitInterval && (context.startTime + waitInterval) < (new Date()).getTime();
@@ -307,9 +407,63 @@
     //Resolve dependencies. First clean up state because the evaluation
     //of modules might create new loading tasks, so need to reset.
     var waiting = context.waiting;
+    var nlsWaiting = context.nlsWaiting;
     context.waiting = [];
+    context.nlsWaiting = {};
     context.loaded = {};
-    
+
+    //First, properly mix in any nls bundles waiting to happen.
+    //Use an empty object to detect other bad JS code that modifies
+    //Object.prototype.
+    var empty = {};
+    for (var prop in nlsWaiting) {
+      if (!(prop in empty)) {
+        //Each property is a master bundle name.
+        var master = prop;
+        var msWaiting = nlsWaiting[prop];
+        var bundle = context.nls[master];
+        var defLoc = null;
+
+        //Create the module name parts from the master name. So, if master
+        //is foo.nls.bar, then the parts should be prefix: "foo.nls",
+        // suffix: "bar", and the final locale's module  name will be foo.nls.locale.bar        
+        var parts = master.split(".");
+        var modulePrefix = parts.slice(0, parts.length - 1).join(".");
+        var moduleSuffix = parts[parts.length - 1];
+        //Cycle through the locale props on the waiting object and combine
+        //the locales together.
+        for (var loc in msWaiting) {
+          if (!(loc in empty)) {
+            if (loc == "__match") {
+              //Found default locale to use for the top-level bundle name.
+              defLoc = msWaiting[loc];
+            } else {
+              //Mix in the properties of this locale together.
+              //Split the locale into pieces.
+              var mixed = {};
+              var parts = loc.split("-");
+              for (var i = parts.length; i > 0; i--) {
+                var locPart = parts.slice(0, i).join("-");
+                if (locPart !== "root" && bundle[locPart]) {
+                  run.mixin(mixed, bundle[locPart]);
+                }
+              }
+              if (bundle["root"]) {
+                run.mixin(mixed, bundle["root"]);
+              }
+
+              context.defined[modulePrefix + "." + loc + "." + moduleSuffix] = mixed;
+            }
+          }
+        }
+
+        //Finally define the default locale. Wait to the end of the property
+        //loop above so that the default locale bundle has been properly mixed
+        //together.
+        context.defined[master] = context.defined[modulePrefix + "." + defLoc + "." + moduleSuffix];
+      }
+    }
+
     //Walk the dependencies, doing a depth first search.
     var orderedModules = [];
     for (var i = 0, module; module = waiting[i]; i++) {
@@ -333,22 +487,18 @@
         var depModule = context.defined[dep] || (context.defined[dep] = {});
         args.push(depModule);
       }
-      if (module.callback) {
-        var ret = module.callback.apply(window, args);
+
+      //Call the callback to define the module, if necessary.
+      var cb = module.callback;
+      if (cb && (typeof cb  == "function" || cb instanceof Function)) {
+        var ret = cb.apply(window, args);
         if (name) {
           var modDef = context.defined[name];
           if (modDef && ret) {
             //Mix in the contents of the ret object. This is done for
             //cases where we passed the placeholder module to a circular
             //dependency.
-            //Use an empty placeholder object to avoid bad JS code that
-            //adds things to Object.prototype.
-            var empty = {};
-            for (var prop in ret) {
-              if (!(ret in empty)) {
-                modDef[prop] = ret[prop];
-              }
-            }
+            run.mixin(modDef, ret);
           } else {
             context.defined[name] = ret;
           }
@@ -440,7 +590,7 @@
       var moduleName = node.getAttribute("data-runmodule");
 
       //Mark the module loaded.
-      contexts[contextName].loaded[moduleName] = true;
+      run._contexts[contextName].loaded[moduleName] = true;
 
       run.checkLoaded(contextName);
 
@@ -480,6 +630,22 @@
       return doc.getElementsByTagName("head")[0].appendChild(node);
     }
     return null;
+  }
+
+  /**
+   * Simple function to mix in properties from source into target,
+   * but only if target does not already have a property of the same name.
+   */
+  run.mixin = function(target, source) {
+    //Use an empty object to avoid other bad JS code that modifies
+    //Object.prototype.
+    var empty = {};
+    for (var prop in source) {
+      if (!(prop in target)) {
+        target[prop] = source[prop];
+      }
+    }
+    return run;
   }
 
   //****** START page load functionality ****************

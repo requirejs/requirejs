@@ -3,12 +3,13 @@
 <head>
     <title>run.js: Simple Test</title>
     <script type="text/javascript" src="../run.js"></script>
-   <script type="text/javascript" src="common.js"></script>
-     <script type="text/javascript">
+    <script type="text/javascript" src="common.js"></script>
+    <script type="text/javascript">
     run(
-        ["tests.simple"],
-        function(simple) {
+        ["tests.simple", "tests.dimple"],
+        function(simple, dimple) {
             log("Simple is loaded. simple.color = " + simple.color);
+            log("Dimple is loaded. dimple.color = " + dimple.color);
         }
     );
     </script>
