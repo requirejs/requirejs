@@ -4,7 +4,7 @@
   see: http://code.google.com/p/runjs/ for details
 */
 
-;(function() {
+(function() {
   //Change this version number for each release.
   var version = [0, 0, 1, ""];
 
@@ -65,7 +65,7 @@
       deps = [];
     } else {
       //name is a config object.
-      var config = name;
+      config = name;
       name = null;
       //Adjust args if no dependencies.
       if (typeof deps == "function" || deps instanceof Function) {
@@ -101,7 +101,7 @@
     }
 
     //Grab the context, or create a new one for the given context name.
-    var context = run._contexts[contextName] || (run._contexts[contextName] = {
+    context = run._contexts[contextName] || (run._contexts[contextName] = {
       waiting: [],
       nlsWaiting: {},
       baseUrl: run.baseUrl || "./",
@@ -147,8 +147,8 @@
       }
 
       if (config.paths) {
-        var empty = {};
-        for (var prop in config.paths) {
+        empty = {};
+        for (prop in config.paths) {
           if (!(prop in empty)) {
             context.paths[prop] = config.paths[prop];
           }
@@ -233,7 +233,7 @@
         //It may have already been created via a specific locale
         //request, so just mixin values in that case, to preserve
         //the specific locale bundle object.
-        var bundle = context.nls[name];
+        bundle = context.nls[name];
         if (bundle) {
           run.mixin(bundle, dep);
         } else {
@@ -248,7 +248,7 @@
         //look for en-us-foo, en-us, en, then root.
         var toLoad = [];
         var longestMatch = null;
-        var nlsw = context.nlsWaiting[name] || (context.nlsWaiting[name] = {});
+        nlsw = context.nlsWaiting[name] || (context.nlsWaiting[name] = {});
         for (var j = parts.length; j > -1; j--) {
           var loc = j == 0 ? "root" : parts.slice(0, j).join("-");
           var val = dep[loc];
@@ -301,7 +301,7 @@
     //Figure out baseUrl. Get it from the script tag with run.js in it.
     var scripts = document.getElementsByTagName("script");
     var rePkg = /run\.js(\W|$)/i;
-    for (var i = scripts.length - 1, script; script = scripts[i]; i--) {
+    for (i = scripts.length - 1, script; script = scripts[i]; i--) {
       var src = script.getAttribute("src");
       if (src) {
         var m = src.match(rePkg);
@@ -415,8 +415,8 @@
     //First, properly mix in any nls bundles waiting to happen.
     //Use an empty object to detect other bad JS code that modifies
     //Object.prototype.
-    var empty = {};
-    for (var prop in nlsWaiting) {
+    empty = {};
+    for (prop in nlsWaiting) {
       if (!(prop in empty)) {
         //Each property is a master bundle name.
         var master = prop;
@@ -441,7 +441,7 @@
               //Mix in the properties of this locale together.
               //Split the locale into pieces.
               var mixed = {};
-              var parts = loc.split("-");
+              parts = loc.split("-");
               for (var i = parts.length; i > 0; i--) {
                 var locPart = parts.slice(0, i).join("-");
                 if (locPart !== "root" && bundle[locPart]) {
@@ -466,7 +466,7 @@
 
     //Walk the dependencies, doing a depth first search.
     var orderedModules = [];
-    for (var i = 0, module; module = waiting[i]; i++) {
+    for (i = 0, module; module = waiting[i]; i++) {
       var moduleChain = [module];
       if (module.name) {
         moduleChain[module.name] = true;
@@ -476,7 +476,7 @@
     }
     
     //Call the module callbacks in order.
-    for (var i = 0, module; module = orderedModules[i]; i++) {
+    for (i = 0; module = orderedModules[i]; i++) {
       //Get objects for the dependencies.
       var name = module.name;
       var deps = module.deps;
@@ -514,7 +514,7 @@
       loaded = context.loaded;
       empty = {};
       var allDone = true;
-      for (var prop in loaded) {
+      for (prop in loaded) {
         if (!(prop in empty)) {
           if (!loaded[prop]) {
             allDone = false;
@@ -529,7 +529,8 @@
         //Reset contextLoads in case some of the waiting loads
         //are for yet another context.
         contextLoads = [];
-        for (var i = 0, loadArgs; loadArgs = loads[i]; i++) {
+        var loadArgs;
+        for (i = 0, loadArgs; loadArgs = loads[i]; i++) {
           run.load.apply(run, loadArgs);
         }
       }
@@ -545,12 +546,11 @@
   run.traceDeps = function(moduleChain, orderedModules, waiting, defined) {
     while (moduleChain.length > 0) {
       var module = moduleChain[moduleChain.length - 1];
-      var deps, nextDep;
       if (module && !module.isOrdered) {
         module.isOrdered = true;
 
         //Trace down any dependencies for this resource.
-        deps = module.deps;
+        var deps = module.deps;
         if (deps && deps.length > 0) {
           for (var i = 0, nextDep; nextDep = deps[i]; i++) {
             var nextModule = waiting[waiting[nextDep]];
@@ -657,6 +657,9 @@
   run.pageLoaded = function() {
     if (!isPageLoaded) {
       isPageLoaded = true;
+      if (run._loadInterval) {
+        clearInterval(run._loadInterval);
+      }
       run._callReady();
     }
   }
@@ -696,10 +699,10 @@
     //Set up a polling check in every case, in case the above DOMContentLoaded
     //is not supported, or if it is something like IE. The load registrations above
     //should be the final catch, but see if we get lucky beforehand.
-    var loadInterval = setInterval(function() {
+    var pageLoadRegExp = /loaded|complete/;
+    run._loadInterval = setInterval(function() {
       //Check for document.readystate.
-      if(/loaded|complete/.test(document.readyState)){
-        clearInterval(loadInterval);
+      if(pageLoadRegExp.test(document.readyState)){
         run.pageLoaded();
       }
     }, 10);
