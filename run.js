@@ -673,9 +673,6 @@ setTimeout: false, setInterval: false, clearInterval: false */
   run.pageLoaded = function () {
     if (!isPageLoaded) {
       isPageLoaded = true;
-      if (run._loadInterval) {
-        clearInterval(run._loadInterval);
-      }
       run._callReady();
     }
   };
@@ -703,7 +700,7 @@ setTimeout: false, setInterval: false, clearInterval: false */
   };
 
   if (isBrowser) {
-    if (window.addEventListener) {
+    if (document.addEventListener) {
       //Standards. Hooray! Assumption here that if standards based,
       //it knows about DOMContentLoaded.
       document.addEventListener("DOMContentLoaded", run.pageLoaded, false);
@@ -711,16 +708,6 @@ setTimeout: false, setInterval: false, clearInterval: false */
     } else if (window.attachEvent) {
       window.attachEvent("onload", run.pageLoaded);
     }
-
-    //Set up a polling check in every case, in case the above DOMContentLoaded
-    //is not supported, or if it is something like IE. The load registrations above
-    //should be the final catch, but see if we get lucky beforehand.
-    run._loadInterval = setInterval(function () {
-      //Check for document.readystate.
-      if (pageLoadRegExp.test(document.readyState)) {
-        run.pageLoaded();
-      }
-    }, 10);
   }
   //****** END page load functionality ****************
 }());
