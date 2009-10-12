@@ -1,0 +1,29 @@
+
+- Use a unit testing framework to verify test results instead of manual checks.
+
+- Allow multiple versions of run.js to be loaded in a page, with the most recent
+  version winning. However, need to transfer the state/contexts from old version
+  to new version.
+
+- Build converters that can convert dojo and commonjs modules into runjs format.
+
+- Allow custom build tool that collects a bunch of runjs modules into one file.
+  - CSS optimization support (from dojo)?
+  - Flatten i18n bundles? "root" is already flattened, just need to do things like
+    combine en with en-us and en-us-surfer.
+
+
+Completed Items
+==================
+
+0.0.2
+------------
+- Allow modules to be defined with a plain object instead of a callback.
+- i18n bundle support.
+
+0.0.1
+------------
+- Basic module loading
+- Support non-runjs module loading, if file ends in .js
+- Supports loading modules with different versions by using context names in
+  top-level run() calls.
