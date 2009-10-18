@@ -39,15 +39,24 @@ setTimeout: false, setInterval: false, clearInterval: false */
    * The function that loads modules or executes code that has dependencies
    * on other modules.
    */
-  run = function (name, deps, callback, contextName) {
+  run = function (name, deps, callback, contextName, altContextName) {
     var config = null, context, loaded, empty, canSetContext, prop, dep, baseUrl,
         newLength, match, master, nlsw, bundle, needLoad, i, j, parts, toLoad,
-        loc, val;
+        loc, val, newContext, contextRun, isFunction = false;
 
     //Normalize the arguments.
     if (typeof name === "string") {
       //Defining a module.
-      //First check if there are no dependencies, and adjust args.
+      
+      //Check if the defined module will be a function.
+      if (deps === Function) {
+        isFunction = true;
+        deps = callback;
+        callback = contextName;
+        contextName = altContextName;
+      }
+
+      //Check if there are no dependencies, and adjust args.
       if (!(deps instanceof Array) && typeof deps !== "array") {
         contextName = callback;
         callback = deps;
@@ -112,34 +121,39 @@ setTimeout: false, setInterval: false, clearInterval: false */
     }
 
     //Grab the context, or create a new one for the given context name.
-    context = run._contexts[contextName] || (run._contexts[contextName] = {
-      waiting: [],
-      nlsWaiting: {},
-      baseUrl: run.baseUrl || "./",
-      locale: typeof navigator === "undefined" ? "root" :
-                (navigator.language || navigator.userLanguage || "root").toLowerCase(),
-      paths: {},
-      waitSeconds: 7,
-      specified: {
-        "run": true
-      },
-      loaded: {
-        "run": true
-      },
-      defined: {
-        "run": function () {
-          //A version of run that uses the current context.
-          //If last arg is a string, then it is a context.
-          //If last arg is not a string, then add context to it.
-          var args = [].concat(Array.prototype.slice.call(arguments, 0));
-          if (typeof arguments[arguments.length - 1] !== "string") {
-            args.push(contextName);
-          }
-          return run.apply(run.global, args);
-        }
-      },
-      nls: {}
-    });
+    context = run._contexts[contextName];
+    if (!context) {
+      newContext = {
+        waiting: [],
+        nlsWaiting: {},
+        baseUrl: run.baseUrl || "./",
+        locale: typeof navigator === "undefined" ? "root" :
+                  (navigator.language || navigator.userLanguage || "root").toLowerCase(),
+        paths: {},
+        waitSeconds: 7,
+        specified: {
+          "run": true
+        },
+        loaded: {
+          "run": true
+        },
+        defined: {},
+        isFuncs: {},
+        modifiers: {},
+        nls: {}
+      }
+
+      //Define run() for this context.
+      contextRun = makeContextFunc(null, contextName);
+      contextRun.modify = makeContextFunc("modify", contextName);
+      contextRun.ready = run.ready;
+      contextRun.myContextName = contextName;
+      contextRun.context = newContext;
+      contextRun.def = newContext.defined;
+      newContext.defined.run = contextRun;
+
+      context = run._contexts[contextName] = newContext;
+    };
 
     //If have a config object, update the context object with
     //the config values.
@@ -178,15 +192,19 @@ setTimeout: false, setInterval: false, clearInterval: false */
       callback: callback
     });
 
-    //Store index of insertion for quick lookup
+    
     if (name) {
+      //Store index of insertion for quick lookup
       context.waiting[name] = newLength - 1;
-    }
-
-    //Mark the module as specified: not loaded yet, but in the process,
-    //so no need to fetch it again.
-    if (name) {
+      
+      //Mark the module as specified: not loaded yet, but in the process,
+      //so no need to fetch it again.
       context.specified[name] = true;
+
+      //If the module will be a function, remember it.
+      if (isFunction) {
+        context.isFuncs[name] = true;
+      }
     }
 
     //If the callback is not an actual function, it means it already
@@ -296,6 +314,72 @@ setTimeout: false, setInterval: false, clearInterval: false */
     return run;
   };
 
+
+  /**
+   * Register a module that modifies another module. The modifier will
+   * only be called once the target module has been loaded.
+   *
+   * First syntax:
+   *
+   * run.modify({
+   *   "some.target1": "my.modifier1",
+   *   "some.target2": "my.modifier2",
+   * });
+   *
+   * With this syntax, the my.modifier1 will only be loaded when
+   * "some.target1" is loaded.
+   *
+   * Second syntax, defining a modifier.
+   *
+   * run.modify("some.target1", "my.modifier",
+   *            ["some.target1", "some.other"],
+   *            function (target, other) {
+   *              //Modify properties of target here.
+   *              Only properties of target can be modified, but
+   *              target cannot be replaced.
+   *            }
+   * );
+   */
+  run.modify = function (target, name, deps, callback, contextName) {
+    var empty = {}, prop, modifier, list,
+        cName = (typeof target === "string" ? contextName : name) || run._currContextName,
+        context = run._contexts[cName],
+        mods = context.modifiers;
+        
+    if (typeof target === "string") {
+      //A modifier module.
+      //First store that it is a modifier.
+      list = mods[target] || (mods[target] = []);
+      if (!list[name]) {
+        list.push(modifier);
+        list[modifier] = true;
+      }
+
+      //Trigger the normal module load logic.
+      run(name, deps, callback, contextName);
+    } else {
+      //A list of modifiers. Save them for future reference.
+      contextName = name || run._currContextName, list;
+      context = run._contexts[contextName];
+      for (prop in target) {
+        if (!(prop in empty)) {
+          //Store the modifier for future use.
+          modifier = target[prop];
+          list = context.modifiers[prop] || (context.modifiers[prop] = []);
+          if (!list[modifier]) {
+            list.push(modifier);
+            list[modifier] = true;
+
+            if (context.specified[prop]) {
+              //Load the modifier right away.
+              run([modifier], contextName);
+            }
+          }
+        }
+      }
+    }
+  }
+
   //Export to global namespace.
   run.global = this;
   run.global.run = run;
@@ -306,6 +390,19 @@ setTimeout: false, setInterval: false, clearInterval: false */
   //default context too.
   run._currContextName = defContextName;
   run._contexts = {};
+
+  function makeContextFunc(name, contextName) {
+    return function () {
+        //A version of a run function that uses the current context.
+        //If last arg is a string, then it is a context.
+        //If last arg is not a string, then add context to it.
+        var args = [].concat(Array.prototype.slice.call(arguments, 0));
+        if (typeof arguments[arguments.length - 1] !== "string") {
+          args.push(contextName);
+        }
+        return (name ? run[name] : run).apply(run.global, args);
+      }
+  }
 
   //Set up page load detection for the browser case.
   if (isBrowser) {    
@@ -491,7 +588,7 @@ setTimeout: false, setInterval: false, clearInterval: false */
         moduleChain[module.name] = true;
       }
 
-      run.traceDeps(moduleChain, orderedModules, waiting, context.defined);
+      run.traceDeps(moduleChain, orderedModules, waiting, context.defined, context.modifiers);
     }
 
     //Call the module callbacks in order.
@@ -502,8 +599,14 @@ setTimeout: false, setInterval: false, clearInterval: false */
       args = [];
       for (j = 0; (dep = deps[j]); j++) {
         //Get dependent module. If it does not exist, because of a circular
-        //dependency, create a placeholder object.
-        depModule = context.defined[dep] || (context.defined[dep] = {});
+        //dependency, create a placeholder object or function.
+        depModule = context.defined[dep];
+        if (!depModule) {
+          depModule = context.defined[dep] = context.isFuncs[dep] ?
+              makeDepFunc(context, dep)
+            :
+              {};
+        }
         args.push(depModule);
       }
 
@@ -514,10 +617,19 @@ setTimeout: false, setInterval: false, clearInterval: false */
         if (name) {
           modDef = context.defined[name];
           if (modDef && ret) {
+            //Placeholder objet for the module exists. 
             //Mix in the contents of the ret object. This is done for
             //cases where we passed the placeholder module to a circular
             //dependency.
             run.mixin(modDef, ret);
+            if (context.isFuncs[name]) {
+              //Hold on to the real function for modules that got this module
+              //as a dependency, but then also replace the function in the
+              //defined set so newer modules that get this module as a
+              //dependency can get the real thing.
+              context.isFuncs[name] = ret;
+              context.defined[name] = ret;
+            }
           } else {
             context.defined[name] = ret;
           }
@@ -558,40 +670,60 @@ setTimeout: false, setInterval: false, clearInterval: false */
     }
   };
 
+  //Helper that create a function stand-in for a module that has yet to
+  //be defined.
+  function makeDepFunc(context, depName) {
+    return function() {
+      return context.isFuncs[depName].apply(this, arguments);
+    };
+  }
+
   /**
    * Figures out the right sequence to call module callbacks.
    */
-  run.traceDeps = function (moduleChain, orderedModules, waiting, defined) {
-    var module, deps, i, nextModule, nextDep;
+  run.traceDeps = function (moduleChain, orderedModules, waiting, defined, modifiers) {
+    var module;
     while (moduleChain.length > 0) {
       module = moduleChain[moduleChain.length - 1];
       if (module && !module.isOrdered) {
         module.isOrdered = true;
 
         //Trace down any dependencies for this resource.
-        deps = module.deps;
-        if (deps && deps.length > 0) {
-          for (i = 0; (nextDep = deps[i]); i++) {
-            nextModule = waiting[waiting[nextDep]];
-            if (nextModule && !nextModule.isOrdered && !defined[nextDep]) {
-              //New dependency. Follow it down.
-              moduleChain.push(nextModule);
-              if (nextModule.name) {
-                moduleChain[nextModule.name] = true;
-              }
-              run.traceDeps(moduleChain, orderedModules, waiting, defined);
-            }
-          }
-        }
+        run.addDeps(module.deps, moduleChain, orderedModules, waiting, defined, modifiers);
 
         //Add the current module to the ordered list.
         orderedModules.push(module);
+
+        //Now add any modifier modules for current module.
+        run.addDeps(modifiers[module.name], moduleChain, orderedModules, waiting, defined, modifiers);
       }
 
       //Done with that require. Remove it and go to the next one.
       moduleChain.pop();
     }
   };
+
+  /**
+   * Adds an array of deps to the module chain in the right order.
+   * Called exclusively by run.traceDeps. Needs to be a different function
+   * since it is called twice in run.traceDeps
+   */
+  run.addDeps = function(deps, moduleChain, orderedModules, waiting, defined, modifiers) {
+    var nextDep, nextModule, i;
+    if (deps && deps.length > 0) {
+      for (i = 0; (nextDep = deps[i]); i++) {
+        nextModule = waiting[waiting[nextDep]];
+        if (nextModule && !nextModule.isOrdered && !defined[nextDep]) {
+          //New dependency. Follow it down.
+          moduleChain.push(nextModule);
+          if (nextModule.name) {
+            moduleChain[nextModule.name] = true;
+          }
+          run.traceDeps(moduleChain, orderedModules, waiting, defined, modifiers);
+        }
+      }
+    }
+  }
 
   /**
    * callback for script loads, used to check status of loading.

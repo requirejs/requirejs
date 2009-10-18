@@ -1,4 +1,16 @@
 
+- Make sure the contextualRun has a .modify method that is modified!
+
+- Does run([modifier], contextName); work, right context used?
+
+- Add a run(function() {}) option that just waits until all modules loaded?
+
+- Document the Function argument thing.
+
+- Caveat with .modify: you cannot modify the top-level function. We could remove
+this restriction if we forced all functions to use the .apply() function wrapper.
+So, choosing performance in this case over extensibility.
+
 - Use a unit testing framework to verify test results instead of manual checks.
 
 - Allow multiple versions of run.js to be loaded in a page, with the most recent

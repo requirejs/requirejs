@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>run.js: Modifier Test</title>
+    <script type="text/javascript" src="../../run.js"></script>
+    <script type="text/javascript" src="../common.js"></script>
+    <script type="text/javascript">
+        run({
+            baseUrl: "./"
+        },
+        ["size", "target", "color", "run"],
+        function(size, target, color, run) {
+            var props = ["size", "color", "design", "name"];
+            function output(seq) {
+                for (var i = 0, prop; prop = props[i]; i++) {
+                    document.getElementById(prop + seq).innerHTML = target[prop];
+                }
+            }
+
+            run.ready(function() {
+                output(1);
+                setTimeout(function() {
+                    run.modify({
+                        "target": "design"
+                    });
+                    
+                    setTimeout(function() {
+                        output(2);    
+                    }, 2000);
+                }, 500);
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Modifier Test</h1>
+    <p>This page tests a module modifying another module. Both before the module
+    is loaded and after.</p>
+
+    <p>First call sequence</p>
+    <ul>
+        <li id="size1"></li>
+        <li id="color1"></li>
+        <li id="design1"></li>
+        <li id="name1"></li>
+   </ul>
+    
+    <p>Second call sequence</p>
+    <ul>
+        <li id="size2"></li>
+        <li id="color2"></li>
+        <li id="design2"></li>
+        <li id="name2"></li>
+   </ul>
+</body>
+</html>
+
