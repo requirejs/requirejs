@@ -19,8 +19,11 @@ So, choosing performance in this case over extensibility.
 
 Completed Items
 ==================
-0.0.3 (ongoing)
-
+0.0.3
+------------
+- Module modifiers
+- Better function module support
+- Allow run() calls that just have a config object.
 
 0.0.2
 ------------
