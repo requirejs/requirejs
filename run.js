@@ -9,8 +9,9 @@ setTimeout: false, setInterval: false, clearInterval: false */
 
 (function () {
   //Change this version number for each release.
-  var version = [0, 0, 2, ""],
+  var version = [0, 0, 3, ""],
       run = typeof run === "undefined" ? null : run,
+      oldState = null,
       i, defContextName = "_runDefault", contextLoads = [],
       //regexp for matching nls (i18n) module names.
       nlsRegExp = /(^.*(^|\.)nls(\.|$))([^\.]*)\.?([^\.]*)/,
@@ -33,6 +34,26 @@ setTimeout: false, setInterval: false, clearInterval: false */
         }
       }
     }
+    //Save off old state and reset state on old item to avoid bad callbacks.
+    oldState = {
+      _contexts: run._contexts,
+      _pageCallbacks: run._pageCallbacks,
+      _currContextName: run._currContextName
+    };
+    run._pageCallbacks = [];
+  }
+
+  function makeContextFunc(name, contextName) {
+    return function () {
+      //A version of a run function that uses the current context.
+      //If last arg is a string, then it is a context.
+      //If last arg is not a string, then add context to it.
+      var args = [].concat(Array.prototype.slice.call(arguments, 0));
+      if (typeof arguments[arguments.length - 1] !== "string") {
+        args.push(contextName);
+      }
+      return (name ? run[name] : run).apply(run.global, args);
+    };
   }
 
   /**
@@ -42,7 +63,7 @@ setTimeout: false, setInterval: false, clearInterval: false */
   run = function (name, deps, callback, contextName, altContextName) {
     var config = null, context, loaded, empty, canSetContext, prop, dep, baseUrl,
         newLength, match, master, nlsw, bundle, needLoad, i, j, parts, toLoad,
-        loc, val, newContext, contextRun, isFunction = false;
+        loc, val, newContext, contextRun, isFunction = false, mods;
 
     //Normalize the arguments.
     if (typeof name === "string") {
@@ -141,7 +162,7 @@ setTimeout: false, setInterval: false, clearInterval: false */
         isFuncs: {},
         modifiers: {},
         nls: {}
-      }
+      };
 
       //Define run() for this context.
       contextRun = makeContextFunc(null, contextName);
@@ -153,7 +174,7 @@ setTimeout: false, setInterval: false, clearInterval: false */
       newContext.defined.run = contextRun;
 
       context = run._contexts[contextName] = newContext;
-    };
+    }
 
     //If have a config object, update the context object with
     //the config values.
@@ -183,6 +204,12 @@ setTimeout: false, setInterval: false, clearInterval: false */
       if (config.locale) {
         context.locale = config.locale.toLowerCase();
       }
+      
+      //If it is just a config block, nothing else,
+      //then return.
+      if (!deps) {
+        return run;
+      }
     }
 
     //Store the module for later evaluation.
@@ -204,6 +231,12 @@ setTimeout: false, setInterval: false, clearInterval: false */
       //If the module will be a function, remember it.
       if (isFunction) {
         context.isFuncs[name] = true;
+      }
+      
+      //Load any modifiers for the module.
+      mods = context.modifiers[name];
+      if (mods) {
+        run(mods, contextName);
       }
     }
 
@@ -359,8 +392,6 @@ setTimeout: false, setInterval: false, clearInterval: false */
       run(name, deps, callback, contextName);
     } else {
       //A list of modifiers. Save them for future reference.
-      contextName = name || run._currContextName, list;
-      context = run._contexts[contextName];
       for (prop in target) {
         if (!(prop in empty)) {
           //Store the modifier for future use.
@@ -372,13 +403,13 @@ setTimeout: false, setInterval: false, clearInterval: false */
 
             if (context.specified[prop]) {
               //Load the modifier right away.
-              run([modifier], contextName);
+              run([modifier], cName);
             }
           }
         }
       }
     }
-  }
+  };
 
   //Export to global namespace.
   run.global = this;
@@ -388,21 +419,8 @@ setTimeout: false, setInterval: false, clearInterval: false */
 
   //Set up storage for modules that is partitioned by context. Create a
   //default context too.
-  run._currContextName = defContextName;
-  run._contexts = {};
-
-  function makeContextFunc(name, contextName) {
-    return function () {
-        //A version of a run function that uses the current context.
-        //If last arg is a string, then it is a context.
-        //If last arg is not a string, then add context to it.
-        var args = [].concat(Array.prototype.slice.call(arguments, 0));
-        if (typeof arguments[arguments.length - 1] !== "string") {
-          args.push(contextName);
-        }
-        return (name ? run[name] : run).apply(run.global, args);
-      }
-  }
+  run._currContextName = oldState ? oldState._currContextName : defContextName;
+  run._contexts = oldState ? oldState._contexts : {};
 
   //Set up page load detection for the browser case.
   if (isBrowser) {    
@@ -470,6 +488,14 @@ setTimeout: false, setInterval: false, clearInterval: false */
       return ((url.charAt(0) === '/' || url.match(/^\w+:/)) ? "" : run._contexts[contextName].baseUrl) + url;
     }
   };
+
+  //Helper that create a function stand-in for a module that has yet to
+  //be defined.
+  function makeDepFunc(context, depName) {
+    return function () {
+      return context.isFuncs[depName].apply(this, arguments);
+    };
+  }
 
   /**
    * Checks if all modules for a context are loaded, and if so, evaluates the
@@ -670,19 +696,11 @@ setTimeout: false, setInterval: false, clearInterval: false */
     }
   };
 
-  //Helper that create a function stand-in for a module that has yet to
-  //be defined.
-  function makeDepFunc(context, depName) {
-    return function() {
-      return context.isFuncs[depName].apply(this, arguments);
-    };
-  }
-
   /**
    * Figures out the right sequence to call module callbacks.
    */
   run.traceDeps = function (moduleChain, orderedModules, waiting, defined, modifiers) {
-    var module;
+    var module, mods;
     while (moduleChain.length > 0) {
       module = moduleChain[moduleChain.length - 1];
       if (module && !module.isOrdered) {
@@ -695,7 +713,11 @@ setTimeout: false, setInterval: false, clearInterval: false */
         orderedModules.push(module);
 
         //Now add any modifier modules for current module.
-        run.addDeps(modifiers[module.name], moduleChain, orderedModules, waiting, defined, modifiers);
+        mods = modifiers[module.name];
+        if (mods) {
+          run.addDeps(mods, moduleChain, orderedModules, waiting, defined, modifiers);
+          delete modifiers[module.name];
+        }
       }
 
       //Done with that require. Remove it and go to the next one.
@@ -708,22 +730,33 @@ setTimeout: false, setInterval: false, clearInterval: false */
    * Called exclusively by run.traceDeps. Needs to be a different function
    * since it is called twice in run.traceDeps
    */
-  run.addDeps = function(deps, moduleChain, orderedModules, waiting, defined, modifiers) {
-    var nextDep, nextModule, i;
+  run.addDeps = function (deps, moduleChain, orderedModules, waiting, defined, modifiers) {
+    var nextDep, nextModule, i, mods;
     if (deps && deps.length > 0) {
       for (i = 0; (nextDep = deps[i]); i++) {
         nextModule = waiting[waiting[nextDep]];
-        if (nextModule && !nextModule.isOrdered && !defined[nextDep]) {
-          //New dependency. Follow it down.
-          moduleChain.push(nextModule);
-          if (nextModule.name) {
-            moduleChain[nextModule.name] = true;
+        if (nextModule && !nextModule.isOrdered) {
+          if (defined[nextDep]) {
+            //Check for any modifiers on it.
+            //Need to check here since if defined, we do not want to add it to
+            //module change and have to reprocess the defined module.
+            mods = nextModule.name && modifiers[nextModule.name];
+            if (mods) {
+              run.addDeps(mods, moduleChain, orderedModules, waiting, defined, modifiers);
+              delete modifiers[nextModule.name];
+            }
+          } else {
+            //New dependency. Follow it down. Modifiers followed in traceDeps.
+            moduleChain.push(nextModule);
+            if (nextModule.name) {
+              moduleChain[nextModule.name] = true;
+            }
+            run.traceDeps(moduleChain, orderedModules, waiting, defined, modifiers);
           }
-          run.traceDeps(moduleChain, orderedModules, waiting, defined, modifiers);
         }
       }
     }
-  }
+  };
 
   /**
    * callback for script loads, used to check status of loading.
@@ -809,7 +842,7 @@ setTimeout: false, setInterval: false, clearInterval: false */
     }
   };
 
-  run._pageCallbacks = [];
+  run._pageCallbacks = oldState ? oldState._pageCallbacks : [];
 
   run._callReady = function () {
     var callbacks = run._pageCallbacks, i, callback;

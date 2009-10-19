@@ -6,30 +6,38 @@
     <script type="text/javascript" src="../common.js"></script>
     <script type="text/javascript">
         run({
-            baseUrl: "./"
-        },
-        ["size", "target", "color", "run"],
-        function(size, target, color, run) {
-            var props = ["size", "color", "design", "name"];
-            function output(seq) {
-                for (var i = 0, prop; prop = props[i]; i++) {
-                    document.getElementById(prop + seq).innerHTML = target[prop];
-                }
+                baseUrl: "./"
             }
-
-            run.ready(function() {
-                output(1);
-                setTimeout(function() {
-                    run.modify({
-                        "target": "design"
-                    });
-                    
-                    setTimeout(function() {
-                        output(2);    
-                    }, 2000);
-                }, 500);
-            });
+        );
+        run.modify({
+            "target": "size"
         });
+        run({
+                baseUrl: "./"
+            },
+            ["target", "color", "run"],
+            function(target, color, run) {
+                var props = ["size", "color", "design", "name"];
+                function output(seq) {
+                    for (var i = 0, prop; prop = props[i]; i++) {
+                        document.getElementById(prop + seq).innerHTML = target[prop];
+                    }
+                }
+    
+                run.ready(function() {
+                    output(1);
+                    setTimeout(function() {
+                        run.modify({
+                            "target": "design"
+                        });
+                        
+                        setTimeout(function() {
+                            output(2);    
+                        }, 2000);
+                    }, 500);
+                });
+            }
+        );
     </script>
 </head>
 <body>
