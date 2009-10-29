@@ -19,7 +19,8 @@ setTimeout: false, setInterval: false, clearInterval: false */
       readyRegExp = /complete|loaded/,
       isBrowser = (typeof window !== "undefined"),
       isPageLoaded = !isBrowser,
-      pageLoadRegExp = /loaded|complete/;
+      pageLoadRegExp = /loaded|complete/,
+      head = (document.getElementsByTagName("head")[0] || document.getElementsByTagName("html")[0]);
 
   //Check for an existing version of run.
   //Only overwrite if there is a version of run and it is less
@@ -791,10 +792,9 @@ setTimeout: false, setInterval: false, clearInterval: false */
    * environment. Right now only supports browser loading,
    * but can be redefined in other environments to do the right thing.
    */
-  run.attach = function (url, contextName, moduleName, doc) {
+  run.attach = function (url, contextName, moduleName) {
     if (isBrowser) {
-      doc = doc || document;
-      var node = doc.createElement("script");
+      var node = document.createElement("script");
       node.src = url;
       node.type = "text/javascript";
       node.charset = "utf-8";
@@ -809,7 +809,7 @@ setTimeout: false, setInterval: false, clearInterval: false */
         node.attachEvent("onreadystatechange", run.onScriptLoad);
       }
 
-      return doc.getElementsByTagName("head")[0].appendChild(node);
+      return head.appendChild(node);
     }
     return null;
   };
