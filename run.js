@@ -20,7 +20,8 @@ setTimeout: false, setInterval: false, clearInterval: false */
       isBrowser = (typeof window !== "undefined"),
       isPageLoaded = !isBrowser,
       pageLoadRegExp = /loaded|complete/,
-      head = (document.getElementsByTagName("head")[0] || document.getElementsByTagName("html")[0]);
+      head = (document.getElementsByTagName("head")[0] || document.getElementsByTagName("html")[0]),
+      ostring = Object.prototype.toString;
 
   //Check for an existing version of run.
   //Only overwrite if there is a version of run and it is less
@@ -79,7 +80,7 @@ setTimeout: false, setInterval: false, clearInterval: false */
       }
 
       //Check if there are no dependencies, and adjust args.
-      if (!(deps instanceof Array) && typeof deps !== "array") {
+      if (!run.isArray(deps)) {
         contextName = callback;
         callback = deps;
         deps = [];
@@ -92,13 +93,13 @@ setTimeout: false, setInterval: false, clearInterval: false */
       if (context && context.specified && context.specified[name]) {
         return run;
       }
-    } else if (name instanceof Array || typeof name === "array") {
+    } else if (run.isArray(name)) {
       //Just some code that has dependencies. Adjust args accordingly.
       contextName = callback;
       callback = deps;
       deps = name;
       name = null;
-    } else if (typeof name === "function" || name instanceof Function) {
+    } else if (run.isFunction(name)) {
       //Just a function that does not define a module and
       //does not have dependencies. Not sure if this is useful.
       callback = name;
@@ -110,7 +111,7 @@ setTimeout: false, setInterval: false, clearInterval: false */
       config = name;
       name = null;
       //Adjust args if no dependencies.
-      if (typeof deps === "function" || deps instanceof Function) {
+      if (run.isFunction(deps)) {
         contextName = callback;
         callback = deps;
         deps = [];
@@ -243,7 +244,7 @@ setTimeout: false, setInterval: false, clearInterval: false */
 
     //If the callback is not an actual function, it means it already
     //has the definition of the module as a literal value.
-    if (callback && typeof callback  !== "function" && !(callback instanceof Function)) {
+    if (callback && !run.isFunction(callback)) {
       context.defined[name] = callback;
     }
 
@@ -417,6 +418,14 @@ setTimeout: false, setInterval: false, clearInterval: false */
   run.global.run = run;
 
   run.version = version;
+
+  run.isArray = function (it) {
+    return ostring.call(it) === "[object Array]";    
+  };
+
+  run.isFunction = function (it) {
+    return ostring.call(it) === "[object Function]";    
+  };
 
   //Set up storage for modules that is partitioned by context. Create a
   //default context too.
@@ -639,7 +648,7 @@ setTimeout: false, setInterval: false, clearInterval: false */
 
       //Call the callback to define the module, if necessary.
       cb = module.callback;
-      if (cb && (typeof cb  === "function" || cb instanceof Function)) {
+      if (cb && run.isFunction(cb)) {
         ret = cb.apply(window, args);
         if (name) {
           modDef = context.defined[name];
