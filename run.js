@@ -7,6 +7,8 @@
 /*global run: true, window: false, document: false, navigator: false,
 setTimeout: false, setInterval: false, clearInterval: false */
 
+"use strict";
+
 (function () {
   //Change this version number for each release.
   var version = [0, 0, 3, ""],

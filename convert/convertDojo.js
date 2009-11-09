@@ -3,7 +3,7 @@
  * dijit and dojox modules, not for custom namespaces.
  *
  * Usage:
- * java -classpath path/to/rhino.jar dojo.js path/to/dojo path/to/use/for/converted/files
+ * java -classpath path/to/rhino/js.jar dojo.js path/to/dojo path/to/use/for/converted/files
  *
  */
 load("../jslib/fileUtil.js");
@@ -16,7 +16,7 @@ var startTime = (new Date()).getTime(),
     //Get list of files to convert.
     fileList = fileUtil.getFilteredFileList(dojoPath, /\.js$/, true),
     depRegExp = /dojo\s*\.\s*(provide|require)\s*\(\s*["']([\w-\.]+)["']\s*\)/g,
-    dojoJsRegExp = /\/dojo.js^/,
+    dojoJsRegExp = /\/dojo.js$/,
     fileName, convertedFileName, fileContents,
     i;
 
@@ -81,6 +81,10 @@ function convert(fileName, fileContents) {
       logger.trace("  found: " + module);
       if (module) {
         deps[match[1]].push(module);
+        //Store a quick lookup about what provide modules are available.
+        if (match[1] == "provide") {
+          deps.provide[module] = 1;
+        }
       }
     }
 
@@ -100,7 +104,9 @@ function convert(fileName, fileContents) {
       
       //Wrap the whole file in a file wrapper.
       for (i = 0; module = deps.require[i]; i++) {
-        reqString += ',"' + module + '"';
+        if (!deps.provide[module]) {
+          reqString += ',"' + module + '"';
+        }
       }
 
       fileContents = 'run("' + deps.provide[0] + '", ["dojo", "dijit", "dojox"' +
