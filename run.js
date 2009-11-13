@@ -66,8 +66,8 @@ setTimeout: false, setInterval: false, clearInterval: false */
    */
   run = function (name, deps, callback, contextName, altContextName) {
     var config = null, context, loaded, empty, canSetContext, prop, dep, baseUrl,
-        newLength, match, master, nlsw, bundle, needLoad, i, j, parts, toLoad,
-        loc, val, newContext, contextRun, isFunction = false, mods;
+        newLength, match, master, nlsw, bundle, i, j, parts, toLoad,
+        newContext, contextRun, isFunction = false, mods;
 
     //Normalize the arguments.
     if (typeof name === "string") {
@@ -281,17 +281,36 @@ setTimeout: false, setInterval: false, clearInterval: false */
       }
     }
 
+    run.checkDeps(name, contextName, context, deps);
+
+    //See if all is loaded.
+    run.checkLoaded(contextName);
+
+    return run;
+  };
+
+  /**
+   * Run down the dependencies to see if they are loaded. If not, trigger
+   * the load.
+   * @param {String} name: the name of the module that has the dependencies.
+   *
+   * @param {String} contextName: the name of the loading context.
+   *
+   * @param {Object} context: the loading context.
+   *
+   * @param {Array} deps array of dependencies.
+   */
+  run.checkDeps = function (name, contextName, context, deps) {
     //Figure out if all the modules are loaded. If the module is not
     //being loaded or already loaded, add it to the "to load" list,
     //and request it to be loaded.
-    needLoad = false;
+    var i, j, dep, bundle, parts, toLoad, nlsw, loc, val;
     for (i = 0; (dep = deps[i]); i++) {
       //If it is a string, then a plain dependency
       if (typeof dep === "string") {
         if (!(dep in context.loaded)) {
           context.loaded[dep] = false;
           run.load(dep, contextName);
-          needLoad = true;
         }
       } else {
         //dep is an object, so it is an i18n nls thing.
@@ -344,13 +363,7 @@ setTimeout: false, setInterval: false, clearInterval: false */
         }
       }
     }
-
-    //See if all is loaded.
-    run.checkLoaded(contextName);
-
-    return run;
   };
-
 
   /**
    * Register a module that modifies another module. The modifier will
