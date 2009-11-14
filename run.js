@@ -42,7 +42,8 @@ setTimeout: false, setInterval: false, clearInterval: false */
     oldState = {
       _contexts: run._contexts,
       _pageCallbacks: run._pageCallbacks,
-      _currContextName: run._currContextName
+      _currContextName: run._currContextName,
+      _paused: run._paused
     };
     run._pageCallbacks = [];
   }
@@ -281,12 +282,43 @@ setTimeout: false, setInterval: false, clearInterval: false */
       }
     }
 
-    run.checkDeps(name, contextName, context, deps);
+    run._checkDeps(name, contextName, context, deps);
 
     //See if all is loaded.
-    run.checkLoaded(contextName);
+    if (run._paused) {
+      run._paused.push([name, contextName, context, deps]);
+    } else {
+      run.checkLoaded(contextName);
+    }
 
     return run;
+  };
+
+  /**
+   * Pauses the tracing of dependencies. Useful in a build scenario when
+   * multiple modules are bundled into one file, and they all need to be
+   * run before figuring out what is left still to load.
+   */
+  run.pause = function () {
+    if (!run._paused) {
+      run._paused = [];
+    }
+  };
+
+  /**
+   * Resumes the tracing of dependencies. Useful in a build scenario when
+   * multiple modules are bundled into one file. This method is related
+   * to run.pause() and should only be called if run.pause() was called first.
+   */
+  run.resume = function () {
+    var i, args, paused;
+    if (run._paused) {
+      paused = run._paused;
+      delete run._paused;
+      for (i = 0; (args = paused[i]); i++) {
+        run._checkDeps.apply(run, args);
+      }
+    }
   };
 
   /**
@@ -300,7 +332,7 @@ setTimeout: false, setInterval: false, clearInterval: false */
    *
    * @param {Array} deps array of dependencies.
    */
-  run.checkDeps = function (name, contextName, context, deps) {
+  run._checkDeps = function (name, contextName, context, deps) {
     //Figure out if all the modules are loaded. If the module is not
     //being loaded or already loaded, add it to the "to load" list,
     //and request it to be loaded.
@@ -446,6 +478,9 @@ setTimeout: false, setInterval: false, clearInterval: false */
   //default context too.
   run._currContextName = oldState ? oldState._currContextName : defContextName;
   run._contexts = oldState ? oldState._contexts : {};
+  if (oldState) {
+    run._paused = oldState._paused;
+  }
 
   //Set up page load detection for the browser case.
   if (isBrowser) {    

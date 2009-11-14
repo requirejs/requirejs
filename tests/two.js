@@ -6,8 +6,7 @@ run(
       size: one.size,
       color: "redtwo",
       doSomething: function() {
-        log("In two's doSomething, calling one.doSomething");
-        one.doSomething();
+        return one.doSomething();
       }
     };
   }

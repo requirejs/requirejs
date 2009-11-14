@@ -3,41 +3,58 @@
 <head>
     <title>run.js: Modifier Test</title>
     <script type="text/javascript" src="../../run.js"></script>
-    <script type="text/javascript" src="../common.js"></script>
+    <script type="text/javascript" src="../doh/runner.js"></script>
     <script type="text/javascript">
-        run({
-                baseUrl: "./"
-            }
-        );
-        run.modify({
-            "target": "size"
-        });
-        run({
-                baseUrl: "./"
-            },
-            ["target", "color", "run"],
-            function(target, color, run) {
-                var props = ["size", "color", "design", "name"];
-                function output(seq) {
-                    for (var i = 0, prop; prop = props[i]; i++) {
-                        document.getElementById(prop + seq).innerHTML = target[prop];
+    
+        doh.register(
+            "modifier",
+            [
+		{
+		    name: "multiversion",
+		    timeout: 5000,
+		    runTest: function() {
+
+                        var d = new doh.Deferred();
+                        run({
+                                baseUrl: "./"
+                            }
+                        );
+                        run.modify({
+                            "target": "size"
+                        });
+                        run({
+                                baseUrl: "./"
+                            },
+                            ["target", "color", "run"],
+                            function(target, color, run) {
+                                run.ready(function() {
+                                    doh.is("small", target.size);
+                                    doh.is("green", target.color);
+                                    doh.is("target", target.design);
+                                    doh.is("target", target.name);
+    
+                                    setTimeout(function() {
+                                        run.modify({
+                                            "target": "design"
+                                        });
+    
+                                        setTimeout(function() {
+                                            doh.is("small", target.size);
+                                            doh.is("green", target.color);
+                                            doh.is("funky", target.design);
+                                            doh.is("target", target.name);
+                                            d.callback(true);
+                                        }, 1000);
+                                    }, 500);
+                                });
+                            }
+                        );
+                        return d;
                     }
                 }
-    
-                run.ready(function() {
-                    output(1);
-                    setTimeout(function() {
-                        run.modify({
-                            "target": "design"
-                        });
-                        
-                        setTimeout(function() {
-                            output(2);    
-                        }, 2000);
-                    }, 500);
-                });
-            }
+            ]
         );
+        doh.run();
     </script>
 </head>
 <body>

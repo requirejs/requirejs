@@ -1,13 +1,17 @@
 
 - Does run([modifier], contextName); work, right context used?
 
+- The omega run call, if it does a "run" dependency tries to load version1/run.js. Hmm.
+
+- Add in automated i18n.html locale and bundle tests.
+
 - Document the Function argument thing.
 
 - Caveat with .modify: you cannot modify the top-level function. We could remove
 this restriction if we forced all functions to use the .apply() function wrapper.
 So, choosing performance in this case over extensibility.
 
-- Use a unit testing framework to verify test results instead of manual checks.
+- Rhino tests.
 
 - Build converters that can convert dojo and commonjs modules into runjs format.
 

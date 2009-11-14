@@ -5,7 +5,10 @@ run(
     return {
       size: "large",
       doSomething: function() {
-        log("two's size: " + two.size + ", color: " + two.color);
+        return {
+          size: two.size,
+          color: two.color
+        };
       }
     };
   }

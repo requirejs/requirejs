@@ -29,7 +29,7 @@ var startTime = (new Date()).getTime(),
     fileList = fileUtil.getFilteredFileList(dojoPath, /\.js$/, true),
     depRegExp = /dojo\s*\.\s*(provide|require)\s*\(\s*["']([\w-_\.]+)["']\s*\)/g,
     reqRemoveRegExp = /dojo\s*\.\s*require\s*\(\s*["']([\w-_\.]+)["']\s*\)/g,
-    dojoJsRegExp = /\/dojo\.js$/,
+    dojoJsRegExp = /\/dojo\.js(\.uncompressed\.js)?$/,
     fileName, convertedFileName, fileContents,
     i;
 
@@ -45,11 +45,11 @@ if (savePath.charAt(savePath.length - 1) === "/") {
 
 //Cycle through all the JS files and convert them.
 if (!fileList || !fileList.length) {
-    if (dojoPath == "convert") {
-      //A request just to convert one file.
-      logger.trace('\n\n' + convert(savePath, fileUtil.readFile(savePath)));
+    if (dojoPath === "convert") {
+        //A request just to convert one file.
+        logger.trace('\n\n' + convert(savePath, fileUtil.readFile(savePath)));
     } else {
-      logger.error("No JS files to convert in directory: " + dojoPath);
+        logger.error("No JS files to convert in directory: " + dojoPath);
     }
 } else {
     for (i = 0; (fileName = fileList[i]); i++) {
@@ -64,8 +64,8 @@ convertTime = ((new Date().getTime() - startTime) / 1000);
 logger.info("Convert time: " + convertTime + " seconds");
 
 
-function writeRunEnd() {
-  return '});\n';
+function writeRunEnd(provideName) {
+    return '\nreturn ' + provideName + '; });\n';
 }
 
 /**
@@ -84,7 +84,7 @@ function convert(fileName, fileContents) {
             match, hasMatch = false,
             //deps will be an array of objects like {provide: "", requires:[]}
             deps = [],
-            currentDep, depName, provideRegExp,
+            currentDep, depName, provideRegExp, provideName,
             module, allDeps, reqString = "",
             i, j, removeString = "", removeRegExp,
             markIndex = 0, lastIndex = 0,
@@ -103,21 +103,21 @@ function convert(fileName, fileContents) {
             logger.trace("  " + match[1] + " " + module);
             if (module) {
                 depName = match[1];
-                if (depName == "provide") {
-                  currentDep = {
-                    provide: module,
-                    requires: []
-                  };
-                  deps.push(currentDep);
-                  //Store a quick lookup about what provide modules are available.
-                  deps.provides[module] = 1;
+                if (depName === "provide") {
+                    currentDep = {
+                        provide: module,
+                        requires: []
+                    };
+                    deps.push(currentDep);
+                    //Store a quick lookup about what provide modules are available.
+                    deps.provides[module] = 1;
                 } else if (currentDep) {
-                  //If no currentDep, as in dojo.js having the firebug call, skip it.
-                  currentDep.requires.push(module);
+                    //If no currentDep, as in dojo.js having the firebug call, skip it.
+                    currentDep.requires.push(module);
                 }
             }
         }
-    
+
         if (hasMatch) {
             //Work with original file and remove the require calls.
             fileContents = originalContents.replace(reqRemoveRegExp, "");
@@ -125,14 +125,23 @@ function convert(fileName, fileContents) {
             //Wrap each section with a dojo.provide with a run block
             markIndex = 0;
             tempContents = "";
+
+            //If dojo.js, inject run.js at the top of the file, then
+            //tell run to pause on tracing dependencies until the
+            //full file is evaluated.
+            if (fileName.match(dojoJsRegExp)) {
+                tempContents = fileUtil.readFile("../run.js");
+                tempContents += 'run.pause();\n';
+            }
+
             for (i = 0; (currentDep = deps[i]); i++) {
-                //Find the provide call in the real source, not the temp source
+                 //Find the provide call in the real source, not the temp source
                 //that has comments removed.
                 provideRegExp = new RegExp('dojo\\s*\\.\\s*provide\\s*\\(\\s*["\']' +
                                             currentDep.provide.replace(/\./g, "\\.") + 
                                            '["\']\\s*\\)', 'g');
                 provideRegExp.lastIndex = markIndex;
-                var match = provideRegExp.exec(fileContents)[0];
+                match = provideRegExp.exec(fileContents)[0];
                 lastIndex = provideRegExp.lastIndex - match.length;
                 
                 //Write out intervening file contents
@@ -141,14 +150,17 @@ function convert(fileName, fileContents) {
                 //Write out the end of the last provided module, if there is
                 //one.
                 if (i > 0) {
-                  tempContents += writeRunEnd();
+                    tempContents += writeRunEnd(provideName);
                 }
 
+                //Remember the new provide name.
+                provideName = currentDep.provide;
+
                 //Build up the run string by getting its dependencies.
-                for (var j = 0; module = currentDep.requires[j]; j++) {
-                  if (!deps.provides[module]) {
-                      reqString += ',"' + module + '"';
-                  }
+                for (j = 0; (module = currentDep.requires[j]); j++) {
+                    if (!deps.provides[module]) {
+                        reqString += ',"' + module + '"';
+                    }
                 }
                 
                 tempContents += 'run("' + currentDep.provide + '", ["dojo", "dijit", "dojox"' +
@@ -162,14 +174,15 @@ function convert(fileName, fileContents) {
 
             //Write out the last of the file with ending segment for run.
             tempContents += fileContents.substring(markIndex, fileContents.length);
-            tempContents += writeRunEnd();
+            tempContents += writeRunEnd(provideName);
         }
 
         //If dojo.js, set up the "dojo", "dijit" and "dojox" namespaces.
         if (fileName.match(dojoJsRegExp)) {
             tempContents += 'run("dojo", function(){return dojo;});' +
                             'run("dijit", function(){return dijit;});' +
-                            'run("dojox", function(){return dojox;});';
+                            'run("dojox", function(){return dojox;});' +
+                            'run.resume();\n';
         }
 
         return tempContents;

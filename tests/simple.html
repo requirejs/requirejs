@@ -3,13 +3,23 @@
 <head>
     <title>run.js: Simple Test</title>
     <script type="text/javascript" src="../run.js"></script>
-    <script type="text/javascript" src="common.js"></script>
+    <script type="text/javascript" src="doh/runner.js"></script>
     <script type="text/javascript">
     run(
-        ["tests.simple", "tests.dimple"],
-        function(simple, dimple) {
-            log("Simple is loaded. simple.color = " + simple.color);
-            log("Dimple is loaded. dimple.color = " + dimple.color);
+        ["run", "tests.simple", "tests.dimple"],
+        function(run, simple, dimple) {
+            run.ready(function(){
+                doh.register(
+                    "simple", 
+                    [
+                        function colors(t){
+                            t.is("blue", simple.color);
+                            t.is("dimple-blue", dimple.color);
+                        }
+                    ]
+                );
+                doh.run();			
+            });
         }
     );
     </script>

@@ -3,54 +3,81 @@
 <head>
     <title>run.js: Multiversion Test</title>
     <script type="text/javascript" src="../run.js"></script>
-    <script type="text/javascript" src="common.js"></script>
+    <script type="text/javascript" src="doh/runner.js"></script>
     <script type="text/javascript">
-    run(
-	{
-	    context: "version1",
-	    baseUrl: "version1/"
-	},
-    	["run", "alpha", "beta", "version1/gamma.js"],
-	function(run, alpha, beta) {
-	    //Notice no module arg name for gamma in the function call.
-	    //gamma in the log call below will be a global created by gamma.js.
-	    log("version1 completed loading. gamma.color: " + gamma.color);
-	    log("alpha version is: " + alpha.version);
-	    log("beta version is: " + beta.version);
-	    setTimeout(function(){
-		run(
-		    ["omega"],
-		    function(omega) {
-			log("version1 omega loaded with version: " + omega.version);
-		    }
-		);
-	    }, 100);
+	var doneCount = 0;
+	var master = new doh.Deferred();
+	function done() {
+	    doneCount += 1;
+	    //alert("done");
+	    if (doneCount == 2) {
+		//alert("master callback");
+		master.callback(true);
+	    }
 	}
-    );
+	doh.register(
+	    "multiversion",
+	    [
+		{
+		    name: "multiversion",
+		    timeout: 5000,
+		    runTest: function() {
+			run(
+			    {
+				context: "version1",
+				baseUrl: "version1/"
+			    },
+			    ["run", "alpha", "beta", "version1/gamma.js"],
+			    function(run, alpha, beta) {
+				//Notice no module arg name for gamma in the function call.
+				//gamma in the log call below will be a global created by gamma.js.
+				doh.is("green", gamma.color);
+				doh.is(1, alpha.version);
+				doh.is(1, beta.version);
+    
+				setTimeout(function(){
+				    run(
+					["omega"],
+					function(omega) {
+					    doh.is(1, omega.version);
+					    done();
+					}
+				    );
+				}, 100);
+			    }
+			);
+		    
+			run(
+			    {
+				context: "version2",
+				baseUrl: "version2/"
+			    },
+			    ["run", "alpha", "beta", "version2/epsilon.js"],
+			    function(run, alpha, beta) {
+				//Notice no module arg name for epsilon in the function call.
+				//epsilon in the log call below will be a global created by epsilon.js.
+				doh.is("red", epsilon.color);
+				doh.is(2, alpha.version);
+				doh.is(2, beta.version);
 
-    run(
-	{
-	    context: "version2",
-	    baseUrl: "version2/"
-	},
-	["run", "alpha", "beta", "version2/epsilon.js"],
-	function(run, alpha, beta) {
-	    //Notice no module arg name for epsilon in the function call.
-	    //epsilon in the log call below will be a global created by epsilon.js.
-	    log("version2 completed loading. epsilon.color: " + epsilon.color);
-	    log("alpha version is: " + alpha.version);
-	    log("beta version is: " + beta.version);
-	    
-	    setTimeout(function(){
-		run(
-		    ["omega"],
-		    function(omega) {
-			log("version2 omega loaded with version: " + omega.version);
+				setTimeout(function(){
+				    run(
+					["omega"],
+					function(omega) {
+					    doh.is(2, omega.version);
+					    done();
+					}
+				    );
+				}, 100);
+			    }
+			);
+    
+			return master;
 		    }
-		);
-	    }, 100);
-	}
-    );
+		}
+	    ]
+	);
+	doh.run();
     </script>
 </head>
 <body>
@@ -61,6 +88,6 @@
     <p>This test loads two different versions of a module by using the
     "context" settings for run.</p>
     
-    <p>It also tests loading a plain js file too.</p>
+    <p>It also tests loading a plain js file.</p>
 </body>
 </html>

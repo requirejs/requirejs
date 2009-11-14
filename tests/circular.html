@@ -3,12 +3,24 @@
 <head>
     <title>run.js: Circular Test</title>
     <script type="text/javascript" src="../run.js"></script>
-    <script type="text/javascript" src="common.js"></script>
+    <script type="text/javascript" src="doh/runner.js"></script>
     <script type="text/javascript">
     run(
-    	["tests.two"],
-	function(two) {
-	    two.doSomething();
+    	["run", "tests.two"],
+	function(run, two) {
+	    var args = two.doSomething();
+	    run.ready(function(){
+		doh.register(
+		    "circular",
+		    [
+			function circular(t) {
+			    t.is("large", args.size);
+                            t.is("redtwo", args.color);
+			}
+		    ]
+		);
+		doh.run();
+	    });
 	}
     );
     </script>

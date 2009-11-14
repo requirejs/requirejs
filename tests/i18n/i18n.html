@@ -3,7 +3,7 @@
 <head>
     <title>run.js: I18N Test</title>
     <script type="text/javascript" src="../../run.js"></script>
-    <script type="text/javascript" src="../common.js"></script>
+    <script type="text/javascript" src="../doh/runner.js"></script>
     <script type="text/javascript">
         //Allow locale to be set via query args.
         var locale = null;
@@ -20,25 +20,29 @@
             bundle = match[1];
         }
 
+        var result = "red";
+
         run({
             locale: locale,
             baseUrl: "./"
         },
         [bundle],
         function(colors) {
-            run.ready(function() {
-                document.getElementById("color").innerHTML = colors.red;
-                //document.getElementById("number").innerHTML = colors.five;
-            });
+            doh.register(
+                "i18n",
+                [
+                    function i18n(t) {
+                        t.is(result, colors.red);
+                    }
+                ]
+            );
+            doh.run();
         });
     </script>
 </head>
 <body>
     <h1>i18n bundle test</h1>
-    <p>This page tests the i18n bundling in run.js. You can change the locale to use by passing locale=</p>
-
-    <p>
-    <p>Output: color is <b id="color"></b><!-- and number is <b id="number"></b> -->.</p>
+    <p>This page tests the i18n bundling in run.js. You can change the locale to use by passing locale= or bundle=</p>
 </body>
 </html>
 
