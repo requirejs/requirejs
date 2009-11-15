@@ -282,14 +282,15 @@ setTimeout: false, setInterval: false, clearInterval: false */
       }
     }
 
-    run._checkDeps(name, contextName, context, deps);
 
     //See if all is loaded.
     if (run._paused) {
       run._paused.push([name, contextName, context, deps]);
     } else {
-      run.checkLoaded(contextName);
+      run._checkDeps(name, contextName, context, deps);
     }
+
+    run.checkLoaded(contextName);
 
     return run;
   };
@@ -340,7 +341,7 @@ setTimeout: false, setInterval: false, clearInterval: false */
     for (i = 0; (dep = deps[i]); i++) {
       //If it is a string, then a plain dependency
       if (typeof dep === "string") {
-        if (!(dep in context.loaded)) {
+        if (!(dep in context.specified)) {
           context.loaded[dep] = false;
           run.load(dep, contextName);
         }
@@ -591,7 +592,7 @@ setTimeout: false, setInterval: false, clearInterval: false */
     }
 
     //Check for exit conditions.
-    if (!hasLoadedProp) {
+    if (!hasLoadedProp && !context.waiting.length && !context.nlsWaiting.length) {
       //If the loaded object had no items, then the rest of
       //the work below does not need to be done.
       return;

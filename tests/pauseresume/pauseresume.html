@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>run.js: Pause/Resume Test</title>
+    <script type="text/javascript" src="../../run.js"></script>
+    <script type="text/javascript" src="../doh/runner.js"></script>
+    <script type="text/javascript" src="../doh/_browserRunner.js"></script>
+    <script type="text/javascript">
+    run(
+        {
+            baseUrl: "./"
+        },
+        ["run", "layer1"],
+        function(run) {
+            run.ready(function(){
+                doh.register(
+                    "pause/resume", 
+                    [
+                        function noscripts(t){
+                            var regExp = /alpha|beta|gamma/,
+                                i,
+                                scripts = document.getElementsByTagName("script");
+                            for (var i = scripts.length - 1; i > -1; i--) {
+                                t.f(regExp.test(scripts[i].src));
+                            }
+                        },
+                        function nameTest(t){
+                            var d = new doh.Deferred();
+                            run(["alpha", "beta", "gamma", "epsilon"],
+                                function(alpha, beta, gamma, epsilon) {
+                                    t.is("alpha", alpha.name);
+                                    t.is("beta", alpha.betaName);
+                                    t.is("beta", beta.name);
+                                    t.is("gamma", beta.gammaName);
+                                    t.is("gamma", gamma.name);
+                                    t.is("epsilon", gamma.epsilonName);
+                                    t.is("epsilon", epsilon.name);
+                                    d.callback(true);
+                                }
+                            );
+                            return d;
+                        }
+                    ]
+                );
+                doh.run();			
+            });
+        }
+    );
+    </script>
+</head>
+<body>
+    <h1>run.js: Pause/Resume Test</h1>
+    <p>Check console for messages</p>
+</body>
+</html>
