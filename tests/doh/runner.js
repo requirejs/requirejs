@@ -1,11 +1,11 @@
 // package system gunk.
-try{
-	dojo.provide("doh.runner");
-}catch(e){
+//try{
+//	dojo.provide("doh.runner");
+//}catch(e){
 	if(!this["doh"]){
 		doh = {};
 	}
-}
+//}
 
 //
 // Utility Functions and Classes
@@ -1412,6 +1412,7 @@ tests = doh;
 			}
 
 			if(this["document"]){
+				/*
 				// if we survived all of that, we're probably in a browser but
 				// don't have Dojo handy. Load _browserRunner.js using a
 				// document.write() call.
@@ -1433,6 +1434,7 @@ tests = doh;
 					document.write("<scri"+"pt src='" + runnerFile.substr(0, runnerFile.length - 9)
 						+ "_browserRunner.js' type='text/javascript'></scr"+"ipt>");
 				}
+				*/
 			}
 		}
 	}catch(e){

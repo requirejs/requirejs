@@ -63,12 +63,10 @@
 
 			//document.write("<scr"+"ipt type='text/javascript' djConfig='isDebug: true' src='"+dojoUrl+"'></scr"+"ipt>");
 		</script>
+		<script type="text/javascript" src="runner.js"></script>
+		<script type="text/javascript" src="_browserRunner.js"></script>
+
 		<script type="text/javascript">
-			try{
-				dojo.require("doh.runner");
-			}catch(e){
-				document.write("<scr"+"ipt type='text/javascript' src='runner.js'></scr"+"ipt>");
-			}
 			if(testUrl.length){
 				document.write("<scr"+"ipt type='text/javascript' src='"+testUrl+".js'></scr"+"ipt>");
 			}
