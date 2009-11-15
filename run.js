@@ -11,7 +11,7 @@ setTimeout: false, setInterval: false, clearInterval: false */
 
 (function () {
   //Change this version number for each release.
-  var version = [0, 0, 3, ""],
+  var version = [0, 0, 4, ""],
       run = typeof run === "undefined" ? null : run,
       oldState = null,
       i, defContextName = "_runDefault", contextLoads = [],
