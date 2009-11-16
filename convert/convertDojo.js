@@ -8,6 +8,7 @@
  * to just return instead of doing its work.
  * * Comment out the inclusion of dojoGuardStart.jsfrag and dojoGuardEnd.jsfrag
  * in buildUtil.js.
+ * * In dojo._base.NodeList, move the provide/require calls to the top.
  * 
  * Usage:
  * java -classpath path/to/rhino/js.jar convertDojo.js path/to/dojo path/to/use/for/converted/files
@@ -26,7 +27,8 @@ var startTime = (new Date()).getTime(),
     dojoPath = arguments[0],
     savePath = arguments[1],
     //Get list of files to convert.
-    fileList = fileUtil.getFilteredFileList(dojoPath, /\.js$/, true),
+    fileList = fileUtil.getFilteredFileList(dojoPath, /\w/, true),
+    jsFileRegExp = /\.js$/,
     depRegExp = /dojo\s*\.\s*(provide|require)\s*\(\s*["']([\w-_\.]+)["']\s*\)/g,
     reqRemoveRegExp = /dojo\s*\.\s*require\s*\(\s*["']([\w-_\.]+)["']\s*\)/g,
     dojoJsRegExp = /\/dojo\.js(\.uncompressed\.js)?$/,
@@ -49,14 +51,19 @@ if (!fileList || !fileList.length) {
         //A request just to convert one file.
         logger.trace('\n\n' + convert(savePath, fileUtil.readFile(savePath)));
     } else {
-        logger.error("No JS files to convert in directory: " + dojoPath);
+        logger.error("No files to convert in directory: " + dojoPath);
     }
 } else {
     for (i = 0; (fileName = fileList[i]); i++) {
         convertedFileName = fileName.replace(dojoPath, savePath);
-        fileContents = fileUtil.readFile(fileName);
-        fileContents = convert(fileName, fileContents);
-        fileUtil.saveUtf8File(convertedFileName, fileContents);
+        if (jsFileRegExp.test(fileName)) {
+            fileContents = fileUtil.readFile(fileName);
+            fileContents = convert(fileName, fileContents);
+            fileUtil.saveUtf8File(convertedFileName, fileContents);
+        } else {
+            //Just copy the file over.
+            fileUtil.copyFile(fileName, convertedFileName, true);
+        }
     }
 }
 
@@ -80,8 +87,7 @@ function convert(fileName, fileContents) {
     logger.trace("fileName: " + fileName);
     try {
         var originalContents = fileContents,
-            context = Packages.org.mozilla.javascript.Context.enter(),
-            match, hasMatch = false,
+            context = Packages.org.mozilla.javascript.Context.enter(), match,
             //deps will be an array of objects like {provide: "", requires:[]}
             deps = [],
             currentDep, depName, provideRegExp, provideName,
@@ -97,7 +103,6 @@ function convert(fileName, fileContents) {
         deps.provides = {};
     
         while ((match = depRegExp.exec(tempContents))) {
-            hasMatch = true;
             //Find the list of dojo.provide and require calls.
             module = match[2];
             logger.trace("  " + match[1] + " " + module);
@@ -118,7 +123,7 @@ function convert(fileName, fileContents) {
             }
         }
 
-        if (hasMatch) {
+        if (deps.length) {
             //Work with original file and remove the require calls.
             fileContents = originalContents.replace(reqRemoveRegExp, "");
 
@@ -131,6 +136,9 @@ function convert(fileName, fileContents) {
             //full file is evaluated.
             if (fileName.match(dojoJsRegExp)) {
                 tempContents = fileUtil.readFile("../run.js");
+            }
+
+            if (deps.length > 1) {
                 tempContents += 'run.pause();\n';
             }
 
@@ -181,8 +189,11 @@ function convert(fileName, fileContents) {
         if (fileName.match(dojoJsRegExp)) {
             tempContents += 'run("dojo", function(){return dojo;});' +
                             'run("dijit", function(){return dijit;});' +
-                            'run("dojox", function(){return dojox;});' +
-                            'run.resume();\n';
+                            'run("dojox", function(){return dojox;});';
+        }
+
+        if (deps.length > 1) {
+            tempContents += 'run.resume();\n';
         }
 
         return tempContents;

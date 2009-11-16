@@ -6,43 +6,47 @@
     <script type="text/javascript" src="../doh/runner.js"></script>
     <script type="text/javascript" src="../doh/_browserRunner.js"></script>
     <script type="text/javascript">
+    var master = new doh.Deferred();
+    doh.register(
+        "pause/resume", 
+        [
+            {
+                name: "pause/resume",
+                    timeout: 5000,
+                    runTest: function() {
+                        return master;
+                    }
+            }
+        ]
+    );
+    doh.run();			
+
     run(
         {
             baseUrl: "./"
         },
         ["run", "layer1"],
         function(run) {
+            run(["alpha", "beta", "gamma", "epsilon"],
+                function(alpha, beta, gamma, epsilon) {
+                    doh.is("alpha", alpha.name);
+                    doh.is("beta", alpha.betaName);
+                    doh.is("beta", beta.name);
+                    doh.is("gamma", beta.gammaName);
+                    doh.is("gamma", gamma.name);
+                    doh.is("epsilon", gamma.epsilonName);
+                    doh.is("epsilon", epsilon.name);
+                }
+            );
+
             run.ready(function(){
-                doh.register(
-                    "pause/resume", 
-                    [
-                        function noscripts(t){
-                            var regExp = /alpha|beta|gamma/,
-                                i,
-                                scripts = document.getElementsByTagName("script");
-                            for (var i = scripts.length - 1; i > -1; i--) {
-                                t.f(regExp.test(scripts[i].src));
-                            }
-                        },
-                        function nameTest(t){
-                            var d = new doh.Deferred();
-                            run(["alpha", "beta", "gamma", "epsilon"],
-                                function(alpha, beta, gamma, epsilon) {
-                                    t.is("alpha", alpha.name);
-                                    t.is("beta", alpha.betaName);
-                                    t.is("beta", beta.name);
-                                    t.is("gamma", beta.gammaName);
-                                    t.is("gamma", gamma.name);
-                                    t.is("epsilon", gamma.epsilonName);
-                                    t.is("epsilon", epsilon.name);
-                                    d.callback(true);
-                                }
-                            );
-                            return d;
-                        }
-                    ]
-                );
-                doh.run();			
+                var regExp = /alpha|beta|gamma/,
+                    i,
+                    scripts = document.getElementsByTagName("script");
+                for (var i = scripts.length - 1; i > -1; i--) {
+                    doh.f(regExp.test(scripts[i].src));
+                }
+                master.callback(true);		
             });
         }
     );

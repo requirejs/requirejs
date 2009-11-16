@@ -283,14 +283,14 @@ setTimeout: false, setInterval: false, clearInterval: false */
     }
 
 
-    //See if all is loaded.
+    //See if all is loaded. If paused, then do not check the dependencies
+    //of the module yet.
     if (run._paused) {
       run._paused.push([name, contextName, context, deps]);
     } else {
       run._checkDeps(name, contextName, context, deps);
+      run.checkLoaded(contextName);
     }
-
-    run.checkLoaded(contextName);
 
     return run;
   };
@@ -320,6 +320,7 @@ setTimeout: false, setInterval: false, clearInterval: false */
         run._checkDeps.apply(run, args);
       }
     }
+    run.checkLoaded(run._currContextName);
   };
 
   /**
@@ -576,6 +577,18 @@ setTimeout: false, setInterval: false, clearInterval: false */
         module, moduleChain, name, deps, args, depModule, cb, ret, modDef,
         allDone, loads, loadArgs, dep;
 
+    //If already doing a checkLoaded call,
+    //then do not bother checking loaded state.
+    if (context._isCheckLoaded) {
+      return;
+    }
+
+    //Signal that checkLoaded is being run, so other calls that could be triggered
+    //by calling a waiting callback that then calls run and then this function
+    //should not proceed. At the end of this function, if there are still things
+    //waiting, then checkLoaded will be called again.
+    context._isCheckLoaded = true;
+
     //See if anything is still in flight.
     for (prop in loaded) {
       if (!(prop in empty)) {
@@ -595,12 +608,14 @@ setTimeout: false, setInterval: false, clearInterval: false */
     if (!hasLoadedProp && !context.waiting.length && !context.nlsWaiting.length) {
       //If the loaded object had no items, then the rest of
       //the work below does not need to be done.
+      context._isCheckLoaded = false;
       return;
     } else if (expired) {
       //If wait time expired, throw error of unloaded modules.
       throw new Error("run.js load timeout for modules: " + noLoads);
     } else if (stillLoading) {
       //Something is still waiting to load. Wait for it.
+      context._isCheckLoaded = false;
       setTimeout(function () {
         run.checkLoaded(contextName);
       }, 50);
@@ -724,8 +739,16 @@ setTimeout: false, setInterval: false, clearInterval: false */
       }
     }
 
-    //Check for other contexts that need to load things.
-    if (contextLoads.length) {
+    //Indicate checkLoaded is now done.
+    context._isCheckLoaded = false;
+
+    if (context.waiting.length || context.nlsWaiting.length) {
+      //More things in this context are waiting to load. They were probably
+      //added while doing the work above in checkLoaded, calling module
+      //callbacks that triggered other run calls.
+      run.checkLoaded(contextName);
+    } else if (contextLoads.length) {
+      //Check for other contexts that need to load things.
       //First, make sure current context has no more things to
       //load. After defining the modules above, new run calls
       //could have been made.   
