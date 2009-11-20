@@ -1,3 +1,28 @@
+{
+  layers: [
+    
+  ],
+  
+  baseUrl: "../",
+  
+  paths: {
+    
+  }
+
+}
+
+run(
+    {
+      baseUrl: "../",
+      paths: {
+      
+      },
+      moduleName: "foo.bar",
+      
+    },
+    ["foo.bar"])
+
+
 - convertDojo.js: add in pause/resume when more than one provide is in the file.
 
 - Confirm that run([modifier], contextName); works, that the right context is used.
@@ -22,6 +47,10 @@ So, choosing performance in this case over extensibility.
 
 Completed Items
 ==================
+0.0.4
+------------
+pause/resume for build layers
+
 0.0.3
 ------------
 - Module modifiers
