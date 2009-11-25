@@ -8,7 +8,8 @@
  * to just return instead of doing its work.
  * * Comment out the inclusion of dojoGuardStart.jsfrag and dojoGuardEnd.jsfrag
  * in buildUtil.js.
- * * In dojo._base.NodeList, move the provide/require calls to the top.
+ * * In dojo._base.NodeList, move the provide/require calls to the top
+ * * After the build put a dependency in dijit.dijit-all for dijit.dijit to get reloads in IE to work.
  * 
  * Usage:
  * java -classpath path/to/rhino/js.jar convertDojo.js path/to/dojo path/to/use/for/converted/files
@@ -56,7 +57,8 @@ if (!fileList || !fileList.length) {
 } else {
     for (i = 0; (fileName = fileList[i]); i++) {
         convertedFileName = fileName.replace(dojoPath, savePath);
-        if (jsFileRegExp.test(fileName)) {
+        //Only do JS files and skip i18n bundles for now.
+        if (jsFileRegExp.test(fileName) && fileName.indexOf("/nls/") === -1) {
             fileContents = fileUtil.readFile(fileName);
             fileContents = convert(fileName, fileContents);
             fileUtil.saveUtf8File(convertedFileName, fileContents);
@@ -72,7 +74,7 @@ logger.info("Convert time: " + convertTime + " seconds");
 
 
 function writeRunEnd(provideName) {
-    return '\nreturn ' + provideName + '; });\n';
+    return '\nreturn ' + (provideName.indexOf("-") === -1 ? provideName : "null") + '; });\n';
 }
 
 /**
@@ -135,7 +137,7 @@ function convert(fileName, fileContents) {
             //tell run to pause on tracing dependencies until the
             //full file is evaluated.
             if (fileName.match(dojoJsRegExp)) {
-                tempContents = fileUtil.readFile("../run.js");
+                tempContents = fileUtil.readFile("../../run.js");
             }
 
             if (deps.length > 1) {
@@ -165,12 +167,21 @@ function convert(fileName, fileContents) {
                 provideName = currentDep.provide;
 
                 //Build up the run string by getting its dependencies.
+                reqString = "";
                 for (j = 0; (module = currentDep.requires[j]); j++) {
                     if (!deps.provides[module]) {
                         reqString += ',"' + module + '"';
                     }
                 }
-                
+
+                //Account for some build layers that have implicit dependencies on
+                //all modules in a module.
+                if (deps.length > 1 && i === deps.length - 1) {
+                    for (j = 0; j < deps.length - 1; j++) {
+                        reqString += ',"' + deps[j].provide + '"';
+                    }
+                }
+
                 tempContents += 'run("' + currentDep.provide + '", ["dojo", "dijit", "dojox"' +
                                 reqString +
                                 '], function(dojo, dijit, dojox) {\n' +
