@@ -523,7 +523,7 @@ setTimeout: false, setInterval: false, clearInterval: false */
      * Converts a module name to a file path.
      */
     run.convertNameToPath = function (moduleName, contextName) {
-        var paths, syms, i, parentModule, parentModulePath, url;
+        var paths, syms, i, parentModule, url;
 
         if (run.jsExtRegExp.test(moduleName)) {
             //Just a plain path, not module name lookup, so just return it.
@@ -532,21 +532,14 @@ setTimeout: false, setInterval: false, clearInterval: false */
             //A module that needs to be converted to a path.
             paths = run._contexts[contextName].paths;
             syms = moduleName.split(".");
+            //For each module name segment, see if there is a path
+            //registered for it. Start with most specific name
+            //and work up from it.
             for (i = syms.length; i > 0; i--) {
                 parentModule = syms.slice(0, i).join(".");
-                /*
-                //TODO: is it valid simplification (below)?
                 if (paths[parentModule]) {
                     syms.splice(0, i, paths[parentModule]);
-                break;
-                }
-                */
-                if (i !== 1 || !!(paths[parentModule])) {
-                    parentModulePath = paths[parentModule] || parentModule;
-                    if (parentModulePath !== parentModule) {
-                        syms.splice(0, i, parentModulePath);
-                        break;
-                    }
+                    break;
                 }
             }
 
