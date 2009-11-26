@@ -19,8 +19,6 @@ setTimeout: false, setInterval: false, clearInterval: false */
             nlsRegExp = /(^.*(^|\.)nls(\.|$))([^\.]*)\.?([^\.]*)/,
             scripts, script, rePkg, src, m,
             readyRegExp = /complete|loaded/,
-            isBrowser = typeof window !== "undefined" && navigator && document,
-            isPageLoaded = !isBrowser,
             pageLoadRegExp = /loaded|complete/,
             head = (document.getElementsByTagName("head")[0] || document.getElementsByTagName("html")[0]),
             ostring = Object.prototype.toString, aps = Array.prototype.slice;
@@ -43,7 +41,9 @@ setTimeout: false, setInterval: false, clearInterval: false */
             _contexts: run._contexts,
             _pageCallbacks: run._pageCallbacks,
             _currContextName: run._currContextName,
-            _paused: run._paused
+            _paused: run._paused,
+            isBrowser: run.isBrowser,
+            isPageLoaded: run.isPageLoaded
         };
         run._pageCallbacks = [];
     }
@@ -463,6 +463,8 @@ setTimeout: false, setInterval: false, clearInterval: false */
     run.global.run = run;
 
     run.version = version;
+    run.isBrowser = oldState ? oldState.isBrowser : typeof window !== "undefined" && navigator && document;
+    run.isPageLoaded = oldState ? oldState.isPageLoaded : !run.isBrowser;
 
     run.isArray = function (it) {
         return ostring.call(it) === "[object Array]";
@@ -481,7 +483,7 @@ setTimeout: false, setInterval: false, clearInterval: false */
     }
 
     //Set up page load detection for the browser case.
-    if (isBrowser) {
+    if (run.isBrowser) {
         //Figure out baseUrl. Get it from the script tag with run.js in it.
         scripts = document.getElementsByTagName("script");
         rePkg = /run\.js(\W|$)/i;
@@ -878,7 +880,7 @@ setTimeout: false, setInterval: false, clearInterval: false */
      * but can be redefined in other environments to do the right thing.
      */
     run.attach = function (url, contextName, moduleName) {
-        if (isBrowser) {
+        if (run.isBrowser) {
             var node = document.createElement("script");
             node.src = url;
             node.type = "text/javascript";
@@ -921,8 +923,8 @@ setTimeout: false, setInterval: false, clearInterval: false */
      * Sets the page as loaded and triggers check for all modules loaded.
      */
     run.pageLoaded = function () {
-        if (!isPageLoaded) {
-            isPageLoaded = true;
+        if (!run.isPageLoaded) {
+            run.isPageLoaded = true;
             run._callReady();
         }
     };
@@ -941,7 +943,7 @@ setTimeout: false, setInterval: false, clearInterval: false */
      * Registers functions to call when the page is loaded
      */
     run.ready = function (callback) {
-        if (isPageLoaded) {
+        if (run.isPageLoaded) {
             callback();
         } else {
             run._pageCallbacks.push(callback);
@@ -949,7 +951,7 @@ setTimeout: false, setInterval: false, clearInterval: false */
         return run;
     };
 
-    if (isBrowser) {
+    if (run.isBrowser) {
         if (document.addEventListener) {
             //Standards. Hooray! Assumption here that if standards based,
             //it knows about DOMContentLoaded.
