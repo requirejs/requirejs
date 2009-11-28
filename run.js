@@ -175,6 +175,9 @@ setTimeout: false, setInterval: false, clearInterval: false */
             contextRun.myContextName = contextName;
             contextRun.context = newContext;
             contextRun.def = newContext.defined;
+            contextRun.doc = run.doc;
+            contextRun.global = run.global;
+            contextRun.isBrowser = run.isBrowser;
             newContext.defined.run = contextRun;
 
             context = run._contexts[contextName] = newContext;
