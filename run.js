@@ -461,13 +461,13 @@ setTimeout: false, setInterval: false, clearInterval: false */
     //Export to global namespace.
     run.global = this;
     run.global.run = run;
-    if (run.isBrowser) {
-      run.doc = document;
-    }
 
     run.version = version;
     run.isBrowser = oldState ? oldState.isBrowser : typeof window !== "undefined" && navigator && document;
     run.isPageLoaded = oldState ? oldState.isPageLoaded : !run.isBrowser;
+    if (run.isBrowser) {
+      run.doc = document;
+    }
 
     run.isArray = function (it) {
         return ostring.call(it) === "[object Array]";
