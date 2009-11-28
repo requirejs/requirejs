@@ -461,6 +461,9 @@ setTimeout: false, setInterval: false, clearInterval: false */
     //Export to global namespace.
     run.global = this;
     run.global.run = run;
+    if (run.isBrowser) {
+      run.doc = document;
+    }
 
     run.version = version;
     run.isBrowser = oldState ? oldState.isBrowser : typeof window !== "undefined" && navigator && document;
@@ -955,4 +958,7 @@ setTimeout: false, setInterval: false, clearInterval: false */
         }
     }
     //****** END page load functionality ****************
+    
+    //Clean up old state, variable, no need to keep that around.
+    oldState = null;
 }());
