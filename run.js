@@ -578,8 +578,7 @@ setTimeout: false */
                 hasLoadedProp = false, stillLoading = false,
                 prop, waiting, nlsWaiting, master, msWaiting, bundle, defLoc, parts,
                 modulePrefix, moduleSuffix, loc, mixed, i, j, locPart, orderedModules,
-                module, moduleChain, name, deps, args, depModule, cb, ret, modDef,
-                allDone, loads, loadArgs, dep;
+                module, moduleChain, name, deps, args, ret, dep;
 
         //If already doing a checkLoaded call,
         //then do not bother checking loaded state.
@@ -698,6 +697,16 @@ setTimeout: false */
             run.traceDeps(moduleChain, orderedModules, waiting, context.defined, context.modifiers);
         }
 
+        run.callModules(contextName, context, orderedModules);
+    };
+
+    /**
+     * After modules have been sorted into the right dependency order, bring
+     * them into existence by calling the module callbacks.
+     */
+    run.callModules = function (contextName, context, orderedModules) {
+        var module, name, dep, deps, args, i, j, depModule, cb, ret, modDef,
+            loaded, allDone, prop, loads, loadArgs;
         //Call the module callbacks in order.
         for (i = 0; (module = orderedModules[i]); i++) {
             //Get objects for the dependencies.

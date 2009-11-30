@@ -122,6 +122,7 @@ var run;
     load(buildFile.toString());
     run = null;
     load(config.runUrl);
+    load(runbuildPath + "/jslib/runpatch.js");
 
     //Adjust the path properties as appropriate.
     //First make sure build paths use front slashes and end in a slash
@@ -160,6 +161,8 @@ var run;
     for (layerName in layers) {
         if (layers.hasOwnProperty(layerName)) {
             layer = layers[layerName];
+            logger.trace("\nFiguring out dependencies for: " + layerName);
+            run([layerName]);
         }
     }
 
