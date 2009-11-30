@@ -8,7 +8,6 @@
 setTimeout: false, setInterval: false, clearInterval: false */
 
 "use strict";
-
 (function () {
     //Change this version number for each release.
     var version = [0, 0, 4, ""],
@@ -20,7 +19,9 @@ setTimeout: false, setInterval: false, clearInterval: false */
             scripts, script, rePkg, src, m,
             readyRegExp = /complete|loaded/,
             pageLoadRegExp = /loaded|complete/,
-            head = (document.getElementsByTagName("head")[0] || document.getElementsByTagName("html")[0]),
+            head = typeof document != "undefined" ? 
+                (document.getElementsByTagName("head")[0] ||
+                document.getElementsByTagName("html")[0]) : null,
             ostring = Object.prototype.toString, aps = Array.prototype.slice;
 
     //Check for an existing version of run.
