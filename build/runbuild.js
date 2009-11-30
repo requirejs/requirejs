@@ -19,7 +19,7 @@
  * to find things. See example.build.js for more information.
  */
 
-/*jslint plusplus: false */
+/*jslint nomen: false, plusplus: false */
 /*global load: false, print: false, quit: false, logger: false,
   fileUtil: false, java: false */
 
@@ -35,7 +35,7 @@ var run;
             optimize: "closure",
             optimizeCss: true
         },
-        layers = [], ostring = Object.prototype.toString;
+        layers = {}, layer, layerName, ostring = Object.prototype.toString;
 
     function isArray(it) {
         return ostring.call(it) === "[object Array]";    
@@ -74,14 +74,9 @@ var run;
         print("ERROR: build file does not exist: " + buildFile.getAbsolutePath());
         quit();
     }
-logger.trace("1buildFile: " + buildFile.toString());
-logger.trace("2buildFile: " + buildFile.toString());
 
     baseUrlFile = buildFile.getAbsoluteFile().getParentFile();
-
-logger.trace("3baseUrlFile: " + baseUrlFile.toString());
     buildFile = (buildFile.getAbsolutePath() + "").replace(/\\/g, "/");
-logger.trace("4buildFile: " + buildFile.toString());
 
     //Set up some defaults in the default config
     config.baseUrl = baseUrlFile.getAbsolutePath() + "";
@@ -91,6 +86,7 @@ logger.trace("4buildFile: " + buildFile.toString());
     //Set up the build file environment by creating a dummy run() function to
     //catch the build file information.
     run = function (cfg, name, deps) {
+        var layer;
         //Normalize parameters
         if (typeof cfg === "string") {
             //config is really the name
@@ -103,16 +99,22 @@ logger.trace("4buildFile: " + buildFile.toString());
             mixin(config, cfg, true);
         }
 
+        layer = null;
         if (name) {
-            layers[name] = {};
+            layer = layers[name] = {};
             
-            if (cfg && cfg.excludes) {
-              layers[name].excludes = cfg.excludes;
+            if (cfg) {
+                if (cfg.excludes) {
+                    layer.excludes = cfg.excludes;
+                }
+                if (cfg.includeRun) {
+                    layer.includeRun = true;
+                }
             }
         }
 
         if (deps) {
-            layers[name].deps = deps;
+            layer.deps = deps;
         }
     };
 
@@ -124,29 +126,41 @@ logger.trace("4buildFile: " + buildFile.toString());
     //Adjust the path properties as appropriate.
     //First make sure build paths use front slashes and end in a slash
     props = ["dir", "baseUrl"];
-    for (i = 0; prop = props[i]; i++) {
+    for (i = 0; (prop = props[i]); i++) {
         config[prop] = config[prop].replace(/\\/g, "/");
-        if (config[prop].charAt(config[prop].length -1) != "/") {
+        if (config[prop].charAt(config[prop].length - 1) !== "/") {
             config[prop] += "/";
         }
     }
 
     //Set up build output paths. Include baseUrl directory.
     paths = config.paths;
+    paths.__baseUrl = config.baseUrl;
     buildPaths = {
         "__baseUrl": config.dir
     };
     for (prop in paths) {
-        buildPaths[prop] = config.dir + prop.replace(/\./g, "/") + "/";
+        if (paths.hasOwnProperty(prop)) {
+            //Set up build path for each path prefix.
+            if (prop !== "__baseUrl") {
+                buildPaths[prop] = config.dir + prop.replace(/\./g, "/") + "/";
+            }
+            //Copy files to build area. Copy all files (the /\w/ regexp)
+            fileUtil.copyDir(paths[prop], buildPaths[prop], /\w/, true);
+        }
     }
-    paths.__baseUrl = config.baseUrl;
 
-    //Copy the files to the output directory.
-    for (prop in paths) {
-        fileUtil.copyDir(paths[prop], buildPaths[prop], /./, true);
+    //Set up the config for run.
+    run({
+        baseUrl: config.dir,
+        paths: buildPaths
+    });
+
+    //For each layer, call run and save the output to the folder.
+    for (layerName in layers) {
+        if (layers.hasOwnProperty(layerName)) {
+            layer = layers[layerName];
+        }
     }
-    
-    
-    //Load run.js
 
 }(arguments));

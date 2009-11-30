@@ -21,6 +21,10 @@ run(
         //be in the same directory as your build file.
         runUrl: "./run.js",
 
+        //Should the contents of run.js be included in the build layer. Defaults
+        //to false.
+        includeRun: false,
+
         //Set paths for modules. If relative paths, set relative to baseUrl above.
         paths: {
             "foo.bar": "../scripts/foo/bar",

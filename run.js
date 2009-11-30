@@ -5,7 +5,7 @@
 */
 /*jslint regexp: false, nomen: false, plusplus: false */
 /*global run: true, window: false, document: false, navigator: false,
-setTimeout: false, setInterval: false, clearInterval: false */
+setTimeout: false */
 
 "use strict";
 (function () {
@@ -19,7 +19,7 @@ setTimeout: false, setInterval: false, clearInterval: false */
             scripts, script, rePkg, src, m,
             readyRegExp = /complete|loaded/,
             pageLoadRegExp = /loaded|complete/,
-            head = typeof document != "undefined" ? 
+            head = typeof document !== "undefined" ? 
                 (document.getElementsByTagName("head")[0] ||
                 document.getElementsByTagName("html")[0]) : null,
             ostring = Object.prototype.toString, aps = Array.prototype.slice;
@@ -470,7 +470,7 @@ setTimeout: false, setInterval: false, clearInterval: false */
     run.isBrowser = oldState ? oldState.isBrowser : typeof window !== "undefined" && navigator && document;
     run.isPageLoaded = oldState ? oldState.isPageLoaded : !run.isBrowser;
     if (run.isBrowser) {
-      run.doc = document;
+        run.doc = document;
     }
 
     run.isArray = function (it) {
