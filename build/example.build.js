@@ -37,9 +37,9 @@ run(
         dir: "../some/path",
 
         //Used to inline i18n resources into the built file. If no locale
-        //is specified, i18n resources will not be inlined. The value
-        //should be an array.
-        locale: ["en-us"],
+        //is specified, i18n resources will not be inlined. Only one locale
+        //can be inlined for a build.
+        locale: "en-us",
 
         //How to optimize
         TODO

@@ -170,7 +170,8 @@ var run;
     //build file locations
     run({
         baseUrl: config.dir,
-        paths: buildPaths
+        paths: buildPaths,
+        locale: config.locale
     });
     for (layerName in layers) {
         if (layers.hasOwnProperty(layerName)) {
