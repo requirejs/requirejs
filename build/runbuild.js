@@ -27,7 +27,7 @@
 var run;
 
 (function (args) {
-    var runbuildPath, buildFile, baseUrlFile, buildPaths,
+    var runbuildPath, buildFile, baseUrlFile, buildPaths, deps,
         prop, props, paths, path, i, fileContents, buildFileContents = "",
         pauseResumeRegExp = /run\s*\.\s*(pause|resume)\s*\(\s*\)(;)?/g,
         //Set up defaults for the config.
@@ -191,7 +191,11 @@ var run;
             run.buildFilePaths = [];
 
             logger.trace("\nFiguring out dependencies for: " + layerName);
-            run([layerName]);
+            deps = [layerName];
+            if (layer.deps) {
+              deps = deps.concat(layer.deps);
+            }
+            run(deps);
 
             //Write the build layer to disk, and build up the build output.
             fileContents = "";

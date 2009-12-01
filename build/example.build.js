@@ -67,14 +67,15 @@ run(
     ["foo.bar.bee"]
 );
 
-//This invocation combines all the dependencies of foo.bar.bop into one file,
-//but excludes foo.bar.bip and its dependencies from the built file.
+//This invocation combines all the dependencies of foo.bar.bip into one file,
+//but excludes foo.bar.bop and its dependencies from the built file. The list
+//of exclude modules can only be other build layer module names, and those
+//build layer *must* be defined before the run call with the exclude option.
 run(
     {
        exclude: [
-        "foo.bar.bip"
+        "foo.bar.bop"
        ]
     }
-    "foo.bar.bop"
+    "foo.bar.bip"
 );
-

@@ -4,6 +4,6 @@ run({
         runUrl: "../../run.js",
         includeRun: true
     },
-    "one"
+    "one",
+    ["dimple"]
 );
-

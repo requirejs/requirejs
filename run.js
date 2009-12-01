@@ -578,7 +578,7 @@ setTimeout: false */
                 hasLoadedProp = false, stillLoading = false,
                 prop, waiting, nlsWaiting, master, msWaiting, bundle, defLoc, parts,
                 modulePrefix, moduleSuffix, loc, mixed, i, j, locPart, orderedModules,
-                module, moduleChain, name, deps, args, ret, dep;
+                module, moduleChain, name, deps, args, ret, dep, allDone, loads, loadArgs;
 
         //If already doing a checkLoaded call,
         //then do not bother checking loaded state.
@@ -621,9 +621,11 @@ setTimeout: false */
         if (stillLoading) {
             //Something is still waiting to load. Wait for it.
             context._isCheckLoaded = false;
-            setTimeout(function () {
-                run.checkLoaded(contextName);
-            }, 50);
+            if (run.isBrowser) {
+                setTimeout(function () {
+                    run.checkLoaded(contextName);
+                }, 50);
+            }
             return;
         }
 
@@ -698,6 +700,45 @@ setTimeout: false */
         }
 
         run.callModules(contextName, context, orderedModules);
+
+        //Indicate checkLoaded is now done.
+        context._isCheckLoaded = false;
+
+        if (context.waiting.length || context.nlsWaiting.length) {
+            //More things in this context are waiting to load. They were probably
+            //added while doing the work above in checkLoaded, calling module
+            //callbacks that triggered other run calls.
+            run.checkLoaded(contextName);
+        } else if (contextLoads.length) {
+            //Check for other contexts that need to load things.
+            //First, make sure current context has no more things to
+            //load. After defining the modules above, new run calls
+            //could have been made.
+            loaded = context.loaded;
+            allDone = true;
+            for (prop in loaded) {
+                if (!(prop in empty)) {
+                    if (!loaded[prop]) {
+                        allDone = false;
+                        break;
+                    }
+                }
+            }
+
+            if (allDone) {
+                run._currContextName = contextLoads[0][1];
+                loads = contextLoads;
+                //Reset contextLoads in case some of the waiting loads
+                //are for yet another context.
+                contextLoads = [];
+                for (i = 0; (loadArgs = loads[i]); i++) {
+                    run.load.apply(run, loadArgs);
+                }
+            }
+        } else {
+            //Make sure we reset to default context.
+            run._currContextName = defContextName;
+        }
     };
 
     /**
@@ -705,8 +746,7 @@ setTimeout: false */
      * them into existence by calling the module callbacks.
      */
     run.callModules = function (contextName, context, orderedModules) {
-        var module, name, dep, deps, args, i, j, depModule, cb, ret, modDef,
-            loaded, allDone, prop, loads, loadArgs;
+        var module, name, dep, deps, args, i, j, depModule, cb, ret, modDef;
         //Call the module callbacks in order.
         for (i = 0; (module = orderedModules[i]); i++) {
             //Get objects for the dependencies.
@@ -751,45 +791,6 @@ setTimeout: false */
                     }
                 }
             }
-        }
-
-        //Indicate checkLoaded is now done.
-        context._isCheckLoaded = false;
-
-        if (context.waiting.length || context.nlsWaiting.length) {
-            //More things in this context are waiting to load. They were probably
-            //added while doing the work above in checkLoaded, calling module
-            //callbacks that triggered other run calls.
-            run.checkLoaded(contextName);
-        } else if (contextLoads.length) {
-            //Check for other contexts that need to load things.
-            //First, make sure current context has no more things to
-            //load. After defining the modules above, new run calls
-            //could have been made.
-            loaded = context.loaded;
-            allDone = true;
-            for (prop in loaded) {
-                if (!(prop in empty)) {
-                    if (!loaded[prop]) {
-                        allDone = false;
-                        break;
-                    }
-                }
-            }
-
-            if (allDone) {
-                run._currContextName = contextLoads[0][1];
-                loads = contextLoads;
-                //Reset contextLoads in case some of the waiting loads
-                //are for yet another context.
-                contextLoads = [];
-                for (i = 0; (loadArgs = loads[i]); i++) {
-                    run.load.apply(run, loadArgs);
-                }
-            }
-        } else {
-            //Make sure we reset to default context.
-            run._currContextName = defContextName;
         }
     };
 

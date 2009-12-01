@@ -31,7 +31,7 @@ run.load = function (moduleName, contextName) {
 };
 
 run.callModules = function (contextName, context, orderedModules) {
-    var i, module, loadedFiles = {}, url;
+    var i, module, loadedFiles = {}, url, def, prop;
     for (i = 0; (module = orderedModules[i]); i++) {
         url = module.name && run.buildPathMap[module.name];
         if (url && !loadedFiles[url]) {
@@ -41,9 +41,3 @@ run.callModules = function (contextName, context, orderedModules) {
     }
 };
 
-if (typeof setTimeout === "undefined") {
-    //Just make the setTimeout function a no-op for run.js, since there will
-    //be other checks for the checkLoaded calls without needing the setTimeout
-    //checks, since run.load above always calls checkLoaded.
-    setTimeout = function () {};
-}
