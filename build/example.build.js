@@ -38,11 +38,17 @@ run(
 
         //Used to inline i18n resources into the built file. If no locale
         //is specified, i18n resources will not be inlined. Only one locale
-        //can be inlined for a build.
+        //can be inlined for a build. Root bundles referenced by a build layer
+        //will be included in a build layer regardless of locale being set.
         locale: "en-us",
 
-        //How to optimize
-        TODO
+        //How to optimize all the JS files in the build output directory.
+        //Right now only the following values
+        //are supported (default is to not do any optimization):
+        //- "closure": uses Google's Closure Compiler in simple optimization
+        //mode to minify the code.
+        //- "closure.keepLines": Same as closure option, but keeps line returns
+        //in the minified files.
         optimize: "closure",
         
         TODO:
@@ -71,6 +77,7 @@ run(
 //but excludes foo.bar.bop and its dependencies from the built file. The list
 //of exclude modules can only be other build layer module names, and those
 //build layer *must* be defined before the run call with the exclude option.
+//TODO: not supported yet.
 run(
     {
        exclude: [

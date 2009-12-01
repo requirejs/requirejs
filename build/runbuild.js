@@ -21,15 +21,17 @@
 
 /*jslint nomen: false, plusplus: false */
 /*global load: false, print: false, quit: false, logger: false,
-  fileUtil: false, java: false */
+  fileUtil: false, java: false, Packages: false */
 
 "use strict";
 var run;
 
 (function (args) {
-    var runbuildPath, buildFile, baseUrlFile, buildPaths, deps,
+    var runbuildPath, buildFile, baseUrlFile, buildPaths, deps, fileName, fileNames,
         prop, props, paths, path, i, fileContents, buildFileContents = "",
         pauseResumeRegExp = /run\s*\.\s*(pause|resume)\s*\(\s*\)(;)?/g,
+        JSSourceFilefromCode = java.lang.Class.forName('com.google.javascript.jscomp.JSSourceFile').getMethod('fromCode', [java.lang.String, java.lang.String]),
+
         //Set up defaults for the config.
         config = {
             paths: {},
@@ -55,6 +57,36 @@ var run;
                 target[prop] = source[prop];
             }
         }
+    }
+
+    //Helper for closureOptimize, because of weird Java-JavaScript interactions.
+    function closurefromCode(filename, content) {
+        return JSSourceFilefromCode.invoke(null, [filename, content]);
+    }
+
+    function closureOptimize(fileName, fileContents, keepLines) {
+        var jscomp = Packages.com.google.javascript.jscomp,
+            flags = Packages.com.google.common.flags,
+            //Fake extern
+            externSourceFile = closurefromCode("fakeextern.js", " "),
+            //Set up source input
+            jsSourceFile = closurefromCode(String(fileName), String(fileContents)),
+            options, FLAG_compilation_level, FLAG_warning_level, compiler;
+
+        //Set up options
+        options = new jscomp.CompilerOptions();
+        options.prettyPrint = keepLines;
+
+        FLAG_compilation_level = flags.Flag.value(jscomp.CompilationLevel.SIMPLE_OPTIMIZATIONS);
+        FLAG_compilation_level.get().setOptionsForCompilationLevel(options);
+
+        FLAG_warning_level = flags.Flag.value(jscomp.WarningLevel.DEFAULT);
+        FLAG_warning_level.get().setOptionsForWarningLevel(options);
+
+        //Run the compiler
+        compiler = new Packages.com.google.javascript.jscomp.Compiler(Packages.java.lang.System.err);
+        compiler.compile(externSourceFile, jsSourceFile, options);
+        return compiler.toSource();  
     }
 
     if (!args || args.length < 2) {
@@ -194,7 +226,7 @@ var run;
             logger.trace("\nFiguring out dependencies for: " + layerName);
             deps = [layerName];
             if (layer.deps) {
-              deps = deps.concat(layer.deps);
+                deps = deps.concat(layer.deps);
             }
             run(deps);
 
@@ -223,5 +255,17 @@ var run;
     //All layers are done, write out the build.txt file.
     fileUtil.saveUtf8File(config.dir + "build.txt", buildFileContents);
     logger.info("\nBuilt layers:\n\n" + buildFileContents);
+
+    //Optimize the JS files if asked.
+    if (config.optimize && config.optimize.indexOf("closure") === 0) {
+        logger.info("Optimizing JS files with Closure Compiler");
+        fileNames = fileUtil.getFilteredFileList(config.dir, /\.js$/, true);
+        for (i = 0; (fileName = fileNames[i]); i++) {
+            fileContents = closureOptimize(fileName,
+                                           fileUtil.readFile(fileName),
+                                           (config.optimize.indexOf(".keepLines") !== -1));
+            fileUtil.saveUtf8File(fileName, fileContents);
+        }
+    }
 
 }(arguments));
