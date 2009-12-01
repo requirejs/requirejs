@@ -8,19 +8,42 @@
  * This file patches run.js to communicate with the build system.
  */
 
+/*jslint nomen: false, plusplus: false */
+/*global load: false, run: false, logger: false, setTimeout: true */
+"use strict";
+
+//These variables are not contextName-aware since the build should
+//only have one context.
+run.buildPathMap = {};
+run.buildFilePaths = [];
+
 run.load = function (moduleName, contextName) {
-    logger.trace("HERE IN LOAD");
-    var url = run.convertNameToPath(moduleName, contextName);
-    logger.trace("loading url: " + url);
+    var url = run.convertNameToPath(moduleName, contextName), map;
+
+    //Save the module name to path mapping.
+    map = run.buildPathMap[moduleName] = url;
+
     load(url);
+
     //Mark the module loaded.
     run._contexts[contextName].loaded[moduleName] = true;
     run.checkLoaded(contextName);
-}
+};
 
 run.callModules = function (contextName, context, orderedModules) {
-  var i, module;
-  for (i = 0; module = orderedModules[i]; i++) {
-      logger.trace("BUILD LAYER MODULE: " + module.name);
-  }
+    var i, module, loadedFiles = {}, url;
+    for (i = 0; (module = orderedModules[i]); i++) {
+        url = module.name && run.buildPathMap[module.name];
+        if (url && !loadedFiles[url]) {
+            run.buildFilePaths.push(url);
+            loadedFiles[url] = true;
+        }
+    }
+};
+
+if (typeof setTimeout === "undefined") {
+    //Just make the setTimeout function a no-op for run.js, since there will
+    //be other checks for the checkLoaded calls without needing the setTimeout
+    //checks, since run.load above always calls checkLoaded.
+    setTimeout = function () {};
 }

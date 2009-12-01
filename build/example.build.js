@@ -49,7 +49,6 @@ run(
         - way to specify inlined HTML files?
         - way to optimize CSS? default to true
         - way to ignore CSS imports?
-        - way to include run.js in a build layer?
     }
 );
 

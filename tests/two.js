@@ -1,6 +1,6 @@
 run(
-  "tests.two",
-  ["tests.one"],
+  "two",
+  ["one"],
   function(one) {
     return {
       size: one.size,

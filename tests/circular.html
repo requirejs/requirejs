@@ -6,8 +6,10 @@
     <script type="text/javascript" src="doh/runner.js"></script>
     <script type="text/javascript" src="doh/_browserRunner.js"></script>
     <script type="text/javascript">
-    run(
-    	["run", "tests.two"],
+    run({
+	    baseUrl: "./"
+	},
+    	["run", "two"],
 	function(run, two) {
 	    var args = two.doSomething();
 	    run.ready(function(){

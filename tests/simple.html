@@ -6,8 +6,10 @@
     <script type="text/javascript" src="doh/runner.js"></script>
     <script type="text/javascript" src="doh/_browserRunner.js"></script>
     <script type="text/javascript">
-    run(
-        ["run", "tests.simple", "tests.dimple"],
+    run({
+            baseUrl: "./"    
+        },
+        ["run", "simple", "dimple"],
         function(run, simple, dimple) {
             run.ready(function(){
                 doh.register(

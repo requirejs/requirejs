@@ -1,18 +1,9 @@
-//This build file just tests the 
-run(
-    {
+//A simple build file using the tests directory for runjs
+run({
         baseUrl: "../../tests",
-
-        runUrl: "../../run.js" //,
-
-/*
-        paths: {
-            "foo.bar": "../scripts/foo/bar",
-            "baz": "../another/path/baz"
-        },
-*/
-        //dir: "../some/path"
+        runUrl: "../../run.js",
+        includeRun: true
     },
-    "tests.one"
+    "one"
 );
 

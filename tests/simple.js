@@ -1,5 +1,5 @@
 run(
-  "tests.simple",
+  "simple",
   function() {
     return {
       color: "blue"

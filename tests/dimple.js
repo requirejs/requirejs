@@ -1,5 +1,5 @@
 run(
-  "tests.dimple",
+  "dimple",
   {
     color: "dimple-blue"
   }

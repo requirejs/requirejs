@@ -1,27 +1,6 @@
-{
-  layers: [
-    
-  ],
-  
-  baseUrl: "../",
-  
-  paths: {
-    
-  }
+- Profile a run.js impl that does not do type checks for the args. Does it make a noticeable difference?
 
-}
-
-run(
-    {
-      baseUrl: "../",
-      paths: {
-      
-      },
-      moduleName: "foo.bar",
-      
-    },
-    ["foo.bar"])
-
+- Need a Function module in the tests.
 
 - convertDojo.js: add in pause/resume when more than one provide is in the file.
 
