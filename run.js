@@ -18,7 +18,6 @@ setTimeout: false */
             nlsRegExp = /(^.*(^|\.)nls(\.|$))([^\.]*)\.?([^\.]*)/,
             scripts, script, rePkg, src, m,
             readyRegExp = /complete|loaded/,
-            pageLoadRegExp = /loaded|complete/,
             head = typeof document !== "undefined" ? 
                 (document.getElementsByTagName("head")[0] ||
                 document.getElementsByTagName("html")[0]) : null,
@@ -969,6 +968,13 @@ setTimeout: false */
             window.addEventListener("load", run.pageLoaded, false);
         } else if (window.attachEvent) {
             window.attachEvent("onload", run.pageLoaded);
+        }
+        
+        //Check if document already complete, and if so, just trigger page load
+        //listeners. NOTE: does not work with Firefox before 3.6. To support
+        //those browsers, manually call run.pageLoaded().
+        if (document.readyState === "complete") {
+            run.pageLoaded();
         }
     }
     //****** END page load functionality ****************
