@@ -1,4 +1,3 @@
-foobars
 /*
     Copyright (c) 2004-2009, The Dojo Foundation All Rights Reserved.
     Available via the new BSD license.
@@ -9,6 +8,9 @@ foobars
 setTimeout: false */
 
 "use strict";
+
+foobars
+
 (function () {
     //Change this version number for each release.
     var version = [0, 0, 4, ""],
