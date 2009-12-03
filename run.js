@@ -9,7 +9,7 @@ setTimeout: false */
 
 "use strict";
 
-foobarsx
+foobar
 
 (function () {
     //Change this version number for each release.
