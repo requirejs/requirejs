@@ -9,8 +9,6 @@ setTimeout: false */
 
 "use strict";
 
-foobar
-
 (function () {
     //Change this version number for each release.
     var version = [0, 0, 4, ""],
