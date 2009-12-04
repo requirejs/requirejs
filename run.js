@@ -94,7 +94,7 @@ setTimeout: false */
 
             //If module already defined for context, leave.
             context = run._contexts[contextName];
-            if (context && context.specified && context.specified[name]) {
+            if (context && context.defined && context.defined[name]) {
                 return run;
             }
         } else if (run.isArray(name)) {
@@ -230,9 +230,10 @@ setTimeout: false */
         if (name) {
             //Store index of insertion for quick lookup
             context.waiting[name] = newLength - 1;
-            
+
             //Mark the module as specified: not loaded yet, but in the process,
-            //so no need to fetch it again.
+            //so no need to fetch it again. Important to do it here for the
+            //pause/resume case where there are multiple modules in a file.
             context.specified[name] = true;
 
             //If the module will be a function, remember it.
@@ -344,7 +345,8 @@ setTimeout: false */
         for (i = 0; (dep = deps[i]); i++) {
             //If it is a string, then a plain dependency
             if (typeof dep === "string") {
-                if (!(dep in context.specified)) {
+                if (!context.specified[dep]) {
+                    context.specified[dep] = true;
                     context.loaded[dep] = false;
                     run.load(dep, contextName);
                 }

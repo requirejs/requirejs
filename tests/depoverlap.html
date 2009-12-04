@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>run.js: Dependency Overlap Test</title>
+    <script type="text/javascript" src="../run.js"></script>
+    <script type="text/javascript" src="doh/runner.js"></script>
+    <script type="text/javascript" src="doh/_browserRunner.js"></script>
+    <script type="text/javascript">
+    run({
+            baseUrl: "./"    
+        },
+        ["run", "uno"],
+        function(run, uno) {
+            doh.register(
+                "depoverlap", 
+                [
+                    function depoverlap(t){
+                        //First confirm there is only one script tag for each
+                        //module:
+                        var scripts = document.getElementsByTagName("script"),
+                            i, counts = {}, modName, props, something;
+                        for (var i = scripts.length - 1; i > -1; i--) {
+                            modName = scripts[i].getAttribute("data-runmodule");
+                            if (modName) {
+                                if (!(modName in counts)) {
+                                    counts[modName] = 0;
+                                }
+                                counts[modName] += 1;
+                            }
+                        }
+
+                        //Now that we counted all the modules make sure count
+                        //is always one.
+                        for (prop in counts) {
+                            t.is(1, counts[prop]);
+                        }
+
+                        t.is("uno", uno.name);
+                        something = uno.doSomething();
+                        t.is("dos", something.dosName);
+                        t.is("tres", something.tresName);
+                    }
+                ]
+            );
+            doh.run();
+        }
+    );
+    </script>
+</head>
+<body>
+    <h1>run.js: Dependency Overlap Test</h1>
+    <p>uno requires dos and tres, but tres also requires dos. Make sure
+    dos is only added once, and that all are defined correctly.</p>
+    <p>Check console for messages</p>
+</body>
+</html>
