@@ -769,7 +769,7 @@ setTimeout: false */
             //Call the callback to define the module, if necessary.
             cb = module.callback;
             if (cb && run.isFunction(cb)) {
-                ret = cb.apply(window, args);
+                ret = cb.apply(run.global, args);
                 if (name) {
                     modDef = context.defined[name];
                     if (modDef && ret) {
