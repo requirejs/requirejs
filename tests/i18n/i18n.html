@@ -21,11 +21,16 @@
             bundle = match[1];
         }
 
-        var result = "red";
-
+        var red = "red";
+        if (locale === "en-us-surfer" || bundle === "nls.en-us-surfer.colors") {
+            red = "red, dude";
+        }
         run({
             locale: locale,
-            baseUrl: "./"
+            baseUrl: "./",
+            paths: {
+                run: "../../run"
+            }
         },
         [bundle],
         function(colors) {
@@ -33,7 +38,8 @@
                 "i18n",
                 [
                     function i18n(t) {
-                        t.is(result, colors.red);
+                        t.is(red, colors.red);
+                        t.is("blue", colors.blue);
                     }
                 ]
             );

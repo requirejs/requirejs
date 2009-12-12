@@ -1,11 +1,11 @@
 run(
-  "nls.colors",
-  [{
+  "i18n!nls.colors",
+  {
     "root": {
       red: "red",
       blue: "blue",
       green: "green"
     },
-    "en-us-surfer": "nls.en-us-surfer.colors"
-  }]
+    "en-us-surfer": "i18n!nls.en-us-surfer.colors"
+  }
 );

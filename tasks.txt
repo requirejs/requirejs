@@ -1,3 +1,7 @@
+nls stuff missing:
+  - loading more than one locale for a page.
+  - a way to dynamically ask for a locale inside a module function.
+
 - Profile a run.js impl that does not do type checks for the args. Does it make a noticeable difference?
 
 - Need a Function module in the tests.
@@ -7,8 +11,6 @@
 - Confirm that run([modifier], contextName); works, that the right context is used.
 
 - The omega run call, if it does a "run" dependency tries to load version1/run.js. Hmm.
-
-- Add in automated i18n.html locale and bundle tests.
 
 - Caveat with .modify: you cannot modify the top-level function. We could remove
 this restriction if we forced all functions to use the .apply() function wrapper.
@@ -26,6 +28,10 @@ So, choosing performance in this case over extensibility.
 
 Completed Items
 ==================
+0.0.5
+------------
+Introduce plugin concept for run.js. i18n code moved to a plugin.
+
 0.0.4
 ------------
 pause/resume for build layers

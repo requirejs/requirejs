@@ -3,7 +3,7 @@
     Available via the new BSD license.
     see: http://code.google.com/p/runjs/ for details
 */
-/*jslint regexp: false, nomen: false, plusplus: false */
+/*jslint nomen: false, plusplus: false */
 /*global run: true, window: false, document: false, navigator: false,
 setTimeout: false */
 
@@ -11,18 +11,16 @@ setTimeout: false */
 
 (function () {
     //Change this version number for each release.
-    var version = [0, 0, 4, ""],
+    var version = [0, 0, 5, ""],
             run = typeof run === "undefined" ? null : run,
             oldState = null, empty = {},
             i, defContextName = "_runDefault", contextLoads = [],
-            //regexp for matching nls (i18n) module names.
-            nlsRegExp = /(^.*(^|\.)nls(\.|$))([^\.]*)\.?([^\.]*)/,
             scripts, script, rePkg, src, m,
             readyRegExp = /complete|loaded/,
             head = typeof document !== "undefined" ? 
                 (document.getElementsByTagName("head")[0] ||
                 document.getElementsByTagName("html")[0]) : null,
-            ostring = Object.prototype.toString, aps = Array.prototype.slice;
+            ostring = Object.prototype.toString;
 
     //Check for an existing version of run.
     //Only overwrite if there is a version of run and it is less
@@ -42,6 +40,7 @@ setTimeout: false */
             _contexts: run._contexts,
             _pageCallbacks: run._pageCallbacks,
             _currContextName: run._currContextName,
+            _plugins: run._plugins,
             _paused: run._paused,
             isBrowser: run.isBrowser,
             isPageLoaded: run.isPageLoaded
@@ -67,14 +66,19 @@ setTimeout: false */
      * on other modules.
      */
     run = function (name, deps, callback, contextName, altContextName) {
-        var config = null, context, loaded, canSetContext, prop, dep, baseUrl,
-                newLength, match, master, nlsw, bundle, i, j, parts, toLoad,
-                newContext, contextRun, isFunction = false, mods;
+        var config = null, context, newContext, contextRun, loaded,
+            canSetContext, prop, newLength,
+            isFunction = false, mods, pluginPrefix, paths, index;
 
         //Normalize the arguments.
         if (typeof name === "string") {
-            //Defining a module.
-            
+            //Defining a module. First, pull off any plugin prefix.
+            index = name.indexOf("!");
+            if (index !== -1) {
+                pluginPrefix = name.substring(0, index);
+                name = name.substring(index + 1, name.length);
+            }
+
             //Check if the defined module will be a function.
             if (deps === Function) {
                 isFunction = true;
@@ -150,13 +154,13 @@ setTimeout: false */
         context = run._contexts[contextName];
         if (!context) {
             newContext = {
+                contextName: contextName,
+                config: {
+                    waitSeconds: 7,
+                    baseUrl: run.baseUrl || "./",
+                    paths: {}
+                },
                 waiting: [],
-                nlsWaiting: {},
-                baseUrl: run.baseUrl || "./",
-                locale: typeof navigator === "undefined" ? "root" :
-                        (navigator.language || navigator.userLanguage || "root").toLowerCase(),
-                paths: {},
-                waitSeconds: 7,
                 specified: {
                     "run": true
                 },
@@ -165,8 +169,7 @@ setTimeout: false */
                 },
                 defined: {},
                 isFuncs: {},
-                modifiers: {},
-                nls: {}
+                modifiers: {}
             };
 
             //Define run() for this context.
@@ -175,43 +178,48 @@ setTimeout: false */
             contextRun.ready = run.ready;
             contextRun.myContextName = contextName;
             contextRun.context = newContext;
+            contextRun.config = newContext.config;
             contextRun.def = newContext.defined;
             contextRun.doc = run.doc;
             contextRun.global = run.global;
             contextRun.isBrowser = run.isBrowser;
             newContext.defined.run = contextRun;
 
+            if (run._plugins.onNewContext) {
+                run._plugins.onNewContext(newContext);
+            }
+
             context = run._contexts[contextName] = newContext;
         }
 
-        //If have a config object, update the context object with
+        //If have a config object, update the context's config object with
         //the config values.
         if (config) {
-            if ("waitSeconds" in config) {
-                context.waitSeconds = config.waitSeconds;
-            }
-
+            //Make sure the baseUrl ends in a slash.
             if (config.baseUrl) {
-                baseUrl = config.baseUrl;
-                //Make sure the baseUrl ends in a slash.
-                if (baseUrl.charAt(baseUrl.length - 1) !== "/") {
-                    baseUrl += "/";
+                if (config.baseUrl.charAt(config.baseUrl.length - 1) !== "/") {
+                    config.baseUrl += "/";
                 }
-                context.baseUrl = baseUrl;
             }
 
+            //Save off the paths since they require special processing,
+            //they are additive.
+            paths = context.config.paths;
+
+            //Mix in the config values, favoring the new values over
+            //existing ones in context.config.
+            run.mixin(context.config, config, true);
+
+            //Adjust paths if necessary.
             if (config.paths) {
                 for (prop in config.paths) {
                     if (!(prop in empty)) {
-                        context.paths[prop] = config.paths[prop];
+                        paths[prop] = config.paths[prop];
                     }
                 }
+                context.config.paths = paths;
             }
-            
-            if (config.locale) {
-                context.locale = config.locale.toLowerCase();
-            }
-            
+
             //If it is just a config block, nothing else,
             //then return.
             if (!deps) {
@@ -226,7 +234,6 @@ setTimeout: false */
             callback: callback
         });
 
-        
         if (name) {
             //Store index of insertion for quick lookup
             context.waiting[name] = newLength - 1;
@@ -240,7 +247,7 @@ setTimeout: false */
             if (isFunction) {
                 context.isFuncs[name] = true;
             }
-            
+
             //Load any modifiers for the module.
             mods = context.modifiers[name];
             if (mods) {
@@ -254,48 +261,111 @@ setTimeout: false */
             context.defined[name] = callback;
         }
 
-
-        //See if the modules is an nls module and handle it special.
-        match = nlsRegExp.exec(name);
-        if (match) {
-            //Reconstruct the master bundle name from parts of the regexp match
-            //nlsRegExp.exec("foo.bar.baz.nls.en-ca.foo") gives:
-            //["foo.bar.baz.nls.en-ca.foo", "foo.bar.baz.nls.", ".", ".", "en-ca", "foo"]
-            //nlsRegExp.exec("foo.bar.baz.nls.foo") gives:
-            //["foo.bar.baz.nls.foo", "foo.bar.baz.nls.", ".", ".", "foo", ""]
-            //so, if match[5] is blank, it means this is the top bundle definition,
-            //so it does not have to be handled. Only deal with ones that have a locale
-            //(a match[4] value but no match[5])
-            if (match[5]) {
-                master = match[1] + match[5];
-
-                //Track what locale bundle need to be generated once all the modules load.
-                nlsw = (context.nlsWaiting[master] || (context.nlsWaiting[master] = {}));
-                nlsw[match[4]] = true;
-
-                bundle = context.nls[master];
-                if (!bundle) {
-                    //No master bundle yet, ask for it.
-                    context.defined.run([master]);
-                    bundle = context.nls[master] = {};
-                }
-                //For nls modules, the callback is just a regular object,
-                //so save it off in the bundle now.
-                bundle[match[4]] = callback;
-            }
+        //If a pluginPrefix is available, call the plugin, or load it.
+        if (pluginPrefix) {
+            run.callPlugin(pluginPrefix, context, {
+                name: "run",
+                args: [name, deps, callback, context, isFunction]
+            });
         }
-
 
         //See if all is loaded. If paused, then do not check the dependencies
         //of the module yet.
         if (run._paused) {
-            run._paused.push([name, contextName, context, deps]);
+            run._paused.push([pluginPrefix, name, deps, context]);
         } else {
-            run._checkDeps(name, contextName, context, deps);
+            run._checkDeps(pluginPrefix, name, deps, context);
             run.checkLoaded(contextName);
         }
 
         return run;
+    };
+
+    /**
+     * Calls a method on a plugin. The obj object should have two property,
+     * name: the name of the method to call on the plugin
+     * args: the arguments to pass to the plugin method.
+     */
+    run.callPlugin = function (prefix, context, obj) {
+        //Call the plugin, or load it.
+        var plugin = run._plugins.defined[prefix], waiting;
+        if (plugin) {
+            plugin[obj.name].apply(run.global, obj.args);
+        } else {
+            //Load the module and add the call to waitin queue.
+            context.defined.run(["run." + prefix]);
+            waiting = run._plugins.waiting[prefix] || (run._plugins.waiting[prefix] = []);
+            waiting.push(obj);
+        }
+    };
+
+    /**
+     * Registers a new plugin for run.
+     */
+    run.plugin = function (obj) {
+        var i, prop, call, prefix = obj.prefix, cbs = run._plugins.callbacks,
+            waiting = run._plugins.waiting[prefix], generics,
+            defined = run._plugins.defined, contexts = run._contexts, context;
+
+        //Do not allow redefinition of a plugin, there may be internal
+        //state in the plugin that could be lost.
+        if (defined[prefix]) {
+            return run;
+        }
+
+        //Save the plugin.
+        defined[prefix] = obj;
+
+        //Set up plugin callbacks for methods that need to be generic to
+        //run, for lifestyle cases where it does not care about a particular
+        //plugin, but just that some plugin work needs to be done.
+        generics = ["newContext", "isWaiting", "orderDeps"];
+        for (i = 0; (prop = generics[i]); i++) {
+            if (!run._plugins[prop]) {
+                run._makePluginCallback(prop, prop === "isWaiting");
+            }
+            cbs[prop].push(obj[prop]);
+        }
+
+        //Call newContext for any contexts that were already created.
+        if (obj.newContext) {
+            for (prop in contexts) {
+                if (!(prop in empty)) {
+                    context = contexts[prop];
+                    obj.newContext(context);
+                }
+            }
+        }
+
+        //If there are waiting requests for a plugin, execute them now.
+        if (waiting) {
+            for (i = 0; (call = waiting[i]); i++) {
+                if (obj[call.name]) {
+                    obj[call.name].apply(run.global, call.args);
+                }
+            }
+            delete run._plugins.waiting[prefix];
+        }
+
+        return run;
+    };
+
+    /**
+     * Sets up a plugin callback name. Want to make it easy to test if a plugin
+     * needs to be called for a certain lifecycle event by testing for
+     * if (run._plugins.onLifeCyleEvent) so only define the lifecycle event
+     * if there is a real plugin that registers for it.
+     */
+    run._makePluginCallback = function (name, returnOnTrue) {
+        var cbs = run._plugins.callbacks[name] = [];
+        run._plugins[name] = function () {
+            for (var i = 0, cb; (cb = cbs[i]); i++) {
+                if (cb.apply(run.global, arguments) === true && returnOnTrue) {
+                    return true;
+                }
+            }
+            return false;
+        };
     };
 
     /**
@@ -329,73 +399,49 @@ setTimeout: false */
     /**
      * Run down the dependencies to see if they are loaded. If not, trigger
      * the load.
+     * @param {String} pluginPrefix the plugin prefix, if any associated with the name.
+     *
      * @param {String} name: the name of the module that has the dependencies.
      *
-     * @param {String} contextName: the name of the loading context.
+     * @param {Array} deps array of dependencies.
      *
      * @param {Object} context: the loading context.
-     *
-     * @param {Array} deps array of dependencies.
      */
-    run._checkDeps = function (name, contextName, context, deps) {
+    run._checkDeps = function (pluginPrefix, name, deps, context) {
         //Figure out if all the modules are loaded. If the module is not
         //being loaded or already loaded, add it to the "to load" list,
         //and request it to be loaded.
-        var i, j, dep, bundle, parts, toLoad, nlsw, loc, val;
-        for (i = 0; (dep = deps[i]); i++) {
-            //If it is a string, then a plain dependency
-            if (typeof dep === "string") {
-                if (!context.specified[dep]) {
-                    context.specified[dep] = true;
-                    context.loaded[dep] = false;
-                    run.load(dep, contextName);
-                }
-            } else {
-                //dep is an object, so it is an i18n nls thing.
-                //Track it in the nls section of the context.
-                //It may have already been created via a specific locale
-                //request, so just mixin values in that case, to preserve
-                //the specific locale bundle object.
-                bundle = context.nls[name];
-                if (bundle) {
-                    run.mixin(bundle, dep);
-                } else {
-                    context.nls[name] = dep;
-                }
+        var i, dep, index, depPrefix;
 
-                //Break apart the locale to get the parts.
-                parts = context.locale.split("-");
-                
-                //Now see what bundles exist for each country/locale.
-                //Want to walk up the chain, so if locale is en-us-foo,
-                //look for en-us-foo, en-us, en, then root.
-                toLoad = [];
+        if (pluginPrefix) {
+            run.callPlugin(pluginPrefix, context, {
+                name: "checkDeps",
+                args: [name, deps, context]
+            });
+        } else {
+            for (i = 0; (dep = deps[i]); i++) {
+                //If it is a string, then a plain dependency
+                if (typeof dep === "string") {
+                    if (!context.specified[dep]) {
+                        context.specified[dep] = true;
+                        context.loaded[dep] = false;
 
-                nlsw = context.nlsWaiting[name] || (context.nlsWaiting[name] = {});
-                for (j = parts.length; j > -1; j--) {
-                    loc = j ? parts.slice(0, j).join("-") : "root";
-                    val = dep[loc];
-                    if (val) {
-                        //Store which bundle to use for the default bundle definition.
-                        nlsw.__match = nlsw.__match || loc;
+                        //If a plugin, call its load method.
+                        index = dep.indexOf("!");
+                        if (index !== -1) {
+                            depPrefix = name.substring(0, index);
+                            dep = dep.substring(index + 1, dep.length);
 
-                        //Track that the locale needs to be resolved with its parts.
-                        nlsw[loc] = true;
-
-                        //If locale value is a string, it means it is a resource that
-                        //needs to be loaded. Track it to load if it has not already
-                        //been asked for.
-                        if (typeof val === "string" &&
-                                !context.specified[val] &&
-                                !(val in context.loaded)) {
-                            toLoad.push(val);
+                            run.callPlugin(depPrefix, context, {
+                                name: "load",
+                                args: [dep, context.contextName]
+                            });
+                        } else {
+                            run.load(dep, context.contextName);
                         }
                     }
-                }
-
-                //Load any bundles that are still needed.
-                if (toLoad.length) {
-                    context.defined.run(toLoad);
+                } else {
+                    throw new Error("Unsupported non-string dependency: " + dep);
                 }
             }
         }
@@ -485,11 +531,16 @@ setTimeout: false */
 
     //Set up storage for modules that is partitioned by context. Create a
     //default context too.
-    run._currContextName = oldState ? oldState._currContextName : defContextName;
-    run._contexts = oldState ? oldState._contexts : {};
+    run._currContextName = (oldState && oldState._currContextName) || defContextName;
+    run._contexts = (oldState && oldState._contexts) || {};
     if (oldState) {
         run._paused = oldState._paused;
     }
+    run._plugins = (oldState && oldState._plugins) || {
+        defined: {},
+        callbacks: {},
+        waiting: {}
+    };
 
     //Set up page load detection for the browser case.
     if (run.isBrowser) {
@@ -539,7 +590,7 @@ setTimeout: false */
             return moduleName;
         } else {
             //A module that needs to be converted to a path.
-            paths = run._contexts[contextName].paths;
+            paths = run._contexts[contextName].config.paths;
             syms = moduleName.split(".");
             //For each module name segment, see if there is a path
             //registered for it. Start with most specific name
@@ -554,15 +605,15 @@ setTimeout: false */
 
             //Join the path parts together, then figure out if baseUrl is needed.
             url = syms.join("/") + ".js";
-            return ((url.charAt(0) === '/' || url.match(/^\w+:/)) ? "" : run._contexts[contextName].baseUrl) + url;
+            return ((url.charAt(0) === '/' || url.match(/^\w+:/)) ? "" : run._contexts[contextName].config.baseUrl) + url;
         }
     };
 
-    //Helper that create a function stand-in for a module that has yet to
+    //Helper that creates a function stand-in for a module that has yet to
     //be defined.
     function makeDepFunc(context, depName) {
         return function () {
-            return context.isFuncs[depName].apply(this, arguments);
+            return context.isFuncs[depName].apply(run.global, arguments);
         };
     }
 
@@ -572,15 +623,14 @@ setTimeout: false */
      */
     run.checkLoaded = function (contextName) {
         var context = run._contexts[contextName || run._currContextName],
-                waitInterval = context.waitSeconds * 1000,
+                waitInterval = context.config.waitSeconds * 1000,
                 //It is possible to disable the wait interval by using waitSeconds of 0.
                 expired = waitInterval && (context.startTime + waitInterval) < new Date().getTime(),
                 loaded = context.loaded,
                 noLoads = "",
-                hasLoadedProp = false, stillLoading = false,
-                prop, waiting, nlsWaiting, master, msWaiting, bundle, defLoc, parts,
-                modulePrefix, moduleSuffix, loc, mixed, i, j, locPart, orderedModules,
-                module, moduleChain, name, deps, args, ret, dep, allDone, loads, loadArgs;
+                hasLoadedProp = false, stillLoading = false, prop, waiting,
+                pIsWaiting = run._plugins.isWaiting, pOrderDeps = run._plugins.orderDeps,
+                i, orderedModules, module, moduleChain, allDone, loads, loadArgs;
 
         //If already doing a checkLoaded call,
         //then do not bother checking loaded state.
@@ -610,7 +660,7 @@ setTimeout: false */
         }
 
         //Check for exit conditions.
-        if (!hasLoadedProp && !context.waiting.length && !context.nlsWaiting.length) {
+        if (!hasLoadedProp && !context.waiting.length && (!pIsWaiting || !pIsWaiting(context))) {
             //If the loaded object had no items, then the rest of
             //the work below does not need to be done.
             context._isCheckLoaded = false;
@@ -631,63 +681,17 @@ setTimeout: false */
             return;
         }
 
-        //Resolve dependencies. First clean up state because the evaluation
+        //Order the dependencies. Also clean up state because the evaluation
         //of modules might create new loading tasks, so need to reset.
+        //Be sure to call plugins too.
         waiting = context.waiting;
-        nlsWaiting = context.nlsWaiting;
         context.waiting = [];
-        context.nlsWaiting = {};
         context.loaded = {};
 
-        //First, properly mix in any nls bundles waiting to happen.
-        //Use an empty object to detect other bad JS code that modifies
-        //Object.prototype.
-        for (prop in nlsWaiting) {
-            if (!(prop in empty)) {
-                //Each property is a master bundle name.
-                master = prop;
-                msWaiting = nlsWaiting[prop];
-                bundle = context.nls[master];
-                defLoc = null;
-
-                //Create the module name parts from the master name. So, if master
-                //is foo.nls.bar, then the parts should be prefix: "foo.nls",
-                // suffix: "bar", and the final locale's module name will be foo.nls.locale.bar
-                parts = master.split(".");
-                modulePrefix = parts.slice(0, parts.length - 1).join(".");
-                moduleSuffix = parts[parts.length - 1];
-                //Cycle through the locale props on the waiting object and combine
-                //the locales together.
-                for (loc in msWaiting) {
-                    if (!(loc in empty)) {
-                        if (loc === "__match") {
-                            //Found default locale to use for the top-level bundle name.
-                            defLoc = msWaiting[loc];
-                        } else {
-                            //Mix in the properties of this locale together.
-                            //Split the locale into pieces.
-                            mixed = {};
-                            parts = loc.split("-");
-                            for (i = parts.length; i > 0; i--) {
-                                locPart = parts.slice(0, i).join("-");
-                                if (locPart !== "root" && bundle[locPart]) {
-                                    run.mixin(mixed, bundle[locPart]);
-                                }
-                            }
-                            if (bundle.root) {
-                                run.mixin(mixed, bundle.root);
-                            }
-
-                            context.defined[modulePrefix + "." + loc + "." + moduleSuffix] = mixed;
-                        }
-                    }
-                }
-
-                //Finally define the default locale. Wait to the end of the property
-                //loop above so that the default locale bundle has been properly mixed
-                //together.
-                context.defined[master] = context.defined[modulePrefix + "." + defLoc + "." + moduleSuffix];
-            }
+        //Call plugins to order their dependencies, do their
+        //module definitions.
+        if (pOrderDeps) {
+            pOrderDeps(context);
         }
 
         //Walk the dependencies, doing a depth first search.
@@ -706,7 +710,7 @@ setTimeout: false */
         //Indicate checkLoaded is now done.
         context._isCheckLoaded = false;
 
-        if (context.waiting.length || context.nlsWaiting.length) {
+        if (context.waiting.length || (pIsWaiting && pIsWaiting(context))) {
             //More things in this context are waiting to load. They were probably
             //added while doing the work above in checkLoaded, calling module
             //callbacks that triggered other run calls.
@@ -917,12 +921,12 @@ setTimeout: false */
      * Simple function to mix in properties from source into target,
      * but only if target does not already have a property of the same name.
      */
-    run.mixin = function (target, source) {
+    run.mixin = function (target, source, override) {
         //Use an empty object to avoid other bad JS code that modifies
         //Object.prototype.
         var prop;
         for (prop in source) {
-            if (!(prop in target)) {
+            if (!(prop in target) || override) {
                 target[prop] = source[prop];
             }
         }
