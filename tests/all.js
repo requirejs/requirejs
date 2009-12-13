@@ -8,3 +8,4 @@ doh.registerUrl("i18nbundle", "../i18n/i18n.html?bundle=nls.en-us-surfer.colors"
 doh.registerUrl("modifiers", "../modifier/modifier.html", 10000);
 doh.registerUrl("pause/resume", "../pauseresume/pauseresume.html", 10000);
 doh.registerUrl("afterload", "../afterload.html", 10000);
+doh.registerUrl("text", "../text/text.html");

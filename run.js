@@ -257,7 +257,7 @@ setTimeout: false */
 
         //If the callback is not an actual function, it means it already
         //has the definition of the module as a literal value.
-        if (callback && !run.isFunction(callback)) {
+        if (name && callback && !run.isFunction(callback)) {
             context.defined[name] = callback;
         }
 
@@ -424,12 +424,11 @@ setTimeout: false */
                 if (typeof dep === "string") {
                     if (!context.specified[dep]) {
                         context.specified[dep] = true;
-                        context.loaded[dep] = false;
 
                         //If a plugin, call its load method.
                         index = dep.indexOf("!");
                         if (index !== -1) {
-                            depPrefix = name.substring(0, index);
+                            depPrefix = dep.substring(0, index);
                             dep = dep.substring(index + 1, dep.length);
 
                             run.callPlugin(depPrefix, context, {
@@ -564,16 +563,17 @@ setTimeout: false */
      * the environment and the circumstance of the load call.
      */
     run.load = function (moduleName, contextName) {
+        var context = run._contexts[contextName];
+        context.loaded[moduleName] = false;
         if (contextName !== run._currContextName) {
             //Not in the right context now, hold on to it until
             //the current context finishes all its loading.
             contextLoads.push(arguments);
-
         } else {
             //First derive the path name for the module.
             var url = run.convertNameToPath(moduleName, contextName);
             run.attach(url, contextName, moduleName);
-            run._contexts[contextName].startTime = (new Date()).getTime();
+            context.startTime = (new Date()).getTime();
         }
     };
 
@@ -582,7 +582,7 @@ setTimeout: false */
     /**
      * Converts a module name to a file path.
      */
-    run.convertNameToPath = function (moduleName, contextName) {
+    run.convertNameToPath = function (moduleName, contextName, ext) {
         var paths, syms, i, parentModule, url;
 
         if (run.jsExtRegExp.test(moduleName)) {
@@ -604,7 +604,7 @@ setTimeout: false */
             }
 
             //Join the path parts together, then figure out if baseUrl is needed.
-            url = syms.join("/") + ".js";
+            url = syms.join("/") + (ext || ".js");
             return ((url.charAt(0) === '/' || url.match(/^\w+:/)) ? "" : run._contexts[contextName].config.baseUrl) + url;
         }
     };

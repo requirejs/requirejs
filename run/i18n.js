@@ -137,8 +137,8 @@
          * Called when a dependency needs to be loaded.
          */
         load: function (name, contextName) {
-            //Peel off plugin prefix and call regular load.
-            run.load(name.substring(name.indexOf("!") + 1, name.length), contextName); 
+            //Just call regular load.
+            run.load(name, contextName); 
         },
 
         /**

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>run.js: Text Test</title>
+    <script type="text/javascript" src="../../run.js"></script>
+    <script type="text/javascript" src="../doh/runner.js"></script>
+    <script type="text/javascript" src="../doh/_browserRunner.js"></script>
+    <script type="text/javascript">
+    run({
+            baseUrl: "./",
+            paths: {
+                run: "../../run"
+            }
+        },
+        ["run", "widget", "text!resources.sample!html!sanitize"],
+        function(run, widget, sampleText) {
+            doh.register(
+                "text", 
+                [
+                    function text(t){
+                        t.is("<span>Hello World</span>", sampleText);
+                        t.is('<div type="widget"><h1>This is a widget</h1><p>I am in a widget</p></div>', widget.template);
+                    }
+                ]
+            );
+            doh.run();
+        }
+    );
+    </script>
+</head>
+<body>
+    <h1>run.js: Text Test</h1>
+    <p>Test for usage of text! run plugin.
+    <p>Check console for messages</p>
+</body>
+</html>

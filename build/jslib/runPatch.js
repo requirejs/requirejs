@@ -18,7 +18,9 @@ run.buildPathMap = {};
 run.buildFilePaths = [];
 
 run.load = function (moduleName, contextName) {
-    var url = run.convertNameToPath(moduleName, contextName), map;
+    var url = run.convertNameToPath(moduleName, contextName), map,
+        context = run._contexts[contextName];
+    context.loaded[moduleName] = false;
 
     //Save the module name to path mapping.
     map = run.buildPathMap[moduleName] = url;
@@ -26,7 +28,7 @@ run.load = function (moduleName, contextName) {
     load(url);
 
     //Mark the module loaded.
-    run._contexts[contextName].loaded[moduleName] = true;
+    context.loaded[moduleName] = true;
     run.checkLoaded(contextName);
 };
 

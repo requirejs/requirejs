@@ -12,6 +12,9 @@ nls stuff missing:
 
 - The omega run call, if it does a "run" dependency tries to load version1/run.js. Hmm.
 
+- The run plugin handling probably does not upgrade itself to use the latest version
+  of run's plugins if two versions of run are on the page.
+
 - Caveat with .modify: you cannot modify the top-level function. We could remove
 this restriction if we forced all functions to use the .apply() function wrapper.
 So, choosing performance in this case over extensibility.
