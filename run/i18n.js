@@ -13,6 +13,13 @@
     var nlsRegExp = /(^.*(^|\.)nls(\.|$))([^\.]*)\.?([^\.]*)/,
         empty = {};
 
+    function getWaiting(context, name) {
+        var nlswAry = context.nlsWaiting;
+        return nlswAry[name] ||
+               //Push a new waiting object on the nlsWaiting array, but also put
+               //a shortcut lookup by name to the object on the array.
+               (nlswAry[name] = nlswAry[(nlswAry.push({ _name: name}) - 1)]);
+    }
     /**
      * Does the work to integrate the bundle into the nls scheme.
      */
@@ -39,13 +46,14 @@
         //look for en-us-foo, en-us, en, then root.
         toLoad = [];
 
-        nlsw = context.nlsWaiting[name] || (context.nlsWaiting[name] = {});
+        nlsw = getWaiting(context, name);
+
         for (i = parts.length; i > -1; i--) {
             loc = i ? parts.slice(0, i).join("-") : "root";
             val = obj[loc];
             if (val) {
                 //Store which bundle to use for the default bundle definition.
-                nlsw.__match = nlsw.__match || loc;
+                nlsw._match = nlsw._match || loc;
 
                 //Track that the locale needs to be resolved with its parts.
                 nlsw[loc] = true;
@@ -95,7 +103,7 @@
                 master = match[1] + match[5];
 
                 //Track what locale bundle need to be generated once all the modules load.
-                nlsw = (context.nlsWaiting[master] || (context.nlsWaiting[master] = {}));
+                nlsw = getWaiting(context, master);
                 nlsw[match[4]] = true;
 
                 bundle = context.nls[master];
@@ -116,7 +124,7 @@
          */
         newContext: function (context) {
             run.mixin(context, {
-                nlsWaiting: {},
+                nlsWaiting: [],
                 nls: {}
             });
             if (!context.config.locale) {
@@ -159,59 +167,56 @@
         orderDeps: function (context) {
             //Clear up state since further processing could
             //add more things to fetch.
-            var i, prop, master, msWaiting, bundle, parts, moduleSuffix, mixed,
+            var i, j, master, msWaiting, bundle, parts, moduleSuffix, mixed,
                 modulePrefix, loc, defLoc, locPart, nlsWaiting = context.nlsWaiting;
-            context.nlsWaiting = {};
+            context.nlsWaiting = [];
 
             //First, properly mix in any nls bundles waiting to happen.
             //Use an empty object to detect other bad JS code that modifies
             //Object.prototype.
-            for (prop in nlsWaiting) {
-                if (!(prop in empty)) {
-                    //Each property is a master bundle name.
-                    master = prop;
-                    msWaiting = nlsWaiting[prop];
-                    bundle = context.nls[master];
-                    defLoc = null;
-    
-                    //Create the module name parts from the master name. So, if master
-                    //is foo.nls.bar, then the parts should be prefix: "foo.nls",
-                    // suffix: "bar", and the final locale's module name will be foo.nls.locale.bar
-                    parts = master.split(".");
-                    modulePrefix = parts.slice(0, parts.length - 1).join(".");
-                    moduleSuffix = parts[parts.length - 1];
-                    //Cycle through the locale props on the waiting object and combine
-                    //the locales together.
-                    for (loc in msWaiting) {
-                        if (!(loc in empty)) {
-                            if (loc === "__match") {
-                                //Found default locale to use for the top-level bundle name.
-                                defLoc = msWaiting[loc];
-                            } else {
-                                //Mix in the properties of this locale together.
-                                //Split the locale into pieces.
-                                mixed = {};
-                                parts = loc.split("-");
-                                for (i = parts.length; i > 0; i--) {
-                                    locPart = parts.slice(0, i).join("-");
-                                    if (locPart !== "root" && bundle[locPart]) {
-                                        run.mixin(mixed, bundle[locPart]);
-                                    }
+            for (i = 0; (msWaiting = nlsWaiting[i]); i++) {
+                //Each property is a master bundle name.
+                master = msWaiting._name;
+                bundle = context.nls[master];
+                defLoc = null;
+
+                //Create the module name parts from the master name. So, if master
+                //is foo.nls.bar, then the parts should be prefix: "foo.nls",
+                // suffix: "bar", and the final locale's module name will be foo.nls.locale.bar
+                parts = master.split(".");
+                modulePrefix = parts.slice(0, parts.length - 1).join(".");
+                moduleSuffix = parts[parts.length - 1];
+                //Cycle through the locale props on the waiting object and combine
+                //the locales together.
+                for (loc in msWaiting) {
+                    if (loc !== "_name" && !(loc in empty)) {
+                        if (loc === "_match") {
+                            //Found default locale to use for the top-level bundle name.
+                            defLoc = msWaiting[loc];
+                        } else {
+                            //Mix in the properties of this locale together.
+                            //Split the locale into pieces.
+                            mixed = {};
+                            parts = loc.split("-");
+                            for (j = parts.length; j > 0; j--) {
+                                locPart = parts.slice(0, j).join("-");
+                                if (locPart !== "root" && bundle[locPart]) {
+                                    run.mixin(mixed, bundle[locPart]);
                                 }
-                                if (bundle.root) {
-                                    run.mixin(mixed, bundle.root);
-                                }
-    
-                                context.defined[modulePrefix + "." + loc + "." + moduleSuffix] = mixed;
                             }
+                            if (bundle.root) {
+                                run.mixin(mixed, bundle.root);
+                            }
+
+                            context.defined[modulePrefix + "." + loc + "." + moduleSuffix] = mixed;
                         }
                     }
-    
-                    //Finally define the default locale. Wait to the end of the property
-                    //loop above so that the default locale bundle has been properly mixed
-                    //together.
-                    context.defined[master] = context.defined[modulePrefix + "." + defLoc + "." + moduleSuffix];
                 }
+
+                //Finally define the default locale. Wait to the end of the property
+                //loop above so that the default locale bundle has been properly mixed
+                //together.
+                context.defined[master] = context.defined[modulePrefix + "." + defLoc + "." + moduleSuffix];
             }
         }
     });
