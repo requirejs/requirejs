@@ -2,6 +2,7 @@ doh.registerUrl("simple", "../simple.html");
 doh.registerUrl("circular", "../circular.html");
 doh.registerUrl("depoverlap", "../depoverlap.html");
 doh.registerUrl("multiversion", "../multiversion.html", 10000);
+doh.registerUrl("i18nlocaleunknown", "../i18n/i18n.html?locale=fr-fr-foo");
 doh.registerUrl("i18n", "../i18n/i18n.html");
 doh.registerUrl("i18nlocale", "../i18n/i18n.html?locale=en-us-surfer");
 doh.registerUrl("i18nbundle", "../i18n/i18n.html?bundle=nls.en-us-surfer.colors");

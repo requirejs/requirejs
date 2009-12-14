@@ -22,8 +22,13 @@
         }
 
         var red = "red";
+        var blue = "blue";
+        var green = "green";
         if (locale === "en-us-surfer" || bundle === "nls.en-us-surfer.colors") {
             red = "red, dude";
+        } else if (locale && locale.indexOf("fr") != -1) {
+            red = "rouge";
+            blue = "bleu";
         }
         run({
             locale: locale,
@@ -39,7 +44,8 @@
                 [
                     function i18n(t) {
                         t.is(red, colors.red);
-                        t.is("blue", colors.blue);
+                        t.is(blue, colors.blue);
+                        t.is(green, colors.green);
                     }
                 ]
             );
