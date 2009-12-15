@@ -9,8 +9,8 @@
     run({
             baseUrl: "./"    
         },
-        ["run", "simple", "dimple"],
-        function(run, simple, dimple) {
+        ["run", "simple", "dimple", "func"],
+        function(run, simple, dimple, func) {
             run.ready(function(){
                 doh.register(
                     "simple", 
@@ -18,6 +18,7 @@
                         function colors(t){
                             t.is("blue", simple.color);
                             t.is("dimple-blue", dimple.color);
+                            t.is("You called a function", func());
                         }
                     ]
                 );

@@ -17,6 +17,7 @@
 run.buildPathMap = {};
 run.buildFilePaths = [];
 
+//Override load so that the file paths can be collected.
 run.load = function (moduleName, contextName) {
     var url = run.convertNameToPath(moduleName, contextName), map,
         context = run._contexts[contextName];
@@ -32,6 +33,13 @@ run.load = function (moduleName, contextName) {
     run.checkLoaded(contextName);
 };
 
+//Override a method provided by run/text.js for loading text files as
+//dependencies.
+run.fetchText = function(url, callback) {
+    callback(read(url));
+}
+
+//Instead of bringing each module into existence, order all the file URLs.
 run.callModules = function (contextName, context, orderedModules) {
     var i, module, loadedFiles = {}, url, def, prop;
     for (i = 0; (module = orderedModules[i]); i++) {

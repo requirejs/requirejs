@@ -613,7 +613,7 @@ setTimeout: false */
     //be defined.
     function makeDepFunc(context, depName) {
         return function () {
-            return context.isFuncs[depName].apply(run.global, arguments);
+            return context.isFuncs[depName].apply(this, arguments);
         };
     }
 

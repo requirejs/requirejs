@@ -1,10 +1,15 @@
+- sanitize is the wrong name.
+
+- Function modules are not identity-safe: hmm. what does that mean? Does it matter?
+
+- Get build for text to work.
+
 nls stuff missing:
   - loading more than one locale for a page.
-  - a way to dynamically ask for a locale inside a module function.
 
 - Profile a run.js impl that does not do type checks for the args. Does it make a noticeable difference?
 
-- Need a Function module in the tests.
+- Convert paths to use / instead of .
 
 - convertDojo.js: add in pause/resume when more than one provide is in the file.
 
