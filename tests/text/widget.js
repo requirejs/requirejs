@@ -5,6 +5,7 @@ run(
     return {
       subWidgetName: subwidget.name,
       subWidgetTemplate: subwidget.template,
+      subWidgetTemplate2: subwidget.template2,
       template: template
     };
   }

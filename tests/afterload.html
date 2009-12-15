@@ -28,7 +28,7 @@
     }
 
     function loadRun() {
-        var s, readyRegExp = /complete|loaded/;
+        var s, head, readyRegExp = /complete|loaded/;
         function onScriptLoad(evt) {
             var node = evt.target || evt.srcElement;
             if (evt.type === "load" || readyRegExp.test(node.readyState)) {
@@ -57,7 +57,9 @@
             s.attachEvent("onreadystatechange", onScriptLoad);
         }
 
-        document.documentElement.firstChild.appendChild(s);
+        head = (document.getElementsByTagName("head")[0] ||
+                document.getElementsByTagName("html")[0]);
+        head.appendChild(s);
     }
 
     doh.register(

@@ -36,7 +36,7 @@ run.load = function (moduleName, contextName) {
 //Override a method provided by run/text.js for loading text files as
 //dependencies.
 run.fetchText = function(url, callback) {
-    callback(read(url));
+    callback(readFile(url));
 }
 
 //Instead of bringing each module into existence, order all the file URLs.

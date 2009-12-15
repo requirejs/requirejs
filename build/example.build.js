@@ -51,8 +51,11 @@ run(
         //in the minified files.
         optimize: "closure",
         
+        //Inlines the text for any text! dependencies, to avoid the separate
+        //async XMLHttpRequest calls to load those dependencies.
+        inlineText: true,
+
         TODO:
-        - way to specify inlined HTML files?
         - way to optimize CSS? default to true
         - way to ignore CSS imports?
     }

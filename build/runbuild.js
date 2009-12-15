@@ -21,22 +21,24 @@
 
 /*jslint nomen: false, plusplus: false */
 /*global load: false, print: false, quit: false, logger: false,
-  fileUtil: false, java: false, Packages: false */
+  fileUtil: false, java: false, Packages: false, readFile: false */
 
 "use strict";
 var run;
 
 (function (args) {
     var runbuildPath, buildFile, baseUrlFile, buildPaths, deps, fileName, fileNames,
-        prop, props, paths, path, i, fileContents, buildFileContents = "",
+        prop, props, paths, path, i, fileContents, buildFileContents = "", builtRunPath,
         pauseResumeRegExp = /run\s*\.\s*(pause|resume)\s*\(\s*\)(;)?/g,
+        doClosure, textDepRegExp = /["'](text)\!([^"']+)["']/g,
         JSSourceFilefromCode = java.lang.Class.forName('com.google.javascript.jscomp.JSSourceFile').getMethod('fromCode', [java.lang.String, java.lang.String]),
 
         //Set up defaults for the config.
         config = {
             paths: {},
             optimize: "closure",
-            optimizeCss: true
+            optimizeCss: true,
+            inlineText: true
         },
         layers = {}, layer, layerName, ostring = Object.prototype.toString;
 
@@ -87,6 +89,44 @@ var run;
         compiler = new Packages.com.google.javascript.jscomp.Compiler(Packages.java.lang.System.err);
         compiler.compile(externSourceFile, jsSourceFile, options);
         return compiler.toSource();  
+    }
+
+    //This function assumes only escaping of single quotes not double quotes,
+    //for optimized string escaping for inlineText()
+    function jsEscape(text) {
+        return text.replace(/'/g, "\\'").replace(/\r/g, "\\r").replace(/\n/g, "\\n");
+    }
+
+    //Inlines text! dependencies.
+    function inlineText(fileName, fileContents) {
+        var parts, modName, ext, strip, content;
+        return fileContents.replace(textDepRegExp, function (match, prefix, dep) {
+            parts = dep.split("!");
+            modName = parts[0];
+            ext = parts[1];
+            strip = parts[2];
+            content = parts[3];
+            
+            if (strip !== "strip") {
+                content = strip;
+                strip = null;
+            }
+            
+            if (content) {
+                //Already an inlined resource, return.
+                return match;
+            } else {
+                content = readFile(run.convertNameToPath(modName, run._currContextName, "." + ext));
+                if (strip) {
+                    content = run.textStrip(content);
+                }
+                return "'" + prefix  +
+                       "!" + modName +
+                       "!" + ext +
+                       (strip ? "!strip" : "") +
+                       "!" + jsEscape(content) + "'";
+            }
+        });
     }
 
     if (!args || args.length < 2) {
@@ -169,19 +209,28 @@ var run;
 
     //Set up build output paths. Include baseUrl directory.
     paths = config.paths;
-    paths.__baseUrl = config.baseUrl;
-    buildPaths = {
-        "__baseUrl": config.dir
-    };
+    if (!paths.run) {
+        paths.run = config.runUrl.substring(0, config.runUrl.lastIndexOf("/")) + "/run";
+    }
+    buildPaths = {};
+    
+    //First copy all the baseUrl content
+    fileUtil.copyDir(config.baseUrl, config.dir, /\w/, true);
+
+    //Now copy all paths.
     for (prop in paths) {
         if (paths.hasOwnProperty(prop)) {
             //Set up build path for each path prefix.
-            if (prop !== "__baseUrl") {
-                buildPaths[prop] = config.dir + prop.replace(/\./g, "/") + "/";
-            }
+            buildPaths[prop] = prop.replace(/\./g, "/") + "/";
             //Copy files to build area. Copy all files (the /\w/ regexp)
-            fileUtil.copyDir(paths[prop], buildPaths[prop], /\w/, true);
+            fileUtil.copyDir(paths[prop], config.dir + buildPaths[prop], /\w/, true);
         }
+    }
+
+    //If run.js does not exist in build output, put it in there.
+    builtRunPath = config.dir + "run.js";
+    if (!((new Packages.java.io.File(builtRunPath)).exists())) {
+        fileUtil.copyFile(config.runUrl, builtRunPath, true);
     }
 
     //Figure out source file location for each layer. Do this by seeding run()
@@ -256,16 +305,33 @@ var run;
     fileUtil.saveUtf8File(config.dir + "build.txt", buildFileContents);
     logger.info("\nBuilt layers:\n\n" + buildFileContents);
 
-    //Optimize the JS files if asked.
-    if (config.optimize && config.optimize.indexOf("closure") === 0) {
-        logger.info("Optimizing JS files with Closure Compiler");
-        fileNames = fileUtil.getFilteredFileList(config.dir, /\.js$/, true);
-        for (i = 0; (fileName = fileNames[i]); i++) {
-            fileContents = closureOptimize(fileName,
-                                           fileUtil.readFile(fileName),
-                                           (config.optimize.indexOf(".keepLines") !== -1));
-            fileUtil.saveUtf8File(fileName, fileContents);
-        }
+    //Do bulk optimizations
+    if (config.inlineText) {
+        logger.info("Inlining text dependencies");
     }
+    doClosure = config.optimize.indexOf("closure") === 0;
+    if (doClosure) {
+        logger.info("Optimizing JS files with Closure Compiler");
+    }
+
+    fileNames = fileUtil.getFilteredFileList(config.dir, /\.js$/, true);    
+    for (i = 0; (fileName = fileNames[i]); i++) {
+        fileContents = fileUtil.readFile(fileName);
+
+        //Inline text files.
+        if (config.inlineText) {
+            fileContents = inlineText(fileName, fileContents);
+        }
+
+        //Optimize the JS files if asked.
+        if (doClosure) {
+            fileContents = closureOptimize(fileName,
+                                           fileContents,
+                                           (config.optimize.indexOf(".keepLines") !== -1));
+        }
+
+        fileUtil.saveUtf8File(fileName, fileContents);
+    }
+
 
 }(arguments));

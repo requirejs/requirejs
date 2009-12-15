@@ -10,24 +10,26 @@
 
 (function () {
     var progIds = ['Msxml2.XMLHTTP', 'Microsoft.XMLHTTP', 'Msxml2.XMLHTTP.4.0'],
-        sanitizeSuffix = "!sanitize",
+        stripSuffix = "!strip",
         xmlRegExp = /^\s*<\?xml(\s)+version=[\'\"](\d)*.(\d)*[\'\"](\s)*\?>/im,
         bodyRegExp = /<body[^>]*>\s*([\s\S]+)\s*<\/body>/im;
 
-    function sanitize(text) {
-        //Strips <?xml ...?> declarations so that external SVG and XML
-        //documents can be added to a document without worry. Also, if the string
-        //is an HTML document, only the part inside the body tag is returned.
-        if (text) {
-            text = text.replace(xmlRegExp, "");
-            var matches = text.match(bodyRegExp);
-            if (matches) {
-                text = matches[1];
+    if (!run.textStrip) {
+        run.textStrip = function (text) {
+            //Strips <?xml ...?> declarations so that external SVG and XML
+            //documents can be added to a document without worry. Also, if the string
+            //is an HTML document, only the part inside the body tag is returned.
+            if (text) {
+                text = text.replace(xmlRegExp, "");
+                var matches = text.match(bodyRegExp);
+                if (matches) {
+                    text = matches[1];
+                }
+            } else {
+                text = "";
             }
-        } else {
-            text = "";
-        }
-        return text;
+            return text;
+        };
     }
 
     //Upgrade run to add some methods for XHR handling. But it could be that
@@ -36,18 +38,18 @@
     if (!run.getXhr) {
         run.getXhr = function () {
             //Would love to dump the ActiveX crap in here. Need IE 6 to die first.
-            var xhr, i;
+            var xhr, i, progId;
             if (typeof XMLHttpRequest !== "undefined") {
                 return new XMLHttpRequest();
             } else {
                 for (i = 0; i < 3; i++) {
-                    var progid = progIds[i];
+                    progId = progIds[i];
                     try {
-                        xhr = new ActiveXObject(progid);
+                        xhr = new ActiveXObject(progId);
                     } catch (e) {}
 
                     if (xhr) {
-                        progIds = [progid];  // so faster next time
+                        progIds = [progId];  // so faster next time
                         break;
                     }
                 }   
@@ -62,18 +64,18 @@
     }
     
     if (!run.fetchText) {
-        run.fetchText = function(url, callback) {
+        run.fetchText = function (url, callback) {
             var xhr = run.getXhr();
             xhr.open('GET', url, true);
             xhr.onreadystatechange = function (evt) {
                 //Do not explicitly handle errors, those should be
                 //visible via console output in the browser.
-                if (xhr.readyState == 4) {
+                if (xhr.readyState === 4) {
                     callback(xhr.responseText);
                 }
             };
             xhr.send();
-        }
+        };
     }
 
     run.plugin({
@@ -102,37 +104,43 @@
          * Called when a dependency needs to be loaded.
          */
         load: function (name, contextName) {
-            //Name has format: some.module!filext!sanitize!text
-            //The sanitize and text parts are optional.
-            //if sanitize is present, then that means only get the string contents
+            //Name has format: some.module!filext!strip!text
+            //The strip and text parts are optional.
+            //if strip is present, then that means only get the string contents
             //inside a body tag in an HTML string. For XML/SVG content it means
             //removing the <?xml ...?> declarations so the content can be inserted
             //into the current doc without problems.
             //If text is present, it is the actual text of the file.
-            var sanitize = false, text = null, key, url, index = name.indexOf("!"),
-                modName = name.substring(0, index),
+            var strip = false, text = null, key, url, index = name.indexOf("!"),
+                modName = name.substring(0, index), fullKey,
                 ext = name.substring(index + 1, name.length),
                 context = run._contexts[contextName],
                 tWaitAry = context.textWaiting;
 
             index = ext.indexOf("!");
-            if (index != -1) {
-                //Pull off the sanitize arg.
-                sanitize = ext.substring(index + 1, ext.length);
+            if (index !== -1) {
+                //Pull off the strip arg.
+                strip = ext.substring(index + 1, ext.length);
                 ext = ext.substring(0, index);
-                index = sanitize.indexOf("!");
-                if (index != -1) {
+                index = strip.indexOf("!");
+                if (index !== -1) {
                     //Pul off the text.
-                    text = sanitize.substring(index + 1, sanitize.length);
-                    sanitize = sanitize.substring(0, index);
+                    text = strip.substring(index + 1, strip.length);
+                    strip = strip.substring(0, index);
+                }
+                if (strip !== "strip") {
+                    //strip is actually the inlined text.
+                    text = strip;
+                    strip = null;
                 }
             }
             key = modName + "!" + ext;
-            fullKey = sanitize ? key + "!" + sanitize : key;
+            fullKey = strip ? key + "!" + strip : key;
 
-            //Store off text if it is available for the given key.
+            //Store off text if it is available for the given key and be done.
             if (text !== null && !context.text[key]) {
-                context.text[key] = text;
+                context.defined["text!" + name] = context.text[key] = text;
+                return;
             }
 
             //If text is not available, load it.
@@ -144,14 +152,14 @@
                         name: name,
                         key: key,
                         fullKey: fullKey,
-                        sanitize: !!sanitize
+                        strip: !!strip
                     }) - 1)];
                 }
 
                 //Load the text.
                 url = run.convertNameToPath(modName, contextName, "." + ext);
                 context.loaded[name] = false;
-                run.fetchText(url, function(text) {
+                run.fetchText(url, function (text) {
                     context.text[key] = text;
                     context.loaded[name] = true;
                     run.checkLoaded(contextName);                    
@@ -184,7 +192,7 @@
             context.textWaiting = [];
             for (i = 0; (dep = tWaitAry[i]); i++) {
                 text = context.text[dep.key];
-                context.defined["text!" + dep.name] = dep.sanitize ? sanitize(text) : text;
+                context.defined["text!" + dep.name] = dep.strip ? run.textStrip(text) : text;
             }
         }
     });
