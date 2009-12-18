@@ -10,7 +10,6 @@
 
 (function () {
     var progIds = ['Msxml2.XMLHTTP', 'Microsoft.XMLHTTP', 'Msxml2.XMLHTTP.4.0'],
-        stripSuffix = "!strip",
         xmlRegExp = /^\s*<\?xml(\s)+version=[\'\"](\d)*.(\d)*[\'\"](\s)*\?>/im,
         bodyRegExp = /<body[^>]*>\s*([\s\S]+)\s*<\/body>/im;
 
@@ -139,7 +138,7 @@
 
             //Store off text if it is available for the given key and be done.
             if (text !== null && !context.text[key]) {
-                context.defined["text!" + name] = context.text[key] = text;
+                context.defined[name] = context.text[key] = text;
                 return;
             }
 
@@ -192,7 +191,7 @@
             context.textWaiting = [];
             for (i = 0; (dep = tWaitAry[i]); i++) {
                 text = context.text[dep.key];
-                context.defined["text!" + dep.name] = dep.strip ? run.textStrip(text) : text;
+                context.defined[dep.name] = dep.strip ? run.textStrip(text) : text;
             }
         }
     });

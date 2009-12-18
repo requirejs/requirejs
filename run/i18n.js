@@ -8,67 +8,110 @@
 
 "use strict";
 
+/**
+ * This plugin handles i18n! prefixed modules. It does the following:
+ *
+ * 1) A regular module can have a dependency on an i18n bundle, but the regular
+ * module does not want to specify what locale to load. So it just specifies
+ * the top-level bundle, like "i18n!nls.colors".
+ *
+ * This plugin will load the i18n bundle at nls.colors, see that it is a root/master
+ * bundle since it does not have a locale in its name. It will then try to find
+ * the best match locale available in that master bundle, then request all the
+ * locale pieces for that best match locale. For instance, if the locale is "en-us",
+ * then the plugin will ask for the "en-us", "en" and "root" bundles to be loaded
+ * (but only if they are specified on the master bundle).
+ *
+ * Once all the bundles for the locale pieces load, then it mixes in all those
+ * locale pieces into each other, then finally sets the context.defined value
+ * for the nls.colors bundle to be that mixed in locale.
+ *
+ * 2) A regular module specifies a specific locale to load. For instance,
+ * i18n!nls.fr-fr.colors. In this case, the plugin needs to load the master bundle
+ * first, at nls.colors, then figure out what the best match locale is for fr-fr,
+ * since maybe only fr or just root is defined for that locale. Once that best
+ * fit is found, all of its locale pieces need to have their bundles loaded.
+ *
+ * Once all the bundles for the locale pieces load, then it mixes in all those
+ * locale pieces into each other, then finally sets the context.defined value
+ * for the nls.fr-fr.colors bundle to be that mixed in locale.
+ */
 (function () {
-    //regexp for matching nls (i18n) module names.
+    //regexp for reconstructing the master bundle name from parts of the regexp match
+    //nlsRegExp.exec("foo.bar.baz.nls.en-ca.foo") gives:
+    //["foo.bar.baz.nls.en-ca.foo", "foo.bar.baz.nls.", ".", ".", "en-ca", "foo"]
+    //nlsRegExp.exec("foo.bar.baz.nls.foo") gives:
+    //["foo.bar.baz.nls.foo", "foo.bar.baz.nls.", ".", ".", "foo", ""]
+    //so, if match[5] is blank, it means this is the top bundle definition.
     var nlsRegExp = /(^.*(^|\.)nls(\.|$))([^\.]*)\.?([^\.]*)/,
         empty = {};
 
-    function getWaiting(context, name) {
+    function getWaiting(name, context) {
         var nlswAry = context.nlsWaiting;
         return nlswAry[name] ||
                //Push a new waiting object on the nlsWaiting array, but also put
                //a shortcut lookup by name to the object on the array.
                (nlswAry[name] = nlswAry[(nlswAry.push({ _name: name}) - 1)]);
     }
+
     /**
-     * Does the work to integrate the bundle into the nls scheme.
+     * Makes sure all the locale pieces are loaded, and finds the best match
+     * for the requested locale.
      */
-    function integrateBundle(name, obj, context) {
-        var i, bundle, parts, toLoad, nlsw, loc, val;
-
-        //dep is an object, so it is an i18n nls thing.
-        //Track it in the nls section of the context.
-        //It may have already been created via a specific locale
-        //request, so just mixin values in that case, to preserve
-        //the specific locale bundle object.
-        bundle = context.nls[name];
-        if (bundle) {
-            run.mixin(bundle, obj);
-        } else {
-            context.nls[name] = obj;
-        }
-
+    function resolveLocale(masterName, bundle, locale, context) {
         //Break apart the locale to get the parts.
-        parts = context.config.locale.split("-");
+        var i, parts, toLoad, nlsw, loc, val, bestLoc = "root";
+
+        parts = locale.split("-");
 
         //Now see what bundles exist for each country/locale.
         //Want to walk up the chain, so if locale is en-us-foo,
         //look for en-us-foo, en-us, en, then root.
         toLoad = [];
 
-        nlsw = getWaiting(context, name);
+        nlsw = getWaiting(masterName, context);
 
         for (i = parts.length; i > -1; i--) {
             loc = i ? parts.slice(0, i).join("-") : "root";
-            val = obj[loc];
+            val = bundle[loc];
             if (val) {
                 //Store which bundle to use for the default bundle definition.
-                nlsw._match = nlsw._match || loc;
+                if (locale === context.config.locale && !nlsw._match) {
+                    nlsw._match = loc;
+                }
+
+                //Store the best match for the target locale
+                if (bestLoc === "root") {
+                    bestLoc = loc;
+                }
 
                 //Track that the locale needs to be resolved with its parts.
-                nlsw[loc] = true;
+                //Mark what locale should be used when resolving.
+                nlsw[loc] = loc;
 
                 //If locale value is a string, it means it is a resource that
                 //needs to be loaded. Track it to load if it has not already
                 //been asked for.
                 if (typeof val === "string") {
-                    //Strip off the plugin prefix.
+                    //Strip off the plugin prefix, since we use the normal
+                    //run.load call to load modules.
                     val = val.substring(val.indexOf("!") + 1, val.length);
-    
-                    if (!context.specified[val] && !(val in context.loaded)) {
+
+                    if (!context.specified[val] && !(val in context.loaded) && !context.defined[val]) {
                         toLoad.push(val);
                     }
                 }
+            }
+        }
+
+        //If locale was not an exact match, store the closest match for it.
+        if (bestLoc !== locale) {
+            if (context.defined[bestLoc]) {
+                //Already got it. Easy peasy lemon squeezy.
+                context.defined[locale] = context.defined[bestLoc];
+            } else {
+                //Need to wait for things to load then define it.
+                nlsw[locale] = bestLoc;
             }
         }
 
@@ -85,26 +128,19 @@
          * This callback is prefix-specific, only gets called for this prefix
          */
         run: function (name, deps, callback, context, isFunction) {
-            var match, nlsw, bundle, master;
-
-            integrateBundle(name, context.defined[name], context);
+            var i, match, nlsw, bundle, master, toLoad, obj = context.defined[name];
 
             //All i18n modules must match the nls module name structure.
             match = nlsRegExp.exec(name);
-            //Reconstruct the master bundle name from parts of the regexp match
-            //nlsRegExp.exec("foo.bar.baz.nls.en-ca.foo") gives:
-            //["foo.bar.baz.nls.en-ca.foo", "foo.bar.baz.nls.", ".", ".", "en-ca", "foo"]
-            //nlsRegExp.exec("foo.bar.baz.nls.foo") gives:
-            //["foo.bar.baz.nls.foo", "foo.bar.baz.nls.", ".", ".", "foo", ""]
-            //so, if match[5] is blank, it means this is the top bundle definition,
+            //If match[5] is blank, it means this is the top bundle definition,
             //so it does not have to be handled. Only deal with ones that have a locale
             //(a match[4] value but no match[5])
             if (match[5]) {
                 master = match[1] + match[5];
 
                 //Track what locale bundle need to be generated once all the modules load.
-                nlsw = getWaiting(context, master);
-                nlsw[match[4]] = true;
+                nlsw = getWaiting(master, context);
+                nlsw[match[4]] = match[4];
 
                 bundle = context.nls[master];
                 if (!bundle) {
@@ -115,6 +151,29 @@
                 //For nls modules, the callback is just a regular object,
                 //so save it off in the bundle now.
                 bundle[match[4]] = callback;
+            } else {
+                //Integrate bundle into the nls area.
+                bundle = context.nls[name];
+                if (bundle) {
+                    //A specific locale already started the bundle object.
+                    //Do a mixin (which will not overwrite the locale property
+                    //on the bundle that has the previously loaded locale's info)
+                    run.mixin(bundle, obj);
+                } else {
+                    bundle = context.nls[name] = obj;
+                }
+                context.nlsRootLoaded[name] = true;
+
+                //Make sure there are no locales waiting to be resolved.
+                toLoad = context.nlsToLoad[name];
+                if (toLoad) {
+                    delete context.nlsToLoad[name];
+                    for (i = 0; i < toLoad.length; i++) {
+                        resolveLocale(name, bundle, toLoad[i], context);
+                    }
+                }
+
+                resolveLocale(name, bundle, context.config.locale, context);
             }
         },
 
@@ -125,7 +184,9 @@
         newContext: function (context) {
             run.mixin(context, {
                 nlsWaiting: [],
-                nls: {}
+                nls: {},
+                nlsRootLoaded: {},
+                nlsToLoad: {}
             });
             if (!context.config.locale) {
                 context.config.locale = typeof navigator === "undefined" ? "root" :
@@ -137,23 +198,42 @@
          * Called when a dependency needs to be loaded.
          */
         load: function (name, contextName) {
-            //Just call regular load.
-            run.load(name, contextName); 
+            //Make sure the root bundle is loaded, to check if we can support
+            //loading the requested locale, or if a different one needs
+            //to be chosen.
+            var masterName, context, bundle, match = nlsRegExp.exec(name),
+                locale = match[4];
+
+            //If match[5] is blank, it means this is the top bundle definition,
+            //so it does not have to be handled. Only deal with ones that have a locale
+            //(a match[4] value but no match[5])
+            if (match[5]) {
+                //locale-specific bundle
+                masterName = match[1] + match[5];
+                context = run._contexts[contextName];
+                bundle = context.nls[masterName];
+                if (context.nlsRootLoaded[masterName] && bundle) {
+                    resolveLocale(masterName, bundle, locale, context);
+                } else {
+                    //Store this locale to figure out after masterName is loaded and load masterName.
+                    (context.nlsToLoad[masterName] || (context.nlsToLoad[masterName] = [])).push(locale);
+                    context.defined.run([masterName]);
+                }
+            } else {
+                //Top-level bundle. Just call regular load.
+                run.load(name, contextName);
+            }
         },
 
         /**
          * Called when the dependencies of a module are checked.
          */
         checkDeps: function (name, deps, context) {
-            //If no dependencies, it means the bundle has already been
-            //defined in the run call and skip it.
-            if (!deps) {
-                return;
-            }
-
-            integrateBundle(name, deps, context);
+            //i18n bundles are always defined as objects for their "dependencies",
+            //and that object is already processed in the run method, no need to
+            //do work in here.
         },
-        
+
         /**
          * Called to determine if a module is waiting to load.
          */
@@ -168,12 +248,12 @@
             //Clear up state since further processing could
             //add more things to fetch.
             var i, j, master, msWaiting, bundle, parts, moduleSuffix, mixed,
-                modulePrefix, loc, defLoc, locPart, nlsWaiting = context.nlsWaiting;
+                modulePrefix, loc, defLoc, locPart, nlsWaiting = context.nlsWaiting,
+                bestFit;
             context.nlsWaiting = [];
+            context.nlsToLoad = {};
 
             //First, properly mix in any nls bundles waiting to happen.
-            //Use an empty object to detect other bad JS code that modifies
-            //Object.prototype.
             for (i = 0; (msWaiting = nlsWaiting[i]); i++) {
                 //Each property is a master bundle name.
                 master = msWaiting._name;
@@ -193,6 +273,12 @@
                         if (loc === "_match") {
                             //Found default locale to use for the top-level bundle name.
                             defLoc = msWaiting[loc];
+                        
+                        } else if (msWaiting[loc] !== loc) {
+                            //A "best fit" locale, store it off to the end and handle
+                            //it at the end by just assigning the best fit value, since
+                            //after this for loop, the best fit locale will be defined.
+                            (bestFit || (bestFit = {}))[loc] = msWaiting[loc];
                         } else {
                             //Mix in the properties of this locale together.
                             //Split the locale into pieces.
@@ -217,6 +303,15 @@
                 //loop above so that the default locale bundle has been properly mixed
                 //together.
                 context.defined[master] = context.defined[modulePrefix + "." + defLoc + "." + moduleSuffix];
+                
+                //Handle any best fit locale definitions.
+                if (bestFit) {
+                    for (loc in bestFit) {
+                        if (!(loc in empty)) {
+                            context.defined[modulePrefix + "." + loc + "." + moduleSuffix] = context.defined[modulePrefix + "." + bestFit[loc] + "." + moduleSuffix];
+                        }
+                    }
+                }
             }
         }
     });

@@ -14,7 +14,7 @@ setTimeout: false */
     var version = [0, 0, 5, ""],
             run = typeof run === "undefined" ? null : run,
             oldState = null, empty = {},
-            i, defContextName = "_runDefault", contextLoads = [],
+            i, defContextName = "_", contextLoads = [],
             scripts, script, rePkg, src, m,
             readyRegExp = /complete|loaded/,
             head = typeof document !== "undefined" ? 
@@ -563,7 +563,7 @@ setTimeout: false */
      * the environment and the circumstance of the load call.
      */
     run.load = function (moduleName, contextName) {
-        var context = run._contexts[contextName];
+        var context = run._contexts[contextName], url;
         context.loaded[moduleName] = false;
         if (contextName !== run._currContextName) {
             //Not in the right context now, hold on to it until
@@ -571,7 +571,7 @@ setTimeout: false */
             contextLoads.push(arguments);
         } else {
             //First derive the path name for the module.
-            var url = run.convertNameToPath(moduleName, contextName);
+            url = run.convertNameToPath(moduleName, contextName);
             run.attach(url, contextName, moduleName);
             context.startTime = (new Date()).getTime();
         }
@@ -752,7 +752,7 @@ setTimeout: false */
      * them into existence by calling the module callbacks.
      */
     run.callModules = function (contextName, context, orderedModules) {
-        var module, name, dep, deps, args, i, j, depModule, cb, ret, modDef;
+        var module, name, dep, deps, args, i, j, depModule, cb, ret, modDef, prefix;
         //Call the module callbacks in order.
         for (i = 0; (module = orderedModules[i]); i++) {
             //Get objects for the dependencies.
@@ -760,6 +760,12 @@ setTimeout: false */
             deps = module.deps;
             args = [];
             for (j = 0; (dep = deps[j]); j++) {
+                //Adjust dependency for plugins.
+                prefix = dep.indexOf("!");
+                if (prefix !== -1) {
+                    dep = dep.substring(prefix + 1, dep.length);
+                }
+
                 //Get dependent module. If it does not exist, because of a circular
                 //dependency, create a placeholder object or function.
                 depModule = context.defined[dep];

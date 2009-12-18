@@ -6,8 +6,7 @@ module and does an if (varFunc === doFunc) sort of test.
 
 - Convert paths to use / instead of .
 
-nls stuff missing:
-  - loading more than one locale for a page.
+- loading more than one locale for a page. A locales= option?
 
 - Profile a run.js impl that does not do type checks for the args. Does it make a noticeable difference?
 

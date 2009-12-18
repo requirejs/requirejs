@@ -24,9 +24,9 @@
         var red = "red";
         var blue = "blue";
         var green = "green";
-        if (locale === "en-us-surfer" || bundle === "nls.en-us-surfer.colors") {
+        if (locale && locale.indexOf("en-us-surfer") != -1 || bundle.indexOf("nls.en-us-surfer.colors") != -1) {
             red = "red, dude";
-        } else if (locale && locale.indexOf("fr") != -1) {
+        } else if ((locale && locale.indexOf("fr-") != -1) || bundle.indexOf("fr-") != -1) {
             red = "rouge";
             blue = "bleu";
         }
