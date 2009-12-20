@@ -10,6 +10,7 @@
 
 - Need a domcontentloaded for IE, use the scrollLeft trick?
 
+- Move to github
 
 - loading more than one locale for a page. A locales= option?
 
