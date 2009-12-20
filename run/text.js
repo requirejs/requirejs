@@ -113,7 +113,7 @@
             var strip = false, text = null, key, url, index = name.indexOf("!"),
                 modName = name.substring(0, index), fullKey,
                 ext = name.substring(index + 1, name.length),
-                context = run._contexts[contextName],
+                context = run.s.contexts[contextName],
                 tWaitAry = context.textWaiting;
 
             index = ext.indexOf("!");

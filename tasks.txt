@@ -1,10 +1,15 @@
-- Function modules are not identity-safe: hmm. what does that mean? Does it matter?
-The issue being that for a circular dependency, the function method will actually
-be a proxy method. So that function will not be the same in that module vs
-another module. This could be a problem if some module was given that
-module and does an if (varFunc === doFunc) sort of test.
-
 - Convert paths to use / instead of .
+
+- The run plugin handling probably does not upgrade itself to use the latest version
+  of run's plugins if two versions of run are on the page. Implement a version
+  number for each plugin and check it.
+
+- The omega run call, if it does a "run" dependency tries to load version1/run.js. Hmm.
+
+- Confirm that run([modifier], contextName); works, that the right context is used.
+
+- Need a domcontentloaded for IE, use the scrollLeft trick?
+
 
 - loading more than one locale for a page. A locales= option?
 
@@ -12,16 +17,16 @@ module and does an if (varFunc === doFunc) sort of test.
 
 - convertDojo.js: add in pause/resume when more than one provide is in the file.
 
-- Confirm that run([modifier], contextName); works, that the right context is used.
-
-- The omega run call, if it does a "run" dependency tries to load version1/run.js. Hmm.
-
-- The run plugin handling probably does not upgrade itself to use the latest version
-  of run's plugins if two versions of run are on the page.
-
 - Caveat with .modify: you cannot modify the top-level function. We could remove
 this restriction if we forced all functions to use the .apply() function wrapper.
 So, choosing performance in this case over extensibility.
+
+- Function modules are not identity-safe: hmm. what does that mean? Does it matter?
+The issue being that for a circular dependency, the function method will actually
+be a proxy method. So that function will not be the same in that module vs
+another module. This could be a problem if some module was given that
+module and does an if (varFunc === doFunc) sort of test, but that seems like a
+rarity/less valuable than having function modules.
 
 - Rhino tests.
 
@@ -29,8 +34,6 @@ So, choosing performance in this case over extensibility.
 
 - Allow custom build tool that collects a bunch of runjs modules into one file.
   - CSS optimization support (from dojo)?
-  - Flatten i18n bundles? "root" is already flattened, just need to do things like
-    combine en with en-us and en-us-surfer.
 
 
 Completed Items

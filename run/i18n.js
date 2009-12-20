@@ -210,7 +210,7 @@
             if (match[5]) {
                 //locale-specific bundle
                 masterName = match[1] + match[5];
-                context = run._contexts[contextName];
+                context = run.s.contexts[contextName];
                 bundle = context.nls[masterName];
                 if (context.nlsRootLoaded[masterName] && bundle) {
                     resolveLocale(masterName, bundle, locale, context);

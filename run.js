@@ -3,7 +3,8 @@
     Available via the new BSD license.
     see: http://code.google.com/p/runjs/ for details
 */
-/*jslint nomen: false, plusplus: false */
+//undef: false below because traceDeps and addDeps call each other.
+/*jslint plusplus: false, undef: false */
 /*global run: true, window: false, document: false, navigator: false,
 setTimeout: false */
 
@@ -13,13 +14,11 @@ setTimeout: false */
     //Change this version number for each release.
     var version = [0, 0, 5, ""],
             run = typeof run === "undefined" ? null : run,
-            oldState = null, empty = {},
+            oldRun, empty = {}, s,
             i, defContextName = "_", contextLoads = [],
             scripts, script, rePkg, src, m,
             readyRegExp = /complete|loaded/,
-            head = typeof document !== "undefined" ? 
-                (document.getElementsByTagName("head")[0] ||
-                document.getElementsByTagName("html")[0]) : null,
+            isBrowser = typeof window !== "undefined" && navigator && document,
             ostring = Object.prototype.toString;
 
     //Check for an existing version of run.
@@ -36,16 +35,7 @@ setTimeout: false */
             }
         }
         //Save off old state and reset state on old item to avoid bad callbacks.
-        oldState = {
-            _contexts: run._contexts,
-            _pageCallbacks: run._pageCallbacks,
-            _currContextName: run._currContextName,
-            _plugins: run._plugins,
-            _paused: run._paused,
-            isBrowser: run.isBrowser,
-            isPageLoaded: run.isPageLoaded
-        };
-        run._pageCallbacks = [];
+        oldRun = run;
     }
 
     function makeContextFunc(name, contextName) {
@@ -59,6 +49,24 @@ setTimeout: false */
             }
             return (name ? run[name] : run).apply(run.global, args);
         };
+    }
+
+    /**
+     * Calls a method on a plugin. The obj object should have two property,
+     * name: the name of the method to call on the plugin
+     * args: the arguments to pass to the plugin method.
+     */
+    function callPlugin(prefix, context, obj) {
+        //Call the plugin, or load it.
+        var plugin = s.plugins.defined[prefix], waiting;
+        if (plugin) {
+            plugin[obj.name].apply(run.global, obj.args);
+        } else {
+            //Load the module and add the call to waitin queue.
+            context.defined.run(["run." + prefix]);
+            waiting = s.plugins.waiting[prefix] || (s.plugins.waiting[prefix] = []);
+            waiting.push(obj);
+        }
     }
 
     /**
@@ -94,10 +102,10 @@ setTimeout: false */
                 deps = [];
             }
 
-            contextName = contextName || run._currContextName;
+            contextName = contextName || s.ctxName;
 
             //If module already defined for context, leave.
-            context = run._contexts[contextName];
+            context = s.contexts[contextName];
             if (context && context.defined && context.defined[name]) {
                 return run;
             }
@@ -128,12 +136,12 @@ setTimeout: false */
             contextName = contextName || config.context;
         }
 
-        contextName = contextName || run._currContextName;
+        contextName = contextName || s.ctxName;
 
-        if (contextName !== run._currContextName) {
+        if (contextName !== s.ctxName) {
             //If nothing is waiting on being loaded in the current context,
-            //then switch run._currContextName to current contextName.
-            loaded = (run._contexts[run._currContextName] && run._contexts[run._currContextName].loaded);
+            //then switch s.ctxName to current contextName.
+            loaded = (s.contexts[s.ctxName] && s.contexts[s.ctxName].loaded);
             canSetContext = true;
             if (loaded) {
                 for (prop in loaded) {
@@ -146,18 +154,18 @@ setTimeout: false */
                 }
             }
             if (canSetContext) {
-                run._currContextName = contextName;
+                s.ctxName = contextName;
             }
         }
 
         //Grab the context, or create a new one for the given context name.
-        context = run._contexts[contextName];
+        context = s.contexts[contextName];
         if (!context) {
             newContext = {
                 contextName: contextName,
                 config: {
                     waitSeconds: 7,
-                    baseUrl: run.baseUrl || "./",
+                    baseUrl: s.baseUrl || "./",
                     paths: {}
                 },
                 waiting: [],
@@ -173,23 +181,23 @@ setTimeout: false */
             };
 
             //Define run() for this context.
-            contextRun = makeContextFunc(null, contextName);
-            contextRun.modify = makeContextFunc("modify", contextName);
-            contextRun.ready = run.ready;
-            contextRun.myContextName = contextName;
-            contextRun.context = newContext;
-            contextRun.config = newContext.config;
-            contextRun.def = newContext.defined;
-            contextRun.doc = run.doc;
-            contextRun.global = run.global;
-            contextRun.isBrowser = run.isBrowser;
-            newContext.defined.run = contextRun;
+            newContext.defined.run = contextRun = makeContextFunc(null, contextName);
+            run.mixin(contextRun, {
+                modify: makeContextFunc("modify", contextName),
+                ready: run.ready,
+                context: newContext,
+                config: newContext.config,
+                def: newContext.defined,
+                global: run.global,
+                doc: s.doc,
+                isBrowser: s.isBrowser
+            });
 
-            if (run._plugins.onNewContext) {
-                run._plugins.onNewContext(newContext);
+            if (s.plugins.onNewContext) {
+                s.plugins.onNewContext(newContext);
             }
 
-            context = run._contexts[contextName] = newContext;
+            context = s.contexts[contextName] = newContext;
         }
 
         //If have a config object, update the context's config object with
@@ -263,7 +271,7 @@ setTimeout: false */
 
         //If a pluginPrefix is available, call the plugin, or load it.
         if (pluginPrefix) {
-            run.callPlugin(pluginPrefix, context, {
+            callPlugin(pluginPrefix, context, {
                 name: "run",
                 args: [name, deps, callback, context, isFunction]
             });
@@ -271,10 +279,10 @@ setTimeout: false */
 
         //See if all is loaded. If paused, then do not check the dependencies
         //of the module yet.
-        if (run._paused) {
-            run._paused.push([pluginPrefix, name, deps, context]);
+        if (s.paused) {
+            s.paused.push([pluginPrefix, name, deps, context]);
         } else {
-            run._checkDeps(pluginPrefix, name, deps, context);
+            run.checkDeps(pluginPrefix, name, deps, context);
             run.checkLoaded(contextName);
         }
 
@@ -282,30 +290,91 @@ setTimeout: false */
     };
 
     /**
-     * Calls a method on a plugin. The obj object should have two property,
-     * name: the name of the method to call on the plugin
-     * args: the arguments to pass to the plugin method.
+     * Simple function to mix in properties from source into target,
+     * but only if target does not already have a property of the same name.
      */
-    run.callPlugin = function (prefix, context, obj) {
-        //Call the plugin, or load it.
-        var plugin = run._plugins.defined[prefix], waiting;
-        if (plugin) {
-            plugin[obj.name].apply(run.global, obj.args);
-        } else {
-            //Load the module and add the call to waitin queue.
-            context.defined.run(["run." + prefix]);
-            waiting = run._plugins.waiting[prefix] || (run._plugins.waiting[prefix] = []);
-            waiting.push(obj);
+    run.mixin = function (target, source, override) {
+        for (var prop in source) {
+            if (!(prop in empty) && (!(prop in target) || override)) {
+                target[prop] = source[prop];
+            }
         }
+        return run;
     };
+
+    //Export to global namespace.
+    run.global = this;
+    run.global.run = run;
+    run.version = version;
+
+    //Set up page state. If an existing run, prefer its state.
+    s = run.s = (oldRun && oldRun.s) || {};
+
+    //In case oldRun has missing state properties (like from a build) or
+    //it is a really new empty state object, fill it out.
+    run.mixin(s, {
+        ctxName: defContextName,
+        contexts: {},
+        plugins: {
+            defined: {},
+            callbacks: {},
+            waiting: {}
+        },
+        isBrowser: isBrowser,
+        isPageLoaded: !isBrowser,
+        pageCallbacks: [],
+        doc: isBrowser ? document : null
+    });
+    s.head = s.head || isBrowser ? 
+             (s.doc.getElementsByTagName("head")[0] ||
+              s.doc.getElementsByTagName("html")[0]) : null;
+    run.isBrowser = s.isBrowser;
+    run.doc = s.doc;
+
+    oldRun = null;
+
+    //Set up page load detection for the browser case.
+    if (run.isBrowser && !s.baseUrl) {
+        //Figure out baseUrl. Get it from the script tag with run.js in it.
+        scripts = run.doc.getElementsByTagName("script");
+        rePkg = /run\.js(\W|$)/i;
+        for (i = scripts.length - 1; (script = scripts[i]); i--) {
+            src = script.getAttribute("src");
+            if (src) {
+                m = src.match(rePkg);
+                if (m) {
+                    s.baseUrl = src.substring(0, m.index);
+                }
+                break;
+            }
+        }
+    }
+
+    /**
+     * Sets up a plugin callback name. Want to make it easy to test if a plugin
+     * needs to be called for a certain lifecycle event by testing for
+     * if (s.plugins.onLifeCyleEvent) so only define the lifecycle event
+     * if there is a real plugin that registers for it.
+     */
+    function makePluginCallback(name, returnOnTrue) {
+        var cbs = s.plugins.callbacks[name] = [];
+        s.plugins[name] = function () {
+            for (var i = 0, cb; (cb = cbs[i]); i++) {
+                if (cb.apply(run.global, arguments) === true && returnOnTrue) {
+                    return true;
+                }
+            }
+            return false;
+        };
+    }
 
     /**
      * Registers a new plugin for run.
      */
     run.plugin = function (obj) {
-        var i, prop, call, prefix = obj.prefix, cbs = run._plugins.callbacks,
-            waiting = run._plugins.waiting[prefix], generics,
-            defined = run._plugins.defined, contexts = run._contexts, context;
+        var i, prop, call, prefix = obj.prefix, cbs = s.plugins.callbacks,
+            waiting = s.plugins.waiting[prefix], generics,
+            defined = s.plugins.defined, contexts = s.contexts, context;
 
         //Do not allow redefinition of a plugin, there may be internal
         //state in the plugin that could be lost.
@@ -317,12 +386,12 @@ setTimeout: false */
         defined[prefix] = obj;
 
         //Set up plugin callbacks for methods that need to be generic to
-        //run, for lifestyle cases where it does not care about a particular
+        //run, for lifecycle cases where it does not care about a particular
         //plugin, but just that some plugin work needs to be done.
         generics = ["newContext", "isWaiting", "orderDeps"];
         for (i = 0; (prop = generics[i]); i++) {
-            if (!run._plugins[prop]) {
-                run._makePluginCallback(prop, prop === "isWaiting");
+            if (!s.plugins[prop]) {
+                makePluginCallback(prop, prop === "isWaiting");
             }
             cbs[prop].push(obj[prop]);
         }
@@ -344,28 +413,10 @@ setTimeout: false */
                     obj[call.name].apply(run.global, call.args);
                 }
             }
-            delete run._plugins.waiting[prefix];
+            delete s.plugins.waiting[prefix];
         }
 
         return run;
-    };
-
-    /**
-     * Sets up a plugin callback name. Want to make it easy to test if a plugin
-     * needs to be called for a certain lifecycle event by testing for
-     * if (run._plugins.onLifeCyleEvent) so only define the lifecycle event
-     * if there is a real plugin that registers for it.
-     */
-    run._makePluginCallback = function (name, returnOnTrue) {
-        var cbs = run._plugins.callbacks[name] = [];
-        run._plugins[name] = function () {
-            for (var i = 0, cb; (cb = cbs[i]); i++) {
-                if (cb.apply(run.global, arguments) === true && returnOnTrue) {
-                    return true;
-                }
-            }
-            return false;
-        };
     };
 
     /**
@@ -374,8 +425,8 @@ setTimeout: false */
      * run before figuring out what is left still to load.
      */
     run.pause = function () {
-        if (!run._paused) {
-            run._paused = [];
+        if (!s.paused) {
+            s.paused = [];
         }
     };
 
@@ -386,14 +437,14 @@ setTimeout: false */
      */
     run.resume = function () {
         var i, args, paused;
-        if (run._paused) {
-            paused = run._paused;
-            delete run._paused;
+        if (s.paused) {
+            paused = s.paused;
+            delete s.paused;
             for (i = 0; (args = paused[i]); i++) {
-                run._checkDeps.apply(run, args);
+                run.checkDeps.apply(run, args);
             }
         }
-        run.checkLoaded(run._currContextName);
+        run.checkLoaded(s.ctxName);
     };
 
     /**
@@ -406,15 +457,17 @@ setTimeout: false */
      * @param {Array} deps array of dependencies.
      *
      * @param {Object} context: the loading context.
+     *
+     * @private
      */
-    run._checkDeps = function (pluginPrefix, name, deps, context) {
+    run.checkDeps = function (pluginPrefix, name, deps, context) {
         //Figure out if all the modules are loaded. If the module is not
         //being loaded or already loaded, add it to the "to load" list,
         //and request it to be loaded.
         var i, dep, index, depPrefix;
 
         if (pluginPrefix) {
-            run.callPlugin(pluginPrefix, context, {
+            callPlugin(pluginPrefix, context, {
                 name: "checkDeps",
                 args: [name, deps, context]
             });
@@ -431,7 +484,7 @@ setTimeout: false */
                             depPrefix = dep.substring(0, index);
                             dep = dep.substring(index + 1, dep.length);
 
-                            run.callPlugin(depPrefix, context, {
+                            callPlugin(depPrefix, context, {
                                 name: "load",
                                 args: [dep, context.contextName]
                             });
@@ -473,8 +526,8 @@ setTimeout: false */
      */
     run.modify = function (target, name, deps, callback, contextName) {
         var prop, modifier, list,
-                cName = (typeof target === "string" ? contextName : name) || run._currContextName,
-                context = run._contexts[cName],
+                cName = (typeof target === "string" ? contextName : name) || s.ctxName,
+                context = s.contexts[cName],
                 mods = context.modifiers;
                 
         if (typeof target === "string") {
@@ -509,17 +562,6 @@ setTimeout: false */
         }
     };
 
-    //Export to global namespace.
-    run.global = this;
-    run.global.run = run;
-
-    run.version = version;
-    run.isBrowser = oldState ? oldState.isBrowser : typeof window !== "undefined" && navigator && document;
-    run.isPageLoaded = oldState ? oldState.isPageLoaded : !run.isBrowser;
-    if (run.isBrowser) {
-        run.doc = document;
-    }
-
     run.isArray = function (it) {
         return ostring.call(it) === "[object Array]";
     };
@@ -528,44 +570,14 @@ setTimeout: false */
         return ostring.call(it) === "[object Function]";
     };
 
-    //Set up storage for modules that is partitioned by context. Create a
-    //default context too.
-    run._currContextName = (oldState && oldState._currContextName) || defContextName;
-    run._contexts = (oldState && oldState._contexts) || {};
-    if (oldState) {
-        run._paused = oldState._paused;
-    }
-    run._plugins = (oldState && oldState._plugins) || {
-        defined: {},
-        callbacks: {},
-        waiting: {}
-    };
-
-    //Set up page load detection for the browser case.
-    if (run.isBrowser) {
-        //Figure out baseUrl. Get it from the script tag with run.js in it.
-        scripts = document.getElementsByTagName("script");
-        rePkg = /run\.js(\W|$)/i;
-        for (i = scripts.length - 1; (script = scripts[i]); i--) {
-            src = script.getAttribute("src");
-            if (src) {
-                m = src.match(rePkg);
-                if (m) {
-                    run.baseUrl = src.substring(0, m.index);
-                }
-                break;
-            }
-        }
-    }
-
     /**
      * Makes the request to load a module. May be an async load depending on
      * the environment and the circumstance of the load call.
      */
     run.load = function (moduleName, contextName) {
-        var context = run._contexts[contextName], url;
+        var context = s.contexts[contextName], url;
         context.loaded[moduleName] = false;
-        if (contextName !== run._currContextName) {
+        if (contextName !== s.ctxName) {
             //Not in the right context now, hold on to it until
             //the current context finishes all its loading.
             contextLoads.push(arguments);
@@ -590,7 +602,7 @@ setTimeout: false */
             return moduleName;
         } else {
             //A module that needs to be converted to a path.
-            paths = run._contexts[contextName].config.paths;
+            paths = s.contexts[contextName].config.paths;
             syms = moduleName.split(".");
             //For each module name segment, see if there is a path
             //registered for it. Start with most specific name
@@ -605,7 +617,7 @@ setTimeout: false */
 
             //Join the path parts together, then figure out if baseUrl is needed.
             url = syms.join("/") + (ext || ".js");
-            return ((url.charAt(0) === '/' || url.match(/^\w+:/)) ? "" : run._contexts[contextName].config.baseUrl) + url;
+            return ((url.charAt(0) === '/' || url.match(/^\w+:/)) ? "" : s.contexts[contextName].config.baseUrl) + url;
         }
     };
 
@@ -618,23 +630,87 @@ setTimeout: false */
     }
 
     /**
+     * Adds an array of deps to the module chain in the right order.
+     * Called exclusively by traceDeps. Needs to be a different function
+     * since it is called twice in traceDeps
+     */
+    function addDeps(deps, moduleChain, orderedModules, waiting, defined, modifiers) {
+        var nextDep, nextModule, i, mods;
+        if (deps && deps.length > 0) {
+            for (i = 0; (nextDep = deps[i]); i++) {
+                nextModule = waiting[waiting[nextDep]];
+                if (nextModule && !nextModule.isOrdered) {
+                    if (defined[nextDep]) {
+                        //Check for any modifiers on it.
+                        //Need to check here since if defined, we do not want to add it to
+                        //module change and have to reprocess the defined module.
+                        mods = nextModule.name && modifiers[nextModule.name];
+                        if (mods) {
+                            addDeps(mods, moduleChain, orderedModules, waiting, defined, modifiers);
+                            delete modifiers[nextModule.name];
+                        }
+                    } else {
+                        //New dependency. Follow it down. Modifiers followed in traceDeps.
+                        moduleChain.push(nextModule);
+                        if (nextModule.name) {
+                            moduleChain[nextModule.name] = true;
+                        }
+                        traceDeps(moduleChain, orderedModules, waiting, defined, modifiers);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Figures out the right sequence to call module callbacks.
+     */
+    function traceDeps(moduleChain, orderedModules, waiting, defined, modifiers) {
+        var module, mods;
+        while (moduleChain.length > 0) {
+            module = moduleChain[moduleChain.length - 1];
+            if (module && !module.isOrdered) {
+                module.isOrdered = true;
+
+                //Trace down any dependencies for this resource.
+                addDeps(module.deps, moduleChain, orderedModules, waiting, defined, modifiers);
+
+                //Add the current module to the ordered list.
+                orderedModules.push(module);
+
+                //Now add any modifier modules for current module.
+                mods = modifiers[module.name];
+                if (mods) {
+                    addDeps(mods, moduleChain, orderedModules, waiting, defined, modifiers);
+                    delete modifiers[module.name];
+                }
+            }
+
+            //Done with that require. Remove it and go to the next one.
+            moduleChain.pop();
+        }
+    }
+
+    /**
      * Checks if all modules for a context are loaded, and if so, evaluates the
      * new ones in right dependency order.
+     *
+     * @private
      */
     run.checkLoaded = function (contextName) {
-        var context = run._contexts[contextName || run._currContextName],
+        var context = s.contexts[contextName || s.ctxName],
                 waitInterval = context.config.waitSeconds * 1000,
                 //It is possible to disable the wait interval by using waitSeconds of 0.
                 expired = waitInterval && (context.startTime + waitInterval) < new Date().getTime(),
                 loaded = context.loaded,
                 noLoads = "",
                 hasLoadedProp = false, stillLoading = false, prop, waiting,
-                pIsWaiting = run._plugins.isWaiting, pOrderDeps = run._plugins.orderDeps,
+                pIsWaiting = s.plugins.isWaiting, pOrderDeps = s.plugins.orderDeps,
                 i, orderedModules, module, moduleChain, allDone, loads, loadArgs;
 
         //If already doing a checkLoaded call,
         //then do not bother checking loaded state.
-        if (context._isCheckLoaded) {
+        if (context.isCheckLoaded) {
             return;
         }
 
@@ -642,7 +718,7 @@ setTimeout: false */
         //by calling a waiting callback that then calls run and then this function
         //should not proceed. At the end of this function, if there are still things
         //waiting, then checkLoaded will be called again.
-        context._isCheckLoaded = true;
+        context.isCheckLoaded = true;
 
         //See if anything is still in flight.
         for (prop in loaded) {
@@ -663,7 +739,7 @@ setTimeout: false */
         if (!hasLoadedProp && !context.waiting.length && (!pIsWaiting || !pIsWaiting(context))) {
             //If the loaded object had no items, then the rest of
             //the work below does not need to be done.
-            context._isCheckLoaded = false;
+            context.isCheckLoaded = false;
             return;
         }
         if (expired) {
@@ -672,7 +748,7 @@ setTimeout: false */
         }
         if (stillLoading) {
             //Something is still waiting to load. Wait for it.
-            context._isCheckLoaded = false;
+            context.isCheckLoaded = false;
             if (run.isBrowser) {
                 setTimeout(function () {
                     run.checkLoaded(contextName);
@@ -702,13 +778,13 @@ setTimeout: false */
                 moduleChain[module.name] = true;
             }
 
-            run.traceDeps(moduleChain, orderedModules, waiting, context.defined, context.modifiers);
+            traceDeps(moduleChain, orderedModules, waiting, context.defined, context.modifiers);
         }
 
         run.callModules(contextName, context, orderedModules);
 
         //Indicate checkLoaded is now done.
-        context._isCheckLoaded = false;
+        context.isCheckLoaded = false;
 
         if (context.waiting.length || (pIsWaiting && pIsWaiting(context))) {
             //More things in this context are waiting to load. They were probably
@@ -732,7 +808,7 @@ setTimeout: false */
             }
 
             if (allDone) {
-                run._currContextName = contextLoads[0][1];
+                s.ctxName = contextLoads[0][1];
                 loads = contextLoads;
                 //Reset contextLoads in case some of the waiting loads
                 //are for yet another context.
@@ -743,13 +819,15 @@ setTimeout: false */
             }
         } else {
             //Make sure we reset to default context.
-            run._currContextName = defContextName;
+            s.ctxName = defContextName;
         }
     };
 
     /**
      * After modules have been sorted into the right dependency order, bring
      * them into existence by calling the module callbacks.
+     *
+     * @private
      */
     run.callModules = function (contextName, context, orderedModules) {
         var module, name, dep, deps, args, i, j, depModule, cb, ret, modDef, prefix;
@@ -807,72 +885,12 @@ setTimeout: false */
     };
 
     /**
-     * Figures out the right sequence to call module callbacks.
-     */
-    run.traceDeps = function (moduleChain, orderedModules, waiting, defined, modifiers) {
-        var module, mods;
-        while (moduleChain.length > 0) {
-            module = moduleChain[moduleChain.length - 1];
-            if (module && !module.isOrdered) {
-                module.isOrdered = true;
-
-                //Trace down any dependencies for this resource.
-                run.addDeps(module.deps, moduleChain, orderedModules, waiting, defined, modifiers);
-
-                //Add the current module to the ordered list.
-                orderedModules.push(module);
-
-                //Now add any modifier modules for current module.
-                mods = modifiers[module.name];
-                if (mods) {
-                    run.addDeps(mods, moduleChain, orderedModules, waiting, defined, modifiers);
-                    delete modifiers[module.name];
-                }
-            }
-
-            //Done with that require. Remove it and go to the next one.
-            moduleChain.pop();
-        }
-    };
-
-    /**
-     * Adds an array of deps to the module chain in the right order.
-     * Called exclusively by run.traceDeps. Needs to be a different function
-     * since it is called twice in run.traceDeps
-     */
-    run.addDeps = function (deps, moduleChain, orderedModules, waiting, defined, modifiers) {
-        var nextDep, nextModule, i, mods;
-        if (deps && deps.length > 0) {
-            for (i = 0; (nextDep = deps[i]); i++) {
-                nextModule = waiting[waiting[nextDep]];
-                if (nextModule && !nextModule.isOrdered) {
-                    if (defined[nextDep]) {
-                        //Check for any modifiers on it.
-                        //Need to check here since if defined, we do not want to add it to
-                        //module change and have to reprocess the defined module.
-                        mods = nextModule.name && modifiers[nextModule.name];
-                        if (mods) {
-                            run.addDeps(mods, moduleChain, orderedModules, waiting, defined, modifiers);
-                            delete modifiers[nextModule.name];
-                        }
-                    } else {
-                        //New dependency. Follow it down. Modifiers followed in traceDeps.
-                        moduleChain.push(nextModule);
-                        if (nextModule.name) {
-                            moduleChain[nextModule.name] = true;
-                        }
-                        run.traceDeps(moduleChain, orderedModules, waiting, defined, modifiers);
-                    }
-                }
-            }
-        }
-    };
-
-    /**
      * callback for script loads, used to check status of loading.
      *
      * @param {Event} evt the event from the browser for the script
      * that was loaded.
+     *
+     * @private
      */
     run.onScriptLoad = function (evt) {
         var node = evt.target || evt.srcElement, contextName, moduleName;
@@ -882,7 +900,7 @@ setTimeout: false */
             moduleName = node.getAttribute("data-runmodule");
 
             //Mark the module loaded.
-            run._contexts[contextName].loaded[moduleName] = true;
+            s.contexts[contextName].loaded[moduleName] = true;
 
             run.checkLoaded(contextName);
 
@@ -903,7 +921,7 @@ setTimeout: false */
      */
     run.attach = function (url, contextName, moduleName) {
         if (run.isBrowser) {
-            var node = document.createElement("script");
+            var node = run.doc.createElement("script");
             node.src = url;
             node.type = "text/javascript";
             node.charset = "utf-8";
@@ -918,25 +936,9 @@ setTimeout: false */
                 node.attachEvent("onreadystatechange", run.onScriptLoad);
             }
 
-            return head.appendChild(node);
+            return s.head.appendChild(node);
         }
         return null;
-    };
-
-    /**
-     * Simple function to mix in properties from source into target,
-     * but only if target does not already have a property of the same name.
-     */
-    run.mixin = function (target, source, override) {
-        //Use an empty object to avoid other bad JS code that modifies
-        //Object.prototype.
-        var prop;
-        for (prop in source) {
-            if (!(prop in target) || override) {
-                target[prop] = source[prop];
-            }
-        }
-        return run;
     };
 
     //****** START page load functionality ****************
@@ -945,19 +947,13 @@ setTimeout: false */
      * Sets the page as loaded and triggers check for all modules loaded.
      */
     run.pageLoaded = function () {
-        if (!run.isPageLoaded) {
-            run.isPageLoaded = true;
-            run._callReady();
-        }
-    };
-
-    run._pageCallbacks = oldState ? oldState._pageCallbacks : [];
-
-    run._callReady = function () {
-        var callbacks = run._pageCallbacks, i, callback;
-        run._pageCallbacks = [];
-        for (i = 0; (callback = callbacks[i]); i++) {
-            callback();
+        var callbacks = s.pageCallbacks, i, callback;
+        if (!s.isPageLoaded) {
+            s.isPageLoaded = true;
+            s.pageCallbacks = [];
+            for (i = 0; (callback = callbacks[i]); i++) {
+                callback();
+            }
         }
     };
 
@@ -965,33 +961,30 @@ setTimeout: false */
      * Registers functions to call when the page is loaded
      */
     run.ready = function (callback) {
-        if (run.isPageLoaded) {
+        if (s.isPageLoaded) {
             callback();
         } else {
-            run._pageCallbacks.push(callback);
+            s.pageCallbacks.push(callback);
         }
         return run;
     };
 
     if (run.isBrowser) {
-        if (document.addEventListener) {
+        if (run.doc.addEventListener) {
             //Standards. Hooray! Assumption here that if standards based,
             //it knows about DOMContentLoaded.
-            document.addEventListener("DOMContentLoaded", run.pageLoaded, false);
+            run.doc.addEventListener("DOMContentLoaded", run.pageLoaded, false);
             window.addEventListener("load", run.pageLoaded, false);
         } else if (window.attachEvent) {
             window.attachEvent("onload", run.pageLoaded);
         }
-        
+
         //Check if document already complete, and if so, just trigger page load
         //listeners. NOTE: does not work with Firefox before 3.6. To support
         //those browsers, manually call run.pageLoaded().
-        if (document.readyState === "complete") {
+        if (run.doc.readyState === "complete") {
             run.pageLoaded();
         }
     }
     //****** END page load functionality ****************
-    
-    //Clean up old state, variable, no need to keep that around.
-    oldState = null;
 }());
