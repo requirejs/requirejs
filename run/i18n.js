@@ -13,9 +13,9 @@
  *
  * 1) A regular module can have a dependency on an i18n bundle, but the regular
  * module does not want to specify what locale to load. So it just specifies
- * the top-level bundle, like "i18n!nls.colors".
+ * the top-level bundle, like "i18n!nls/colors".
  *
- * This plugin will load the i18n bundle at nls.colors, see that it is a root/master
+ * This plugin will load the i18n bundle at nls/colors, see that it is a root/master
  * bundle since it does not have a locale in its name. It will then try to find
  * the best match locale available in that master bundle, then request all the
  * locale pieces for that best match locale. For instance, if the locale is "en-us",
@@ -24,26 +24,26 @@
  *
  * Once all the bundles for the locale pieces load, then it mixes in all those
  * locale pieces into each other, then finally sets the context.defined value
- * for the nls.colors bundle to be that mixed in locale.
+ * for the nls/colors bundle to be that mixed in locale.
  *
  * 2) A regular module specifies a specific locale to load. For instance,
- * i18n!nls.fr-fr.colors. In this case, the plugin needs to load the master bundle
- * first, at nls.colors, then figure out what the best match locale is for fr-fr,
+ * i18n!nls/fr-fr/colors. In this case, the plugin needs to load the master bundle
+ * first, at nls/colors, then figure out what the best match locale is for fr-fr,
  * since maybe only fr or just root is defined for that locale. Once that best
  * fit is found, all of its locale pieces need to have their bundles loaded.
  *
  * Once all the bundles for the locale pieces load, then it mixes in all those
  * locale pieces into each other, then finally sets the context.defined value
- * for the nls.fr-fr.colors bundle to be that mixed in locale.
+ * for the nls/fr-fr/colors bundle to be that mixed in locale.
  */
 (function () {
     //regexp for reconstructing the master bundle name from parts of the regexp match
-    //nlsRegExp.exec("foo.bar.baz.nls.en-ca.foo") gives:
-    //["foo.bar.baz.nls.en-ca.foo", "foo.bar.baz.nls.", ".", ".", "en-ca", "foo"]
-    //nlsRegExp.exec("foo.bar.baz.nls.foo") gives:
-    //["foo.bar.baz.nls.foo", "foo.bar.baz.nls.", ".", ".", "foo", ""]
+    //nlsRegExp.exec("foo/bar/baz/nls/en-ca/foo") gives:
+    //["foo/bar/baz/nls/en-ca/foo", "foo/bar/baz/nls/", "/", "/", "en-ca", "foo"]
+    //nlsRegExp.exec("foo/bar/baz/nls/foo") gives:
+    //["foo/bar/baz/nls/foo", "foo/bar/baz/nls/", "/", "/", "foo", ""]
     //so, if match[5] is blank, it means this is the top bundle definition.
-    var nlsRegExp = /(^.*(^|\.)nls(\.|$))([^\.]*)\.?([^\.]*)/,
+    var nlsRegExp = /(^.*(^|\/)nls(\/|$))([^\/]*)\/?([^\/]*)/,
         empty = {};
 
     function getWaiting(name, context) {
@@ -261,10 +261,10 @@
                 defLoc = null;
 
                 //Create the module name parts from the master name. So, if master
-                //is foo.nls.bar, then the parts should be prefix: "foo.nls",
-                // suffix: "bar", and the final locale's module name will be foo.nls.locale.bar
-                parts = master.split(".");
-                modulePrefix = parts.slice(0, parts.length - 1).join(".");
+                //is foo/nls/bar, then the parts should be prefix: "foo/nls",
+                // suffix: "bar", and the final locale's module name will be foo/nls/locale/bar
+                parts = master.split("/");
+                modulePrefix = parts.slice(0, parts.length - 1).join("/");
                 moduleSuffix = parts[parts.length - 1];
                 //Cycle through the locale props on the waiting object and combine
                 //the locales together.
@@ -294,7 +294,7 @@
                                 run.mixin(mixed, bundle.root);
                             }
 
-                            context.defined[modulePrefix + "." + loc + "." + moduleSuffix] = mixed;
+                            context.defined[modulePrefix + "/" + loc + "/" + moduleSuffix] = mixed;
                         }
                     }
                 }
@@ -302,13 +302,13 @@
                 //Finally define the default locale. Wait to the end of the property
                 //loop above so that the default locale bundle has been properly mixed
                 //together.
-                context.defined[master] = context.defined[modulePrefix + "." + defLoc + "." + moduleSuffix];
+                context.defined[master] = context.defined[modulePrefix + "/" + defLoc + "/" + moduleSuffix];
                 
                 //Handle any best fit locale definitions.
                 if (bestFit) {
                     for (loc in bestFit) {
                         if (!(loc in empty)) {
-                            context.defined[modulePrefix + "." + loc + "." + moduleSuffix] = context.defined[modulePrefix + "." + bestFit[loc] + "." + moduleSuffix];
+                            context.defined[modulePrefix + "/" + loc + "/" + moduleSuffix] = context.defined[modulePrefix + "/" + bestFit[loc] + "/" + moduleSuffix];
                         }
                     }
                 }

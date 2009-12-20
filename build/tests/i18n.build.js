@@ -5,5 +5,5 @@ run({
         dir: "buildi18n",
         locale: "en-us-surfer"
     },
-    "nls.colors"
+    "nls/colors"
 );

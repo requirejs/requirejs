@@ -65,27 +65,27 @@ run(
 //a built file that contains all of its dependencies. If that module or any
 //of its dependencies includes i18n bundles, they may not be included in the
 //built file unless the locale: section is set above.
-run("foo.bar.bop");
+run("foo/bar/bop");
 
-//This invocation combines all the dependencies of foo.bar.bop and foo.bar.bee
+//This invocation combines all the dependencies of foo/bar/bop and foo/bar/bee
 //and any of its dependencies into one file. If that module or any
 //of its dependencies includes i18n bundles, they may not be included in the
 //built file unless the locale: section is set above.
 run(
-    "foo.bar.bop",
-    ["foo.bar.bee"]
+    "foo/bar/bop",
+    ["foo/bar/bee"]
 );
 
-//This invocation combines all the dependencies of foo.bar.bip into one file,
-//but excludes foo.bar.bop and its dependencies from the built file. The list
+//This invocation combines all the dependencies of foo/bar/bip into one file,
+//but excludes foo/bar/bop and its dependencies from the built file. The list
 //of exclude modules can only be other build layer module names, and those
 //build layer *must* be defined before the run call with the exclude option.
 //TODO: not supported yet.
 run(
     {
        exclude: [
-        "foo.bar.bop"
+        "foo/bar/bop"
        ]
     }
-    "foo.bar.bip"
+    "foo/bar/bip"
 );

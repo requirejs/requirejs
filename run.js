@@ -63,7 +63,7 @@ setTimeout: false */
             plugin[obj.name].apply(run.global, obj.args);
         } else {
             //Load the module and add the call to waitin queue.
-            context.defined.run(["run." + prefix]);
+            context.defined.run(["run/" + prefix]);
             waiting = s.plugins.waiting[prefix] || (s.plugins.waiting[prefix] = []);
             waiting.push(obj);
         }
@@ -506,17 +506,17 @@ setTimeout: false */
      * First syntax:
      *
      * run.modify({
-     *     "some.target1": "my.modifier1",
-     *     "some.target2": "my.modifier2",
+     *     "some/target1": "my/modifier1",
+     *     "some/target2": "my/modifier2",
      * });
      *
-     * With this syntax, the my.modifier1 will only be loaded when
-     * "some.target1" is loaded.
+     * With this syntax, the my/modifier1 will only be loaded when
+     * "some/target1" is loaded.
      *
      * Second syntax, defining a modifier.
      *
-     * run.modify("some.target1", "my.modifier",
-     *                        ["some.target1", "some.other"],
+     * run.modify("some/target1", "my/modifier",
+     *                        ["some/target1", "some/other"],
      *                        function (target, other) {
      *                            //Modify properties of target here.
      *                            Only properties of target can be modified, but
@@ -603,12 +603,21 @@ setTimeout: false */
         } else {
             //A module that needs to be converted to a path.
             paths = s.contexts[contextName].config.paths;
-            syms = moduleName.split(".");
+            
+            //Backwards compat issue with modules like Dojo or Google Closure.
+            //Consider removing this in the future. While this compat shim
+            //exists, supporting module names like "./some/path" will not work.
+            //However, given the IE browser restriction of not firing script loads
+            //in order with script evaluations, and to allow multiple modules
+            //in a build file, relative paths do not make much sense.
+            moduleName = moduleName.replace(/\./g, "/");
+
+            syms = moduleName.split("/");
             //For each module name segment, see if there is a path
             //registered for it. Start with most specific name
             //and work up from it.
             for (i = syms.length; i > 0; i--) {
-                parentModule = syms.slice(0, i).join(".");
+                parentModule = syms.slice(0, i).join("/");
                 if (paths[parentModule]) {
                     syms.splice(0, i, paths[parentModule]);
                     break;
