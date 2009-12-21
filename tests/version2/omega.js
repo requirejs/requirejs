@@ -1,6 +1,7 @@
 run(
   "omega",
-  function() {
+  ["sigma"],
+  function(epsilon) {
     return {
       version: 2
     };

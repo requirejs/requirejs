@@ -1,5 +1,3 @@
-- Convert paths to use / instead of .
-
 - The run plugin handling probably does not upgrade itself to use the latest version
   of run's plugins if two versions of run are on the page. Implement a version
   number for each plugin and check it.
@@ -7,10 +5,6 @@
     Only problem is the assumption that they need to get loaded? Maybe track
     loaded plugins and reload them, so the fact they are outstanding should old
     the logic to trace deps?
-
-- The omega run call, if it does a "run" dependency tries to load version1/run.js. Hmm.
-
-- Confirm that run([modifier], contextName); works, that the right context is used.
 
 - Need a domcontentloaded for IE, use the scrollLeft trick?
 
