@@ -14,28 +14,17 @@ setTimeout: false */
     //Change this version number for each release.
     var version = [0, 0, 5, ""],
             run = typeof run === "undefined" ? null : run,
-            oldRun, empty = {}, s,
+            empty = {}, s,
             i, defContextName = "_", contextLoads = [],
             scripts, script, rePkg, src, m,
             readyRegExp = /complete|loaded/,
             isBrowser = typeof window !== "undefined" && navigator && document,
             ostring = Object.prototype.toString;
 
-    //Check for an existing version of run.
-    //Only overwrite if there is a version of run and it is less
-    //than this version.
+    //Check for an existing version of run. If so, then exit out. Only allow
+    //one version of run to be active in a page.
     if (run) {
-        if (!run.version) {
-            return;
-        } else {
-            for (i = 0; i < 2; i++) {
-                if (run.version[i] >= version[i]) {
-                    return;
-                }
-            }
-        }
-        //Save off old state and reset state on old item to avoid bad callbacks.
-        oldRun = run;
+        return;
     }
 
     function makeContextFunc(name, contextName) {
@@ -307,12 +296,8 @@ setTimeout: false */
     run.global.run = run;
     run.version = version;
 
-    //Set up page state. If an existing run, prefer its state.
-    s = run.s = (oldRun && oldRun.s) || {};
-
-    //In case oldRun has missing state properties (like from a build) or
-    //it is a really new empty state object, fill it out.
-    run.mixin(s, {
+    //Set up page state.
+    s = run.s = {
         ctxName: defContextName,
         contexts: {},
         plugins: {
@@ -324,14 +309,12 @@ setTimeout: false */
         isPageLoaded: !isBrowser,
         pageCallbacks: [],
         doc: isBrowser ? document : null
-    });
+    };
     s.head = s.head || isBrowser ? 
              (s.doc.getElementsByTagName("head")[0] ||
               s.doc.getElementsByTagName("html")[0]) : null;
     run.isBrowser = s.isBrowser;
     run.doc = s.doc;
-
-    oldRun = null;
 
     //Set up page load detection for the browser case.
     if (run.isBrowser && !s.baseUrl) {
