@@ -1,5 +1,3 @@
-- Need a domcontentloaded for IE, use the scrollLeft trick?
-
 - Move to github
 
 - loading more than one locale for a page. A locales= option?
@@ -10,13 +8,13 @@
 this restriction if we forced all functions to use the .apply() function wrapper.
 So, choosing performance in this case over extensibility.
 
-- Function modules are not identity-safe: hmm. what does that mean? Does it matter?
+- Function modules are not identity-safe: But does it matter?
 The issue being that for a circular dependency, the function method will actually
 be a proxy method. So that function will not be the same in that module vs
 another module. This could be a problem if some module was given that
 module and does an if (varFunc === doFunc) sort of test, but that seems like a
 rarity/less valuable than having function modules. Also could be a problem for
-objects too, but again, only an issue in circular dependency cases, and the good
+objects modules too, but again, only an issue in circular dependency cases, and the good
 seems to outweigh the possibility of this edge case.
 
 - Rhino tests.

@@ -3,23 +3,23 @@
     Available via the new BSD license.
     see: http://code.google.com/p/runjs/ for details
 */
-//undef: false below because traceDeps and addDeps call each other.
-/*jslint plusplus: false, undef: false */
+/*jslint plusplus: false */
 /*global run: true, window: false, document: false, navigator: false,
-setTimeout: false */
+setTimeout: false, traceDeps: true, clearInterval: false, self: false,
+setInterval: false */
 
 "use strict";
 
 (function () {
     //Change this version number for each release.
-    var version = [0, 0, 5, ""],
+    var version = "0.0.5",
             run = typeof run === "undefined" ? null : run,
             empty = {}, s,
             i, defContextName = "_", contextLoads = [],
             scripts, script, rePkg, src, m,
             readyRegExp = /complete|loaded/,
             isBrowser = typeof window !== "undefined" && navigator && document,
-            ostring = Object.prototype.toString;
+            ostring = Object.prototype.toString, scrollIntervalId;
 
     //Check for an existing version of run. If so, then exit out. Only allow
     //one version of run to be active in a page.
@@ -942,6 +942,9 @@ setTimeout: false */
         var callbacks = s.pageCallbacks, i, callback;
         if (!s.isPageLoaded) {
             s.isPageLoaded = true;
+            if (scrollIntervalId) {
+                clearInterval(scrollIntervalId);
+            }
             s.pageCallbacks = [];
             for (i = 0; (callback = callbacks[i]); i++) {
                 callback();
@@ -969,6 +972,17 @@ setTimeout: false */
             window.addEventListener("load", run.pageLoaded, false);
         } else if (window.attachEvent) {
             window.attachEvent("onload", run.pageLoaded);
+
+            //DOMContentLoaded approximation, as found by Diego Perini:
+            //http://javascript.nwbox.com/IEContentLoaded/
+            if (self === self.top) {
+                scrollIntervalId = setInterval(function () {
+                    try {
+                        run.doc.documentElement.doScroll("left");
+                        run.pageLoaded();
+                    } catch (e) {}
+                }, 30);
+            }
         }
 
         //Check if document already complete, and if so, just trigger page load
