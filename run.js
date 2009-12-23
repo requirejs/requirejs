@@ -12,7 +12,7 @@ setInterval: false */
 
 (function () {
     //Change this version number for each release.
-    var version = "0.0.5",
+    var version = "0.0.6",
             run = typeof run === "undefined" ? null : run,
             empty = {}, s,
             i, defContextName = "_", contextLoads = [],
@@ -27,13 +27,13 @@ setInterval: false */
         return;
     }
 
-    function makeContextFunc(name, contextName) {
+    function makeContextFunc(name, contextName, force) {
         return function () {
             //A version of a run function that uses the current context.
             //If last arg is a string, then it is a context.
             //If last arg is not a string, then add context to it.
             var args = [].concat(Array.prototype.slice.call(arguments, 0));
-            if (typeof arguments[arguments.length - 1] !== "string") {
+            if (force || typeof arguments[arguments.length - 1] !== "string") {
                 args.push(contextName);
             }
             return (name ? run[name] : run).apply(run.global, args);
@@ -62,10 +62,10 @@ setInterval: false */
      * The function that loads modules or executes code that has dependencies
      * on other modules.
      */
-    run = function (name, deps, callback, contextName, altContextName) {
+    run = function (name, deps, callback, contextName) {
         var config = null, context, newContext, contextRun, loaded,
             canSetContext, prop, newLength,
-            isFunction = false, mods, pluginPrefix, paths, index;
+            mods, pluginPrefix, paths, index;
 
         //Normalize the arguments.
         if (typeof name === "string") {
@@ -74,14 +74,6 @@ setInterval: false */
             if (index !== -1) {
                 pluginPrefix = name.substring(0, index);
                 name = name.substring(index + 1, name.length);
-            }
-
-            //Check if the defined module will be a function.
-            if (deps === Function) {
-                isFunction = true;
-                deps = callback;
-                callback = contextName;
-                contextName = altContextName;
             }
 
             //Check if there are no dependencies, and adjust args.
@@ -165,7 +157,6 @@ setInterval: false */
                     "run": true
                 },
                 defined: {},
-                isFuncs: {},
                 modifiers: {}
             };
 
@@ -173,10 +164,10 @@ setInterval: false */
             newContext.defined.run = contextRun = makeContextFunc(null, contextName);
             run.mixin(contextRun, {
                 modify: makeContextFunc("modify", contextName),
+                get: makeContextFunc("get", contextName, true),
                 ready: run.ready,
                 context: newContext,
                 config: newContext.config,
-                def: newContext.defined,
                 global: run.global,
                 doc: s.doc,
                 isBrowser: s.isBrowser
@@ -240,11 +231,6 @@ setInterval: false */
             //pause/resume case where there are multiple modules in a file.
             context.specified[name] = true;
 
-            //If the module will be a function, remember it.
-            if (isFunction) {
-                context.isFuncs[name] = true;
-            }
-
             //Load any modifiers for the module.
             mods = context.modifiers[name];
             if (mods) {
@@ -262,7 +248,7 @@ setInterval: false */
         if (pluginPrefix) {
             callPlugin(pluginPrefix, context, {
                 name: "run",
-                args: [name, deps, callback, context, isFunction]
+                args: [name, deps, callback, context]
             });
         }
 
@@ -276,6 +262,26 @@ setInterval: false */
         }
 
         return run;
+    };
+
+    /**
+     * Fetches the defined module given by name. Should only be used in
+     * circular dependency cases. The module should already be loaded,
+     * this function will throw an error if the module has not been loaded yet.
+     *
+     * @param {String} name The module name.
+     * @param {String} [contextName] optional context name to use.
+     */
+    run.get = function (name, contextName) {
+        contextName = contextName || s.ctxName;
+        var ret = s.contexts[contextName].defined[name];
+        if (ret === undefined) {
+            throw new Error("run.get: module name '" +
+                            name +
+                            "' has not been loaded yet for context: " +
+                            contextName);
+        }
+        return ret;
     };
 
     /**
@@ -613,14 +619,6 @@ setInterval: false */
         }
     };
 
-    //Helper that creates a function stand-in for a module that has yet to
-    //be defined.
-    function makeDepFunc(context, depName) {
-        return function () {
-            return context.isFuncs[depName].apply(this, arguments);
-        };
-    }
-
     /**
      * Adds an array of deps to the module chain in the right order.
      * Called exclusively by traceDeps. Needs to be a different function
@@ -836,15 +834,14 @@ setInterval: false */
                     dep = dep.substring(prefix + 1, dep.length);
                 }
 
-                //Get dependent module. If it does not exist, because of a circular
-                //dependency, create a placeholder object or function.
+                //Get dependent module. It could not exist, for a circular
+                //dependency or if the loaded dependency does not actually call
+                //run. Favor not throwing an error here if undefined because
+                //we want to allow code that does not use run as a module
+                //definition framework to still work -- allow a web site to
+                //gradually update to contained modules. That is seen as more
+                //important than forcing a throw for the circular dependency case.
                 depModule = context.defined[dep];
-                if (!depModule) {
-                    depModule = context.defined[dep] = context.isFuncs[dep] ?
-                            makeDepFunc(context, dep)
-                        :
-                            {};
-                }
                 args.push(depModule);
             }
 
@@ -855,19 +852,7 @@ setInterval: false */
                 if (name) {
                     modDef = context.defined[name];
                     if (modDef && ret) {
-                        //Placeholder objet for the module exists. 
-                        //Mix in the contents of the ret object. This is done for
-                        //cases where we passed the placeholder module to a circular
-                        //dependency.
-                        run.mixin(modDef, ret);
-                        if (context.isFuncs[name]) {
-                            //Hold on to the real function for modules that got this module
-                            //as a dependency, but then also replace the function in the
-                            //defined set so newer modules that get this module as a
-                            //dependency can get the real thing.
-                            context.isFuncs[name] = ret;
-                            context.defined[name] = ret;
-                        }
+                        throw new Error(name + " has already been defined");
                     } else {
                         context.defined[name] = ret;
                     }

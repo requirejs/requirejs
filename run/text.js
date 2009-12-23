@@ -83,7 +83,7 @@
         /**
          * This callback is prefix-specific, only gets called for this prefix
          */
-        run: function (name, deps, callback, context, isFunction) {
+        run: function (name, deps, callback, context) {
             //No-op, run never gets these text items, they are always
             //a dependency, see load for the action.
         },

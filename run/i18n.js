@@ -127,7 +127,7 @@
         /**
          * This callback is prefix-specific, only gets called for this prefix
          */
-        run: function (name, deps, callback, context, isFunction) {
+        run: function (name, deps, callback, context) {
             var i, match, nlsw, bundle, master, toLoad, obj = context.defined[name];
 
             //All i18n modules must match the nls module name structure.

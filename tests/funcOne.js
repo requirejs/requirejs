@@ -1,14 +1,13 @@
 run(
     "funcOne",
-    Function,
-    ["funcTwo"],
-    function (two) {
+    ["run", "funcTwo"],
+    function (run) {
         var one = function (name) {
             this.name = name;
         };
-    
+
         one.prototype.getName = function () {
-            var inst = new two("-NESTED");
+            var inst = new (run.get("funcTwo"))("-NESTED");
             return this.name + inst.name;
         };
 

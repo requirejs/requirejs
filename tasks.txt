@@ -4,18 +4,10 @@
 
 - convertDojo.js: add in pause/resume when more than one provide is in the file.
 
-- Caveat with .modify: you cannot modify the top-level function. We could remove
-this restriction if we forced all functions to use the .apply() function wrapper.
-So, choosing performance in this case over extensibility.
-
-- Function modules are not identity-safe: But does it matter?
-The issue being that for a circular dependency, the function method will actually
-be a proxy method. So that function will not be the same in that module vs
-another module. This could be a problem if some module was given that
-module and does an if (varFunc === doFunc) sort of test, but that seems like a
-rarity/less valuable than having function modules. Also could be a problem for
-objects modules too, but again, only an issue in circular dependency cases, and the good
-seems to outweigh the possibility of this edge case.
+- Caveat with .modify: you cannot modify the top-level function or replace a whole
+module since that could cause identity concerns later: different modules could
+get different versions of the modified module, depending on when the modifier is
+loaded.
 
 - Rhino tests.
 
@@ -27,6 +19,17 @@ seems to outweigh the possibility of this edge case.
 
 Completed Items
 ==================
+0.0.6
+------------
+Removed the Function specifier. That was for circular dependencies, but due to
+concerns about identity, decided to not support that use case. Now, a module
+function can return any value it wants to define itself, can be Function, Object,
+String, Number, Boolean, whatever. And now, for circular dependency, the circular
+dependency will be null. I decided not to throw in that case because I wan run to
+be able to load existing code that does not call back to run to define a module.
+To support circular dependencies, the module function can use run.get() to fetch
+that circular dependency later, outside the circular dependency loop.
+
 0.0.5
 ------------
 Introduce plugin concept for run.js. i18n code moved to a plugin.

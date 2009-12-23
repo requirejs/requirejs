@@ -1,15 +1,14 @@
 run(
   "one",
-  ["two"],
-  function(two) {
-    return {
+  ["run", "two"],
+  function(run) {
+    var one = {
       size: "large",
       doSomething: function() {
-        return {
-          size: two.size,
-          color: two.color
-        };
+        return run.get("two");
       }
     };
+
+    return one;
   }
 );

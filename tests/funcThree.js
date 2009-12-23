@@ -1,6 +1,5 @@
 run(
     "funcThree",
-    Function,
     ["funcFour"],
     function (four) {
         var three = function (arg) {

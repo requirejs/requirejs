@@ -1,16 +1,15 @@
 run(
     "funcFour",
-    Function,
-    ["funcThree"],
-    function (three) {
+    ["run", "funcThree"],
+    function (run) {
         var four = function (arg) {
             return "FOUR called with " + arg;
         };
 
         four.suffix = function () {
-            return three.suffix();
+            return run.get("funcThree").suffix();
         };
-        
+
         return four;
     }
 );
