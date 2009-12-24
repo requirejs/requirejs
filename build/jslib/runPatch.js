@@ -9,7 +9,8 @@
  */
 
 /*jslint nomen: false, plusplus: false */
-/*global load: false, run: false, logger: false, setTimeout: true */
+/*global load: false, run: false, logger: false, setTimeout: true,
+readFile: false, processPragmas: false */
 "use strict";
 
 //These variables are not contextName-aware since the build should
@@ -19,14 +20,20 @@ run.buildFilePaths = [];
 
 //Override load so that the file paths can be collected.
 run.load = function (moduleName, contextName) {
+    /*jslint evil: true */
     var url = run.convertNameToPath(moduleName, contextName), map,
-        context = run._contexts[contextName];
+        contents,
+        context = run.s.contexts[contextName];
     context.loaded[moduleName] = false;
 
     //Save the module name to path mapping.
     map = run.buildPathMap[moduleName] = url;
 
-    load(url);
+    //Load the file contents, process for conditionals, then
+    //evaluate it.
+    contents = readFile(url);
+    contents = processPragmas(url, contents, context.config.pragmas);
+    eval(contents);
 
     //Mark the module loaded.
     context.loaded[moduleName] = true;
@@ -35,9 +42,9 @@ run.load = function (moduleName, contextName) {
 
 //Override a method provided by run/text.js for loading text files as
 //dependencies.
-run.fetchText = function(url, callback) {
+run.fetchText = function (url, callback) {
     callback(readFile(url));
-}
+};
 
 //Instead of bringing each module into existence, order all the file URLs.
 run.callModules = function (contextName, context, orderedModules) {

@@ -163,7 +163,9 @@ setInterval: false */
             //Define run() for this context.
             newContext.defined.run = contextRun = makeContextFunc(null, contextName);
             run.mixin(contextRun, {
+                //>>excludeStart("runExcludeModify", pragmas.run.excludeModify);
                 modify: makeContextFunc("modify", contextName),
+                //>>excludeEnd("runExcludeModify");
                 get: makeContextFunc("get", contextName, true),
                 ready: run.ready,
                 context: newContext,
@@ -231,11 +233,13 @@ setInterval: false */
             //pause/resume case where there are multiple modules in a file.
             context.specified[name] = true;
 
+            //>>excludeStart("runExcludeModify", pragmas.run.excludeModify);
             //Load any modifiers for the module.
             mods = context.modifiers[name];
             if (mods) {
                 run(mods, contextName);
             }
+            //>>excludeEnd("runExcludeModify");
         }
 
         //If the callback is not an actual function, it means it already
@@ -488,6 +492,7 @@ setInterval: false */
         }
     };
 
+    //>>excludeStart("runExcludeModify", pragmas.run.excludeModify);
     /**
      * Register a module that modifies another module. The modifier will
      * only be called once the target module has been loaded.
@@ -550,6 +555,7 @@ setInterval: false */
             }
         }
     };
+    //>>excludeEnd("runExcludeModify");
 
     run.isArray = function (it) {
         return ostring.call(it) === "[object Array]";
@@ -631,6 +637,7 @@ setInterval: false */
                 nextModule = waiting[waiting[nextDep]];
                 if (nextModule && !nextModule.isOrdered) {
                     if (defined[nextDep]) {
+                        //>>excludeStart("runExcludeModify", pragmas.run.excludeModify);
                         //Check for any modifiers on it.
                         //Need to check here since if defined, we do not want to add it to
                         //module change and have to reprocess the defined module.
@@ -639,6 +646,7 @@ setInterval: false */
                             addDeps(mods, moduleChain, orderedModules, waiting, defined, modifiers);
                             delete modifiers[nextModule.name];
                         }
+                        //>>excludeEnd("runExcludeModify");
                     } else {
                         //New dependency. Follow it down. Modifiers followed in traceDeps.
                         moduleChain.push(nextModule);
@@ -668,12 +676,14 @@ setInterval: false */
                 //Add the current module to the ordered list.
                 orderedModules.push(module);
 
+                //>>excludeStart("runExcludeModify", pragmas.run.excludeModify);
                 //Now add any modifier modules for current module.
                 mods = modifiers[module.name];
                 if (mods) {
                     addDeps(mods, moduleChain, orderedModules, waiting, defined, modifiers);
                     delete modifiers[module.name];
                 }
+                //>>excludeEnd("runExcludeModify");
             }
 
             //Done with that require. Remove it and go to the next one.

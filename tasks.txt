@@ -1,20 +1,14 @@
-- Move to github
+- Allow custom build tool that collects a bunch of runjs modules into one file.
+  - CSS optimization support (from dojo)?
+  - Build pragmas
 
 - loading more than one locale for a page. A locales= option?
 
 - convertDojo.js: add in pause/resume when more than one provide is in the file.
 
-- Caveat with .modify: you cannot modify the top-level function or replace a whole
-module since that could cause identity concerns later: different modules could
-get different versions of the modified module, depending on when the modifier is
-loaded.
-
 - Rhino tests.
 
 - Build converters that can convert dojo and commonjs modules into runjs format.
-
-- Allow custom build tool that collects a bunch of runjs modules into one file.
-  - CSS optimization support (from dojo)?
 
 
 Completed Items

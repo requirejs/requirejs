@@ -55,6 +55,20 @@ run(
         //async XMLHttpRequest calls to load those dependencies.
         inlineText: true,
 
+        //Specify build pragmas. If the source files contain comments like so:
+        //>>excludeStart("runExcludeModify", pragmas.run.excludeModify);
+        //>>excludeEnd("runExcludeModify");
+        //Then the comments that start with //>> are the build pragmas.
+        //excludeStart/excludeEnd and includeStart/includeEnd work, and the
+        //the pragmas value to the includeStart or excludeStart lines
+        //is evaluated to see if the code between the Start and End pragma
+        //lines should be included or excluded.
+        pragmas: {
+            run: {
+                excludeModify: true
+            }
+        }
+
         TODO:
         - way to optimize CSS? default to true
         - way to ignore CSS imports?

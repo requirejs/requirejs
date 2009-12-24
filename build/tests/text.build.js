@@ -2,7 +2,14 @@
 run({
         baseUrl: "../../tests/text",
         runUrl: "../../run.js",
-        dir: "buildtext"
+        includeRun: true,
+        dir: "buildtext",
+        optimize: "none",
+        pragmas: {
+            run: {
+                excludeModify: true
+            }
+        }
     },
     "widget"
 );

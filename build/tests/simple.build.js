@@ -2,7 +2,8 @@
 run({
         baseUrl: "../../tests",
         runUrl: "../../run.js",
-        includeRun: true
+        includeRun: true,
+        optimize: "none"
     },
     "one",
     ["dimple"]
