@@ -32,7 +32,7 @@ var run;
         pauseResumeRegExp = /run\s*\.\s*(pause|resume)\s*\(\s*\)(;)?/g,
         textDepRegExp = /["'](text)\!([^"']+)["']/g,
         conditionalRegExp = /(exclude|include)Start\s*\(\s*["'](\w+)["']\s*,(.*)\)/,
-        context, doClosure, runContents, specified,
+        context, doClosure, runContents, specified, delegate, baseConfig, override,
         JSSourceFilefromCode = java.lang.Class.forName('com.google.javascript.jscomp.JSSourceFile').getMethod('fromCode', [java.lang.String, java.lang.String]),
 
         //Set up defaults for the config.
@@ -63,6 +63,20 @@ var run;
             }
         }
     }
+
+    delegate = (function () {
+        // boodman/crockford delegation w/ cornford optimization
+        function TMP() {}
+        return function (obj, props) {
+            TMP.prototype = obj;
+            var tmp = new TMP();
+            TMP.prototype = null;
+            if (props) {
+                mixin(tmp, props);
+            }
+            return tmp; // Object
+        };
+    }());
 
     //Helper for closureOptimize, because of weird Java-JavaScript interactions.
     function closurefromCode(filename, content) {
@@ -262,11 +276,14 @@ var run;
                 if (cfg.includeRun) {
                     layer.includeRun = true;
                 }
+                if (cfg.override) {
+                    layer.override = cfg.override;
+                }
             }
-        }
 
-        if (deps) {
-            layer.deps = deps;
+            if (deps) {
+                layer.deps = deps;
+            }
         }
     };
 
@@ -359,7 +376,22 @@ var run;
             if (layer.deps) {
                 deps = deps.concat(layer.deps);
             }
+            
+            //If there are overrides to basic config, set that up now.
+            baseConfig = context.config;
+            if (layer.override) {
+                override = delegate(baseConfig);
+                mixin(override, layer.override, true);
+                run(override);
+            }
+
+            //Figure out layer dependencies by calling run to do the work.
             run(deps);
+            
+            //Reset config
+            if (layer.override) {
+                run(baseConfig);
+            }
 
             //Start build output for the layer.
             buildFileContents += layer._buildPath.replace(config.dir, "") + "\n----------------\n";
@@ -391,9 +423,12 @@ var run;
             }
 
             //Remove any run.pause/resume calls, then add them back around
-            //the whole file.
-            fileContents = fileContents.replace(pauseResumeRegExp, "");
-            fileContents = "run.pause();\n" + fileContents + "\nrun.resume();\n";
+            //the whole file, but only if there were files written out, besides
+            //the run.js and plugin files.
+            if (run.buildFilePaths.length) {
+                fileContents = fileContents.replace(pauseResumeRegExp, "");
+                fileContents = "run.pause();\n" + fileContents + "\nrun.resume();\n";
+            }
 
             //Add the run file contents to the head of the file.
             fileContents = (runContents ? runContents + "\n" : "") + fileContents;

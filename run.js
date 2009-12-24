@@ -1,8 +1,8 @@
-/*
-    Copyright (c) 2004-2009, The Dojo Foundation All Rights Reserved.
-    Available via the new BSD license.
-    see: http://code.google.com/p/runjs/ for details
-*/
+/**
+ * @LICENSE Copyright (c) 2004-2009, The Dojo Foundation All Rights Reserved.
+ * Available via the new BSD license.
+ * see: http://github.com/jrburke/runjs for details
+ */
 /*jslint plusplus: false */
 /*global run: true, window: false, document: false, navigator: false,
 setTimeout: false, traceDeps: true, clearInterval: false, self: false,
@@ -40,6 +40,7 @@ setInterval: false */
         };
     }
 
+    //>>excludeStart("runExcludePlugin", pragmas.run.excludePlugin);
     /**
      * Calls a method on a plugin. The obj object should have two property,
      * name: the name of the method to call on the plugin
@@ -57,6 +58,7 @@ setInterval: false */
             waiting.push(obj);
         }
     }
+    //>>excludeEnd("runExcludePlugin");
 
     /**
      * The function that loads modules or executes code that has dependencies
@@ -175,9 +177,11 @@ setInterval: false */
                 isBrowser: s.isBrowser
             });
 
+            //>>excludeStart("runExcludePlugin", pragmas.run.excludePlugin);
             if (s.plugins.onNewContext) {
                 s.plugins.onNewContext(newContext);
             }
+            //>>excludeEnd("runExcludePlugin");
 
             context = s.contexts[contextName] = newContext;
         }
@@ -249,12 +253,14 @@ setInterval: false */
         }
 
         //If a pluginPrefix is available, call the plugin, or load it.
+        //>>excludeStart("runExcludePlugin", pragmas.run.excludePlugin);
         if (pluginPrefix) {
             callPlugin(pluginPrefix, context, {
                 name: "run",
                 args: [name, deps, callback, context]
             });
         }
+        //>>excludeEnd("runExcludePlugin");
 
         //See if all is loaded. If paused, then do not check the dependencies
         //of the module yet.
@@ -310,11 +316,13 @@ setInterval: false */
     s = run.s = {
         ctxName: defContextName,
         contexts: {},
+        //>>excludeStart("runExcludePlugin", pragmas.run.excludePlugin);
         plugins: {
             defined: {},
             callbacks: {},
             waiting: {}
         },
+        //>>excludeEnd("runExcludePlugin");
         isBrowser: isBrowser,
         isPageLoaded: !isBrowser,
         pageCallbacks: [],
@@ -343,6 +351,7 @@ setInterval: false */
         }
     }
 
+    //>>excludeStart("runExcludePlugin", pragmas.run.excludePlugin);
     /**
      * Sets up a plugin callback name. Want to make it easy to test if a plugin
      * needs to be called for a certain lifecycle event by testing for
@@ -411,6 +420,7 @@ setInterval: false */
 
         return run;
     };
+    //>>excludeEnd("runExcludePlugin");
 
     /**
      * Pauses the tracing of dependencies. Useful in a build scenario when
@@ -460,10 +470,12 @@ setInterval: false */
         var i, dep, index, depPrefix;
 
         if (pluginPrefix) {
+            //>>excludeStart("runExcludePlugin", pragmas.run.excludePlugin);
             callPlugin(pluginPrefix, context, {
                 name: "checkDeps",
                 args: [name, deps, context]
             });
+            //>>excludeEnd("runExcludePlugin");
         } else {
             for (i = 0; (dep = deps[i]); i++) {
                 //If it is a string, then a plain dependency
@@ -474,6 +486,7 @@ setInterval: false */
                         //If a plugin, call its load method.
                         index = dep.indexOf("!");
                         if (index !== -1) {
+                            //>>excludeStart("runExcludePlugin", pragmas.run.excludePlugin);
                             depPrefix = dep.substring(0, index);
                             dep = dep.substring(index + 1, dep.length);
 
@@ -481,6 +494,7 @@ setInterval: false */
                                 name: "load",
                                 args: [dep, context.contextName]
                             });
+                            //>>excludeEnd("runExcludePlugin");
                         } else {
                             run.load(dep, context.contextName);
                         }
@@ -705,7 +719,11 @@ setInterval: false */
                 loaded = context.loaded,
                 noLoads = "",
                 hasLoadedProp = false, stillLoading = false, prop, waiting,
+
+                //>>excludeStart("runExcludePlugin", pragmas.run.excludePlugin);
                 pIsWaiting = s.plugins.isWaiting, pOrderDeps = s.plugins.orderDeps,
+                //>>excludeEnd("runExcludePlugin");
+
                 i, orderedModules, module, moduleChain, allDone, loads, loadArgs;
 
         //If already doing a checkLoaded call,
@@ -736,7 +754,11 @@ setInterval: false */
         }
 
         //Check for exit conditions.
-        if (!hasLoadedProp && !context.waiting.length && (!pIsWaiting || !pIsWaiting(context))) {
+        if (!hasLoadedProp && !context.waiting.length
+            //>>excludeStart("runExcludePlugin", pragmas.run.excludePlugin);
+            && (!pIsWaiting || !pIsWaiting(context))
+            //>>excludeEnd("runExcludePlugin");
+           ) {
             //If the loaded object had no items, then the rest of
             //the work below does not need to be done.
             context.isCheckLoaded = false;
@@ -764,11 +786,13 @@ setInterval: false */
         context.waiting = [];
         context.loaded = {};
 
+        //>>excludeStart("runExcludePlugin", pragmas.run.excludePlugin);
         //Call plugins to order their dependencies, do their
         //module definitions.
         if (pOrderDeps) {
             pOrderDeps(context);
         }
+        //>>excludeEnd("runExcludePlugin");
 
         //Walk the dependencies, doing a depth first search.
         orderedModules = [];
@@ -786,7 +810,11 @@ setInterval: false */
         //Indicate checkLoaded is now done.
         context.isCheckLoaded = false;
 
-        if (context.waiting.length || (pIsWaiting && pIsWaiting(context))) {
+        if (context.waiting.length
+            //>>excludeStart("runExcludePlugin", pragmas.run.excludePlugin);
+            || (pIsWaiting && pIsWaiting(context))
+            //>>excludeEnd("runExcludePlugin");
+           ) {
             //More things in this context are waiting to load. They were probably
             //added while doing the work above in checkLoaded, calling module
             //callbacks that triggered other run calls.
@@ -928,6 +956,7 @@ setInterval: false */
         return null;
     };
 
+    //>>excludeStart("runExcludePageLoad", pragmas.run.excludePageLoad);
     //****** START page load functionality ****************
     //Set up page on load callbacks. May separate this out.
      /**
@@ -988,4 +1017,5 @@ setInterval: false */
         }
     }
     //****** END page load functionality ****************
+    //>>excludeEnd("runExcludePageLoad");
 }());
