@@ -39,7 +39,7 @@
                 }
             );
 
-            run.ready(function(){
+            var verifyFunc = function () {
                 var regExp = /alpha|beta|gamma/,
                     i,
                     scripts = document.getElementsByTagName("script");
@@ -47,7 +47,15 @@
                     doh.f(regExp.test(scripts[i].src));
                 }
                 master.callback(true);		
-            });
+            };
+            
+            //Account for running this test with a version of run.js that
+            //does not have run.ready built in.
+            if (run.ready) {
+                run.ready(verifyFunc);
+            } else {
+                setTimeout(verifyFunc, 3000);
+            }
         }
     );
     </script>

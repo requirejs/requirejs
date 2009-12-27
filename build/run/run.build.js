@@ -14,7 +14,7 @@ run({
             }
         }
     },
-    "run-nomodifypluginspagecontext"
+    "nomodifypluginspagecontext-run"
 );
 
 run({
@@ -29,7 +29,7 @@ run({
             }
         }
     },
-    "run-nomodifypluginspage"
+    "nomodifypluginspage-run"
 );
 
 run({
@@ -44,7 +44,7 @@ run({
             }
         }
     },
-    "run-nomodifypluginscontext"
+    "nomodifypluginscontext-run"
 );
 
 run({
@@ -58,7 +58,7 @@ run({
             }
         }
     },
-    "run-nomodifyplugins"
+    "nomodifyplugins-run"
 );
 
 run({
@@ -71,7 +71,7 @@ run({
             }
         }
     },
-    "run-nomodify"
+    "nomodify-run"
 );
 
 run({
@@ -84,7 +84,7 @@ run({
             }
         }
     },
-    "run-noplugins"
+    "noplugins-run"
 );
 
 run({
@@ -96,7 +96,7 @@ run({
             }
         }
     },
-    "run-all"
+    "run"
 );
 
 run({
@@ -108,6 +108,6 @@ run({
             }
         }
     },
-    "run-allplugins",
+    "allplugins-run",
     ["run/i18n", "run/text"]
 );
