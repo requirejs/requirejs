@@ -1,5 +1,5 @@
 /**
- * @LICENSE Copyright (c) 2004-2009, The Dojo Foundation All Rights Reserved.
+ * @license Copyright (c) 2004-2009, The Dojo Foundation All Rights Reserved.
  * Available via the new BSD license.
  * see: http://github.com/jrburke/runjs for details
  */
@@ -27,6 +27,8 @@ setInterval: false */
         return;
     }
 
+
+    //>>excludeStart("runExcludeContext", pragmas.run.excludeContext);
     function makeContextFunc(name, contextName, force) {
         return function () {
             //A version of a run function that uses the current context.
@@ -39,7 +41,8 @@ setInterval: false */
             return (name ? run[name] : run).apply(run.global, args);
         };
     }
-
+    //>>excludeEnd("runExcludeContext");
+    
     //>>excludeStart("runExcludePlugin", pragmas.run.excludePlugin);
     /**
      * Calls a method on a plugin. The obj object should have two property,
@@ -121,6 +124,7 @@ setInterval: false */
 
         contextName = contextName || s.ctxName;
 
+        //>>excludeStart("runExcludeContext", pragmas.run.excludeContext);
         if (contextName !== s.ctxName) {
             //If nothing is waiting on being loaded in the current context,
             //then switch s.ctxName to current contextName.
@@ -140,6 +144,7 @@ setInterval: false */
                 s.ctxName = contextName;
             }
         }
+        //>>excludeEnd("runExcludeContext");
 
         //Grab the context, or create a new one for the given context name.
         context = s.contexts[contextName];
@@ -163,6 +168,11 @@ setInterval: false */
             };
 
             //Define run() for this context.
+            //>>includeStart("runExcludeContext", pragmas.run.excludeContext);
+            //A placeholder for build pragmas.
+            newContext.defined.run = run;
+            //>>includeEnd("runExcludeContext");
+            //>>excludeStart("runExcludeContext", pragmas.run.excludeContext);
             newContext.defined.run = contextRun = makeContextFunc(null, contextName);
             run.mixin(contextRun, {
                 //>>excludeStart("runExcludeModify", pragmas.run.excludeModify);
@@ -176,6 +186,7 @@ setInterval: false */
                 doc: s.doc,
                 isBrowser: s.isBrowser
             });
+            //>>excludeEnd("runExcludeContext");
 
             //>>excludeStart("runExcludePlugin", pragmas.run.excludePlugin);
             if (s.plugins.onNewContext) {
@@ -586,16 +597,20 @@ setInterval: false */
     run.load = function (moduleName, contextName) {
         var context = s.contexts[contextName], url;
         context.loaded[moduleName] = false;
+        //>>excludeStart("runExcludeContext", pragmas.run.excludeContext);
         if (contextName !== s.ctxName) {
             //Not in the right context now, hold on to it until
             //the current context finishes all its loading.
             contextLoads.push(arguments);
         } else {
+        //>>excludeEnd("runExcludeContext");
             //First derive the path name for the module.
             url = run.convertNameToPath(moduleName, contextName);
             run.attach(url, contextName, moduleName);
             context.startTime = (new Date()).getTime();
+        //>>excludeStart("runExcludeContext", pragmas.run.excludeContext);
         }
+        //>>excludeEnd("runExcludeContext");
     };
 
     run.jsExtRegExp = /\.js$/;
@@ -820,6 +835,7 @@ setInterval: false */
             //callbacks that triggered other run calls.
             run.checkLoaded(contextName);
         } else if (contextLoads.length) {
+            //>>excludeStart("runExcludeContext", pragmas.run.excludeContext);
             //Check for other contexts that need to load things.
             //First, make sure current context has no more things to
             //load. After defining the modules above, new run calls
@@ -845,6 +861,7 @@ setInterval: false */
                     run.load.apply(run, loadArgs);
                 }
             }
+            //>>excludeEnd("runExcludeContext");
         } else {
             //Make sure we reset to default context.
             s.ctxName = defContextName;

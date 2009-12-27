@@ -9,11 +9,42 @@ run({
             run: {
                 excludeModify: true,
                 excludePlugin: true,
-                excludePageLoad: true
+                excludePageLoad: true,
+                excludeContext: true
+            }
+        }
+    },
+    "run-nomodifypluginspagecontext"
+);
+
+run({
+        includeRun: true,
+        override: {
+            pragmas: {
+                run: {
+                    excludeModify: true,
+                    excludePlugin: true,
+                    excludePageLoad: true
+                }
             }
         }
     },
     "run-nomodifypluginspage"
+);
+
+run({
+        includeRun: true,
+        override: {
+            pragmas: {
+                run: {
+                    excludeModify: true,
+                    excludePlugin: true,
+                    excludeContext: true
+                }
+            }
+        }
+    },
+    "run-nomodifypluginscontext"
 );
 
 run({
