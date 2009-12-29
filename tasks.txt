@@ -1,3 +1,11 @@
+- Look at module function call during recurse instead of building up the ordered
+  array of modules.
+  
+- No head tag, slow connection. Put run.js in a div inside body, or head tag after
+body etc...
+
+- Use . instead of ! for file extensions for text! dependencies?
+
 - Allow custom build tool that collects a bunch of runjs modules into one file.
   - CSS optimization support (from dojo)?
   - Build pragmas
