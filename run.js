@@ -98,9 +98,10 @@ setInterval: false */
 
             contextName = contextName || s.ctxName;
 
-            //If module already defined for context, leave.
+            //If module already defined for context, or already waiting to be
+            //evaluated, leave.
             context = s.contexts[contextName];
-            if (context && context.defined && context.defined[name]) {
+            if (context && (context.defined[name] || context.waiting[name])) {
                 return run;
             }
         } else if (run.isArray(name)) {
@@ -240,7 +241,7 @@ setInterval: false */
             }
         }
 
-        //Store the module for later evaluation.
+        //Store the module for later evaluation
         newLength = context.waiting.push({
             name: name,
             deps: deps,
