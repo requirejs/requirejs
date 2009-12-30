@@ -105,10 +105,16 @@ var run;
         return compiler.toSource();  
     }
 
-    //This function assumes only escaping of single quotes not double quotes,
-    //for optimized string escaping for inlineText()
+    //Adds escape sequences for non-visual characters, double quote and backslash
+    //and surrounds with double quotes to form a valid string literal.
+    //Assumes the string will be in a single quote string value.
     function jsEscape(text) {
-        return text.replace(/'/g, "\\'").replace(/\r/g, "\\r").replace(/\n/g, "\\n");
+        return text.replace(/(['\\])/g, '\\$1')
+            .replace(/[\f]/g, "\\f")
+            .replace(/[\b]/g, "\\b")
+            .replace(/[\n]/g, "\\n")
+            .replace(/[\t]/g, "\\t")
+            .replace(/[\r]/g, "\\r");
     }
 
     //Inlines text! dependencies.

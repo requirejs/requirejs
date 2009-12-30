@@ -18,11 +18,11 @@
                 "text", 
                 [
                     function text(t){
-                        t.is("<span>Hello World</span>", sampleText);
-                        t.is('<div data-type="widget"><h1>This is a widget</h1><p>I am in a widget</p></div>', widget.template);
+                        t.is("<span>Hello World!</span>", sampleText);
+                        t.is('<div data-type="widget"><h1>This is a widget!</h1><p>I am in a widget</p></div>', widget.template);
                         t.is('subwidget', widget.subWidgetName);
                         t.is('<div data-type="subwidget"><h1>This is a subwidget</h1></div>', widget.subWidgetTemplate);
-                        t.is('<span>This is template2</span>', widget.subWidgetTemplate2);
+                        t.is('<span>This! is template2</span>', widget.subWidgetTemplate2);
                     }
                 ]
             );

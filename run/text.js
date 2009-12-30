@@ -122,12 +122,11 @@
                 strip = ext.substring(index + 1, ext.length);
                 ext = ext.substring(0, index);
                 index = strip.indexOf("!");
-                if (index !== -1) {
+                if (index !== -1 && strip.substring(0, index) === "strip") {
                     //Pul off the text.
                     text = strip.substring(index + 1, strip.length);
-                    strip = strip.substring(0, index);
-                }
-                if (strip !== "strip") {
+                    strip = "strip";
+                } else if (strip !== "strip") {
                     //strip is actually the inlined text.
                     text = strip;
                     strip = null;

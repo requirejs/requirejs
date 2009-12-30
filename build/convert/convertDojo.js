@@ -91,14 +91,31 @@ fileUtil.saveUtf8File(savePath + "/dojo.js", fileContents);
 convertTime = ((new Date().getTime() - startTime) / 1000);
 logger.info("Convert time: " + convertTime + " seconds");
 
-
 function writeRunEnd(prefixProps, contents) {
+    var reqString = "", argString = "", i, req;
+
     if (!prefixProps) {
         return contents;
     } else {
-        return 'run("' + prefixProps.provide + '", ["dojo", "dijit", "dojox"' +
-                prefixProps.reqString +
-                '], function(dojo, dijit, dojox) {\n' +
+        //Convert dojo.cache references to be text! dependencies.
+        contents = contents.replace(/dojo\s*\.\s*cache\s*\(['"]([^'"]+)['"]\s*\,\s*['"]([^'"]+)['"]\s*\)/g, function(match, modName, fileName) {
+            var textName = "text!" + modName.replace(/\./g, "/") + "/" + fileName;
+            //Make sure to use a bang for file extension part.
+            textName = textName.split(".").join("!");
+
+            prefixProps.reqs.push(textName);
+            return '_R' + (prefixProps.reqs.length - 1);
+        });
+
+        //Build up the req string and args string.
+        for (i = 0; req = prefixProps.reqs[i]; i++) {
+            reqString += ', "' + req + '"';
+            argString += ', _R' + i;
+        }
+
+        return 'run("' + prefixProps.provide + '", ["run", "dojo", "dijit", "dojox"' +
+                reqString +
+                '], function(run, dojo, dijit, dojox' + argString + ') {\n' +
                 prefixProps.match +
                 contents +
                 '\nreturn ' + (prefixProps.provide.indexOf("-") === -1 ? prefixProps.provide : "null") + '; });\n';
@@ -121,7 +138,7 @@ function convert(fileName, fileContents) {
             //deps will be an array of objects like {provide: "", requires:[]}
             deps = [],
             currentDep, depName, provideRegExp,
-            module, allDeps, reqString = "", prefixProps,
+            module, allDeps, reqs = [], prefixProps,
             i, j, removeString = "", removeRegExp,
             markIndex = 0, lastIndex = 0,
             opt = context.setOptimizationLevel(-1),
@@ -185,18 +202,18 @@ function convert(fileName, fileContents) {
                 //Write out the current run block (or just first block of text.
                 tempContents += writeRunEnd(prefixProps, fileContents.substring(markIndex, lastIndex));
 
-                //Build up the run string by getting its dependencies.
-                reqString = "";
+                //Build up the run dependencies.
+                reqs = [];
                 for (j = 0; (module = currentDep.requires[j]); j++) {
                     if (!deps.provides[module]) {
-                        reqString += ',"' + module + '"';
+                        reqs.push(module)
                     }
                 }
 
                 //Save the properties to use for the run() prefix code
                 prefixProps = {
                     provide: currentDep.provide,
-                    reqString: reqString,
+                    reqs: reqs,
                     match: match
                 };
 
