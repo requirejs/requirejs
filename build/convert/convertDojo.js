@@ -92,8 +92,17 @@ convertTime = ((new Date().getTime() - startTime) / 1000);
 logger.info("Convert time: " + convertTime + " seconds");
 
 
-function writeRunEnd(provideName) {
-    return '\nreturn ' + (provideName.indexOf("-") === -1 ? provideName : "null") + '; });\n';
+function writeRunEnd(prefixProps, contents) {
+    if (!prefixProps) {
+        return contents;
+    } else {
+        return 'run("' + prefixProps.provide + '", ["dojo", "dijit", "dojox"' +
+                prefixProps.reqString +
+                '], function(dojo, dijit, dojox) {\n' +
+                prefixProps.match +
+                contents +
+                '\nreturn ' + (prefixProps.provide.indexOf("-") === -1 ? prefixProps.provide : "null") + '; });\n';
+    }
 }
 
 /**
@@ -111,8 +120,8 @@ function convert(fileName, fileContents) {
             context = Packages.org.mozilla.javascript.Context.enter(), match,
             //deps will be an array of objects like {provide: "", requires:[]}
             deps = [],
-            currentDep, depName, provideRegExp, provideName,
-            module, allDeps, reqString = "",
+            currentDep, depName, provideRegExp,
+            module, allDeps, reqString = "", prefixProps,
             i, j, removeString = "", removeRegExp,
             markIndex = 0, lastIndex = 0,
             opt = context.setOptimizationLevel(-1),
@@ -172,18 +181,9 @@ function convert(fileName, fileContents) {
                 provideRegExp.lastIndex = markIndex;
                 match = provideRegExp.exec(fileContents)[0];
                 lastIndex = provideRegExp.lastIndex - match.length;
-                
-                //Write out intervening file contents
-                tempContents += fileContents.substring(markIndex, lastIndex);
-
-                //Write out the end of the last provided module, if there is
-                //one.
-                if (i > 0) {
-                    tempContents += writeRunEnd(provideName);
-                }
-
-                //Remember the new provide name.
-                provideName = currentDep.provide;
+    
+                //Write out the current run block (or just first block of text.
+                tempContents += writeRunEnd(prefixProps, fileContents.substring(markIndex, lastIndex));
 
                 //Build up the run string by getting its dependencies.
                 reqString = "";
@@ -193,26 +193,19 @@ function convert(fileName, fileContents) {
                     }
                 }
 
-                //Account for some build layers that have implicit dependencies on
-                //all modules in a module.
-                if (deps.length > 1 && i === deps.length - 1) {
-                    for (j = 0; j < deps.length - 1; j++) {
-                        reqString += ',"' + deps[j].provide + '"';
-                    }
-                }
+                //Save the properties to use for the run() prefix code
+                prefixProps = {
+                    provide: currentDep.provide,
+                    reqString: reqString,
+                    match: match
+                };
 
-                tempContents += 'run("' + currentDep.provide + '", ["dojo", "dijit", "dojox"' +
-                                reqString +
-                                '], function(dojo, dijit, dojox) {\n' +
-                                match;
-                
                 //Move the file cursor.
                 markIndex = provideRegExp.lastIndex;
             }
 
             //Write out the last of the file with ending segment for run.
-            tempContents += fileContents.substring(markIndex, fileContents.length);
-            tempContents += writeRunEnd(provideName);
+            tempContents += writeRunEnd(prefixProps, fileContents.substring(markIndex, fileContents.length));
         }
 
         if (deps.length > 1) {
