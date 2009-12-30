@@ -69,6 +69,10 @@ run(
             }
         }
 
+        //Skip processing for pragmas.
+        skipPragmas: false,
+
+
         TODO:
         - way to optimize CSS? default to true
         - way to ignore CSS imports?

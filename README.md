@@ -8,7 +8,7 @@ It uses plain script tags to load modules/files, so it should allow for easy deb
 
 Part of the dependency tracking code comes from the Dojo JavaScript Toolkit, but run.js does not have any dependencies on a JavaScript framework. It is a standalone JavaScript file that can be used in any project.
 
-The core run.js file around 3.4KB when minified via YUICompressor and gzipped.
+The core run.js file around 3.1KB when minified via Closure Compiler and gzipped.
 
 It is still in development, but the existing unit tests work in IE 6+, Firefox 3.5+, Safari 4+, Chrome 3+, and Opera 10+.
 
@@ -23,7 +23,7 @@ There are 4 basic ways to use run.js:
 
 ## Loading JavaScript Files
 
-If you just want to load some JavaScript files, do the following inside the HEAD tag in some HTML:
+If you just want to load some JavaScript files, do the following inside the HEAD tag in an HTML document:
 
     <script type="text/javascript" src="scripts/run.js"></script>
     <script type="text/javascript">

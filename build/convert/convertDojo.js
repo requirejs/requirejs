@@ -2,17 +2,24 @@
  * Converts dojo modules to be runjs compliant modules. Only works with dojo,
  * dijit and dojox modules, not for custom namespaces.
  *
+ * Non-build file changes:
+ * * In dojo._base.query, move the provide/require calls to the top
+ * * dojo/_base.js convert requireIf to dojo.require("dojo._base.browser");
+ * * dojo/_base/hostenv_browser.js, remove the debugAtAllCosts block and change
+ * the isDebug block to be if(dojo.config.isDebug){run(["dojo._firebug.firebug"]);}
+ * * In dijit/_editor/RichText.js, remove the allowXdRichTextSave block, or force it not to doc.write.
+ *
  * It requires a Dojo build that:
  * * has buildUtil.addGuardsAndBaseRequires not do anything. So it will not work
  * with customDojoBase builds. It also means modifying buildUtil.addGuardsAndBaseRequires
  * to just return instead of doing its work.
  * * Comment out the inclusion of dojoGuardStart.jsfrag and dojoGuardEnd.jsfrag
  * in buildUtil.js.
- * * In dojo._base.NodeList, move the provide/require calls to the top
+ * * In dojo._base.query, move the provide/require calls to the top
  * * After the build put a dependency in dijit.dijit-all for dijit.dijit to get reloads in IE to work.
  * 
  * Usage:
- * java -classpath path/to/rhino/js.jar convertDojo.js path/to/dojo path/to/use/for/converted/files
+ * java -classpath path/to/rhino/js.jar convertDojo.js path/to/dojo rundojo
  *
  */
 /*jslint plusplus: false */
@@ -68,6 +75,18 @@ if (!fileList || !fileList.length) {
         }
     }
 }
+
+//Write a baseline dojo.js file. Adjust the baseUrlRegExp to look for dojo.js,
+//which should be a sibling of run.js.
+
+fileContents = 'run.baseUrlRegExp = /dojo(\\.xd)?\\.js(\\W|$)/i;' +
+               fileUtil.readFile(savePath + "/dojo/_base/_loader/bootstrap.js") +
+               fileUtil.readFile(savePath + "/dojo/_base/_loader/loader.js") +
+               fileUtil.readFile(savePath + "/dojo/_base/_loader/hostenv_browser.js");
+
+fileContents += 'run("dojo", function(){return dojo;});run("dijit", function(){return dijit;});run("dojox", function(){return dojox;});';
+
+fileUtil.saveUtf8File(savePath + "/dojo.js", fileContents);
 
 convertTime = ((new Date().getTime() - startTime) / 1000);
 logger.info("Convert time: " + convertTime + " seconds");
@@ -194,13 +213,6 @@ function convert(fileName, fileContents) {
             //Write out the last of the file with ending segment for run.
             tempContents += fileContents.substring(markIndex, fileContents.length);
             tempContents += writeRunEnd(provideName);
-        }
-
-        //If dojo.js, set up the "dojo", "dijit" and "dojox" namespaces.
-        if (fileName.match(dojoJsRegExp)) {
-            tempContents += 'run("dojo", function(){return dojo;});' +
-                            'run("dijit", function(){return dijit;});' +
-                            'run("dojox", function(){return dojox;});';
         }
 
         if (deps.length > 1) {

@@ -3,7 +3,8 @@
  * Available via the new BSD license.
  * see: http://github.com/jrburke/runjs for details
  */
-/*jslint plusplus: false */
+//laxbreak is true to allow build pragmas to change some statements.
+/*jslint plusplus: false, laxbreak: true */
 /*global run: true, window: false, document: false, navigator: false,
 setTimeout: false, traceDeps: true, clearInterval: false, self: false,
 setInterval: false */
@@ -13,20 +14,27 @@ setInterval: false */
 (function () {
     //Change this version number for each release.
     var version = "0.0.6",
-            run = typeof run === "undefined" ? null : run,
             empty = {}, s,
             i, defContextName = "_", contextLoads = [],
-            scripts, script, rePkg, src, m,
+            scripts, script, rePkg, src, m, cfg,
             readyRegExp = /complete|loaded/,
-            isBrowser = typeof window !== "undefined" && navigator && document,
+            isBrowser = !!(typeof window !== "undefined" && navigator && document),
             ostring = Object.prototype.toString, scrollIntervalId;
+
+    function isFunction(it) {
+        return ostring.call(it) === "[object Function]";
+    }
 
     //Check for an existing version of run. If so, then exit out. Only allow
     //one version of run to be active in a page.
-    if (run) {
-        return;
+    if (typeof run !== "undefined") {
+        if (isFunction(run)) {
+            return;
+        } else {
+            //assume it is a config object.
+            cfg = run;
+        }
     }
-
 
     //>>excludeStart("runExcludeContext", pragmas.run.excludeContext);
     function makeContextFunc(name, contextName, force) {
@@ -67,7 +75,7 @@ setInterval: false */
      * The function that loads modules or executes code that has dependencies
      * on other modules.
      */
-    run = function (name, deps, callback, contextName) {
+    this.run = function (name, deps, callback, contextName) {
         var config = null, context, newContext, contextRun, loaded,
             canSetContext, prop, newLength,
             mods, pluginPrefix, paths, index;
@@ -320,7 +328,6 @@ setInterval: false */
 
     //Export to global namespace.
     run.global = this;
-    run.global.run = run;
     run.version = version;
 
     //Set up page state.
@@ -339,6 +346,12 @@ setInterval: false */
         pageCallbacks: [],
         doc: isBrowser ? document : null
     };
+
+    //Mix in a run configuration object, where that config object takes priority.
+    if (cfg) {
+        run.mixin(s, cfg, true);
+    }
+
     s.head = s.head || isBrowser ? 
              (s.doc.getElementsByTagName("head")[0] ||
               s.doc.getElementsByTagName("html")[0]) : null;
@@ -586,9 +599,7 @@ setInterval: false */
         return ostring.call(it) === "[object Array]";
     };
 
-    run.isFunction = function (it) {
-        return ostring.call(it) === "[object Function]";
-    };
+    run.isFunction = isFunction;
 
     /**
      * Makes the request to load a module. May be an async load depending on

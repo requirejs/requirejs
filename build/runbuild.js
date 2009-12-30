@@ -99,11 +99,8 @@ var run;
         FLAG_compilation_level = flags.Flag.value(jscomp.CompilationLevel.SIMPLE_OPTIMIZATIONS);
         FLAG_compilation_level.get().setOptionsForCompilationLevel(options);
 
-        FLAG_warning_level = flags.Flag.value(jscomp.WarningLevel.DEFAULT);
-        FLAG_warning_level.get().setOptionsForWarningLevel(options);
-
         //Run the compiler
-        compiler = new Packages.com.google.javascript.jscomp.Compiler(Packages.java.lang.System.err);
+        compiler = new Packages.com.google.javascript.jscomp.Compiler();
         compiler.compile(externSourceFile, jsSourceFile, options);
         return compiler.toSource();  
     }
@@ -149,12 +146,17 @@ var run;
     /**
      * processes the fileContents for some //>> conditional statements
      */
-    this.processPragmas = function (fileName, fileContents, pragmas) {
+    this.processPragmas = function (fileName, fileContents, config) {
         /*jslint evil: true */
         var foundIndex = -1, startIndex = 0, lineEndIndex, conditionLine,
             matches, type, marker, condition, isTrue, endRegExp, endMatches,
-            endMarkerIndex, shouldInclude, startLength;
+            endMarkerIndex, shouldInclude, startLength, pragmas = config.pragmas;
         
+        //If pragma work is not desired, skip it.
+        if (!config.skipPragmas) {
+            return fileContents;
+        }
+
         while ((foundIndex = fileContents.indexOf("//>>", startIndex)) !== -1) {
             //Found a conditional. Get the conditional line.
             lineEndIndex = fileContents.indexOf("\n", foundIndex);
@@ -394,12 +396,12 @@ var run;
             }
 
             //Start build output for the layer.
-            buildFileContents += layer._buildPath.replace(config.dir, "") + "\n----------------\n";
+            buildFileContents += "\n" + layer._buildPath.replace(config.dir, "") + "\n----------------\n";
 
             //If the file wants run.js added to the layer, add it now
             runContents = "";
             if (layer.includeRun) {
-                runContents = this.processPragmas(config.runUrl, fileUtil.readFile(config.runUrl), context.config.pragmas);
+                runContents = this.processPragmas(config.runUrl, fileUtil.readFile(config.runUrl), context.config);
                 buildFileContents += "run.js\n";
     
                 //Check for any plugins loaded.
@@ -409,7 +411,7 @@ var run;
                         if (prop.indexOf("run/") === 0) {
                             path = run.buildPathMap[prop];
                             buildFileContents += path.replace(config.dir, "") + "\n";
-                            runContents += this.processPragmas(path, fileUtil.readFile(path), context.config.pragmas);
+                            runContents += this.processPragmas(path, fileUtil.readFile(path), context.config);
                         }
                     }
                 }

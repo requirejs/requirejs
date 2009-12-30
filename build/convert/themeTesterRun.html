@@ -64,8 +64,18 @@
 	</script>
 
 	<!-- required: dojo.js -->
-	<script type="text/javascript" src="../../dojo/dojo.js"
-		djConfig="parseOnLoad: false, isDebug: true, allowXdRichTextSave: false"></script>
+	<script type="text/javascript">
+		run = {
+			baseUrl: '../../'
+		};
+		djConfig = {
+			parseOnLoad: false,
+			isDebug: true,
+			baseUrl: '../../dojo/',
+			allowXdRichTextSave: false
+		};
+	</script>
+	<script type="text/javascript" src="../../dojo.js"></script>
 
 	<!-- do not use: only for debugging / testing themes -->
 	<script type="text/javascript" src="../tests/_testCommon.js"></script>
