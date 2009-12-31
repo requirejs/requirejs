@@ -7,13 +7,14 @@ body etc...
 
 - Work out the DOMContentLoaded strategy for IE.
 
+- loading more than one locale for a page. A locales= option? Need this for full
+  Dojo conversion.
+
 - Determine if document.write helps with Operation Aborted in IE.
 
 - Add CSS optimization support (from dojo) to build tool.
 
 - Document build tool.
-  
-- loading more than one locale for a page. A locales= option?
 
 - Rhino tests.
 
