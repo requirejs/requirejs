@@ -198,8 +198,8 @@ setInterval: false */
             //>>excludeEnd("runExcludeContext");
 
             //>>excludeStart("runExcludePlugin", pragmas.run.excludePlugin);
-            if (s.plugins.onNewContext) {
-                s.plugins.onNewContext(newContext);
+            if (s.plugins.newContext) {
+                s.plugins.newContext(newContext);
             }
             //>>excludeEnd("runExcludePlugin");
 

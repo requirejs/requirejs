@@ -8,7 +8,7 @@ run({
         skipPragmas: false
     },
     "dojo",
-    ["dojo._base"]
+    ["run/text", "run/i18n", "dojo._base"]
 );
 
 run("dijit.dijit");
