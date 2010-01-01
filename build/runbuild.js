@@ -33,7 +33,7 @@ var run;
         textDepRegExp = /["'](text)\!([^"']+)["']/g,
         conditionalRegExp = /(exclude|include)Start\s*\(\s*["'](\w+)["']\s*,(.*)\)/,
         context, doClosure, runContents, specified, delegate, baseConfig, override,
-        JSSourceFilefromCode,
+        JSSourceFilefromCode, placeHolderModName,
 
         //Set up defaults for the config.
         config = {
@@ -385,6 +385,7 @@ var run;
 
             //Reset some state set up in runPatch.js
             run.buildPathMap = {};
+            run.buildFileToModule = {};
             run.buildFilePaths = [];
 
             logger.trace("\nFiguring out dependencies for: " + layerName);
@@ -436,6 +437,13 @@ var run;
             for (i = 0; (path = run.buildFilePaths[i]); i++) {
                 fileContents += fileUtil.readFile(path);
                 buildFileContents += path.replace(config.dir, "") + "\n";
+                //Some files may not have declared a run module, and if so,
+                //put in a placeholder call so the run does not try to load them
+                //after the layer is processed.
+                placeHolderModName = run.buildFileToModule[path];
+                if (placeHolderModName) {
+                    fileContents += 'run("' + placeHolderModName + '", function(){});\n';
+                }
             }
 
             //Remove any run.pause/resume calls, then add them back around

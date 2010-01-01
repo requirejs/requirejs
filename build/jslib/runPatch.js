@@ -19,6 +19,7 @@ readFile: false, processPragmas: false */
     //These variables are not contextName-aware since the build should
     //only have one context.
     run.buildPathMap = {};
+    run.buildFileToModule = {};
     run.buildFilePaths = [];
     
     //Helper functions for the execModules: false case
@@ -103,8 +104,6 @@ readFile: false, processPragmas: false */
         contents = readFile(url);
         contents = processPragmas(url, contents, context.config.pragmas);
 
-logger.trace("MODULE NAME: " + moduleName);
-
         //Only eval contents if asked, or if it is a run extension.
         if (context.config.execModules || moduleName === "run/text" || moduleName === "run/i18n") {
             eval(contents);
@@ -142,7 +141,7 @@ logger.trace("MODULE NAME: " + moduleName);
     run.fetchText = function (url, callback) {
         callback(readFile(url));
     };
-    
+
     //Instead of bringing each module into existence, order all the file URLs.
     run.callModules = function (contextName, context, orderedModules) {
         var i, module, loadedFiles = {}, url, def, prop;
@@ -153,6 +152,17 @@ logger.trace("MODULE NAME: " + moduleName);
                 loadedFiles[url] = true;
             }
         }
-    };
 
+        //Add any other files that did not have an explicit name on them.
+        for (prop in run.buildPathMap) {
+            if (run.buildPathMap.hasOwnProperty(prop)) {
+                url = run.buildPathMap[prop];
+                if (!loadedFiles[url]) {
+                    run.buildFileToModule[url] = prop;
+                    run.buildFilePaths.push(url);
+                    loadedFiles[url] = true;
+                }
+            }
+        }
+    };
 }());
