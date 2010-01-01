@@ -260,6 +260,7 @@ var run;
     buildFile = (buildFile.getAbsolutePath() + "").replace(/\\/g, "/");
 
     //Set up some defaults in the default config
+    config.appDir = "";
     config.baseUrl = baseUrlFile.getAbsolutePath() + "";
     config.runUrl = baseUrlFile.getParentFile().getAbsolutePath() + "/run.js";
     config.dir = baseUrlFile.getAbsolutePath() + "/build/";
@@ -310,11 +311,13 @@ var run;
 
     //Adjust the path properties as appropriate.
     //First make sure build paths use front slashes and end in a slash
-    props = ["dir", "baseUrl"];
+    props = ["appDir", "dir", "baseUrl"];
     for (i = 0; (prop = props[i]); i++) {
-        config[prop] = config[prop].replace(/\\/g, "/");
-        if (config[prop].charAt(config[prop].length - 1) !== "/") {
-            config[prop] += "/";
+        if (config[prop]) {
+            config[prop] = config[prop].replace(/\\/g, "/");
+            if (config[prop].charAt(config[prop].length - 1) !== "/") {
+                config[prop] += "/";
+            }
         }
     }
 
@@ -326,7 +329,15 @@ var run;
     buildPaths = {};
     
     //First copy all the baseUrl content
-    fileUtil.copyDir(config.baseUrl, config.dir, /\w/, true);
+    fileUtil.copyDir((config.appDir || config.baseUrl), config.dir, /\w/, true);
+
+    //Adjust baseUrl if config.appDir is in play.
+    if (config.appDir) {
+        config.dirBaseUrl = config.dir + config.baseUrl;
+        config.baseUrl = config.appDir + config.baseUrl;
+    } else {
+        config.dirBaseUrl = config.dir;
+    }
 
     //Now copy all paths.
     for (prop in paths) {
@@ -334,12 +345,12 @@ var run;
             //Set up build path for each path prefix.
             buildPaths[prop] = prop.replace(/\./g, "/");
             //Copy files to build area. Copy all files (the /\w/ regexp)
-            fileUtil.copyDir(paths[prop], config.dir + buildPaths[prop], /\w/, true);
+            fileUtil.copyDir(paths[prop], config.dirBaseUrl + buildPaths[prop], /\w/, true);
         }
     }
 
     //If run.js does not exist in build output, put it in there.
-    builtRunPath = config.dir + "run.js";
+    builtRunPath = config.dirBaseUrl + "run.js";
     if (!((new Packages.java.io.File(builtRunPath)).exists())) {
         fileUtil.copyFile(config.runUrl, builtRunPath, true);
     }
@@ -361,7 +372,7 @@ var run;
     //Now set up the config for run to use the build area, and calculate the
     //build file locations.
     run({
-        baseUrl: config.dir,
+        baseUrl: config.dirBaseUrl,
         paths: buildPaths,
         locale: config.locale,
         pragmas: config.pragmas,

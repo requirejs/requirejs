@@ -10,15 +10,24 @@
 
 run(
     {
+        //The top level directory that contains your app. If this option is used
+        //then it assumed your scripts are in a subdirectory under this path.
+        //This option is not required. If it is not specified, then baseUrl
+        //below is the anchor point for finding things. If this option is specified,
+        //then all the files from the app directory will be copied to the dir:
+        //output area, and baseUrl will assume to be a relative path under
+        //this directory.
+        appDir: "some/path/",
+
         //By default, all modules are located relative to this path. If baseUrl
         //is not explicitly set, then all modules are loaded relative to
         //the directory that holds the build file.
-        //For plain file paths, ones that end in .js, then they are loaded relative
-        //to where your build.js file is located.
         baseUrl: "./",
 
         //The file path for run.js. If not specified, then run.js is assumed to
-        //be in the same directory as your build file.
+        //be in the same directory as your build file. Note that a complete
+        //source version of run.js should be specified, and the run/ directory
+        //that holds the plugins for run.js should be a sibling to this path.
         runUrl: "./run.js",
 
         //Should the contents of run.js be included in the build layer. Defaults
