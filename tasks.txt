@@ -1,3 +1,17 @@
+- execModules is not on context.config?
+
+- script files without a module name are not in the build output?
+
+- circular depdency test in regular and jquery need to be changed: Each side
+of the circular dep needs to use run.get() but only one is now.
+
+- allow override baseUrl for each layer call? Then can build all of the tests folder.
+
+- Change jquery patch to allow optional run.js build in.
+
+- Have convertDojo.js convert to using config.dotsAsSlashes = true, or change
+the convert scripts to make module names / separated.
+
 - Tests for no head tag, slow connection. Put run.js in a div inside body, or head tag after
 body etc...
 

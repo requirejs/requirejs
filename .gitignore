@@ -2,5 +2,6 @@
 build/convert/build/
 build/convert/dojorun/
 build/tests/buildtext/
+build/tests/buildcircular/
 build/jquery/dist/
 build/run/build/

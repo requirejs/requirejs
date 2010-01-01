@@ -41,7 +41,8 @@ var run;
             paths: {},
             optimize: "closure",
             optimizeCss: true,
-            inlineText: true
+            inlineText: true,
+            execModules: true
         },
         layers = {}, layer, layerName, ostring = Object.prototype.toString;
 
@@ -349,7 +350,7 @@ var run;
     //run multiple times and the above copyDir call only copies newer files.
     run({
         baseUrl: config.baseUrl,
-        paths: paths     
+        paths: paths
     });
     for (layerName in layers) {
         if (layers.hasOwnProperty(layerName)) {
@@ -363,7 +364,8 @@ var run;
         baseUrl: config.dir,
         paths: buildPaths,
         locale: config.locale,
-        pragmas: config.pragmas
+        pragmas: config.pragmas,
+        execModules: config.execModules
     });
 
     for (layerName in layers) {
@@ -457,7 +459,7 @@ var run;
     //Do bulk optimizations
     if (config.inlineText) {
         //Make sure text extension is loaded.
-        run(["run.text"]);
+        run(["run/text"]);
         logger.info("Inlining text dependencies");
     }
     doClosure = config.optimize.indexOf("closure") === 0;

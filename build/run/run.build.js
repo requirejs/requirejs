@@ -6,12 +6,10 @@ run({
         dir: "build",
         //optimize: "none",
         pragmas: {
-            run: {
-                excludeModify: true,
-                excludePlugin: true,
-                excludePageLoad: true,
-                excludeContext: true
-            }
+            runExcludeModify: true,
+            runExcludePlugin: true,
+            runExcludePageLoad: true,
+            runExcludeContext: true
         }
     },
     "nomodifypluginspagecontext-run"
@@ -21,11 +19,9 @@ run({
         includeRun: true,
         override: {
             pragmas: {
-                run: {
-                    excludeModify: true,
-                    excludePlugin: true,
-                    excludePageLoad: true
-                }
+                runExcludeModify: true,
+                runExcludePlugin: true,
+                runExcludePageLoad: true
             }
         }
     },
@@ -36,11 +32,9 @@ run({
         includeRun: true,
         override: {
             pragmas: {
-                run: {
-                    excludeModify: true,
-                    excludePlugin: true,
-                    excludeContext: true
-                }
+                runExcludeModify: true,
+                runExcludePlugin: true,
+                runExcludeContext: true
             }
         }
     },
@@ -51,10 +45,8 @@ run({
         includeRun: true,
         override: {
             pragmas: {
-                run: {
-                    excludeModify: true,
-                    excludePlugin: true
-                }
+                runExcludeModify: true,
+                runExcludePlugin: true
             }
         }
     },
@@ -65,9 +57,7 @@ run({
         includeRun: true,
         override: {
             pragmas: {
-                run: {
-                    excludeModify: true
-                }
+                runExcludeModify: true
             }
         }
     },
@@ -78,9 +68,7 @@ run({
         includeRun: true,
         override: {
             pragmas: {
-                run: {
-                    excludePlugin: true
-                }
+                runExcludePlugin: true
             }
         }
     },
@@ -91,8 +79,6 @@ run({
         includeRun: true,
         override: {
             pragmas: {
-                run: {
-                }
             }
         }
     },
@@ -103,8 +89,6 @@ run({
         includeRun: true,
         override: {
             pragmas: {
-                run: {
-                }
             }
         }
     },

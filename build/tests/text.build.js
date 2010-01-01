@@ -4,12 +4,7 @@ run({
         runUrl: "../../run.js",
         includeRun: true,
         dir: "buildtext",
-        optimize: "none",
-        pragmas: {
-            run: {
-                excludeModify: true
-            }
-        }
+        optimize: "none"
     },
     "widget"
 );

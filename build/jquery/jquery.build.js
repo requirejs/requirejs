@@ -8,13 +8,10 @@ run({
         inlineText: false,
         pragmas: {
             jquery: true,
-            run: {
-                jquery: true,
-                excludeModify: true,
-                excludePlugin: true,
-                excludePageLoad: true,
-                excludeContext: true
-            }
+            runExcludeModify: true,
+            runExcludePlugin: true,
+            runExcludePageLoad: true,
+            runExcludeContext: true
         }
     },
     "jquery-run"

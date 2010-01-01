@@ -5,7 +5,7 @@ run({
         includeRun: true,
         optimize: "none",
         dir: "build",
-        skipPragmas: false
+        skipPragmas: true
     },
     "dojo",
     ["run/text", "run/i18n", "dojo._base"]

@@ -56,7 +56,7 @@ run(
         inlineText: true,
 
         //Specify build pragmas. If the source files contain comments like so:
-        //>>excludeStart("runExcludeModify", pragmas.run.excludeModify);
+        //>>excludeStart("runExcludeModify", pragmas.runExcludeModify);
         //>>excludeEnd("runExcludeModify");
         //Then the comments that start with //>> are the build pragmas.
         //excludeStart/excludeEnd and includeStart/includeEnd work, and the
@@ -64,18 +64,35 @@ run(
         //is evaluated to see if the code between the Start and End pragma
         //lines should be included or excluded.
         pragmas: {
-            run: {
-                excludeModify: true
-            }
-        }
+            //Indicates run will be included with jquery.
+            jquery: true,
+            //Remove run.modify() code
+            runExcludeModify: true,
+            //Remove plugin support from run. The i18n! and
+            //text! extensions will not work.
+            runExcludePlugin: true,
+            //Remove the page loaded detection.
+            runExcludePageLoad: true,
+            //Remove context support: means loading multiple
+            //versions of a module are not supported.
+            runExcludeContext: true
+        },
 
         //Skip processing for pragmas.
         skipPragmas: false,
 
+        //If execModules is true, each script is execute in
+        //full to find the run calls/dependencies, but the code is executed
+        //in the Rhino JavaScript environment. Set this value to false
+        //if the code does not follow the strict run pattern of wrapping all
+        //code in a run callback.
+        execModules: true
 
+/*
         TODO:
         - way to optimize CSS? default to true
         - way to ignore CSS imports?
+*/
     }
 );
 

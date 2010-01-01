@@ -36,7 +36,7 @@ setInterval: false */
         }
     }
 
-    //>>excludeStart("runExcludeContext", pragmas.run.excludeContext);
+    //>>excludeStart("runExcludeContext", pragmas.runExcludeContext);
     function makeContextFunc(name, contextName, force) {
         return function () {
             //A version of a run function that uses the current context.
@@ -51,7 +51,7 @@ setInterval: false */
     }
     //>>excludeEnd("runExcludeContext");
     
-    //>>excludeStart("runExcludePlugin", pragmas.run.excludePlugin);
+    //>>excludeStart("runExcludePlugin", pragmas.runExcludePlugin);
     /**
      * Calls a method on a plugin. The obj object should have two property,
      * name: the name of the method to call on the plugin
@@ -133,7 +133,7 @@ setInterval: false */
 
         contextName = contextName || s.ctxName;
 
-        //>>excludeStart("runExcludeContext", pragmas.run.excludeContext);
+        //>>excludeStart("runExcludeContext", pragmas.runExcludeContext);
         if (contextName !== s.ctxName) {
             //If nothing is waiting on being loaded in the current context,
             //then switch s.ctxName to current contextName.
@@ -177,14 +177,14 @@ setInterval: false */
             };
 
             //Define run() for this context.
-            //>>includeStart("runExcludeContext", pragmas.run.excludeContext);
+            //>>includeStart("runExcludeContext", pragmas.runExcludeContext);
             //A placeholder for build pragmas.
             newContext.defined.run = run;
             //>>includeEnd("runExcludeContext");
-            //>>excludeStart("runExcludeContext", pragmas.run.excludeContext);
+            //>>excludeStart("runExcludeContext", pragmas.runExcludeContext);
             newContext.defined.run = contextRun = makeContextFunc(null, contextName);
             run.mixin(contextRun, {
-                //>>excludeStart("runExcludeModify", pragmas.run.excludeModify);
+                //>>excludeStart("runExcludeModify", pragmas.runExcludeModify);
                 modify: makeContextFunc("modify", contextName),
                 //>>excludeEnd("runExcludeModify");
                 get: makeContextFunc("get", contextName, true),
@@ -197,7 +197,7 @@ setInterval: false */
             });
             //>>excludeEnd("runExcludeContext");
 
-            //>>excludeStart("runExcludePlugin", pragmas.run.excludePlugin);
+            //>>excludeStart("runExcludePlugin", pragmas.runExcludePlugin);
             if (s.plugins.newContext) {
                 s.plugins.newContext(newContext);
             }
@@ -257,7 +257,7 @@ setInterval: false */
             //pause/resume case where there are multiple modules in a file.
             context.specified[name] = true;
 
-            //>>excludeStart("runExcludeModify", pragmas.run.excludeModify);
+            //>>excludeStart("runExcludeModify", pragmas.runExcludeModify);
             //Load any modifiers for the module.
             mods = context.modifiers[name];
             if (mods) {
@@ -273,7 +273,7 @@ setInterval: false */
         }
 
         //If a pluginPrefix is available, call the plugin, or load it.
-        //>>excludeStart("runExcludePlugin", pragmas.run.excludePlugin);
+        //>>excludeStart("runExcludePlugin", pragmas.runExcludePlugin);
         if (pluginPrefix) {
             callPlugin(pluginPrefix, context, {
                 name: "run",
@@ -335,7 +335,7 @@ setInterval: false */
     s = run.s = {
         ctxName: defContextName,
         contexts: {},
-        //>>excludeStart("runExcludePlugin", pragmas.run.excludePlugin);
+        //>>excludeStart("runExcludePlugin", pragmas.runExcludePlugin);
         plugins: {
             defined: {},
             callbacks: {},
@@ -382,7 +382,7 @@ setInterval: false */
         }
     }
 
-    //>>excludeStart("runExcludePlugin", pragmas.run.excludePlugin);
+    //>>excludeStart("runExcludePlugin", pragmas.runExcludePlugin);
     /**
      * Sets up a plugin callback name. Want to make it easy to test if a plugin
      * needs to be called for a certain lifecycle event by testing for
@@ -501,7 +501,7 @@ setInterval: false */
         var i, dep, index, depPrefix;
 
         if (pluginPrefix) {
-            //>>excludeStart("runExcludePlugin", pragmas.run.excludePlugin);
+            //>>excludeStart("runExcludePlugin", pragmas.runExcludePlugin);
             callPlugin(pluginPrefix, context, {
                 name: "checkDeps",
                 args: [name, deps, context]
@@ -517,7 +517,7 @@ setInterval: false */
                         //If a plugin, call its load method.
                         index = dep.indexOf("!");
                         if (index !== -1) {
-                            //>>excludeStart("runExcludePlugin", pragmas.run.excludePlugin);
+                            //>>excludeStart("runExcludePlugin", pragmas.runExcludePlugin);
                             depPrefix = dep.substring(0, index);
                             dep = dep.substring(index + 1, dep.length);
 
@@ -537,7 +537,7 @@ setInterval: false */
         }
     };
 
-    //>>excludeStart("runExcludeModify", pragmas.run.excludeModify);
+    //>>excludeStart("runExcludeModify", pragmas.runExcludeModify);
     /**
      * Register a module that modifies another module. The modifier will
      * only be called once the target module has been loaded.
@@ -615,7 +615,7 @@ setInterval: false */
     run.load = function (moduleName, contextName) {
         var context = s.contexts[contextName], url;
         context.loaded[moduleName] = false;
-        //>>excludeStart("runExcludeContext", pragmas.run.excludeContext);
+        //>>excludeStart("runExcludeContext", pragmas.runExcludeContext);
         if (contextName !== s.ctxName) {
             //Not in the right context now, hold on to it until
             //the current context finishes all its loading.
@@ -626,7 +626,7 @@ setInterval: false */
             url = run.convertNameToPath(moduleName, contextName);
             run.attach(url, contextName, moduleName);
             context.startTime = (new Date()).getTime();
-        //>>excludeStart("runExcludeContext", pragmas.run.excludeContext);
+        //>>excludeStart("runExcludeContext", pragmas.runExcludeContext);
         }
         //>>excludeEnd("runExcludeContext");
     };
@@ -637,14 +637,15 @@ setInterval: false */
      * Converts a module name to a file path.
      */
     run.convertNameToPath = function (moduleName, contextName, ext) {
-        var paths, syms, i, parentModule, url;
+        var paths, syms, i, parentModule, url,
+            config = s.contexts[contextName].config;
 
         if (run.jsExtRegExp.test(moduleName)) {
             //Just a plain path, not module name lookup, so just return it.
             return moduleName;
         } else {
             //A module that needs to be converted to a path.
-            paths = s.contexts[contextName].config.paths;
+            paths = config.paths;
             
             //Backwards compat issue with modules like Dojo or Google Closure.
             //Consider removing this in the future. While this compat shim
@@ -652,7 +653,9 @@ setInterval: false */
             //However, given the IE browser restriction of not firing script loads
             //in order with script evaluations, and to allow multiple modules
             //in a build file, relative paths do not make much sense.
-            moduleName = moduleName.replace(/\./g, "/");
+            if (config.dotsAsSlashes) {
+                moduleName = moduleName.replace(/\./g, "/");
+            }
 
             syms = moduleName.split("/");
             //For each module name segment, see if there is a path
@@ -668,7 +671,7 @@ setInterval: false */
 
             //Join the path parts together, then figure out if baseUrl is needed.
             url = syms.join("/") + (ext || ".js");
-            return ((url.charAt(0) === '/' || url.match(/^\w+:/)) ? "" : s.contexts[contextName].config.baseUrl) + url;
+            return ((url.charAt(0) === '/' || url.match(/^\w+:/)) ? "" : config.baseUrl) + url;
         }
     };
 
@@ -684,7 +687,7 @@ setInterval: false */
                 nextModule = waiting[waiting[nextDep]];
                 if (nextModule && !nextModule.isOrdered) {
                     if (defined[nextDep]) {
-                        //>>excludeStart("runExcludeModify", pragmas.run.excludeModify);
+                        //>>excludeStart("runExcludeModify", pragmas.runExcludeModify);
                         //Check for any modifiers on it.
                         //Need to check here since if defined, we do not want to add it to
                         //module change and have to reprocess the defined module.
@@ -723,7 +726,7 @@ setInterval: false */
                 //Add the current module to the ordered list.
                 orderedModules.push(module);
 
-                //>>excludeStart("runExcludeModify", pragmas.run.excludeModify);
+                //>>excludeStart("runExcludeModify", pragmas.runExcludeModify);
                 //Now add any modifier modules for current module.
                 mods = modifiers[module.name];
                 if (mods) {
@@ -753,7 +756,7 @@ setInterval: false */
                 noLoads = "",
                 hasLoadedProp = false, stillLoading = false, prop, waiting,
 
-                //>>excludeStart("runExcludePlugin", pragmas.run.excludePlugin);
+                //>>excludeStart("runExcludePlugin", pragmas.runExcludePlugin);
                 pIsWaiting = s.plugins.isWaiting, pOrderDeps = s.plugins.orderDeps,
                 //>>excludeEnd("runExcludePlugin");
 
@@ -788,7 +791,7 @@ setInterval: false */
 
         //Check for exit conditions.
         if (!hasLoadedProp && !context.waiting.length
-            //>>excludeStart("runExcludePlugin", pragmas.run.excludePlugin);
+            //>>excludeStart("runExcludePlugin", pragmas.runExcludePlugin);
             && (!pIsWaiting || !pIsWaiting(context))
             //>>excludeEnd("runExcludePlugin");
            ) {
@@ -819,7 +822,7 @@ setInterval: false */
         context.waiting = [];
         context.loaded = {};
 
-        //>>excludeStart("runExcludePlugin", pragmas.run.excludePlugin);
+        //>>excludeStart("runExcludePlugin", pragmas.runExcludePlugin);
         //Call plugins to order their dependencies, do their
         //module definitions.
         if (pOrderDeps) {
@@ -844,7 +847,7 @@ setInterval: false */
         context.isCheckLoaded = false;
 
         if (context.waiting.length
-            //>>excludeStart("runExcludePlugin", pragmas.run.excludePlugin);
+            //>>excludeStart("runExcludePlugin", pragmas.runExcludePlugin);
             || (pIsWaiting && pIsWaiting(context))
             //>>excludeEnd("runExcludePlugin");
            ) {
@@ -853,7 +856,7 @@ setInterval: false */
             //callbacks that triggered other run calls.
             run.checkLoaded(contextName);
         } else if (contextLoads.length) {
-            //>>excludeStart("runExcludeContext", pragmas.run.excludeContext);
+            //>>excludeStart("runExcludeContext", pragmas.runExcludeContext);
             //Check for other contexts that need to load things.
             //First, make sure current context has no more things to
             //load. After defining the modules above, new run calls
@@ -991,7 +994,7 @@ setInterval: false */
         return null;
     };
 
-    //>>excludeStart("runExcludePageLoad", pragmas.run.excludePageLoad);
+    //>>excludeStart("runExcludePageLoad", pragmas.runExcludePageLoad);
     //****** START page load functionality ****************
     //Set up page on load callbacks. May separate this out.
      /**
