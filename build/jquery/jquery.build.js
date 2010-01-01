@@ -5,7 +5,7 @@ run({
         includeRun: true,
         dir: "dist",
         optimize: "none",
-        inlineText: "false",
+        inlineText: false,
         pragmas: {
             run: {
                 excludeModify: true,
