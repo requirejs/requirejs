@@ -7,7 +7,9 @@ run({
         optimize: "none",
         inlineText: false,
         pragmas: {
+            jquery: true,
             run: {
+                jquery: true,
                 excludeModify: true,
                 excludePlugin: true,
                 excludePageLoad: true,

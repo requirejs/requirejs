@@ -363,7 +363,13 @@ setInterval: false */
     if (run.isBrowser && !s.baseUrl) {
         //Figure out baseUrl. Get it from the script tag with run.js in it.
         scripts = run.doc.getElementsByTagName("script");
+        //>>includeStart("jquery", pragmas.jquery);
+        rePkg = /jquery[-\d\.]*(min)?\.js(\W|$)/i;
+        //>>includeEnd("jquery");
+        //>>excludeStart("jquery", pragmas.jquery);
         rePkg = /run\.js(\W|$)/i;
+        //>>excludeEnd("jquery");
+
         for (i = scripts.length - 1; (script = scripts[i]); i--) {
             src = script.getAttribute("src");
             if (src) {
