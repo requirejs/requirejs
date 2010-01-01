@@ -1,10 +1,10 @@
 run(
     "funcTwo",
     ["funcOne"],
-    function (one) {
+    function () {
         var two = function (name) {
             this.name = name;
-            this.one = new one("ONE");
+            this.one = new (run.get("funcOne"))("ONE");
         };
     
         two.prototype.oneName = function () {

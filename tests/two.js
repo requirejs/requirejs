@@ -3,10 +3,10 @@ run(
   ["one"],
   function(one) {
     return {
-      size: one.size,
+      size: "small",
       color: "redtwo",
       doSomething: function() {
-        return one.doSomething();
+        return run.get("one").doSomething();
       }
     };
   }

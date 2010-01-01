@@ -3,7 +3,7 @@ run(
     ["funcFour"],
     function (four) {
         var three = function (arg) {
-            return arg + "-" + four.suffix();
+            return arg + "-" + run.get("funcFour").suffix();
         };
 
         three.suffix = function () {
