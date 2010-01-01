@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2004-2009, The Dojo Foundation All Rights Reserved.
+    Copyright (c) 2004-2010, The Dojo Foundation All Rights Reserved.
     Available via the new BSD license.
     see: http://code.google.com/p/runjs/ for details
 */

@@ -1,6 +1,6 @@
 /**
- * @license Copyright (c) 2004-2009, The Dojo Foundation All Rights Reserved.
- * Available via the new BSD license.
+ * @license Copyright (c) 2004-2010, The Dojo Foundation All Rights Reserved.
+ * Available via the MIT, GPL or new BSD license.
  * see: http://github.com/jrburke/runjs for details
  */
 //laxbreak is true to allow build pragmas to change some statements.

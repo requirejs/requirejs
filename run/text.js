@@ -1,7 +1,7 @@
 /**
- * @license Copyright (c) 2004-2009, The Dojo Foundation All Rights Reserved.
- * Available via the new BSD license.
- * see: http://code.google.com/p/runjs/ for details
+ * @license Copyright (c) 2004-2010, The Dojo Foundation All Rights Reserved.
+ * Available via the MIT, GPL or new BSD license.
+ * see: http://github.com/jrburke/runjs for details
  */
 /*jslint regexp: false, nomen: false, plusplus: false */
 /*global run: false, XMLHttpRequest: false, ActiveXObject: false */
