@@ -54,5 +54,56 @@ app.js:
 
 ## Feel the need for speed
 
-Now your page is set up to be optimized very easily. Download the RunJS source and place it anywhere you like, preferrably somewhere outside your web development area. Then, in the scripts directory that has jquery.js and app.js, create a file called app.build.js:
+Now your page is set up to be optimized very easily. Download the RunJS source and place it anywhere you like, preferrably somewhere outside your web development area. For the purposes of this example, the RunJS source is placed as a sibling to the **webapp** directory, which contains the HTML page and the scripts directory with all the scripts. Complete directory structure:
+
+* runjs/  (used for the build tools)
+* webapp/app.html
+* webapp/scripts/app.js
+* webapp/scripts/jquery.js (if not built into jquery)
+* webapp/scripts/jquery.alpha.js
+* webapp/scripts/jquery.beta.js
+* webapp/scripts/run.js (if not built into jquery)
+
+Then, in the scripts directory that has jquery.js and app.js, create a file called app.build.js with the following contents:
+
+    run({
+            appDir: "../",
+            baseUrl: "scripts/",
+            runUrl: "../../runjs/run.js",
+            dir: "../webapp-build",
+            //Comment out the optimize line if you want
+            //the code minified by Closure Compiler using
+            //the "simple" optimizations mode
+            optimize: "none",
+            inlineText: false,
+            execModules: false
+        },
+        "app"
+    );
+
+To run the build tool, you need Java 6 installed. Closure Compiler is used for the JavaScript minification step (if optimize: "none" is commented out), and it requires Java 6.
+
+To run the build, go to the **webapp/scripts** directory, execute the following command:
+
+For non-windows operating systems:
+
+    ../../runjs/build/runbuild.sh app.build.js
+
+For windows operating systems (a .bat file is in the works to make this easier):
+
+    java -classpath ..\..\runjs\build\lib\rhino\js.jar;..\..\runjs\build\lib\closure\compiler.jar org.mozilla.javascript.tools.shell.Main ..\..\runjs\build\runbuild.js ..\..\runjs\build\ app.build.js
+
+Now, in the webapp-build directory, app.js will have the app.js contents, jquery.alpha.js and jquery.beta.js inlined. If you then load the app.html file in the webapp-build directory, you should not see any network requests for jquery.alpha.js and jquery.beta.js.
+
+## See it in action
+
+This example is really basic, but demonstrates how you can upgrade your code to use RunJS, and get powerful build optimizations without needing to change your code.
+
+To see this complete example in action, go here:
+
+http://www.tagneto.org/runjs/jquery-run-sample
+
+To get all the source files for this example, go here:
+
+http://www.tagneto.org/runjs/jquery-run-sample.zip
 
