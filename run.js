@@ -800,7 +800,7 @@ setInterval: false */
             context.isCheckLoaded = false;
             return;
         }
-        if (expired) {
+        if (expired && noLoads) {
             //If wait time expired, throw error of unloaded modules.
             throw new Error("run.js load timeout for modules: " + noLoads);
         }
