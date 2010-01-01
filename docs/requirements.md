@@ -52,9 +52,9 @@ As projects get bigger, it is more common to need to load two versions of a modu
 
 If a module wants to work with the global namespace, but that is normally easy to allow in a module spec. The harder part is constructing a format that works well to avoid the global namespace.
 
-## Good replacement for normal script tags.
+## Load any script
 
-Not all scripts will be using the module format. Allow existing scripts to be loaded similar to how they are loaded via a regular script tag in HTML.
+Not all scripts will be using the module format. Allow existing scripts to be loaded and treated as a dependency.
 
 ## Allow for performance upgrades
 

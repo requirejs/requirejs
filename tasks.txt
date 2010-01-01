@@ -3,12 +3,12 @@ body etc...
 
 - Use . instead of ! for file extensions for text! dependencies?
 
-- Put a Requirements doc together
-
-- Work out the DOMContentLoaded strategy for IE.
-
 - loading more than one locale for a page. A locales= option? Need this for full
   Dojo conversion.
+
+- Specifying locale: root for a build layer puts the root bundles in the layer,
+but something weird is going on, where they still seem to be requested? And the browser
+gets really slow up at the end (in FF)?
 
 - Determine if document.write helps with Operation Aborted in IE.
 

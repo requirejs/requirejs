@@ -33,7 +33,7 @@ var run;
         textDepRegExp = /["'](text)\!([^"']+)["']/g,
         conditionalRegExp = /(exclude|include)Start\s*\(\s*["'](\w+)["']\s*,(.*)\)/,
         context, doClosure, runContents, specified, delegate, baseConfig, override,
-        JSSourceFilefromCode = java.lang.Class.forName('com.google.javascript.jscomp.JSSourceFile').getMethod('fromCode', [java.lang.String, java.lang.String]),
+        JSSourceFilefromCode,
 
         //Set up defaults for the config.
         config = {
@@ -44,6 +44,11 @@ var run;
             inlineText: true
         },
         layers = {}, layer, layerName, ostring = Object.prototype.toString;
+
+    //Bind to Closure compiler, but if it is not available, do not sweat it.
+    try {
+        JSSourceFilefromCode = java.lang.Class.forName('com.google.javascript.jscomp.JSSourceFile').getMethod('fromCode', [java.lang.String, java.lang.String]);
+    } catch(e) {}
 
     function isArray(it) {
         return ostring.call(it) === "[object Array]";    
@@ -159,7 +164,8 @@ var run;
             endMarkerIndex, shouldInclude, startLength, pragmas = config.pragmas;
         
         //If pragma work is not desired, skip it.
-        if (!config.skipPragmas) {
+        if (config.skipPragmas) {
+            logger.trace("SKIPPING PRAGMAS!!!!");
             return fileContents;
         }
 
