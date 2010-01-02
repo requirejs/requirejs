@@ -13,8 +13,8 @@ RunJS has a module system that lets you define well-scoped modules, but you do n
 First step is integrating run.js with your code. There are two options:
 
 1. Grab run.js from the RunJS project and drop it in directory with jquery.js
-2. Build jQuery integrated with run.js See this patch to the jQuery source:
-xxx
+2. Build jQuery integrated with run.js: You can use [this patch to the jQuery source](http://github.com/jrburke/jquery/commit/8678f98a3a514f0a5f14a51edad970c616d46a6f).
+
 
 **NOTE**: Following the above approaches will get RunJS set up with its core feature set. Later, if you want to use the i18n or text plugins with RunJS or more sophisticated things like loading multiple versions of modules or creating module modifiers, you will need to grab the complete source version of run.js along with the run directory (which contains the i18n.js and text.js files).
 
@@ -99,11 +99,6 @@ Now, in the webapp-build directory, app.js will have the app.js contents, jquery
 
 This example is really basic, but demonstrates how you can upgrade your code to use RunJS, and get powerful build optimizations without needing to change your code.
 
-To see this complete example in action, go here:
+[Here is the complete example](http://www.tagneto.org/runjs/jquery-run-sample/) in action, [here is the zip of all the files](http://www.tagneto.org/runjs/jquery-run-sample.zip).
 
-http://www.tagneto.org/runjs/jquery-run-sample
-
-To get all the source files for this example, go here:
-
-http://www.tagneto.org/runjs/jquery-run-sample.zip
 
