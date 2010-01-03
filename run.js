@@ -646,16 +646,6 @@ setInterval: false */
         } else {
             //A module that needs to be converted to a path.
             paths = config.paths;
-            
-            //Backwards compat issue with modules like Dojo or Google Closure.
-            //Consider removing this in the future. While this compat shim
-            //exists, supporting module names like "./some/path" will not work.
-            //However, given the IE browser restriction of not firing script loads
-            //in order with script evaluations, and to allow multiple modules
-            //in a build file, relative paths do not make much sense.
-            if (config.dotsAsSlashes) {
-                moduleName = moduleName.replace(/\./g, "/");
-            }
 
             syms = moduleName.split("/");
             //For each module name segment, see if there is a path

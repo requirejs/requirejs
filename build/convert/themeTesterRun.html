@@ -85,104 +85,17 @@
 	<!-- script type="text/javascript" src="../dijit.js"></script -->
 	<!-- script type="text/javascript" src="../dijit-all.js" charset="utf-8"></script -->
 
-	<script type="text/javascript"> // dojo.requires()
-		/*
-		dojo.require("dijit.Menu");
-		dojo.require("dijit.Calendar");
-		dojo.require("dijit.ColorPalette");
-		dojo.require("dijit.ProgressBar");
-		dojo.require("dijit.TitlePane");
-		dojo.require("dijit.Tooltip");
-		dojo.require("dijit.Tree");
-		dojo.require("dijit.MenuBar");
-
-		// editor:
-		dojo.require("dijit.Editor");
-		dojo.require("dijit._editor.plugins.FontChoice");
-		dojo.require("dijit._editor.plugins.LinkDialog");
-
-		// dnd:
-		dojo.require("dojo.dnd.Source");
-
-		// various Form elemetns
-		dojo.require("dijit.form.CheckBox");
-		dojo.require("dijit.form.Textarea");
-		dojo.require("dijit.form.SimpleTextarea");
-		dojo.require("dijit.form.FilteringSelect");
-		dojo.require("dijit.form.TextBox");
-		dojo.require("dijit.form.DateTextBox");
-		dojo.require("dijit.form.TimeTextBox");
-		dojo.require("dijit.form.CurrencyTextBox");
-		dojo.require("dijit.form.Button");
-		dojo.require("dijit.InlineEditBox");
-		dojo.require("dijit.form.NumberSpinner");
-		dojo.require("dijit.form.VerticalSlider");
-		dojo.require("dijit.form.HorizontalSlider");
-
-		// layouts used in page
-		dojo.require("dijit.layout.AccordionContainer");
-		dojo.require("dijit.layout.ContentPane");
-		dojo.require("dijit.layout.TabContainer");
-		dojo.require("dijit.layout.BorderContainer");
-		dojo.require("dijit.Dialog");
-
-		// scan page for widgets and instantiate them
-		dojo.require("dojo.parser");
-
-		// humm?
-		dojo.require("dojo.date.locale");
-
-		// for the Tree
-		dojo.require("dojo.data.ItemFileReadStore");
-		*/
-
+	<script type="text/javascript">
 		run(
 		    {
 			baseUrl: "../../"
 		    },
 		    ["run",
-			"dijit.dijit",
-			"dijit.dijit-all",
-			"dojo.data.ItemFileReadStore",
-			"dijit.form.TimeTextBox",
-			"dojo.dnd.Source"
-			/*
-			"dijit.Menu",
-			"dijit.Calendar",
-			"dijit.ColorPalette",
-			"dijit.ProgressBar",
-			"dijit.TitlePane",
-			"dijit.Tooltip",
-			"dijit.Tree",
-			"dijit.MenuBar",
-			"dijit.Editor",
-			"dijit._editor.plugins.FontChoice",
-			"dijit._editor.plugins.LinkDialog",
-			"dojo.dnd.Source",
-			"dijit.PopupMenuBarItem",
-			"dijit.form.CheckBox",
-			"dijit.form.Textarea",
-			"dijit.form.SimpleTextarea",
-			"dijit.form.FilteringSelect",
-			"dijit.form.TextBox",
-			"dijit.form.DateTextBox",
-			"dijit.form.TimeTextBox",
-			"dijit.form.CurrencyTextBox",
-			"dijit.form.Button",
-			"dijit.InlineEditBox",
-			"dijit.form.NumberSpinner",
-			"dijit.form.VerticalSlider",
-			"dijit.form.HorizontalSlider",
-			"dijit.layout.AccordionContainer",
-			"dijit.layout.ContentPane",
-			"dijit.layout.TabContainer",
-			"dijit.layout.BorderContainer",
-			"dijit.layout.LinkPane",
-			"dijit.Dialog",
-			"dojo.parser",
-			"dojo.date.locale",
-			"dojo.data.ItemFileReadStore"
-			*/
+			"dijit/dijit",
+			"dijit/dijit-all",
+			"dojo/data/ItemFileReadStore",
+			"dijit/form/TimeTextBox",
+			"dojo/dnd/Source"
 		     ],
 		    function(run) {
 			run.ready(addOnLoad1);
@@ -195,7 +108,7 @@
 		    {
 			baseUrl: "../../"
 		    },
-		    ["run", "dijit.dijit", "dijit.dijit-all"],
+		    ["run", "dijit/dijit", "dijit/dijit-all"],
 		    function(run) {
 			run.ready(addOnLoad1);
 			run.ready(addOnLoad2);

@@ -102,7 +102,7 @@ readFile: false, processPragmas: false */
         //Load the file contents, process for conditionals, then
         //evaluate it.
         contents = readFile(url);
-        contents = processPragmas(url, contents, context.config.pragmas);
+        contents = processPragmas(url, contents, context.config);
 
         //Only eval contents if asked, or if it is a run extension.
         if (context.config.execModules || moduleName === "run/text" || moduleName === "run/i18n") {

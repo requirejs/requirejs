@@ -1,7 +1,4 @@
-- Change jquery patch to allow optional run.js build in.
-
-- Have convertDojo.js convert to using config.dotsAsSlashes = true, or change
-the convert scripts to make module names / separated.
+- Fix runbuild.bat on windows.
 
 - Expand tests for no head tag, slow connection. Put run.js in a div inside body, or head tag after
 body etc...

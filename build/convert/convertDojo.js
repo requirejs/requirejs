@@ -6,7 +6,7 @@
  * * In dojo._base.query, move the provide/require calls to the top
  * * dojo/_base.js convert requireIf to dojo.require("dojo._base.browser");
  * * dojo/_base/hostenv_browser.js, remove the debugAtAllCosts block and change
- * the isDebug block to be if(dojo.config.isDebug){run(["dojo._firebug.firebug"]);}
+ * the isDebug block to be if(dojo.config.isDebug){run(["dojo/_firebug/firebug"]);}
  * * In dijit/_editor/RichText.js, remove the allowXdRichTextSave block, or force it not to doc.write.
  *
  * It requires a Dojo build that:
@@ -96,7 +96,8 @@ convertTime = ((new Date().getTime() - startTime) / 1000);
 logger.info("Convert time: " + convertTime + " seconds");
 
 function writeRunEnd(prefixProps, contents) {
-    var reqString = "", argString = "", i, req, getLocs = [], loc, varName;
+    var reqString = "", argString = "", i, req, getLocs = [], loc, varName,
+        provideName = prefixProps && prefixProps.provide.replace(/\./g, "/");
 
     if (!prefixProps) {
         return contents;
@@ -147,11 +148,11 @@ function writeRunEnd(prefixProps, contents) {
 
         //Build up the req string and args string.
         for (i = 0; (req = prefixProps.reqs[i]); i++) {
-            reqString += ', "' + req + '"';
+            reqString += ', "' + req.replace(/\./g, "/") + '"';
             argString += ', _R' + i;
         }
 
-        return 'run("' + prefixProps.provide + '", ["run", "dojo", "dijit", "dojox"' +
+        return 'run("' + provideName + '", ["run", "dojo", "dijit", "dojox"' +
                 reqString +
                 '], function(run, dojo, dijit, dojox' + argString + ') {\n' +
                 prefixProps.match +

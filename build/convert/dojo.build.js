@@ -8,9 +8,9 @@ run({
         skipPragmas: true
     },
     "dojo",
-    ["run/text", "run/i18n", "dojo._base"]
+    ["run/text", "run/i18n", "dojo/_base"]
 );
 
-run("dijit.dijit");
+run("dijit/dijit");
 
-run("dijit.dijit-all");
+run("dijit/dijit-all");

@@ -166,7 +166,6 @@ var run;
         
         //If pragma work is not desired, skip it.
         if (config.skipPragmas) {
-            logger.trace("SKIPPING PRAGMAS!!!!");
             return fileContents;
         }
 
@@ -370,14 +369,13 @@ var run;
     }
 
     //Now set up the config for run to use the build area, and calculate the
-    //build file locations.
-    run({
+    //build file locations. Pass along any config info too.
+    baseConfig = {
         baseUrl: config.dirBaseUrl,
-        paths: buildPaths,
-        locale: config.locale,
-        pragmas: config.pragmas,
-        execModules: config.execModules
-    });
+        paths: buildPaths
+    };
+    mixin(baseConfig, config);
+    run(baseConfig);
 
     for (layerName in layers) {
         if (layers.hasOwnProperty(layerName)) {
