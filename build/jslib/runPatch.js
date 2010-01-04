@@ -21,6 +21,7 @@ readFile: false, processPragmas: false */
     run.buildPathMap = {};
     run.buildFileToModule = {};
     run.buildFilePaths = [];
+    run.loadedFiles = {};
     
     //Helper functions for the execModules: false case
     function removeComments(contents) {
@@ -144,12 +145,12 @@ readFile: false, processPragmas: false */
 
     //Instead of bringing each module into existence, order all the file URLs.
     run.callModules = function (contextName, context, orderedModules) {
-        var i, module, loadedFiles = {}, url, def, prop;
+        var i, module, url, def, prop;
         for (i = 0; (module = orderedModules[i]); i++) {
             url = module.name && run.buildPathMap[module.name];
-            if (url && !loadedFiles[url]) {
+            if (url && !run.loadedFiles[url]) {
                 run.buildFilePaths.push(url);
-                loadedFiles[url] = true;
+                run.loadedFiles[url] = true;
             }
         }
 
@@ -157,10 +158,10 @@ readFile: false, processPragmas: false */
         for (prop in run.buildPathMap) {
             if (run.buildPathMap.hasOwnProperty(prop)) {
                 url = run.buildPathMap[prop];
-                if (!loadedFiles[url]) {
+                if (!run.loadedFiles[url]) {
                     run.buildFileToModule[url] = prop;
                     run.buildFilePaths.push(url);
-                    loadedFiles[url] = true;
+                    run.loadedFiles[url] = true;
                 }
             }
         }

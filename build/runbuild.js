@@ -396,6 +396,7 @@ var run;
             run.buildPathMap = {};
             run.buildFileToModule = {};
             run.buildFilePaths = [];
+            run.loadedFiles = {};
 
             logger.trace("\nFiguring out dependencies for: " + layerName);
             deps = [layerName];
