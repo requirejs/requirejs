@@ -136,7 +136,7 @@ run.js allows you to set up a basic module that has localized information withou
 
 i18n bundle support is provided by the run/i18n.js plugin. It is automatically loaded when a module or dependency specifies the i18n! prefix (more info below).
 
-To define a bundle, put it in a directory called "nls" -- run.js assumes a module name with "nls" in it indicates an i18n bundle. If you wanted to provide a bundle of color names in your "my" set of modules, create the directory structure like so:
+To define a bundle, put it in a directory called "nls" -- the i18n! plugin assumes a module name with "nls" in it indicates an i18n bundle. The "nls" marker in the name tells the i18n plugin where to expect the locale directories (they should be immediate children of the nls directory). If you wanted to provide a bundle of color names in your "my" set of modules, create the directory structure like so:
 
 * my/nls/colors.js
 

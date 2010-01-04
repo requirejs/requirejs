@@ -6,6 +6,9 @@ body etc...
 - loading more than one locale for a page. A locales= option? Need this for full
   Dojo conversion.
 
+- When doing docs via jsdoc, using {some/module} as return types? How does JSDoc deal with the nested objects?
+  Probably needs custom work to get it recognize the module concept thing.
+
 - Specifying locale: root for a build layer puts the root bundles in the layer,
 but something weird is going on, where they still seem to be requested? And the browser
 gets really slow up at the end (in FF)?

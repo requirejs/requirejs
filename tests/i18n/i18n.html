@@ -15,7 +15,7 @@
         }
 
         //Allow bundle name to be loaded via query args.
-        var bundle = "nls/colors";
+        var bundle = "i18n!nls/colors";
         match = query && query.match(/bundle=([^\&]+)/);
         if (match) {
             bundle = match[1];
