@@ -162,8 +162,15 @@ var run;
         /*jslint evil: true */
         var foundIndex = -1, startIndex = 0, lineEndIndex, conditionLine,
             matches, type, marker, condition, isTrue, endRegExp, endMatches,
-            endMarkerIndex, shouldInclude, startLength, pragmas = config.pragmas;
-        
+            endMarkerIndex, shouldInclude, startLength, pragmas = config.pragmas,
+            //Legacy arg defined to help in dojo conversion script. Remove later
+            //when dojo no longer needs conversion:
+            kwArgs = {
+                profileProperties: {
+                    hostenvType: "browser"
+                }
+            };
+
         //If pragma work is not desired, skip it.
         if (config.skipPragmas) {
             return fileContents;

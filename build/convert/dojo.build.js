@@ -3,9 +3,11 @@ run({
         baseUrl: "./dojorun",
         runUrl: "../../run.js",
         includeRun: true,
-        optimize: "none",
+        //optimize: "none",
         dir: "build",
-        skipPragmas: true
+        pragmas: {
+            dojoConvert: true
+        }
     },
     "dojo",
     ["run/text", "run/i18n", "dojo/_base"]

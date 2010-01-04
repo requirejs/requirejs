@@ -9,7 +9,9 @@
 setTimeout: false, traceDeps: true, clearInterval: false, self: false,
 setInterval: false */
 
+//>>excludeStart("dojoConvert", pragmas.dojoConvert);
 "use strict";
+//>>excludeEnd("dojoConvert");
 
 (function () {
     //Change this version number for each release.
@@ -366,9 +368,19 @@ setInterval: false */
         //>>includeStart("jquery", pragmas.jquery);
         rePkg = /jquery[-\d\.]*(min)?\.js(\W|$)/i;
         //>>includeEnd("jquery");
+
+        //>>includeStart("dojoConvert", pragmas.dojoConvert);
+        rePkg = /dojo\.js(\W|$)/i;
+        //>>includeEnd("dojoConvert");
+
+        //>>excludeStart("dojoConvert", pragmas.dojoConvert);
+
         //>>excludeStart("jquery", pragmas.jquery);
         rePkg = /run\.js(\W|$)/i;
         //>>excludeEnd("jquery");
+
+        //>>excludeEnd("dojoConvert");
+
 
         for (i = scripts.length - 1; (script = scripts[i]); i--) {
             src = script.getAttribute("src");
