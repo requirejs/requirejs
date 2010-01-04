@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2004-2010, The Dojo Foundation All Rights Reserved.
+ * @license RunJS Copyright (c) 2004-2010, The Dojo Foundation All Rights Reserved.
  * Available via the MIT, GPL or new BSD license.
  * see: http://github.com/jrburke/runjs for details
  */
@@ -350,49 +350,11 @@ setInterval: false */
         doc: isBrowser ? document : null
     };
 
-    //Mix in a run configuration object, where that config object takes priority.
-    if (cfg) {
-        run.mixin(s, cfg, true);
-    }
-
+    run.isBrowser = s.isBrowser;
     s.head = s.head || isBrowser ? 
              (s.doc.getElementsByTagName("head")[0] ||
               s.doc.getElementsByTagName("html")[0]) : null;
-    run.isBrowser = s.isBrowser;
     run.doc = s.doc;
-
-    //Set up page load detection for the browser case.
-    if (run.isBrowser && !s.baseUrl) {
-        //Figure out baseUrl. Get it from the script tag with run.js in it.
-        scripts = run.doc.getElementsByTagName("script");
-        //>>includeStart("jquery", pragmas.jquery);
-        rePkg = /jquery[-\d\.]*(min)?\.js(\W|$)/i;
-        //>>includeEnd("jquery");
-
-        //>>includeStart("dojoConvert", pragmas.dojoConvert);
-        rePkg = /dojo\.js(\W|$)/i;
-        //>>includeEnd("dojoConvert");
-
-        //>>excludeStart("dojoConvert", pragmas.dojoConvert);
-
-        //>>excludeStart("jquery", pragmas.jquery);
-        rePkg = /run\.js(\W|$)/i;
-        //>>excludeEnd("jquery");
-
-        //>>excludeEnd("dojoConvert");
-
-
-        for (i = scripts.length - 1; (script = scripts[i]); i--) {
-            src = script.getAttribute("src");
-            if (src) {
-                m = src.match(rePkg);
-                if (m) {
-                    s.baseUrl = src.substring(0, m.index);
-                }
-                break;
-            }
-        }
-    }
 
     //>>excludeStart("runExcludePlugin", pragmas.runExcludePlugin);
     /**
@@ -996,6 +958,39 @@ setInterval: false */
         return null;
     };
 
+    //Determine what baseUrl should be if not already defined via a run config object
+    s.baseUrl = cfg && cfg.baseUrl;
+    if (run.isBrowser && !s.baseUrl) {
+        //Figure out baseUrl. Get it from the script tag with run.js in it.
+        scripts = run.doc.getElementsByTagName("script");
+        //>>includeStart("jquery", pragmas.jquery);
+        rePkg = /jquery[-\d\.]*(min)?\.js(\W|$)/i;
+        //>>includeEnd("jquery");
+
+        //>>includeStart("dojoConvert", pragmas.dojoConvert);
+        rePkg = /dojo\.js(\W|$)/i;
+        //>>includeEnd("dojoConvert");
+
+        //>>excludeStart("dojoConvert", pragmas.dojoConvert);
+
+        //>>excludeStart("jquery", pragmas.jquery);
+        rePkg = /run\.js(\W|$)/i;
+        //>>excludeEnd("jquery");
+
+        //>>excludeEnd("dojoConvert");
+
+        for (i = scripts.length - 1; (script = scripts[i]); i--) {
+            src = script.getAttribute("src");
+            if (src) {
+                m = src.match(rePkg);
+                if (m) {
+                    s.baseUrl = src.substring(0, m.index);
+                }
+                break;
+            }
+        }
+    }
+
     //>>excludeStart("runExcludePageLoad", pragmas.runExcludePageLoad);
     //****** START page load functionality ****************
     //Set up page on load callbacks. May separate this out.
@@ -1058,4 +1053,7 @@ setInterval: false */
     }
     //****** END page load functionality ****************
     //>>excludeEnd("runExcludePageLoad");
+
+    //Set up default context. If run was a configuration object, use that as base config.
+    run(cfg ? cfg : {});
 }());

@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2004-2010, The Dojo Foundation All Rights Reserved.
+ * @license RunJS text Copyright (c) 2004-2010, The Dojo Foundation All Rights Reserved.
  * Available via the MIT, GPL or new BSD license.
  * see: http://github.com/jrburke/runjs for details
  */
