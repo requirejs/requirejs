@@ -939,7 +939,6 @@ setInterval: false */
     run.attach = function (url, contextName, moduleName) {
         if (run.isBrowser) {
             var node = run.doc.createElement("script");
-            node.src = url;
             node.type = "text/javascript";
             node.charset = "utf-8";
             node.setAttribute("data-runcontext", contextName);
@@ -952,6 +951,7 @@ setInterval: false */
                 //Probably IE.
                 node.attachEvent("onreadystatechange", run.onScriptLoad);
             }
+            node.src = url;
 
             return s.head.appendChild(node);
         }
