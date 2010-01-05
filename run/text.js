@@ -73,7 +73,7 @@
                     callback(xhr.responseText);
                 }
             };
-            xhr.send();
+            xhr.send(null);
         };
     }
 

@@ -1,3 +1,10 @@
+- Use a var run outside the closure to set up run on the outside, suggested by Bryan Forbes.
+
+- Bryan: use null for the run.global calls, and ditch run.global?
+  and just use document, no run.doc stuff.
+
+- Bryan: test load and domcontentloaded. Safari 3 has trouble, can do addEventListener, but no DOMContentLoaded?
+
 - Fix runbuild.bat on windows.
 
 - Expand tests for no head tag, slow connection. Put run.js in a div inside body, or head tag after
@@ -5,6 +12,9 @@ body etc...
 
 - loading more than one locale for a page. A locales= option? Need this for full
   Dojo conversion.
+
+- Talking with Bryan: onScriptLoad is not really needed in a pure run() case, maybe
+allow at least a build pragma to exclude it.
 
 - When doing docs via jsdoc, using {some/module} as return types? How does JSDoc deal with the nested objects?
   Probably needs custom work to get it recognize the module concept thing.

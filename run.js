@@ -985,8 +985,8 @@ setInterval: false */
                 m = src.match(rePkg);
                 if (m) {
                     s.baseUrl = src.substring(0, m.index);
+                    break;
                 }
-                break;
             }
         }
     }
