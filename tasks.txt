@@ -1,10 +1,3 @@
-- Use a var run outside the closure to set up run on the outside, suggested by Bryan Forbes.
-
-- Bryan: use null for the run.global calls, and ditch run.global?
-  and just use document, no run.doc stuff.
-
-- Bryan: test load and domcontentloaded. Safari 3 has trouble, can do addEventListener, but no DOMContentLoaded?
-
 - Fix runbuild.bat on windows.
 
 - Expand tests for no head tag, slow connection. Put run.js in a div inside body, or head tag after
@@ -35,6 +28,10 @@ gets really slow up at the end (in FF)?
 
 Considered, but not implemented
 -------------------------------
+- Bryan: test if document load and document domcontentloaded. Safari 3 has trouble, can do addEventListener, but no DOMContentLoaded?
+  Tested existing code (uses window load and document domcontentloaded, and run.ready fires correctly in Safari 3.2.3 on Windows, so this is not a high priority
+  item.
+
 - Use . instead of ! for file extensions for text! dependencies? It is tempting, but it gives
   mixed guidance for things like .js files. When a dependency ends in .js it is loaded
   relative to the page's URL. However, text! extensions should always use the baseUrl/config.paths

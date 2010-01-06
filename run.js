@@ -5,7 +5,7 @@
  */
 //laxbreak is true to allow build pragmas to change some statements.
 /*jslint plusplus: false, laxbreak: true */
-/*global run: true, window: false, document: false, navigator: false,
+/*global window: false, document: false, navigator: false,
 setTimeout: false, traceDeps: true, clearInterval: false, self: false,
 setInterval: false */
 
@@ -13,13 +13,14 @@ setInterval: false */
 "use strict";
 //>>excludeEnd("dojoConvert");
 
+var run;
 (function () {
     //Change this version number for each release.
     var version = "0.0.6",
             empty = {}, s,
             i, defContextName = "_", contextLoads = [],
             scripts, script, rePkg, src, m, cfg,
-            readyRegExp = /complete|loaded/,
+            readyRegExp = /^(complete|loaded)$/,
             isBrowser = !!(typeof window !== "undefined" && navigator && document),
             ostring = Object.prototype.toString, scrollIntervalId;
 
@@ -28,7 +29,8 @@ setInterval: false */
     }
 
     //Check for an existing version of run. If so, then exit out. Only allow
-    //one version of run to be active in a page.
+    //one version of run to be active in a page. However, allow for a run
+    //config object, just exit quickly if run is an actual function.
     if (typeof run !== "undefined") {
         if (isFunction(run)) {
             return;
@@ -48,7 +50,7 @@ setInterval: false */
             if (force || typeof arguments[arguments.length - 1] !== "string") {
                 args.push(contextName);
             }
-            return (name ? run[name] : run).apply(run.global, args);
+            return (name ? run[name] : run).apply(null, args);
         };
     }
     //>>excludeEnd("runExcludeContext");
@@ -63,7 +65,7 @@ setInterval: false */
         //Call the plugin, or load it.
         var plugin = s.plugins.defined[prefix], waiting;
         if (plugin) {
-            plugin[obj.name].apply(run.global, obj.args);
+            plugin[obj.name].apply(null, obj.args);
         } else {
             //Load the module and add the call to waitin queue.
             context.defined.run(["run/" + prefix]);
@@ -77,7 +79,7 @@ setInterval: false */
      * The function that loads modules or executes code that has dependencies
      * on other modules.
      */
-    this.run = function (name, deps, callback, contextName) {
+    run = function (name, deps, callback, contextName) {
         var config = null, context, newContext, contextRun, loaded,
             canSetContext, prop, newLength,
             mods, pluginPrefix, paths, index;
@@ -193,8 +195,6 @@ setInterval: false */
                 ready: run.ready,
                 context: newContext,
                 config: newContext.config,
-                global: run.global,
-                doc: s.doc,
                 isBrowser: s.isBrowser
             });
             //>>excludeEnd("runExcludeContext");
@@ -329,8 +329,6 @@ setInterval: false */
         return run;
     };
 
-    //Export to global namespace.
-    run.global = this;
     run.version = version;
 
     //Set up page state.
@@ -351,10 +349,7 @@ setInterval: false */
     };
 
     run.isBrowser = s.isBrowser;
-    s.head = s.head || isBrowser ? 
-             (s.doc.getElementsByTagName("head")[0] ||
-              s.doc.getElementsByTagName("html")[0]) : null;
-    run.doc = s.doc;
+    s.head = isBrowser ? document.getElementsByTagName("head")[0] : null;
 
     //>>excludeStart("runExcludePlugin", pragmas.runExcludePlugin);
     /**
@@ -367,7 +362,7 @@ setInterval: false */
         var cbs = s.plugins.callbacks[name] = [];
         s.plugins[name] = function () {
             for (var i = 0, cb; (cb = cbs[i]); i++) {
-                if (cb.apply(run.global, arguments) === true && returnOnTrue) {
+                if (cb.apply(null, arguments) === true && returnOnTrue) {
                     return true;
                 }
             }
@@ -417,7 +412,7 @@ setInterval: false */
         if (waiting) {
             for (i = 0; (call = waiting[i]); i++) {
                 if (obj[call.name]) {
-                    obj[call.name].apply(run.global, call.args);
+                    obj[call.name].apply(null, call.args);
                 }
             }
             delete s.plugins.waiting[prefix];
@@ -888,7 +883,7 @@ setInterval: false */
             //Call the callback to define the module, if necessary.
             cb = module.callback;
             if (cb && run.isFunction(cb)) {
-                ret = cb.apply(run.global, args);
+                ret = cb.apply(null, args);
                 if (name) {
                     modDef = context.defined[name];
                     if (modDef && ret) {
@@ -938,7 +933,7 @@ setInterval: false */
      */
     run.attach = function (url, contextName, moduleName) {
         if (run.isBrowser) {
-            var node = run.doc.createElement("script");
+            var node = document.createElement("script");
             node.type = "text/javascript";
             node.charset = "utf-8";
             node.setAttribute("data-runcontext", contextName);
@@ -960,11 +955,11 @@ setInterval: false */
 
     //Determine what baseUrl should be if not already defined via a run config object
     s.baseUrl = cfg && cfg.baseUrl;
-    if (run.isBrowser && !s.baseUrl) {
+    if (run.isBrowser && (!s.baseUrl || !s.head)) {
         //Figure out baseUrl. Get it from the script tag with run.js in it.
-        scripts = run.doc.getElementsByTagName("script");
+        scripts = document.getElementsByTagName("script");
         //>>includeStart("jquery", pragmas.jquery);
-        rePkg = /jquery[-\d\.]*(min)?\.js(\W|$)/i;
+        rePkg = /jquery[\-\d\.]*(min)?\.js(\W|$)/i;
         //>>includeEnd("jquery");
 
         //>>includeStart("dojoConvert", pragmas.dojoConvert);
@@ -980,7 +975,16 @@ setInterval: false */
         //>>excludeEnd("dojoConvert");
 
         for (i = scripts.length - 1; (script = scripts[i]); i--) {
-            src = script.getAttribute("src");
+            //Set the "head" where we can append children by
+            //using the script's parent.
+            if (!s.head) {
+                s.head = script.parentNode;
+            }
+            //Using .src instead of getAttribute to get an absolute URL.
+            //While using a relative URL will be fine for script tags, other
+            //URLs used for text! resources that use XHR calls might benefit
+            //from an absolute URL.
+            src = script.src;
             if (src) {
                 m = src.match(rePkg);
                 if (m) {
@@ -1024,10 +1028,10 @@ setInterval: false */
     };
 
     if (run.isBrowser) {
-        if (run.doc.addEventListener) {
+        if (document.addEventListener) {
             //Standards. Hooray! Assumption here that if standards based,
             //it knows about DOMContentLoaded.
-            run.doc.addEventListener("DOMContentLoaded", run.pageLoaded, false);
+            document.addEventListener("DOMContentLoaded", run.pageLoaded, false);
             window.addEventListener("load", run.pageLoaded, false);
         } else if (window.attachEvent) {
             window.attachEvent("onload", run.pageLoaded);
@@ -1037,7 +1041,7 @@ setInterval: false */
             if (self === self.top) {
                 scrollIntervalId = setInterval(function () {
                     try {
-                        run.doc.documentElement.doScroll("left");
+                        document.documentElement.doScroll("left");
                         run.pageLoaded();
                     } catch (e) {}
                 }, 30);
@@ -1047,7 +1051,7 @@ setInterval: false */
         //Check if document already complete, and if so, just trigger page load
         //listeners. NOTE: does not work with Firefox before 3.6. To support
         //those browsers, manually call run.pageLoaded().
-        if (run.doc.readyState === "complete") {
+        if (document.readyState === "complete") {
             run.pageLoaded();
         }
     }
