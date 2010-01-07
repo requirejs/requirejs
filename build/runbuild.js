@@ -313,7 +313,7 @@ var run;
     load(buildFile.toString());
     run = null;
     load(config.runUrl);
-    load(runbuildPath + "/jslib/runpatch.js");
+    load(runbuildPath + "/jslib/runPatch.js");
 
     //Adjust the path properties as appropriate.
     //First make sure build paths use front slashes and end in a slash
@@ -487,7 +487,7 @@ var run;
         run(["run/text"]);
         logger.info("Inlining text dependencies");
     }
-    doClosure = config.optimize.indexOf("closure") === 0;
+    doClosure = (config.optimize + "").indexOf("closure") === 0;
     if (doClosure) {
         logger.info("Optimizing JS files with Closure Compiler");
     }
