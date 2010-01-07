@@ -192,6 +192,7 @@ var run;
                 modify: makeContextFunc("modify", contextName),
                 //>>excludeEnd("runExcludeModify");
                 get: makeContextFunc("get", contextName, true),
+                nameToUrl: makeContextFunc("nameToUrl", contextName, true),
                 ready: run.ready,
                 context: newContext,
                 config: newContext.config,
@@ -592,7 +593,7 @@ var run;
         } else {
         //>>excludeEnd("runExcludeContext");
             //First derive the path name for the module.
-            url = run.convertNameToPath(moduleName, contextName);
+            url = run.nameToUrl(moduleName, null, contextName);
             run.attach(url, contextName, moduleName);
             context.startTime = (new Date()).getTime();
         //>>excludeStart("runExcludeContext", pragmas.runExcludeContext);
@@ -605,7 +606,7 @@ var run;
     /**
      * Converts a module name to a file path.
      */
-    run.convertNameToPath = function (moduleName, contextName, ext) {
+    run.nameToUrl = function (moduleName, ext, contextName) {
         var paths, syms, i, parentModule, url,
             config = s.contexts[contextName].config;
 

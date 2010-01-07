@@ -142,7 +142,7 @@ var run;
                 //Already an inlined resource, return.
                 return match;
             } else {
-                content = readFile(run.convertNameToPath(modName, run.s.ctxName, "." + ext));
+                content = readFile(run.nameToUrl(modName, "." + ext, run.s.ctxName));
                 if (strip) {
                     content = run.textStrip(content);
                 }
@@ -371,7 +371,7 @@ var run;
     });
     for (layerName in layers) {
         if (layers.hasOwnProperty(layerName)) {
-            layers[layerName]._sourcePath = run.convertNameToPath(layerName, run.s.ctxName);
+            layers[layerName]._sourcePath = run.nameToUrl(layerName, null, run.s.ctxName);
         }
     }
 
@@ -387,7 +387,7 @@ var run;
     for (layerName in layers) {
         if (layers.hasOwnProperty(layerName)) {
             layer = layers[layerName];
-            layer._buildPath = run.convertNameToPath(layerName, run.s.ctxName);
+            layer._buildPath = run.nameToUrl(layerName, null, run.s.ctxName);
             fileUtil.copyFile(layer._sourcePath, layer._buildPath);
         }
     }

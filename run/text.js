@@ -155,7 +155,7 @@
                 }
 
                 //Load the text.
-                url = run.convertNameToPath(modName, contextName, "." + ext);
+                url = run.nameToUrl(modName, "." + ext, contextName);
                 context.loaded[name] = false;
                 run.fetchText(url, function (text) {
                     context.text[key] = text;

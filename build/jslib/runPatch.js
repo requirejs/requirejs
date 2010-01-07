@@ -92,7 +92,7 @@ readFile: false, processPragmas: false */
     //Override load so that the file paths can be collected.
     run.load = function (moduleName, contextName) {
         /*jslint evil: true */
-        var url = run.convertNameToPath(moduleName, contextName), map,
+        var url = run.nameToUrl(moduleName, null, contextName), map,
             contents, matches, i,
             context = run.s.contexts[contextName];
         context.loaded[moduleName] = false;
