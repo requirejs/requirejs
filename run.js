@@ -544,8 +544,8 @@ var run;
             //First store that it is a modifier.
             list = mods[target] || (mods[target] = []);
             if (!list[name]) {
-                list.push(modifier);
-                list[modifier] = true;
+                list.push(name);
+                list[name] = true;
             }
 
             //Trigger the normal module load logic.
@@ -1024,7 +1024,7 @@ var run;
      * Registers functions to call when the page is loaded
      */
     run.ready = function (callback) {
-        if (s.isPageLoaded) {
+        if (s.isPageLoaded && s.isDone) {
             callback();
         } else {
             s.readyCalls.push(callback);
