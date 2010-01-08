@@ -1,3 +1,13 @@
+- build issue: module defined like so:
+run(
+  "dimple",
+  {
+    color: "dimple-blue"
+  }
+);
+will get an extra run("dimple", function(){}) output in a layer. Because it does not get tracked
+by run.modulesWithNames. See simple.build.js.
+
 - Fix runbuild.bat on windows.
 
 - Expand tests for no head tag, slow connection. Put run.js in a div inside body, or head tag after

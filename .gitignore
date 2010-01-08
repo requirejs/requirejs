@@ -1,7 +1,10 @@
 .DS_Store
 build/convert/build/
 build/convert/dojorun/
+build/convert/dojo/
+build/tests/build/
 build/tests/buildtext/
 build/tests/buildcircular/
 build/jquery/dist/
 build/run/build/
+docs/jquery-run-sample/webapp-build/

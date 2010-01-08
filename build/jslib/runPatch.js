@@ -14,7 +14,8 @@ readFile: false, processPragmas: false */
 
 (function () {
     var runStartRegExp = /(^|\s+|;)run\s*\(/g,
-        runDepsRegExp = /run\s*\(\s*(['"][^'"]+['"]\s*,)?\s*(\[[^\]]+])/;
+        runDepsRegExp = /run\s*\(\s*(['"][^'"]+['"]\s*,)?\s*(\[[^\]]+\])/,
+        oldExec = run.exec;
 
     //These variables are not contextName-aware since the build should
     //only have one context.
@@ -22,7 +23,8 @@ readFile: false, processPragmas: false */
     run.buildFileToModule = {};
     run.buildFilePaths = [];
     run.loadedFiles = {};
-    
+    run.modulesWithNames = {};
+
     //Helper functions for the execModules: false case
     function removeComments(contents) {
         //strips JS comments from a string. Not bulletproof, but does a good enough job
@@ -45,7 +47,7 @@ readFile: false, processPragmas: false */
             matches, matchCount, parenMatch,
             cleanedContent = [],
             previousLastIndex = 0,
-            parenRe = /[\(\)]/g;
+            parenRe = /[\(\)]/g, match;
 
         regexp.lastIndex = 0;
         parenRe.lastIndex = 0;
@@ -93,7 +95,7 @@ readFile: false, processPragmas: false */
     run.load = function (moduleName, contextName) {
         /*jslint evil: true */
         var url = run.nameToUrl(moduleName, null, contextName), map,
-            contents, matches, i,
+            contents, matches, match, i, deps,
             context = run.s.contexts[contextName];
         context.loaded[moduleName] = false;
 
@@ -116,11 +118,16 @@ readFile: false, processPragmas: false */
             contents = removeComments(contents);
             matches = extractMatchedParens(runStartRegExp, contents);
             if (matches.length) {
-                for (i = 0; match = matches[i]; i++) {
+                for (i = 0; (match = matches[i]); i++) {
                     deps = runDepsRegExp.exec(match);
                     if (deps) {
                         //If have a module name be sure to track that in the run call.
                         if (deps[1] && deps[2]) {
+                            //If the deps[1] matches the moduleName, then mark it as having
+                            //a name.
+                            if (deps[1].match(new RegExp('[\'"]' + moduleName + '[\'"]'))) {
+                                run.modulesWithNames[moduleName] = true;
+                            }
                             eval('run(' + deps[1] + deps[2] + ');');
                         }
                         //Just call with dependencies.
@@ -136,34 +143,19 @@ readFile: false, processPragmas: false */
         context.loaded[moduleName] = true;
         run.checkLoaded(contextName);
     };
-    
+
     //Override a method provided by run/text.js for loading text files as
     //dependencies.
     run.fetchText = function (url, callback) {
         callback(readFile(url));
     };
 
-    //Instead of bringing each module into existence, order all the file URLs.
-    run.callModules = function (contextName, context, orderedModules) {
-        var i, module, url, def, prop;
-        for (i = 0; (module = orderedModules[i]); i++) {
-            url = module.name && run.buildPathMap[module.name];
-            if (url && !run.loadedFiles[url]) {
-                run.buildFilePaths.push(url);
-                run.loadedFiles[url] = true;
-            }
-        }
-
-        //Add any other files that did not have an explicit name on them.
-        for (prop in run.buildPathMap) {
-            if (run.buildPathMap.hasOwnProperty(prop)) {
-                url = run.buildPathMap[prop];
-                if (!run.loadedFiles[url]) {
-                    run.buildFileToModule[url] = prop;
-                    run.buildFilePaths.push(url);
-                    run.loadedFiles[url] = true;
-                }
-            }
+    run.execCb = function (name, cb, args) {
+        var url = name && run.buildPathMap[name];
+        if (url && !run.loadedFiles[url]) {
+            run.buildFilePaths.push(url);
+            run.loadedFiles[url] = true;
+            run.modulesWithNames[name] = true;
         }
     };
 }());

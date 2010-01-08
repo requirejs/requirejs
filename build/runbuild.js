@@ -33,7 +33,7 @@ var run;
         textDepRegExp = /["'](text)\!([^"']+)["']/g,
         conditionalRegExp = /(exclude|include)Start\s*\(\s*["'](\w+)["']\s*,(.*)\)/,
         context, doClosure, runContents, specified, delegate, baseConfig, override,
-        JSSourceFilefromCode, placeHolderModName,
+        JSSourceFilefromCode, placeHolderModName, url,
 
         //Set up defaults for the config.
         config = {
@@ -49,7 +49,7 @@ var run;
     //Bind to Closure compiler, but if it is not available, do not sweat it.
     try {
         JSSourceFilefromCode = java.lang.Class.forName('com.google.javascript.jscomp.JSSourceFile').getMethod('fromCode', [java.lang.String, java.lang.String]);
-    } catch(e) {}
+    } catch (e) {}
 
     function isArray(it) {
         return ostring.call(it) === "[object Array]";    
@@ -404,13 +404,14 @@ var run;
             run.buildFileToModule = {};
             run.buildFilePaths = [];
             run.loadedFiles = {};
+            run.modulesWithNames = {};
 
             logger.trace("\nFiguring out dependencies for: " + layerName);
             deps = [layerName];
             if (layer.deps) {
                 deps = deps.concat(layer.deps);
             }
-            
+
             //If there are overrides to basic config, set that up now.
             baseConfig = context.config;
             if (layer.override) {
@@ -421,7 +422,20 @@ var run;
 
             //Figure out layer dependencies by calling run to do the work.
             run(deps);
-            
+
+            //Add any other files that did not have an explicit name on them.
+            //These are files that do not call back into run when loaded.
+            for (prop in run.buildPathMap) {
+                if (run.buildPathMap.hasOwnProperty(prop)) {
+                    url = run.buildPathMap[prop];
+                    if (!run.loadedFiles[url]) {
+                        run.buildFileToModule[url] = prop;
+                        run.buildFilePaths.push(url);
+                        run.loadedFiles[url] = true;
+                    }
+                }
+            }
+
             //Reset config
             if (layer.override) {
                 run(baseConfig);
@@ -458,7 +472,8 @@ var run;
                 //put in a placeholder call so the run does not try to load them
                 //after the layer is processed.
                 placeHolderModName = run.buildFileToModule[path];
-                if (placeHolderModName) {
+                //If we have a name, but no defined module, then add in the placeholder.
+                if (placeHolderModName && !run.modulesWithNames[placeHolderModName]) {
                     fileContents += 'run("' + placeHolderModName + '", function(){});\n';
                 }
             }

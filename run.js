@@ -345,7 +345,7 @@ var run;
         //>>excludeEnd("runExcludePlugin");
         isBrowser: isBrowser,
         isPageLoaded: !isBrowser,
-        pageCallbacks: [],
+        readyCalls: [],
         doc: isBrowser ? document : null
     };
 
@@ -538,7 +538,7 @@ var run;
                 cName = (typeof target === "string" ? contextName : name) || s.ctxName,
                 context = s.contexts[cName],
                 mods = context.modifiers;
-                
+
         if (typeof target === "string") {
             //A modifier module.
             //First store that it is a modifier.
@@ -584,6 +584,7 @@ var run;
      */
     run.load = function (moduleName, contextName) {
         var context = s.contexts[contextName], url;
+        s.isDone = false;
         context.loaded[moduleName] = false;
         //>>excludeStart("runExcludeContext", pragmas.runExcludeContext);
         if (contextName !== s.ctxName) {
@@ -636,72 +637,6 @@ var run;
     };
 
     /**
-     * Adds an array of deps to the module chain in the right order.
-     * Called exclusively by traceDeps. Needs to be a different function
-     * since it is called twice in traceDeps
-     */
-    function addDeps(deps, moduleChain, orderedModules, waiting, defined, modifiers) {
-        var nextDep, nextModule, i, mods;
-        if (deps && deps.length > 0) {
-            for (i = 0; (nextDep = deps[i]); i++) {
-                nextModule = waiting[waiting[nextDep]];
-                if (nextModule && !nextModule.isOrdered) {
-                    if (defined[nextDep]) {
-                        //>>excludeStart("runExcludeModify", pragmas.runExcludeModify);
-                        //Check for any modifiers on it.
-                        //Need to check here since if defined, we do not want to add it to
-                        //module change and have to reprocess the defined module.
-                        mods = nextModule.name && modifiers[nextModule.name];
-                        if (mods) {
-                            addDeps(mods, moduleChain, orderedModules, waiting, defined, modifiers);
-                            delete modifiers[nextModule.name];
-                        }
-                        //>>excludeEnd("runExcludeModify");
-                    } else {
-                        //New dependency. Follow it down. Modifiers followed in traceDeps.
-                        moduleChain.push(nextModule);
-                        if (nextModule.name) {
-                            moduleChain[nextModule.name] = true;
-                        }
-                        traceDeps(moduleChain, orderedModules, waiting, defined, modifiers);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Figures out the right sequence to call module callbacks.
-     */
-    function traceDeps(moduleChain, orderedModules, waiting, defined, modifiers) {
-        var module, mods;
-        while (moduleChain.length > 0) {
-            module = moduleChain[moduleChain.length - 1];
-            if (module && !module.isOrdered) {
-                module.isOrdered = true;
-
-                //Trace down any dependencies for this resource.
-                addDeps(module.deps, moduleChain, orderedModules, waiting, defined, modifiers);
-
-                //Add the current module to the ordered list.
-                orderedModules.push(module);
-
-                //>>excludeStart("runExcludeModify", pragmas.runExcludeModify);
-                //Now add any modifier modules for current module.
-                mods = modifiers[module.name];
-                if (mods) {
-                    addDeps(mods, moduleChain, orderedModules, waiting, defined, modifiers);
-                    delete modifiers[module.name];
-                }
-                //>>excludeEnd("runExcludeModify");
-            }
-
-            //Done with that require. Remove it and go to the next one.
-            moduleChain.pop();
-        }
-    }
-
-    /**
      * Checks if all modules for a context are loaded, and if so, evaluates the
      * new ones in right dependency order.
      *
@@ -712,15 +647,16 @@ var run;
                 waitInterval = context.config.waitSeconds * 1000,
                 //It is possible to disable the wait interval by using waitSeconds of 0.
                 expired = waitInterval && (context.startTime + waitInterval) < new Date().getTime(),
-                loaded = context.loaded,
-                noLoads = "",
-                hasLoadedProp = false, stillLoading = false, prop, waiting,
+                loaded = context.loaded, defined = context.defined,
+                modifiers = context.modifiers, waiting = context.waiting, noLoads = "",
+                hasLoadedProp = false, stillLoading = false, prop,
 
                 //>>excludeStart("runExcludePlugin", pragmas.runExcludePlugin);
                 pIsWaiting = s.plugins.isWaiting, pOrderDeps = s.plugins.orderDeps,
                 //>>excludeEnd("runExcludePlugin");
 
-                i, orderedModules, module, moduleChain, allDone, loads, loadArgs;
+                i, module, allDone, loads, loadArgs,
+                traced = {};
 
         //If already doing a checkLoaded call,
         //then do not bother checking loaded state.
@@ -750,7 +686,7 @@ var run;
         }
 
         //Check for exit conditions.
-        if (!hasLoadedProp && !context.waiting.length
+        if (!hasLoadedProp && !waiting.length
             //>>excludeStart("runExcludePlugin", pragmas.runExcludePlugin);
             && (!pIsWaiting || !pIsWaiting(context))
             //>>excludeEnd("runExcludePlugin");
@@ -778,7 +714,6 @@ var run;
         //Order the dependencies. Also clean up state because the evaluation
         //of modules might create new loading tasks, so need to reset.
         //Be sure to call plugins too.
-        waiting = context.waiting;
         context.waiting = [];
         context.loaded = {};
 
@@ -790,18 +725,22 @@ var run;
         }
         //>>excludeEnd("runExcludePlugin");
 
-        //Walk the dependencies, doing a depth first search.
-        orderedModules = [];
-        for (i = 0; (module = waiting[i]); i++) {
-            moduleChain = [module];
-            if (module.name) {
-                moduleChain[module.name] = true;
+        //>>excludeStart("runExcludeModify", pragmas.runExcludeModify);
+        //Before defining the modules, give priority treatment to any modifiers
+        //for modules that are already defined.
+        for (prop in modifiers) {
+            if (!(prop in empty)) {
+                if (defined[prop]) {
+                    run.execModifiers(prop, traced, waiting, context);
+                }
             }
-
-            traceDeps(moduleChain, orderedModules, waiting, context.defined, context.modifiers);
         }
+        //>>excludeEnd("runExcludeModify");
 
-        run.callModules(contextName, context, orderedModules);
+        //Define the modules, doing a depth first search.
+        for (i = 0; (module = waiting[i]); i++) {
+            run.exec(module, traced, waiting, context);
+        }
 
         //Indicate checkLoaded is now done.
         context.isCheckLoaded = false;
@@ -846,30 +785,44 @@ var run;
         } else {
             //Make sure we reset to default context.
             s.ctxName = defContextName;
+            s.isDone = true;
+            //>>excludeStart("runExcludePageLoad", pragmas.runExcludePageLoad);
+            run.callReady();
+            //>>excludeEnd("runExcludePageLoad");
         }
     };
 
     /**
-     * After modules have been sorted into the right dependency order, bring
-     * them into existence by calling the module callbacks.
-     *
+     * Executes the modules in the correct order.
+     * 
      * @private
      */
-    run.callModules = function (contextName, context, orderedModules) {
-        var module, name, dep, deps, args, i, j, depModule, cb, ret, modDef, prefix;
-        //Call the module callbacks in order.
-        for (i = 0; (module = orderedModules[i]); i++) {
-            //Get objects for the dependencies.
-            name = module.name;
-            deps = module.deps;
-            args = [];
+    run.exec = function (module, traced, waiting, context) {
+        //Some modules are just plain script files, abddo not have a formal
+        //module definition, 
+        if (!module) {
+            return undefined;
+        }
+
+        var name = module.name, cb = module.callback, deps = module.deps, j, dep,
+            defined = context.defined, ret, args = [], prefix, depModule;
+
+        //If already traced or defined, do not bother a second time.
+        if (traced[name] || defined[name]) {
+            return defined[name];
+        }
+
+        //Mark this module as being traced, so that it is not retraced (as in a circular
+        //dependency)
+        traced[name] = true;
+
+        if (deps) {
             for (j = 0; (dep = deps[j]); j++) {
                 //Adjust dependency for plugins.
                 prefix = dep.indexOf("!");
                 if (prefix !== -1) {
                     dep = dep.substring(prefix + 1, dep.length);
                 }
-
                 //Get dependent module. It could not exist, for a circular
                 //dependency or if the loaded dependency does not actually call
                 //run. Favor not throwing an error here if undefined because
@@ -877,25 +830,70 @@ var run;
                 //definition framework to still work -- allow a web site to
                 //gradually update to contained modules. That is seen as more
                 //important than forcing a throw for the circular dependency case.
-                depModule = context.defined[dep];
+                depModule = dep in defined ? defined[dep] : (traced[dep] ? undefined : run.exec(waiting[waiting[dep]], traced, waiting, context));
                 args.push(depModule);
             }
+        }
 
-            //Call the callback to define the module, if necessary.
-            cb = module.callback;
-            if (cb && run.isFunction(cb)) {
-                ret = cb.apply(null, args);
-                if (name) {
-                    modDef = context.defined[name];
-                    if (modDef && ret) {
-                        throw new Error(name + " has already been defined");
-                    } else {
-                        context.defined[name] = ret;
-                    }
+        //Call the callback to define the module, if necessary.
+        cb = module.callback;
+        if (cb && run.isFunction(cb)) {
+            ret = run.execCb(name, cb, args);
+            if (name) {
+                if (name in defined) {
+                    throw new Error(name + " has already been defined");
+                } else {
+                    defined[name] = ret;
                 }
             }
         }
+
+        //>>excludeStart("runExcludeModify", pragmas.runExcludeModify);
+        //Execute modifiers, if they exist.
+        run.execModifiers(name, traced, waiting, context);
+        //>>excludeEnd("runExcludeModify");
+
+        return ret;
     };
+
+    /**
+     * Executes a module callack function. Broken out as a separate function
+     * solely to allow the build system to sequence the files in the built
+     * layer in the right sequence.
+     * @param {String} name the module name.
+     * @param {Function} cb the module callback/definition function.
+     * @param {Array} args The arguments (dependent modules) to pass to callback.
+     *
+     * @private
+     */
+    run.execCb = function (name, cb, args) {
+        return cb.apply(null, args);
+    };
+
+    //>>excludeStart("runExcludeModify", pragmas.runExcludeModify);
+    /**
+     * Executes modifiers for the given module name.
+     * @param {String} target
+     * @param {Object} traced
+     * @param {Object} context
+     *
+     * @private
+     */
+    run.execModifiers = function (target, traced, waiting, context) {
+        var modifiers = context.modifiers, mods = modifiers[target], mod, i;
+        if (mods) {
+            for (i = 0; i < mods.length; i++) {
+                mod = mods[i];
+                //Not all modifiers define a module, they might collect other modules.
+                //If it is just a collection it will not be in waiting.
+                if (mod in waiting) {
+                    run.exec(waiting[waiting[mod]], traced, waiting, context);
+                }
+            }
+            delete modifiers[target];
+        }
+    };
+    //>>excludeEnd("runExcludeModify");
 
     /**
      * callback for script loads, used to check status of loading.
@@ -998,18 +996,24 @@ var run;
 
     //>>excludeStart("runExcludePageLoad", pragmas.runExcludePageLoad);
     //****** START page load functionality ****************
-    //Set up page on load callbacks. May separate this out.
-     /**
+    /**
      * Sets the page as loaded and triggers check for all modules loaded.
      */
     run.pageLoaded = function () {
-        var callbacks = s.pageCallbacks, i, callback;
         if (!s.isPageLoaded) {
             s.isPageLoaded = true;
             if (scrollIntervalId) {
                 clearInterval(scrollIntervalId);
             }
-            s.pageCallbacks = [];
+            run.callReady();
+        }
+    };
+
+    run.callReady = function () {
+        var callbacks = s.readyCalls, i, callback;
+
+        if (s.isPageLoaded && s.isDone && callbacks.length) {
+            s.readyCalls = [];
             for (i = 0; (callback = callbacks[i]); i++) {
                 callback();
             }
@@ -1023,7 +1027,7 @@ var run;
         if (s.isPageLoaded) {
             callback();
         } else {
-            s.pageCallbacks.push(callback);
+            s.readyCalls.push(callback);
         }
         return run;
     };
