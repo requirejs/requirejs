@@ -1,5 +1,4 @@
-run(
-  "i18n!nls/colors",
+run.def("i18n!nls/colors",
   {
     "root": {
       red: "red",

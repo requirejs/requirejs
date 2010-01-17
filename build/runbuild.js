@@ -14,7 +14,7 @@
  *
  * General use:
  *
- * Create a build.js file that has run() calls to the build layer/bundle that you
+ * Create a build.js file that has run calls to the build layer/bundle that you
  * want to create. Use the config option on runjs to specify paths on where
  * to find things. See example.build.js for more information.
  */
@@ -271,7 +271,7 @@ var run;
     config.runUrl = baseUrlFile.getParentFile().getAbsolutePath() + "/run.js";
     config.dir = baseUrlFile.getAbsolutePath() + "/build/";
 
-    //Set up the build file environment by creating a dummy run() function to
+    //Set up the build file environment by creating a dummy run function to
     //catch the build file information.
     run = function (cfg, name, deps) {
         var layer;
@@ -361,7 +361,7 @@ var run;
         fileUtil.copyFile(config.runUrl, builtRunPath, true);
     }
 
-    //Figure out source file location for each layer. Do this by seeding run()
+    //Figure out source file location for each layer. Do this by seeding run
     //with source area configuration. This is needed so that later the layers
     //can be manually copied over to the source area, since the build may be
     //run multiple times and the above copyDir call only copies newer files.
@@ -474,7 +474,7 @@ var run;
                 placeHolderModName = run.buildFileToModule[path];
                 //If we have a name, but no defined module, then add in the placeholder.
                 if (placeHolderModName && !run.modulesWithNames[placeHolderModName]) {
-                    fileContents += 'run("' + placeHolderModName + '", function(){});\n';
+                    fileContents += 'run.def("' + placeHolderModName + '", function(){});\n';
                 }
             }
 

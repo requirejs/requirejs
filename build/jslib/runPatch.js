@@ -14,7 +14,7 @@ readFile: false, processPragmas: false */
 
 (function () {
     var runStartRegExp = /(^|\s+|;)run\s*\(/g,
-        runDepsRegExp = /run\s*\(\s*(['"][^'"]+['"]\s*,)?\s*(\[[^\]]+\])/,
+        runDepsRegExp = /run(\s*\.\s*def)?\s*\(\s*(['"][^'"]+['"]\s*,)?\s*(\[[^\]]+\])/,
         oldExec = run.exec;
 
     //These variables are not contextName-aware since the build should
@@ -111,7 +111,7 @@ readFile: false, processPragmas: false */
         if (context.config.execModules || moduleName === "run/text" || moduleName === "run/i18n") {
             eval(contents);
         } else {
-            //Only find the run() parts with [] dependencies and
+            //Only find the run parts with [] dependencies and
             //evaluate those. This path is useful when the code
             //does not follow the strict run pattern of wrapping all
             //code in a run callback.
@@ -128,7 +128,7 @@ readFile: false, processPragmas: false */
                             if (deps[1].match(new RegExp('[\'"]' + moduleName + '[\'"]'))) {
                                 run.modulesWithNames[moduleName] = true;
                             }
-                            eval('run(' + deps[1] + deps[2] + ');');
+                            eval('run.def(' + deps[1] + deps[2] + ');');
                         }
                         //Just call with dependencies.
                         if (deps[2]) {

@@ -79,7 +79,21 @@ var run;
      * The function that loads modules or executes code that has dependencies
      * on other modules.
      */
-    run = function (name, deps, callback, contextName) {
+    run = function (deps, callback, contextName) {
+        if (typeof deps === "string") {
+            throw new Error("Use run.def() to define modules");
+        }
+        return run.def.apply(run, arguments);
+    }
+
+    /**
+     * The function that handles definitions of modules. Differs from
+     * run() in that a string for the module should be the first argument,
+     * and the function to execute after dependencies are loaded should
+     * return a value to define the module corresponding to the first argument's
+     * name.
+     */
+    run.def = function (name, deps, callback, contextName) {
         var config = null, context, newContext, contextRun, loaded,
             canSetContext, prop, newLength,
             mods, pluginPrefix, paths, index;
@@ -116,7 +130,9 @@ var run;
             name = null;
         } else if (run.isFunction(name)) {
             //Just a function that does not define a module and
-            //does not have dependencies. Not sure if this is useful.
+            //does not have dependencies. Useful if just want to wait
+            //for whatever modules are in flight and execute some code after
+            //those modules load.
             callback = name;
             contextName = deps;
             name = null;
@@ -180,7 +196,7 @@ var run;
                 modifiers: {}
             };
 
-            //Define run() for this context.
+            //Define run for this context.
             //>>includeStart("runExcludeContext", pragmas.runExcludeContext);
             //A placeholder for build pragmas.
             newContext.defined.run = run;
@@ -190,6 +206,7 @@ var run;
             run.mixin(contextRun, {
                 //>>excludeStart("runExcludeModify", pragmas.runExcludeModify);
                 modify: makeContextFunc("modify", contextName),
+                def: makeContextFunc("def", contextName),
                 //>>excludeEnd("runExcludeModify");
                 get: makeContextFunc("get", contextName, true),
                 nameToUrl: makeContextFunc("nameToUrl", contextName, true),
@@ -548,8 +565,8 @@ var run;
                 list[name] = true;
             }
 
-            //Trigger the normal module load logic.
-            run(name, deps, callback, contextName);
+            //Trigger the normal module definition logic.
+            run.def(name, deps, callback, contextName);
         } else {
             //A list of modifiers. Save them for future reference.
             for (prop in target) {

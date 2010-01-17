@@ -2,7 +2,7 @@
 
 run.js loads JavaScript modules and JavaScript files. It is optimized for in-browser use, but can be easily adapted to other JavaScript environments.
 
-If the loaded file calls run() to define a JavaScript module, then run.js can properly trace the module's dependencies and evaluate modules in the correct order. run() allows for module modifiers and has a plugin system that supports features like i18n string bundles and text file dependencies.
+If the loaded file calls run.def() to define a JavaScript module, then run.js can properly trace the module's dependencies and evaluate modules in the correct order. RunJS allows for module modifiers and has a plugin system that supports features like i18n string bundles and text file dependencies.
 
 It uses plain script tags to load modules/files, so it should allow for easy debugging.
 
@@ -48,10 +48,9 @@ See the **Configuration Options** section for information on changing the lookup
 
 ## Defining a Module
 
-If the module does not have any dependencies, then just specify the name of the module as the first argument to run() and and the second argument is just an object literal that defines the module's properties. For example:
+If the module does not have any dependencies, then just specify the name of the module as the first argument to run.def() and and the second argument is just an object literal that defines the module's properties. For example:
 
-    run(
-        "my/simpleshirt",
+    run.def("my/simpleshirt",
         {
             color: "black",
             size: "unisize"
@@ -62,8 +61,7 @@ This example would be stored in a my/simpleshirt.js file.
 
 If the module has dependencies, then specify the dependencies as the second argument (as an array) and then pass a function as the third argument. The function will be called to define the module once all dependencies have loaded. The function should return an object that defines the module:
 
-    run(
-        "my/shirt",
+    run.def("my/shirt",
         ["my/cart", "my/inventory"],
         function(cart, inventory) {
             //return an object to define the "my/shirt" module.
@@ -94,8 +92,7 @@ The return object from the function call defines the "my/shirt" module. Be defin
 
 If the modules do not have to return objects. Any valid return value from a function is allowed. Here is a module that returns a function as its module definition:
 
-    run(
-        "my/title",
+    run.def("my/title",
         ["my/dependency1", "my/dependency2"],
         function(dep1, dep2) {
             //return a function to define "my/title". It gets or sets
@@ -114,8 +111,7 @@ Only one module should be defined per JavaScript file, given the nature of the m
 
 If you define a circular dependency (A needs B and B needs A), then in this case when B's module function is called, it will get an undefined value for A. B can fetch A later after modules have been defined by using the run.get() method (be sure to specify run as a dependency so the right context is used to look up A):
 
-    run(
-        "B",
+    run.def("B",
         ["run", "A"],
         function(run, a) {
             //"a" in this case will be null if A also asked for B,
@@ -142,8 +138,7 @@ To define a bundle, put it in a directory called "nls" -- the i18n! plugin assum
 
 The contents of that file should look like so:
 
-    run(
-        "i18n!my/nls/colors",
+    run.def("i18n!my/nls/colors",
         [{
             "root": {
                 "red": "red",
@@ -157,8 +152,7 @@ Notice that an object literal with a property of "root" as given as the only dep
 
 You can then use the above module in another module, say, in a my/lamps.js file:
 
-    run(
-        "my/lamps",
+    run.def("my/lamps",
         ["i18n!my/nls/colors"],
         function(colors) {
             return {
@@ -171,8 +165,7 @@ The my/lamps module has one property called "testMessage" that uses colors.red t
 
 Later, when you want to add a specific translation to a file, say for the fr-fr locale, change my/nls/colors to look like so:
 
-    run(
-        "i18n!my/nls/colors",
+    run.def("i18n!my/nls/colors",
         [{
             "root": {
                 "red": "red",
@@ -185,8 +178,7 @@ Later, when you want to add a specific translation to a file, say for the fr-fr 
 
 Then define a file at my/nls/fr-fr/colors.js that has the following contents:
 
-    run(
-      "i18n!my/nls/fr-fr/colors",
+    run.def("i18n!my/nls/fr-fr/colors",
       {
         "red": "rouge",
         "blue": "bleu",
@@ -200,8 +192,7 @@ run.js is also smart enough to pick the right locale bundle, the one that most c
 
 run.js also combines bundles together, so for instance, if the french bundle was defined like so (omitting a value for red):
 
-    run(
-      "i18n!my/nls/fr-fr/colors",
+    run.def("i18n!my/nls/fr-fr/colors",
       {
         "blue": "bleu",
         "green": "vert"
@@ -223,8 +214,7 @@ run.js has a plugin, run/text.js, that can help with this issue. It will automat
 
 You can specify a text file resource as a dependency like so:
 
-    run(
-        ["some/module", "text!some/module!html", "text!some/module!css"],
+    run(["some/module", "text!some/module!html", "text!some/module!css"],
         function(module, html, css) {
             //the html variable will be the text of the some/module.html file
             //the css variable will be the text of the som/module.css file.    
@@ -236,8 +226,7 @@ Notice the !html and !css suffixes to specify the extension of the file.
 
 For HTML/XML/SVG files, there is another option you can pass !strip, which strips XML declarations so that external SVG and XML documents can be added to a document without worry. Also, if the string is an HTML document, only the part inside the body tag is returned. Example:
 
-    run(
-        ["text!some/module!html!strip"],
+    run(["text!some/module!html!strip"],
         function(html) {
             //the html variable will be the text of the some/module.html file,
             //but only the part inside the body tag.   
@@ -376,7 +365,7 @@ The example above in the **Multiversion Support** section shows how code can lat
 
 ## run.pause()/run.resume() for build layers/bundles
 
-If you want to include many modules that use run() in one script, and those modules may depend on each other, then use run.pause() before the set of run() calls to prevent runjs from tracing dependencies on each run() call. When all the run() calls have finished in the file, call run.resume() to have the dependencies properly traced.
+If you want to include many modules that use run.def() in one script, and those modules may depend on each other, then use run.pause() before the set of run calls to prevent runjs from tracing dependencies on each run call. When all the run calls have finished in the file, call run.resume() to have the dependencies properly traced.
 
 Only use run.pause() and run.resume() on a file-by-file basis. Do not use run.pause() in one file and run.resume() in another file. Multiple files can call run.pause()/resume() combinations though.
 
@@ -384,8 +373,7 @@ Example:
 
     run.pause();
     
-    run(
-        "alpha",
+    run.def("alpha",
         ["beta"],
         function (beta) {
             return {
@@ -395,8 +383,7 @@ Example:
         }
     );
     
-    run(
-        "beta",
+    run.def("beta",
         {
             name: "beta"
         }
@@ -404,7 +391,7 @@ Example:
 
     run.resume();
 
-If run.pause() and run.resume() were not used, then the run() call to define "alpha" would have tried to load "beta" via another network/file IO call.
+If run.pause() and run.resume() were not used, then the run.def() call to define "alpha" would have tried to load "beta" via another network/file IO call.
 
 ## Module Modifiers
 
@@ -440,7 +427,7 @@ You are not required to register modifiers with runjs. Only do it if you want to
 
 ### Modifier Definition
 
-A modifier definition looks like a normal run() module definition, but:
+A modifier definition looks like a normal run.def() module definition, but:
 
 * run.modify() is used.
 * the target module's name is listed first in the run.modify() call.
@@ -462,10 +449,10 @@ For the example given above in Modifier Registration, where "my/target1" is the 
 
 # History and Influences
 
-I work a lot on the Dojo Loader. The normal dojo loader uses synchronous XMLHttpRequest (XHR) calls. However, the XHR loader cannot load Dojo modules from other domains because of the same-origin restrictions. So I created the xdomain loader that required a build step to inject function wrappers similar to what run() uses, but more complex, due to i18n bundle loading and dojo.requireIf behavior. Because of the more complex i18n and requireIf requirements and the existence of many dojo modules already out in the world, I did not feel like the Dojo community would consider writing modules with function wrappers manually.
+I work a lot on the Dojo Loader. The normal dojo loader uses synchronous XMLHttpRequest (XHR) calls. However, the XHR loader cannot load Dojo modules from other domains because of the same-origin restrictions. So I created the xdomain loader that required a build step to inject function wrappers similar to what RunJS uses, but more complex, due to i18n bundle loading and dojo.requireIf behavior. Because of the more complex i18n and requireIf requirements and the existence of many dojo modules already out in the world, I did not feel like the Dojo community would consider writing modules with function wrappers manually.
 
-However, the sync XHR loader has other issues, like making debugging harder. Recently, David Mark suggested that Dojo use document.write() to load modules before the page loads to help with that issue, but that means required dependencies would not load until after the current module executes. This can cause errors if the module references a dependency as part of the module's definition. So a function wrapper is needed. The Dojo community seemed more amenable to considering a function wrapper, particularly since we are considering a Dojo 2.0 that can break some APIs. I fleshed out some of the details for run() on the dojo-contributors list, and Mike Wilson originally pushed for a more generic loader that could load plain files as well as allow for different contexts. I hope run.js can be used for Dojo 2.0 modules, but more investigation on i18n and requireIf support is needed.
+However, the sync XHR loader has other issues, like making debugging harder. Recently, David Mark suggested that Dojo use document.write() to load modules before the page loads to help with that issue, but that means required dependencies would not load until after the current module executes. This can cause errors if the module references a dependency as part of the module's definition. So a function wrapper is needed. The Dojo community seemed more amenable to considering a function wrapper, particularly since we are considering a Dojo 2.0 that can break some APIs. I fleshed out some of the details for RunJS on the dojo-contributors list, and Mike Wilson originally pushed for a more generic loader that could load plain files as well as allow for different contexts. I hope run.js can be used for Dojo 2.0 modules, but more investigation on i18n and requireIf support is needed.
 
-YUI 3's use() function is also very similar to run(), and use()'s API (but not code) also informed run()'s structure. I believe run() is more generic, since YUI seems to use labels for their modules that do not directly correspond to file paths. It also looks like it cannot load plain JS files, and I liked explicitly passing the dependent modules as arguments to the function definition. YUI.use() might support some of these features underneath, but I just looked at the top-level API doc.
+YUI 3's use() function is also very similar to run, and use()'s API (but not code) also informed run's structure. I believe RunJS is more generic, since YUI seems to use labels for their modules that do not directly correspond to file paths. It also looks like it cannot load plain JS files, and I liked explicitly passing the dependent modules as arguments to the function definition. YUI.use() might support some of these features underneath, but I just looked at the top-level API doc.
 
 I originally wanted something that would work with CommonJS modules, but those modules seem to be structured assuming a synchronous module loader, which is possible in server-side JavaScript environments. However, I am mostly concerned with something that works well in the browser, and that means needing a function wrapper so we can use script tags. Using synchronous XHR is not very friendly for new developers or people who want easy of debugging across browsers. It can also be slower than plain script tag loading. Some environments, like Adobe AIR do not allow eval() and most developers are taught that eval() is evil and should be avoided. run.js should be very usable in a server-side environment, and I plan on using it there too.

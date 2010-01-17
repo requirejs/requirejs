@@ -109,7 +109,7 @@ run(
 //a built file that contains all of its dependencies. If that module or any
 //of its dependencies includes i18n bundles, they may not be included in the
 //built file unless the locale: section is set above.
-run("foo/bar/bop");
+run.def("foo/bar/bop");
 
 //This invocation combines all the dependencies of foo/bar/bop and foo/bar/bee
 //and any of its dependencies into one file. If that module or any
@@ -130,6 +130,6 @@ run(
        exclude: [
         "foo/bar/bop"
        ]
-    }
+    },
     "foo/bar/bip"
 );

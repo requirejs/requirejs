@@ -1,5 +1,20 @@
+
+Differences with rcgill
+- Checks for existing run, exits out.
+- Allows config via a run object.
+
+
+
+
+- run.def()
+
+- i18n bundles just specify locales not full module names?
+
+- Use JSDoc to document a full module?
+
+
 - build issue: module defined like so:
-run(
+run.def(
   "dimple",
   {
     color: "dimple-blue"

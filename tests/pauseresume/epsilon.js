@@ -1,7 +1,6 @@
 "use strict";
 /*global run: false */
-run(
-    "epsilon",
+run.def("epsilon",
     {
         name: "epsilon"
     }

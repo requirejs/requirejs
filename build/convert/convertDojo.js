@@ -19,7 +19,7 @@
  * * After the build put a dependency in dijit.dijit-all for dijit.dijit to get reloads in IE to work.
  * 
  * Usage:
- * java -classpath path/to/rhino/js.jar convertDojo.js path/to/dojo rundojo
+ * java -jar path/to/rhino/js.jar convertDojo.js path/to/dojo rundojo
  *
  */
 /*jslint plusplus: false */
@@ -88,7 +88,7 @@ fileContents = 'run.baseUrlRegExp = /dojo(\\.xd)?\\.js(\\W|$)/i;' +
                fileUtil.readFile(savePath + "/dojo/_base/_loader/loader.js") +
                fileUtil.readFile(savePath + "/dojo/_base/_loader/hostenv_browser.js");
 
-fileContents += 'run("dojo", function(){return dojo;});run("dijit", function(){return dijit;});run("dojox", function(){return dojox;});';
+fileContents += 'run.def("dojo", function(){return dojo;});run.def("dijit", function(){return dijit;});run.def("dojox", function(){return dojox;});';
 
 fileUtil.saveUtf8File(savePath + "/dojo.js", fileContents);
 
@@ -152,7 +152,7 @@ function writeRunEnd(prefixProps, contents) {
             argString += ', _R' + i;
         }
 
-        return 'run("' + provideName + '", ["run", "dojo", "dijit", "dojox"' +
+        return 'run.def("' + provideName + '", ["run", "dojo", "dijit", "dojox"' +
                 reqString +
                 '], function(run, dojo, dijit, dojox' + argString + ') {\n' +
                 prefixProps.match +
@@ -292,7 +292,7 @@ function i18nConvert(fileName, convertedFileName, srcDir) {
 
     if (localeRegExp.test(fileName)) {
         //A locale-specific bundle. Easier to handle.
-        text = 'run("i18n!' + modName + '",\n' + contents + ');';
+        text = 'run.def("i18n!' + modName + '",\n' + contents + ');';
     } else {
         //A root bundle. A bit more work. First, get the basic name
         matches = rootBundleRegExp.exec(modName);
@@ -309,7 +309,7 @@ function i18nConvert(fileName, convertedFileName, srcDir) {
             }
         }
 
-        text = 'run("i18n!' + prefixName + baseName + '",\n{ "root": ' + contents + locales + '\n});';
+        text = 'run.def("i18n!' + prefixName + baseName + '",\n{ "root": ' + contents + locales + '\n});';
     }
     
     fileUtil.saveUtf8File(convertedFileName, text);

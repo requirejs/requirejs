@@ -1,5 +1,4 @@
-run(
-    "funcThree",
+run.def("funcThree",
     ["funcFour"],
     function (four) {
         var three = function (arg) {

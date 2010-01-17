@@ -5,8 +5,7 @@
 
 run.pause();
 
-run(
-    "alpha",
+run.def("alpha",
     ["beta", "gamma"],
     function (beta, gamma) {
         return {
@@ -16,8 +15,7 @@ run(
     }
 );
 
-run(
-    "beta",
+run.def("beta",
     ["gamma"],
     function (gamma) {
         return {
@@ -27,8 +25,7 @@ run(
     }
 );
 
-run(
-    "gamma",
+run.def("gamma",
     ["epsilon"],
     function (epsilon) {
         return {

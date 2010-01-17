@@ -1,5 +1,4 @@
-run(
-  "one",
+run.def("one",
   ["run", "two"],
   function(run) {
     var one = {

@@ -1,6 +1,5 @@
-run(
-  "dimple",
-  {
-    color: "dimple-blue"
-  }
+run.def("dimple",
+    {
+      color: "dimple-blue"
+    }
 );

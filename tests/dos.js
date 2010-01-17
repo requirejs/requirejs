@@ -1,5 +1,4 @@
-run(
-  "dos",
+run.def("dos",
   ["tres"],
   function(tres) {
     return {

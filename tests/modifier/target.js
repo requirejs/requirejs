@@ -1,5 +1,4 @@
-run(
-  "target",
+run.def("target",
   {
     color: "target",
     size: "target",

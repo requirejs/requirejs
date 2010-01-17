@@ -1,5 +1,4 @@
-run(
-  "omega",
+run.def("omega",
   ["sigma"],
   function(epsilon) {
     return {
