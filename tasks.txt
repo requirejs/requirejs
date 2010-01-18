@@ -1,17 +1,13 @@
-
-Differences with rcgill
+- Update jquery patch for run.isDone check in jquery ready for the case when
+  a $().ready call is made before all modules are evaluated, particularly if
+  the $().ready call is done inside a module callback that is not at the top
+  of the dependency chain (like dojo.parser in Dojo)
+  
+Differences with rcgill's fork. Master has:
 - Checks for existing run, exits out.
 - Allows config via a run object.
 
-
-
-
-- run.def()
-
-- i18n bundles just specify locales not full module names?
-
 - Use JSDoc to document a full module?
-
 
 - build issue: module defined like so:
 run.def(
