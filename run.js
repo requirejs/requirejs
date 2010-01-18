@@ -16,7 +16,7 @@ setInterval: false */
 var run;
 (function () {
     //Change this version number for each release.
-    var version = "0.0.6",
+    var version = "0.0.7",
             empty = {}, s,
             i, defContextName = "_", contextLoads = [],
             scripts, script, rePkg, src, m, cfg,

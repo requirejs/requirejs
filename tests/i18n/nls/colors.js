@@ -5,7 +5,7 @@ run.def("i18n!nls/colors",
       blue: "blue",
       green: "green"
     },
-    "en-us-surfer": "i18n!nls/en-us-surfer/colors",
-    "fr": "i18n!nls/fr/colors"
+    "en-us-surfer": true,
+    "fr": true
   }
 );

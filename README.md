@@ -172,7 +172,7 @@ Later, when you want to add a specific translation to a file, say for the fr-fr 
                 "blue": "blue",
                 "green": "green"
             },
-            "fr-fr": "i18n!my/nls/fr-fr/colors"
+            "fr-fr": true
         }]
     );
 

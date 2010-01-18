@@ -89,13 +89,17 @@
                 //Mark what locale should be used when resolving.
                 nlsw[loc] = loc;
 
-                //If locale value is a string, it means it is a resource that
+                //If locale value is true, it means it is a resource that
                 //needs to be loaded. Track it to load if it has not already
                 //been asked for.
-                if (typeof val === "string") {
-                    //Strip off the plugin prefix, since we use the normal
-                    //run.load call to load modules.
-                    val = val.substring(val.indexOf("!") + 1, val.length);
+                if (val === true) {
+                    //split off the bundl name from master name and insert the
+                    //locale before the bundle name. So, if masterName is
+                    //some/path/nls/colors, then the locale fr-fr's bundle name should
+                    //be some/path/nls/fr-fr/colors
+                    val = masterName.split("/");
+                    val.splice(-1, 0, loc);
+                    val = val.join("/");
 
                     if (!context.specified[val] && !(val in context.loaded) && !context.defined[val]) {
                         toLoad.push(val);

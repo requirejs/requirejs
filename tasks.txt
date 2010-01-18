@@ -71,6 +71,14 @@ Considered, but not implemented
 
 Completed Items
 ==================
+0.0.7
+------------
+- Separate module definitions via a run.def() function.
+- Reworked module loading code based on Rawld Gill's algorithm.
+- Changed i18n bundles to just list locales with true, based on a suggestion
+  from Adam Peller.
+- Integrating feedback from Bryan Forbes/David Mark.
+
 0.0.6
 ------------
 Removed the Function specifier. That was for circular dependencies, but due to

@@ -305,7 +305,7 @@ function i18nConvert(fileName, convertedFileName, srcDir) {
         for (i = 0; (name = fileNames[i]); i++) {
             if ((matches = localeRegExp.exec(name))) {
                 locale = matches[2];
-                locales += ',\n"' + locale + '": "i18n!' + prefixName + locale + "/" + baseName + '"';
+                locales += ',\n"' + locale + '": true';
             }
         }
 
