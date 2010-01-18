@@ -122,17 +122,17 @@ readFile: false, processPragmas: false */
                     deps = runDepsRegExp.exec(match);
                     if (deps) {
                         //If have a module name be sure to track that in the run call.
-                        if (deps[1] && deps[2]) {
+                        if (deps[2] && deps[3]) {
                             //If the deps[1] matches the moduleName, then mark it as having
                             //a name.
-                            if (deps[1].match(new RegExp('[\'"]' + moduleName + '[\'"]'))) {
+                            if (deps[2].match(new RegExp('[\'"]' + moduleName + '[\'"]'))) {
                                 run.modulesWithNames[moduleName] = true;
                             }
-                            eval('run.def(' + deps[1] + deps[2] + ');');
+                            eval('run.def(' + deps[2] + deps[3] + ');');
                         }
                         //Just call with dependencies.
-                        if (deps[2]) {
-                            eval('run(' + deps[2] + ');');
+                        if (deps[3]) {
+                            eval('run(' + deps[3] + ');');
                         }
                     }
                 }

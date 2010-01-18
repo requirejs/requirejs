@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>jQuery+RunJS Sample Page</title>
+        <!-- If you built run.js into jquery
+             then you do not need the script tag for run.js here -->
+        <script src="../../run.js"></script>
+        <script src="scripts/jquery.min.js"></script>
+        <script type="text/javascript" src="../doh/runner.js"></script>
+        <script type="text/javascript" src="../doh/_browserRunner.js"></script>
+        <script>
+            run({
+                    baseUrl: "./scripts/"
+                },
+                ["app"],
+                function() {
+                    doh.register(
+                        "jqueryPlugins", 
+                        [
+                            function jqueryPlugins(t){
+                                t.is("alpha", $().alpha());
+                                t.is("beta", $().beta());
+                            }
+                        ]
+                    );
+                    doh.run();
+                }
+            );
+        </script>
+    </head>
+    <body>
+        <h1>jQuery+RunJS Test Page</h1>
+        <p>Tests loading of jquery plugins with run.</p>
+    </body>
+</html>

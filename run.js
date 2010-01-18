@@ -825,13 +825,15 @@ var run;
             defined = context.defined, ret, args = [], prefix, depModule;
 
         //If already traced or defined, do not bother a second time.
-        if (traced[name] || defined[name]) {
-            return defined[name];
+        if (name) {
+            if (traced[name] || defined[name]) {
+                return defined[name];
+            }
+    
+            //Mark this module as being traced, so that it is not retraced (as in a circular
+            //dependency)
+            traced[name] = true;
         }
-
-        //Mark this module as being traced, so that it is not retraced (as in a circular
-        //dependency)
-        traced[name] = true;
 
         if (deps) {
             for (j = 0; (dep = deps[j]); j++) {
