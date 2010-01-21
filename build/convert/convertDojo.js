@@ -88,7 +88,9 @@ fileContents = 'run.baseUrlRegExp = /dojo(\\.xd)?\\.js(\\W|$)/i;' +
                fileUtil.readFile(savePath + "/dojo/_base/_loader/loader.js") +
                fileUtil.readFile(savePath + "/dojo/_base/_loader/hostenv_browser.js");
 
-fileContents += 'run.def("dojo", function(){return dojo;});run.def("dijit", function(){return dijit;});run.def("dojox", function(){return dojox;});';
+//Do a run.modify call to get dojo/_base defined before other things that need dojo.
+fileContents += 'run.def("dojo", function(){return dojo;});run.def("dijit", function(){return dijit;});run.def("dojox", function(){return dojox;});' +
+                'run.modify("dojo", "dojo-base", ["dojo", "dojo/_base"], function(){});';
 
 fileUtil.saveUtf8File(savePath + "/dojo.js", fileContents);
 
