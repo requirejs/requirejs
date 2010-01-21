@@ -271,7 +271,27 @@ When using run() in the top-level HTML page (or top-level script file that does 
       );
     </script>
 
-That example shows all the supported configuration options:
+Also, you can define run to be an object **before** run.js is loaded, and have the values applied. This is example specifies some dependencies to load as soon as run.js defines run() and registers a run.ready() callback to register after run.js defines run.ready():
+
+    <script type="text/javascript">
+        var run = {
+            deps: ["a.js", "b.js", "some/module1", "my/module2"],
+            callback: function(a, b, module1, module2) {
+                //This function will be called when all the dependencies
+                //listed above in deps are loaded. Note that this function could
+                //be called before the page is loaded. This callback is optional.
+            },
+            ready: function() {
+                //This function called once the DOM is ready.
+                //If you build run.js without page load support, then nothing
+                //is done with this function.
+            }
+        };
+    </script>
+    <script type="text/javascript" src="scripts/run.js"></script>
+
+
+Supported configuration options:
 
 **baseUrl**: the root path to use for all module lookups. So in the above example, "my/module"'s script tag will have a src="/another/path/my/module.js". baseUrl is **not** used when loading plain .js files, those strings are used as-is, so a.js and b.js will be loaded from the same directory as the HTML page that contains the above snippet.
 
@@ -284,6 +304,12 @@ If no baseUrl is passed in, the path to run.js is used as the baseUrl path.
 **locale**: The locale to use for loading i18n bundles. By default navigator.language or navigator.userLanguage will be used. The proper syntax for specifying a locale is using lowercase and separating values by dashes, for instance: "fr-fr-paris" or "en-us".
 
 **context**: A name to give to a loading context. This allows run.js to load multiple versions of modules in a page, as long as each top-level run call specifies a unique context string. See **Advanced Features** below.
+
+**deps**: An array of dependencies to load. Useful when run is defined as a config object before run.js is loaded, and you want to specify dependencies to load as soon as run() is defined.
+
+**callback**: An function to pass to run that should be run after **deps** have been loaded. Useful when run is defined as a config object before run.js is loaded, and you want to specify a function to run after the configuration's **deps** array have been loaded.
+
+**ready**: An function to pass to run.ready(). Useful when run is defined as a config object before run.js is loaded, and you want to specify a run.ready callback to set as soon as run() is defined.
 
 # Page Load Event Support
 

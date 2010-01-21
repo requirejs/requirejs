@@ -1,4 +1,5 @@
 doh.registerUrl("simple", "../simple.html");
+doh.registerUrl("config", "../config.html");
 doh.registerUrl("simple-nohead", "../simple-nohead.html");
 doh.registerUrl("circular", "../circular.html");
 doh.registerUrl("depoverlap", "../depoverlap.html");

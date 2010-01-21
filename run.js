@@ -254,6 +254,21 @@ var run;
                 context.config.paths = paths;
             }
 
+            //If a deps array or a config callback is specified, then call
+            //run with those args. This is useful when run is defined as a
+            //config object before run.js is loaded.
+            if (config.deps || config.callback) {
+                run(config.deps || [], config.callback);
+            }
+
+            //>>excludeStart("runExcludePageLoad", pragmas.runExcludePageLoad);
+            //Set up ready callback, if asked. Useful when run is defined as a
+            //config object before run.js is loaded.
+            if (config.ready) {
+                run.ready(config.ready);
+            }
+            //>>excludeEnd("runExcludePageLoad");
+
             //If it is just a config block, nothing else,
             //then return.
             if (!deps) {
@@ -1083,5 +1098,7 @@ var run;
     //>>excludeEnd("runExcludePageLoad");
 
     //Set up default context. If run was a configuration object, use that as base config.
-    run(cfg ? cfg : {});
+    if (cfg) {
+        run(cfg);
+    }
 }());
