@@ -1,12 +1,12 @@
 /**
- * Converts dojo modules to be runjs compliant modules. Only works with dojo,
+ * Converts dojo modules to be requirejs compliant modules. Only works with dojo,
  * dijit and dojox modules, not for custom namespaces.
  *
  * Non-build file changes:
  * * In dojo._base.query, move the provide/require calls to the top
  * * dojo/_base.js convert requireIf to dojo.require("dojo._base.browser");
  * * dojo/_base/hostenv_browser.js, remove the debugAtAllCosts block and change
- * the isDebug block to be if(dojo.config.isDebug){run(["dojo/_firebug/firebug"]);}
+ * the isDebug block to be if(dojo.config.isDebug){require(["dojo/_firebug/firebug"]);}
  * * In dijit/_editor/RichText.js, remove the allowXdRichTextSave block, or force it not to doc.write.
  *
  * It requires a Dojo build that:
@@ -19,7 +19,7 @@
  * * After the build put a dependency in dijit.dijit-all for dijit.dijit to get reloads in IE to work.
  * 
  * Usage:
- * java -jar path/to/rhino/js.jar convertDojo.js path/to/dojo rundojo
+ * java -jar path/to/rhino/js.jar convertDojo.js path/to/dojo requiredojo
  *
  */
 /*jslint plusplus: false */
@@ -81,23 +81,23 @@ if (!fileList || !fileList.length) {
 }
 
 //Write a baseline dojo.js file. Adjust the baseUrlRegExp to look for dojo.js,
-//which should be a sibling of run.js.
+//which should be a sibling of require.js.
 
-fileContents = 'run.baseUrlRegExp = /dojo(\\.xd)?\\.js(\\W|$)/i;' +
+fileContents = 'require.baseUrlRegExp = /dojo(\\.xd)?\\.js(\\W|$)/i;' +
                fileUtil.readFile(savePath + "/dojo/_base/_loader/bootstrap.js") +
                fileUtil.readFile(savePath + "/dojo/_base/_loader/loader.js") +
                fileUtil.readFile(savePath + "/dojo/_base/_loader/hostenv_browser.js");
 
-//Do a run.modify call to get dojo/_base defined before other things that need dojo.
-fileContents += 'run.def("dojo", function(){return dojo;});run.def("dijit", function(){return dijit;});run.def("dojox", function(){return dojox;});' +
-                'run.modify("dojo", "dojo-base", ["dojo", "dojo/_base"], function(){});';
+//Do a require.modify call to get dojo/_base defined before other things that need dojo.
+fileContents += 'require.def("dojo", function(){return dojo;});require.def("dijit", function(){return dijit;});require.def("dojox", function(){return dojox;});' +
+                'require.modify("dojo", "dojo-base", ["dojo", "dojo/_base"], function(){});';
 
 fileUtil.saveUtf8File(savePath + "/dojo.js", fileContents);
 
 convertTime = ((new Date().getTime() - startTime) / 1000);
 logger.info("Convert time: " + convertTime + " seconds");
 
-function writeRunEnd(prefixProps, contents) {
+function writeRequireEnd(prefixProps, contents) {
     var reqString = "", argString = "", i, req, getLocs = [], loc, varName,
         provideName = prefixProps && prefixProps.provide.replace(/\./g, "/");
 
@@ -132,12 +132,12 @@ function writeRunEnd(prefixProps, contents) {
                 contents = contents.replace(new RegExp('dojo\\.i18n\\.getLocalization\\s*\\(\\s*([^,\\)]+)\\s*,\\s*([^,\\)]+)([^\\)]+)?\\)', 'g'),
                                             function(match, prefix, baseName, thirdArg) {
                                                 var name = prefix + ' + "/nls/" + ' + baseName,
-                                                    getCall = 'run.get((' + name + ').replace(/\\./g, "/"))';
+                                                    getCall = 'require((' + name + ').replace(/\\./g, "/"))';
                                                 if (thirdArg) {
                                                     //trim thirdArg, and remove an starting comma.
                                                     thirdArg = thirdArg.replace(/\s*,\s*(.*)\s*$/, "$1");
                                                     if (thirdArg) {
-                                                        return '(' + thirdArg + ' ? run.get((' + prefix + ' + "/nls/" + ' + thirdArg + ' + "/" + ' + baseName + ').replace(/\\./g, "/")) : ' + getCall + ')';
+                                                        return '(' + thirdArg + ' ? require((' + prefix + ' + "/nls/" + ' + thirdArg + ' + "/" + ' + baseName + ').replace(/\\./g, "/")) : ' + getCall + ')';
                                                     } else {
                                                         return getCall;
                                                     }
@@ -154,9 +154,9 @@ function writeRunEnd(prefixProps, contents) {
             argString += ', _R' + i;
         }
 
-        return 'run.def("' + provideName + '", ["run", "dojo", "dijit", "dojox"' +
+        return 'require.def("' + provideName + '", ["require", "dojo", "dijit", "dojox"' +
                 reqString +
-                '], function(run, dojo, dijit, dojox' + argString + ') {\n' +
+                '], function(require, dojo, dijit, dojox' + argString + ') {\n' +
                 prefixProps.match +
                 contents +
                 '\nreturn ' + (prefixProps.provide.indexOf("-") === -1 ? prefixProps.provide : "null") + '; });\n';
@@ -215,19 +215,19 @@ function convert(fileName, fileContents) {
             //Work with original file and remove the require calls.
             fileContents = originalContents.replace(reqRemoveRegExp, "");
 
-            //Wrap each section with a dojo.provide with a run block
+            //Wrap each section with a dojo.provide with a require block
             markIndex = 0;
             tempContents = "";
 
-            //If dojo.js, inject run.js at the top of the file, then
-            //tell run to pause on tracing dependencies until the
+            //If dojo.js, inject require.js at the top of the file, then
+            //tell require to pause on tracing dependencies until the
             //full file is evaluated.
             if (fileName.match(dojoJsRegExp)) {
-                tempContents = fileUtil.readFile("../../run.js");
+                tempContents = fileUtil.readFile("../../require.js");
             }
 
             if (deps.length > 1) {
-                tempContents += 'run.pause();\n';
+                tempContents += 'require.pause();\n';
             }
 
             for (i = 0; (currentDep = deps[i]); i++) {
@@ -240,10 +240,10 @@ function convert(fileName, fileContents) {
                 match = provideRegExp.exec(fileContents)[0];
                 lastIndex = provideRegExp.lastIndex - match.length;
     
-                //Write out the current run block (or just first block of text.
-                tempContents += writeRunEnd(prefixProps, fileContents.substring(markIndex, lastIndex));
+                //Write out the current require block (or just first block of text.
+                tempContents += writeRequireEnd(prefixProps, fileContents.substring(markIndex, lastIndex));
 
-                //Build up the run dependencies.
+                //Build up the require dependencies.
                 reqs = [];
                 for (j = 0; (module = currentDep.requires[j]); j++) {
                     if (!deps.provides[module]) {
@@ -251,7 +251,7 @@ function convert(fileName, fileContents) {
                     }
                 }
 
-                //Save the properties to use for the run() prefix code
+                //Save the properties to use for the require() prefix code
                 prefixProps = {
                     provide: currentDep.provide,
                     reqs: reqs,
@@ -262,12 +262,12 @@ function convert(fileName, fileContents) {
                 markIndex = provideRegExp.lastIndex;
             }
 
-            //Write out the last of the file with ending segment for run.
-            tempContents += writeRunEnd(prefixProps, fileContents.substring(markIndex, fileContents.length));
+            //Write out the last of the file with ending segment for require.
+            tempContents += writeRequireEnd(prefixProps, fileContents.substring(markIndex, fileContents.length));
         }
 
         if (deps.length > 1) {
-            tempContents += 'run.resume();\n';
+            tempContents += 'require.resume();\n';
         }
 
         return tempContents;
@@ -294,7 +294,7 @@ function i18nConvert(fileName, convertedFileName, srcDir) {
 
     if (localeRegExp.test(fileName)) {
         //A locale-specific bundle. Easier to handle.
-        text = 'run.def("i18n!' + modName + '",\n' + contents + ');';
+        text = 'require.def("i18n!' + modName + '",\n' + contents + ');';
     } else {
         //A root bundle. A bit more work. First, get the basic name
         matches = rootBundleRegExp.exec(modName);
@@ -311,7 +311,7 @@ function i18nConvert(fileName, convertedFileName, srcDir) {
             }
         }
 
-        text = 'run.def("i18n!' + prefixName + baseName + '",\n{ "root": ' + contents + locales + '\n});';
+        text = 'require.def("i18n!' + prefixName + baseName + '",\n{ "root": ' + contents + locales + '\n});';
     }
     
     fileUtil.saveUtf8File(convertedFileName, text);

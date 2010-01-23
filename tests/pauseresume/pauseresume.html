@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>run.js: Pause/Resume Test</title>
-    <script type="text/javascript" src="../../run.js"></script>
+    <title>require.js: Pause/Resume Test</title>
+    <script type="text/javascript" src="../../require.js"></script>
     <script type="text/javascript" src="../doh/runner.js"></script>
     <script type="text/javascript" src="../doh/_browserRunner.js"></script>
     <script type="text/javascript">
@@ -21,13 +21,13 @@
     );
     doh.run();			
 
-    run(
+    require(
         {
             baseUrl: "./"
         },
-        ["run", "layer1"],
-        function(run) {
-            run(["alpha", "beta", "gamma", "epsilon"],
+        ["require", "layer1"],
+        function(require) {
+            require(["alpha", "beta", "gamma", "epsilon"],
                 function(alpha, beta, gamma, epsilon) {
                     doh.is("alpha", alpha.name);
                     doh.is("beta", alpha.betaName);
@@ -49,10 +49,10 @@
                 master.callback(true);		
             };
             
-            //Account for running this test with a version of run.js that
-            //does not have run.ready built in.
-            if (run.ready) {
-                run.ready(verifyFunc);
+            //Account for requirening this test with a version of require.js that
+            //does not have require.ready built in.
+            if (require.ready) {
+                require.ready(verifyFunc);
             } else {
                 setTimeout(verifyFunc, 3000);
             }
@@ -61,7 +61,7 @@
     </script>
 </head>
 <body>
-    <h1>run.js: Pause/Resume Test</h1>
+    <h1>require.js: Pause/Resume Test</h1>
     <p>Check console for messages</p>
 </body>
 </html>

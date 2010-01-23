@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>run.js: Modifier Test</title>
-    <script type="text/javascript" src="../../run.js"></script>
+    <title>require.js: Modifier Test</title>
+    <script type="text/javascript" src="../../require.js"></script>
     <script type="text/javascript" src="../doh/runner.js"></script>
     <script type="text/javascript" src="../doh/_browserRunner.js"></script>
     <script type="text/javascript">
@@ -16,26 +16,26 @@
 		    runTest: function() {
 
                         var d = new doh.Deferred();
-                        run({
+                        require({
                                 baseUrl: "./"
                             }
                         );
-                        run.modify({
+                        require.modify({
                             "target": "size"
                         });
-                        run({
+                        require({
                                 baseUrl: "./"
                             },
-                            ["target", "color", "run"],
-                            function(target, color, run) {
-                                run.ready(function() {
+                            ["target", "color", "require"],
+                            function(target, color, require) {
+                                require.ready(function() {
                                     doh.is("small", target.size);
                                     doh.is("green", target.color);
                                     doh.is("target", target.design);
                                     doh.is("target", target.name);
     
                                     setTimeout(function() {
-                                        run.modify({
+                                        require.modify({
                                             "target": "design"
                                         });
     

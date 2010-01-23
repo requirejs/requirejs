@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 
-<h1>run.js: Simple Test, no head tag</h1>
+<h1>require.js: Simple Test, no head tag</h1>
 <p>Check console for messages</p>
 
 <script type="text/javascript">
-var run = {
+var require = {
     baseUrl: "./"
 };
 </script>
-<script type="text/javascript" src="../run.js"></script>
+<script type="text/javascript" src="../require.js"></script>
 <script type="text/javascript" src="doh/runner.js"></script>
 <script type="text/javascript" src="doh/_browserRunner.js"></script>
 <script type="text/javascript">
-run(["run", "simple", "dimple", "func"],
-    function(run, simple, dimple, func) {
+require(["require", "simple", "dimple", "func"],
+    function(require, simple, dimple, func) {
         doh.register(
             "simple-nohead", 
             [

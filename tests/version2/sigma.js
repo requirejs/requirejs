@@ -1,4 +1,4 @@
-run.modify(
+require.modify(
   "alpha",
   "sigma",
   ["alpha"],

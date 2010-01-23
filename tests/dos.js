@@ -1,4 +1,4 @@
-run.def("dos",
+require.def("dos",
   ["tres"],
   function(tres) {
     return {

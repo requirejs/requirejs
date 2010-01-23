@@ -1,10 +1,10 @@
 /**
- * @license RunJS text Copyright (c) 2004-2010, The Dojo Foundation All Rights Reserved.
+ * @license RequireJS text Copyright (c) 2004-2010, The Dojo Foundation All Rights Reserved.
  * Available via the MIT, GPL or new BSD license.
- * see: http://github.com/jrburke/runjs for details
+ * see: http://github.com/jrburke/requirejs for details
  */
 /*jslint regexp: false, nomen: false, plusplus: false */
-/*global run: false, XMLHttpRequest: false, ActiveXObject: false */
+/*global require: false, XMLHttpRequest: false, ActiveXObject: false */
 
 "use strict";
 
@@ -13,8 +13,8 @@
         xmlRegExp = /^\s*<\?xml(\s)+version=[\'\"](\d)*.(\d)*[\'\"](\s)*\?>/im,
         bodyRegExp = /<body[^>]*>\s*([\s\S]+)\s*<\/body>/im;
 
-    if (!run.textStrip) {
-        run.textStrip = function (text) {
+    if (!require.textStrip) {
+        require.textStrip = function (text) {
             //Strips <?xml ...?> declarations so that external SVG and XML
             //documents can be added to a document without worry. Also, if the string
             //is an HTML document, only the part inside the body tag is returned.
@@ -31,11 +31,11 @@
         };
     }
 
-    //Upgrade run to add some methods for XHR handling. But it could be that
-    //this run is used in a non-browser env, so detect for existing method
+    //Upgrade require to add some methods for XHR handling. But it could be that
+    //this require is used in a non-browser env, so detect for existing method
     //before attaching one.
-    if (!run.getXhr) {
-        run.getXhr = function () {
+    if (!require.getXhr) {
+        require.getXhr = function () {
             //Would love to dump the ActiveX crap in here. Need IE 6 to die first.
             var xhr, i, progId;
             if (typeof XMLHttpRequest !== "undefined") {
@@ -55,16 +55,16 @@
             }
 
             if (!xhr) {
-                throw new Error("run.getXhr(): XMLHttpRequest not available");
+                throw new Error("require.getXhr(): XMLHttpRequest not available");
             }
 
             return xhr;
         };
     }
     
-    if (!run.fetchText) {
-        run.fetchText = function (url, callback) {
-            var xhr = run.getXhr();
+    if (!require.fetchText) {
+        require.fetchText = function (url, callback) {
+            var xhr = require.getXhr();
             xhr.open('GET', url, true);
             xhr.onreadystatechange = function (evt) {
                 //Do not explicitly handle errors, those should be
@@ -77,14 +77,14 @@
         };
     }
 
-    run.plugin({
+    require.plugin({
         prefix: "text",
 
         /**
          * This callback is prefix-specific, only gets called for this prefix
          */
-        run: function (name, deps, callback, context) {
-            //No-op, run never gets these text items, they are always
+        require: function (name, deps, callback, context) {
+            //No-op, require never gets these text items, they are always
             //a dependency, see load for the action.
         },
 
@@ -93,7 +93,7 @@
          * context-specific info on it.
          */
         newContext: function (context) {
-            run.mixin(context, {
+            require.mixin(context, {
                 text: {},
                 textWaiting: []
             });
@@ -113,7 +113,7 @@
             var strip = false, text = null, key, url, index = name.indexOf("!"),
                 modName = name.substring(0, index), fullKey,
                 ext = name.substring(index + 1, name.length),
-                context = run.s.contexts[contextName],
+                context = require.s.contexts[contextName],
                 tWaitAry = context.textWaiting;
 
             index = ext.indexOf("!");
@@ -155,12 +155,12 @@
                 }
 
                 //Load the text.
-                url = run.nameToUrl(modName, "." + ext, contextName);
+                url = require.nameToUrl(modName, "." + ext, contextName);
                 context.loaded[name] = false;
-                run.fetchText(url, function (text) {
+                require.fetchText(url, function (text) {
                     context.text[key] = text;
                     context.loaded[name] = true;
-                    run.checkLoaded(contextName);                    
+                    require.checkLoaded(contextName);                    
                 });
             }
         },
@@ -190,7 +190,7 @@
             context.textWaiting = [];
             for (i = 0; (dep = tWaitAry[i]); i++) {
                 text = context.text[dep.key];
-                context.defined[dep.name] = dep.strip ? run.textStrip(text) : text;
+                context.defined[dep.name] = dep.strip ? require.textStrip(text) : text;
             }
         }
     });

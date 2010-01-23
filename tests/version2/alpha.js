@@ -1,4 +1,4 @@
-run.def("alpha",
+require.def("alpha",
   function() {
     return {
       version: 2

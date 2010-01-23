@@ -1,7 +1,7 @@
-run({
+require({
         appDir: "../",
         baseUrl: "scripts/",
-        runUrl: "../../../../run.js",
+        requireUrl: "../../../../require.js",
         dir: "../../webapp-build",
         //Comment out the optimize line if you want
         //the code minified by Closure Compiler using

@@ -1,7 +1,7 @@
-//A simple build file using the tests directory for runjs
-run({
+//A simple build file using the tests directory for requirejs
+require({
         baseUrl: "../../tests/i18n",
-        runUrl: "../../run.js",
+        requireUrl: "../../require.js",
         dir: "buildi18n",
         locale: "en-us-surfer"
     },

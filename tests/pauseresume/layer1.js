@@ -1,11 +1,11 @@
 //Example layer file.
 
 "use strict";
-/*global run: false */
+/*global require: false */
 
-run.pause();
+require.pause();
 
-run.def("alpha",
+require.def("alpha",
     ["beta", "gamma"],
     function (beta, gamma) {
         return {
@@ -15,7 +15,7 @@ run.def("alpha",
     }
 );
 
-run.def("beta",
+require.def("beta",
     ["gamma"],
     function (gamma) {
         return {
@@ -25,7 +25,7 @@ run.def("beta",
     }
 );
 
-run.def("gamma",
+require.def("gamma",
     ["epsilon"],
     function (epsilon) {
         return {
@@ -35,4 +35,4 @@ run.def("gamma",
     }
 );
 
-run.resume();
+require.resume();

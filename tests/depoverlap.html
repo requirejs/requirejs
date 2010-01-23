@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>run.js: Dependency Overlap Test</title>
-    <script type="text/javascript" src="../run.js"></script>
+    <title>require.js: Dependency Overlap Test</title>
+    <script type="text/javascript" src="../require.js"></script>
     <script type="text/javascript" src="doh/runner.js"></script>
     <script type="text/javascript" src="doh/_browserRunner.js"></script>
     <script type="text/javascript">
-    run({
+    require({
             baseUrl: "./"    
         },
-        ["run", "uno"],
-        function(run, uno) {
+        ["require", "uno"],
+        function(require, uno) {
             doh.register(
                 "depoverlap", 
                 [
@@ -20,7 +20,7 @@
                         var scripts = document.getElementsByTagName("script"),
                             i, counts = {}, modName, props, something;
                         for (var i = scripts.length - 1; i > -1; i--) {
-                            modName = scripts[i].getAttribute("data-runmodule");
+                            modName = scripts[i].getAttribute("data-requiremodule");
                             if (modName) {
                                 if (!(modName in counts)) {
                                     counts[modName] = 0;
@@ -48,7 +48,7 @@
     </script>
 </head>
 <body>
-    <h1>run.js: Dependency Overlap Test</h1>
+    <h1>require.js: Dependency Overlap Test</h1>
     <p>uno requires dos and tres, but tres also requires dos. Make sure
     dos is only added once, and that all are defined correctly.</p>
     <p>Check console for messages</p>

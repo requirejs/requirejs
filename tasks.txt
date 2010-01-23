@@ -1,33 +1,33 @@
-- Update jquery patch for run.isDone check in jquery ready for the case when
+- Update jquery patch for require.isDone check in jquery ready for the case when
   a $().ready call is made before all modules are evaluated, particularly if
   the $().ready call is done inside a module callback that is not at the top
   of the dependency chain (like dojo.parser in Dojo)
   
 Differences with rcgill's fork. Master has:
-- Checks for existing run, exits out.
-- Allows config via a run object.
+- Checks for existing require, exits out.
+- Allows config via a require object.
 
 - Use JSDoc to document a full module?
 
 - build issue: module defined like so:
-run.def(
+require.def(
   "dimple",
   {
     color: "dimple-blue"
   }
 );
-will get an extra run("dimple", function(){}) output in a layer. Because it does not get tracked
-by run.modulesWithNames. See simple.build.js.
+will get an extra require("dimple", function(){}) output in a layer. Because it does not get tracked
+by require.modulesWithNames. See simple.build.js.
 
-- Fix runbuild.bat on windows.
+- Fix build.bat on windows.
 
-- Expand tests for no head tag, slow connection. Put run.js in a div inside body, or head tag after
+- Expand tests for no head tag, slow connection. Put require.js in a div inside body, or head tag after
 body etc...
 
 - loading more than one locale for a page. A locales= option? Need this for full
   Dojo conversion.
 
-- Talking with Bryan: onScriptLoad is not really needed in a pure run() case, maybe
+- Talking with Bryan: onScriptLoad is not really needed in a pure require() case, maybe
 allow at least a build pragma to exclude it.
 
 - When doing docs via jsdoc, using {some/module} as return types? How does JSDoc deal with the nested objects?
@@ -45,12 +45,12 @@ gets really slow up at the end (in FF)?
 
 - Rhino tests.
 
-- Build converters that can convert dojo and commonjs modules into runjs format.
+- Build converters that can convert dojo and commonjs modules into require.js format.
 
 Considered, but not implemented
 -------------------------------
 - Bryan: test if document load and document domcontentloaded. Safari 3 has trouble, can do addEventListener, but no DOMContentLoaded?
-  Tested existing code (uses window load and document domcontentloaded, and run.ready fires correctly in Safari 3.2.3 on Windows, so this is not a high priority
+  Tested existing code (uses window load and document domcontentloaded, and require.ready fires correctly in Safari 3.2.3 on Windows, so this is not a high priority
   item.
 
 - Use . instead of ! for file extensions for text! dependencies? It is tempting, but it gives
@@ -69,7 +69,7 @@ Completed Items
 ==================
 0.0.7
 ------------
-- Separate module definitions via a run.def() function.
+- Separate module definitions via a require.def() function.
 - Reworked module loading code based on Rawld Gill's algorithm.
 - Changed i18n bundles to just list locales with true, based on a suggestion
   from Adam Peller.
@@ -81,14 +81,14 @@ Removed the Function specifier. That was for circular dependencies, but due to
 concerns about identity, decided to not support that use case. Now, a module
 function can return any value it wants to define itself, can be Function, Object,
 String, Number, Boolean, whatever. And now, for circular dependency, the circular
-dependency will be null. I decided not to throw in that case because I wan run to
-be able to load existing code that does not call back to run to define a module.
-To support circular dependencies, the module function can use run.get() to fetch
+dependency will be null. I decided not to throw in that case because I wan require to
+be able to load existing code that does not call back to require to define a module.
+To support circular dependencies, the module function can use require() to fetch
 that circular dependency later, outside the circular dependency loop.
 
 0.0.5
 ------------
-Introduce plugin concept for run.js. i18n code moved to a plugin.
+Introduce plugin concept for require.js. i18n code moved to a plugin.
 
 0.0.4
 ------------
@@ -98,7 +98,7 @@ pause/resume for build layers
 ------------
 - Module modifiers
 - Better function module support
-- Allow run() calls that just have a config object.
+- Allow require() calls that just have a config object.
 
 0.0.2
 ------------
@@ -108,6 +108,6 @@ pause/resume for build layers
 0.0.1
 ------------
 - Basic module loading
-- Support non-runjs module loading, if file ends in .js
+- Support non-requirejs module loading, if file ends in .js
 - Supports loading modules with different versions by using context names in
-  top-level run() calls.
+  top-level require() calls.

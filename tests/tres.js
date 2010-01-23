@@ -1,4 +1,4 @@
-run.def("tres",
+require.def("tres",
   function() {
     return {
       name: "tres"

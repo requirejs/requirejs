@@ -1,10 +1,10 @@
-run.def("one",
-  ["run", "two"],
-  function(run) {
+require.def("one",
+  ["require", "two"],
+  function(require) {
     var one = {
       size: "large",
       doSomething: function() {
-        return run.get("two");
+        return require("two");
       }
     };
 

@@ -1,29 +1,29 @@
 /**
- * @license Copyright (c) 2004-2010, The Dojo Foundation All Rights Reserved.
+ * @license RequireJS Copyright (c) 2004-2010, The Dojo Foundation All Rights Reserved.
  * Available via the MIT, GPL or new BSD license.
- * see: http://github.com/jrburke/runjs for details
+ * see: http://github.com/jrburke/requirejs for details
  */
 /*
- * This file patches run.js to communicate with the build system.
+ * This file patches require.js to communicate with the build system.
  */
 
 /*jslint nomen: false, plusplus: false, regexp: false */
-/*global load: false, run: false, logger: false, setTimeout: true,
+/*global load: false, require: false, logger: false, setTimeout: true,
 readFile: false, processPragmas: false */
 "use strict";
 
 (function () {
-    var runStartRegExp = /(^|\s+|;)run\s*\(/g,
-        runDepsRegExp = /run(\s*\.\s*def)?\s*\(\s*(['"][^'"]+['"]\s*,)?\s*(\[[^\]]+\])/,
-        oldExec = run.exec;
+    var requireStartRegExp = /(^|\s+|;)require\s*\(/g,
+        requireDepsRegExp = /require(\s*\.\s*def)?\s*\(\s*(['"][^'"]+['"]\s*,)?\s*(\[[^\]]+\])/,
+        oldExec = require.exec;
 
     //These variables are not contextName-aware since the build should
     //only have one context.
-    run.buildPathMap = {};
-    run.buildFileToModule = {};
-    run.buildFilePaths = [];
-    run.loadedFiles = {};
-    run.modulesWithNames = {};
+    require.buildPathMap = {};
+    require.buildFileToModule = {};
+    require.buildFilePaths = [];
+    require.loadedFiles = {};
+    require.modulesWithNames = {};
 
     //Helper functions for the execModules: false case
     function removeComments(contents) {
@@ -92,47 +92,47 @@ readFile: false, processPragmas: false */
 
 
     //Override load so that the file paths can be collected.
-    run.load = function (moduleName, contextName) {
+    require.load = function (moduleName, contextName) {
         /*jslint evil: true */
-        var url = run.nameToUrl(moduleName, null, contextName), map,
+        var url = require.nameToUrl(moduleName, null, contextName), map,
             contents, matches, match, i, deps,
-            context = run.s.contexts[contextName];
+            context = require.s.contexts[contextName];
         context.loaded[moduleName] = false;
 
         //Save the module name to path mapping.
-        map = run.buildPathMap[moduleName] = url;
+        map = require.buildPathMap[moduleName] = url;
 
         //Load the file contents, process for conditionals, then
         //evaluate it.
         contents = readFile(url);
         contents = processPragmas(url, contents, context.config);
 
-        //Only eval contents if asked, or if it is a run extension.
-        if (context.config.execModules || moduleName === "run/text" || moduleName === "run/i18n") {
+        //Only eval contents if asked, or if it is a require extension.
+        if (context.config.execModules || moduleName === "require/text" || moduleName === "require/i18n") {
             eval(contents);
         } else {
-            //Only find the run parts with [] dependencies and
+            //Only find the require parts with [] dependencies and
             //evaluate those. This path is useful when the code
-            //does not follow the strict run pattern of wrapping all
-            //code in a run callback.
+            //does not follow the strict require pattern of wrapping all
+            //code in a require callback.
             contents = removeComments(contents);
-            matches = extractMatchedParens(runStartRegExp, contents);
+            matches = extractMatchedParens(requireStartRegExp, contents);
             if (matches.length) {
                 for (i = 0; (match = matches[i]); i++) {
-                    deps = runDepsRegExp.exec(match);
+                    deps = requireDepsRegExp.exec(match);
                     if (deps) {
-                        //If have a module name be sure to track that in the run call.
+                        //If have a module name be sure to track that in the require call.
                         if (deps[2] && deps[3]) {
                             //If the deps[1] matches the moduleName, then mark it as having
                             //a name.
                             if (deps[2].match(new RegExp('[\'"]' + moduleName + '[\'"]'))) {
-                                run.modulesWithNames[moduleName] = true;
+                                require.modulesWithNames[moduleName] = true;
                             }
-                            eval('run.def(' + deps[2] + deps[3] + ');');
+                            eval('require.def(' + deps[2] + deps[3] + ');');
                         }
                         //Just call with dependencies.
                         if (deps[3]) {
-                            eval('run(' + deps[3] + ');');
+                            eval('require(' + deps[3] + ');');
                         }
                     }
                 }
@@ -141,21 +141,21 @@ readFile: false, processPragmas: false */
 
         //Mark the module loaded.
         context.loaded[moduleName] = true;
-        run.checkLoaded(contextName);
+        require.checkLoaded(contextName);
     };
 
-    //Override a method provided by run/text.js for loading text files as
+    //Override a method provided by require/text.js for loading text files as
     //dependencies.
-    run.fetchText = function (url, callback) {
+    require.fetchText = function (url, callback) {
         callback(readFile(url));
     };
 
-    run.execCb = function (name, cb, args) {
-        var url = name && run.buildPathMap[name];
-        if (url && !run.loadedFiles[url]) {
-            run.buildFilePaths.push(url);
-            run.loadedFiles[url] = true;
-            run.modulesWithNames[name] = true;
+    require.execCb = function (name, cb, args) {
+        var url = name && require.buildPathMap[name];
+        if (url && !require.loadedFiles[url]) {
+            require.buildFilePaths.push(url);
+            require.loadedFiles[url] = true;
+            require.modulesWithNames[name] = true;
         }
     };
 }());

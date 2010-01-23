@@ -1,6 +1,6 @@
-# RunJS Requirements
+# RequireJS Requirements
 
-RunJS is designed to meet the following requirements:
+RequireJS is designed to meet the following requirements:
 
 ## Go with the grain of the browser
 

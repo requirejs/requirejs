@@ -1,9 +1,9 @@
-run.def("funcTwo",
-    ["funcOne"],
-    function () {
+require.def("funcTwo",
+    ["require", "funcOne"],
+    function (require) {
         var two = function (name) {
             this.name = name;
-            this.one = new (run.get("funcOne"))("ONE");
+            this.one = new (require("funcOne"))("ONE");
         };
     
         two.prototype.oneName = function () {

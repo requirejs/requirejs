@@ -1,11 +1,11 @@
-run.def("two",
-  ["one"],
-  function(one) {
+require.def("two",
+  ["require", "one"],
+  function(require, one) {
     return {
       size: "small",
       color: "redtwo",
       doSomething: function() {
-        return run.get("one").doSomething();
+        return require("one").doSomething();
       }
     };
   }

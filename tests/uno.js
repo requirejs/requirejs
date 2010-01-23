@@ -1,4 +1,4 @@
-run.def("uno",
+require.def("uno",
   ["dos", "tres"],
   function(dos, tres) {
     return {

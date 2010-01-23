@@ -65,7 +65,7 @@
 
 	<!-- required: dojo.js -->
 	<script type="text/javascript">
-		run = {
+		require = {
 			baseUrl: '../../'
 		};
 		djConfig = {
@@ -86,32 +86,32 @@
 	<!-- script type="text/javascript" src="../dijit-all.js" charset="utf-8"></script -->
 
 	<script type="text/javascript">
-		run(
+		require(
 		    {
 			baseUrl: "../../"
 		    },
-		    ["run",
+		    ["require",
 			"dijit/dijit",
 			"dijit/dijit-all",
 			"dojo/data/ItemFileReadStore",
 			"dijit/form/TimeTextBox",
 			"dojo/dnd/Source"
 		     ],
-		    function(run) {
-			run.ready(addOnLoad1);
-			run.ready(addOnLoad2);
+		    function(require) {
+			require.ready(addOnLoad1);
+			require.ready(addOnLoad2);
 		    }
 		);
 		
 		/*
-		run(
+		require(
 		    {
 			baseUrl: "../../"
 		    },
-		    ["run", "dijit/dijit", "dijit/dijit-all"],
-		    function(run) {
-			run.ready(addOnLoad1);
-			run.ready(addOnLoad2);
+		    ["require", "dijit/dijit", "dijit/dijit-all"],
+		    function(require) {
+			require.ready(addOnLoad1);
+			require.ready(addOnLoad2);
 		    }
 		);
 		*/

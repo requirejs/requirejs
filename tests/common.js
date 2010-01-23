@@ -1,4 +1,4 @@
-//Common functions for the test files. *MUST* be included after run.js.
+//Common functions for the test files. *MUST* be included after require.js.
 
 (function() {
   var messages = [];
@@ -30,5 +30,5 @@
     }
   }
 
-  run.ready(dumpLogs);
+  require.ready(dumpLogs);
 })();

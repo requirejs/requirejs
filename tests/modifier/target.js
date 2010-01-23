@@ -1,4 +1,4 @@
-run.def("target",
+require.def("target",
   {
     color: "target",
     size: "target",

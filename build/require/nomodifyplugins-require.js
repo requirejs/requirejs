@@ -1,0 +1,1 @@
+//Target build file for a require.js without require.modify and plugins support.

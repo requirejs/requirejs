@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>jQuery+RunJS Sample Page</title>
-        <!-- If you built run.js into jquery
-             then you do not need the script tag for run.js here -->
-        <script src="../../run.js"></script>
+        <title>jQuery+RequireJS Sample Page</title>
+        <!-- If you built require.js into jquery
+             then you do not need the script tag for require.js here -->
+        <script src="../../require.js"></script>
         <script src="scripts/jquery.min.js"></script>
         <script type="text/javascript" src="../doh/runner.js"></script>
         <script type="text/javascript" src="../doh/_browserRunner.js"></script>
         <script>
-            run({
+            require({
                     baseUrl: "./scripts/"
                 },
                 ["app"],
@@ -29,7 +29,7 @@
         </script>
     </head>
     <body>
-        <h1>jQuery+RunJS Test Page</h1>
-        <p>Tests loading of jquery plugins with run.</p>
+        <h1>jQuery+RequireJS Test Page</h1>
+        <p>Tests loading of jquery plugins with require.</p>
     </body>
 </html>

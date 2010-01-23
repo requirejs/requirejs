@@ -1,4 +1,4 @@
-run.def("dimple",
+require.def("dimple",
     {
       color: "dimple-blue"
     }

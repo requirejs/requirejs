@@ -1,25 +1,25 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>run.js: After Load</title>
+    <title>require.js: After Load</title>
     <script type="text/javascript" src="doh/runner.js"></script>
     <script type="text/javascript" src="doh/_browserRunner.js"></script>
     <script type="text/javascript">
     var d;
 
-    function goRun() {
-        //Need a hack to trigger run.pageLoaded() for pre Firefox 3.6 browsers.
+    function goRequire() {
+        //Need a hack to trigger require.pageLoaded() for pre Firefox 3.6 browsers.
         var ff = parseFloat(navigator.userAgent.split("Firefox/")[1]) || null;
         if (ff && ff < 3.6) {
-            run.pageLoaded();
+            require.pageLoaded();
         }
 
-        run({
+        require({
                 baseUrl: "./"
             },
-            ["run", "simple"],
-            function (run, simple) {
-                run.ready(function() {
+            ["require", "simple"],
+            function (require, simple) {
+                require.ready(function() {
                     doh.is("blue", simple.color);
                     d.callback(true);
                 });
@@ -27,7 +27,7 @@
         );
     }
 
-    function loadRun() {
+    function loadRequire() {
         var s, head, readyRegExp = /complete|loaded/;
         function onScriptLoad(evt) {
             var node = evt.target || evt.srcElement;
@@ -40,13 +40,13 @@
                     //Probably IE.
                     node.detachEvent("onreadystatechange", onScriptLoad);
                 }
-                goRun();
+                goRequire();
             }
         };
 
-        //Create script tag for run.js
+        //Create script tag for require.js
         s = document.createElement("script");
-        s.src = "../run.js";
+        s.src = "../require.js";
         s.charset = "utf-8";
 
         //Set up load listener.
@@ -79,12 +79,12 @@
 
 
     /*}
-    run({
+    require({
             baseUrl: "./"    
         },
-        ["run", "simple", "dimple"],
-        function(run, simple, dimple) {
-            run.ready(function(){
+        ["require", "simple", "dimple"],
+        function(require, simple, dimple) {
+            require.ready(function(){
                 doh.register(
                     "simple", 
                     [
@@ -101,9 +101,9 @@
     */
     </script>
 </head>
-<body onload="loadRun()">
-    <h1>run.js: After Load Test</h1>
-    <p>Tests adding run after the page loads. Test will fail in Firefox 3.5 and
+<body onload="loadRequire()">
+    <h1>require.js: After Load Test</h1>
+    <p>Tests adding require after the page loads. Test will fail in Firefox 3.5 and
     earlier, but Firefox 3.6+ will work.</p>
     <p>Check console for messages</p>
 </body>

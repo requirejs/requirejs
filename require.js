@@ -1,7 +1,7 @@
 /**
- * @license RunJS Copyright (c) 2004-2010, The Dojo Foundation All Rights Reserved.
+ * @license RequireJS Copyright (c) 2004-2010, The Dojo Foundation All Rights Reserved.
  * Available via the MIT, GPL or new BSD license.
- * see: http://github.com/jrburke/runjs for details
+ * see: http://github.com/jrburke/requirejs for details
  */
 //laxbreak is true to allow build pragmas to change some statements.
 /*jslint plusplus: false, laxbreak: true */
@@ -13,7 +13,7 @@ setInterval: false */
 "use strict";
 //>>excludeEnd("dojoConvert");
 
-var run;
+var require;
 (function () {
     //Change this version number for each release.
     var version = "0.0.7",
@@ -28,34 +28,34 @@ var run;
         return ostring.call(it) === "[object Function]";
     }
 
-    //Check for an existing version of run. If so, then exit out. Only allow
-    //one version of run to be active in a page. However, allow for a run
-    //config object, just exit quickly if run is an actual function.
-    if (typeof run !== "undefined") {
-        if (isFunction(run)) {
+    //Check for an existing version of require. If so, then exit out. Only allow
+    //one version of require to be active in a page. However, allow for a require
+    //config object, just exit quickly if require is an actual function.
+    if (typeof require !== "undefined") {
+        if (isFunction(require)) {
             return;
         } else {
             //assume it is a config object.
-            cfg = run;
+            cfg = require;
         }
     }
 
-    //>>excludeStart("runExcludeContext", pragmas.runExcludeContext);
+    //>>excludeStart("requireExcludeContext", pragmas.requireExcludeContext);
     function makeContextFunc(name, contextName, force) {
         return function () {
-            //A version of a run function that uses the current context.
+            //A version of a require function that uses the current context.
             //If last arg is a string, then it is a context.
             //If last arg is not a string, then add context to it.
             var args = [].concat(Array.prototype.slice.call(arguments, 0));
             if (force || typeof arguments[arguments.length - 1] !== "string") {
                 args.push(contextName);
             }
-            return (name ? run[name] : run).apply(null, args);
+            return (name ? require[name] : require).apply(null, args);
         };
     }
-    //>>excludeEnd("runExcludeContext");
+    //>>excludeEnd("requireExcludeContext");
     
-    //>>excludeStart("runExcludePlugin", pragmas.runExcludePlugin);
+    //>>excludeStart("requireExcludePlugin", pragmas.requireExcludePlugin);
     /**
      * Calls a method on a plugin. The obj object should have two property,
      * name: the name of the method to call on the plugin
@@ -68,33 +68,51 @@ var run;
             plugin[obj.name].apply(null, obj.args);
         } else {
             //Load the module and add the call to waitin queue.
-            context.defined.run(["run/" + prefix]);
+            context.defined.require(["require/" + prefix]);
             waiting = s.plugins.waiting[prefix] || (s.plugins.waiting[prefix] = []);
             waiting.push(obj);
         }
     }
-    //>>excludeEnd("runExcludePlugin");
+    //>>excludeEnd("requireExcludePlugin");
 
     /**
-     * The function that loads modules or executes code that has dependencies
-     * on other modules.
+     * Main entry point.
+     *
+     * If the only argument to require is a string, then the module that
+     * is represented by that string is fetched for the appropriate context.
+     *
+     * If the first argument is an array, then it will be treated as an array
+     * of dependency string names to fetch. An optional function callback can
+     * be specified to execute when all of those dependencies are available.
      */
-    run = function (deps, callback, contextName) {
-        if (typeof deps === "string") {
-            throw new Error("Use run.def() to define modules");
+    require = function (deps, callback, contextName) {
+        if (typeof deps === "string" && !isFunction(callback)) {
+            //Just return the module wanted. In this scenario, the
+            //second arg (if passed) is just the contextName.
+            contextName = callback || s.ctxName;
+            var ret = s.contexts[contextName].defined[deps];
+            if (ret === undefined) {
+                throw new Error("require: module name '" +
+                                deps +
+                                "' has not been loaded yet for context: " +
+                                contextName);
+            }
+            return ret;
         }
-        return run.def.apply(run, arguments);
+
+        //Do more work, either 
+        return require.def.apply(require, arguments);
     }
 
     /**
      * The function that handles definitions of modules. Differs from
-     * run() in that a string for the module should be the first argument,
+     * require() in that a string for the module should be the first argument,
      * and the function to execute after dependencies are loaded should
      * return a value to define the module corresponding to the first argument's
      * name.
      */
-    run.def = function (name, deps, callback, contextName) {
-        var config = null, context, newContext, contextRun, loaded,
+    require.def = function (name, deps, callback, contextName) {
+        var config = null, context, newContext, contextRequire, loaded,
             canSetContext, prop, newLength,
             mods, pluginPrefix, paths, index;
 
@@ -108,7 +126,7 @@ var run;
             }
 
             //Check if there are no dependencies, and adjust args.
-            if (!run.isArray(deps)) {
+            if (!require.isArray(deps)) {
                 contextName = callback;
                 callback = deps;
                 deps = [];
@@ -120,15 +138,15 @@ var run;
             //evaluated, leave.
             context = s.contexts[contextName];
             if (context && (context.defined[name] || context.waiting[name])) {
-                return run;
+                return require;
             }
-        } else if (run.isArray(name)) {
+        } else if (require.isArray(name)) {
             //Just some code that has dependencies. Adjust args accordingly.
             contextName = callback;
             callback = deps;
             deps = name;
             name = null;
-        } else if (run.isFunction(name)) {
+        } else if (require.isFunction(name)) {
             //Just a function that does not define a module and
             //does not have dependencies. Useful if just want to wait
             //for whatever modules are in flight and execute some code after
@@ -142,7 +160,7 @@ var run;
             config = name;
             name = null;
             //Adjust args if no dependencies.
-            if (run.isFunction(deps)) {
+            if (require.isFunction(deps)) {
                 contextName = callback;
                 callback = deps;
                 deps = [];
@@ -153,7 +171,7 @@ var run;
 
         contextName = contextName || s.ctxName;
 
-        //>>excludeStart("runExcludeContext", pragmas.runExcludeContext);
+        //>>excludeStart("requireExcludeContext", pragmas.requireExcludeContext);
         if (contextName !== s.ctxName) {
             //If nothing is waiting on being loaded in the current context,
             //then switch s.ctxName to current contextName.
@@ -173,7 +191,7 @@ var run;
                 s.ctxName = contextName;
             }
         }
-        //>>excludeEnd("runExcludeContext");
+        //>>excludeEnd("requireExcludeContext");
 
         //Grab the context, or create a new one for the given context name.
         context = s.contexts[contextName];
@@ -187,41 +205,41 @@ var run;
                 },
                 waiting: [],
                 specified: {
-                    "run": true
+                    "require": true
                 },
                 loaded: {
-                    "run": true
+                    "require": true
                 },
                 defined: {},
                 modifiers: {}
             };
 
-            //Define run for this context.
-            //>>includeStart("runExcludeContext", pragmas.runExcludeContext);
+            //Define require for this context.
+            //>>includeStart("requireExcludeContext", pragmas.requireExcludeContext);
             //A placeholder for build pragmas.
-            newContext.defined.run = run;
-            //>>includeEnd("runExcludeContext");
-            //>>excludeStart("runExcludeContext", pragmas.runExcludeContext);
-            newContext.defined.run = contextRun = makeContextFunc(null, contextName);
-            run.mixin(contextRun, {
-                //>>excludeStart("runExcludeModify", pragmas.runExcludeModify);
+            newContext.defined.require = require;
+            //>>includeEnd("requireExcludeContext");
+            //>>excludeStart("requireExcludeContext", pragmas.requireExcludeContext);
+            newContext.defined.require = contextRequire = makeContextFunc(null, contextName);
+            require.mixin(contextRequire, {
+                //>>excludeStart("requireExcludeModify", pragmas.requireExcludeModify);
                 modify: makeContextFunc("modify", contextName),
                 def: makeContextFunc("def", contextName),
-                //>>excludeEnd("runExcludeModify");
+                //>>excludeEnd("requireExcludeModify");
                 get: makeContextFunc("get", contextName, true),
                 nameToUrl: makeContextFunc("nameToUrl", contextName, true),
-                ready: run.ready,
+                ready: require.ready,
                 context: newContext,
                 config: newContext.config,
                 isBrowser: s.isBrowser
             });
-            //>>excludeEnd("runExcludeContext");
+            //>>excludeEnd("requireExcludeContext");
 
-            //>>excludeStart("runExcludePlugin", pragmas.runExcludePlugin);
+            //>>excludeStart("requireExcludePlugin", pragmas.requireExcludePlugin);
             if (s.plugins.newContext) {
                 s.plugins.newContext(newContext);
             }
-            //>>excludeEnd("runExcludePlugin");
+            //>>excludeEnd("requireExcludePlugin");
 
             context = s.contexts[contextName] = newContext;
         }
@@ -242,7 +260,7 @@ var run;
 
             //Mix in the config values, favoring the new values over
             //existing ones in context.config.
-            run.mixin(context.config, config, true);
+            require.mixin(context.config, config, true);
 
             //Adjust paths if necessary.
             if (config.paths) {
@@ -255,24 +273,24 @@ var run;
             }
 
             //If a deps array or a config callback is specified, then call
-            //run with those args. This is useful when run is defined as a
-            //config object before run.js is loaded.
+            //require with those args. This is useful when require is defined as a
+            //config object before require.js is loaded.
             if (config.deps || config.callback) {
-                run(config.deps || [], config.callback);
+                require(config.deps || [], config.callback);
             }
 
-            //>>excludeStart("runExcludePageLoad", pragmas.runExcludePageLoad);
-            //Set up ready callback, if asked. Useful when run is defined as a
-            //config object before run.js is loaded.
+            //>>excludeStart("requireExcludePageLoad", pragmas.requireExcludePageLoad);
+            //Set up ready callback, if asked. Useful when require is defined as a
+            //config object before require.js is loaded.
             if (config.ready) {
-                run.ready(config.ready);
+                require.ready(config.ready);
             }
-            //>>excludeEnd("runExcludePageLoad");
+            //>>excludeEnd("requireExcludePageLoad");
 
             //If it is just a config block, nothing else,
             //then return.
             if (!deps) {
-                return run;
+                return require;
             }
         }
 
@@ -292,99 +310,79 @@ var run;
             //pause/resume case where there are multiple modules in a file.
             context.specified[name] = true;
 
-            //>>excludeStart("runExcludeModify", pragmas.runExcludeModify);
+            //>>excludeStart("requireExcludeModify", pragmas.requireExcludeModify);
             //Load any modifiers for the module.
             mods = context.modifiers[name];
             if (mods) {
-                run(mods, contextName);
+                require(mods, contextName);
             }
-            //>>excludeEnd("runExcludeModify");
+            //>>excludeEnd("requireExcludeModify");
         }
 
         //If the callback is not an actual function, it means it already
         //has the definition of the module as a literal value.
-        if (name && callback && !run.isFunction(callback)) {
+        if (name && callback && !require.isFunction(callback)) {
             context.defined[name] = callback;
         }
 
         //If a pluginPrefix is available, call the plugin, or load it.
-        //>>excludeStart("runExcludePlugin", pragmas.runExcludePlugin);
+        //>>excludeStart("requireExcludePlugin", pragmas.requireExcludePlugin);
         if (pluginPrefix) {
             callPlugin(pluginPrefix, context, {
-                name: "run",
+                name: "require",
                 args: [name, deps, callback, context]
             });
         }
-        //>>excludeEnd("runExcludePlugin");
+        //>>excludeEnd("requireExcludePlugin");
 
         //See if all is loaded. If paused, then do not check the dependencies
         //of the module yet.
         if (s.paused) {
             s.paused.push([pluginPrefix, name, deps, context]);
         } else {
-            run.checkDeps(pluginPrefix, name, deps, context);
-            run.checkLoaded(contextName);
+            require.checkDeps(pluginPrefix, name, deps, context);
+            require.checkLoaded(contextName);
         }
 
-        return run;
-    };
-
-    /**
-     * Fetches the defined module given by name. Should only be used in
-     * circular dependency cases. The module should already be loaded,
-     * this function will throw an error if the module has not been loaded yet.
-     *
-     * @param {String} name The module name.
-     * @param {String} [contextName] optional context name to use.
-     */
-    run.get = function (name, contextName) {
-        contextName = contextName || s.ctxName;
-        var ret = s.contexts[contextName].defined[name];
-        if (ret === undefined) {
-            throw new Error("run.get: module name '" +
-                            name +
-                            "' has not been loaded yet for context: " +
-                            contextName);
-        }
-        return ret;
+        return require;
     };
 
     /**
      * Simple function to mix in properties from source into target,
      * but only if target does not already have a property of the same name.
      */
-    run.mixin = function (target, source, override) {
+    require.mixin = function (target, source, override) {
         for (var prop in source) {
             if (!(prop in empty) && (!(prop in target) || override)) {
                 target[prop] = source[prop];
             }
         }
-        return run;
+        return require;
     };
 
-    run.version = version;
+    require.version = version;
 
     //Set up page state.
-    s = run.s = {
+    s = require.s = {
         ctxName: defContextName,
         contexts: {},
-        //>>excludeStart("runExcludePlugin", pragmas.runExcludePlugin);
+        //>>excludeStart("requireExcludePlugin", pragmas.requireExcludePlugin);
         plugins: {
             defined: {},
             callbacks: {},
             waiting: {}
         },
-        //>>excludeEnd("runExcludePlugin");
+        //>>excludeEnd("requireExcludePlugin");
         isBrowser: isBrowser,
         isPageLoaded: !isBrowser,
         readyCalls: [],
         doc: isBrowser ? document : null
     };
 
-    run.isBrowser = s.isBrowser;
+    require.isBrowser = s.isBrowser;
     s.head = isBrowser ? document.getElementsByTagName("head")[0] : null;
 
-    //>>excludeStart("runExcludePlugin", pragmas.runExcludePlugin);
+    //>>excludeStart("requireExcludePlugin", pragmas.requireExcludePlugin);
     /**
      * Sets up a plugin callback name. Want to make it easy to test if a plugin
      * needs to be called for a certain lifecycle event by testing for
@@ -404,9 +402,9 @@ var run;
     }
 
     /**
-     * Registers a new plugin for run.
+     * Registers a new plugin for require.
      */
-    run.plugin = function (obj) {
+    require.plugin = function (obj) {
         var i, prop, call, prefix = obj.prefix, cbs = s.plugins.callbacks,
             waiting = s.plugins.waiting[prefix], generics,
             defined = s.plugins.defined, contexts = s.contexts, context;
@@ -414,14 +412,14 @@ var run;
         //Do not allow redefinition of a plugin, there may be internal
         //state in the plugin that could be lost.
         if (defined[prefix]) {
-            return run;
+            return require;
         }
 
         //Save the plugin.
         defined[prefix] = obj;
 
         //Set up plugin callbacks for methods that need to be generic to
-        //run, for lifecycle cases where it does not care about a particular
+        //require, for lifecycle cases where it does not care about a particular
         //plugin, but just that some plugin work needs to be done.
         generics = ["newContext", "isWaiting", "orderDeps"];
         for (i = 0; (prop = generics[i]); i++) {
@@ -451,16 +449,16 @@ var run;
             delete s.plugins.waiting[prefix];
         }
 
-        return run;
+        return require;
     };
-    //>>excludeEnd("runExcludePlugin");
+    //>>excludeEnd("requireExcludePlugin");
 
     /**
      * Pauses the tracing of dependencies. Useful in a build scenario when
      * multiple modules are bundled into one file, and they all need to be
-     * run before figuring out what is left still to load.
+     * require before figuring out what is left still to load.
      */
-    run.pause = function () {
+    require.pause = function () {
         if (!s.paused) {
             s.paused = [];
         }
@@ -469,22 +467,22 @@ var run;
     /**
      * Resumes the tracing of dependencies. Useful in a build scenario when
      * multiple modules are bundled into one file. This method is related
-     * to run.pause() and should only be called if run.pause() was called first.
+     * to require.pause() and should only be called if require.pause() was called first.
      */
-    run.resume = function () {
+    require.resume = function () {
         var i, args, paused;
         if (s.paused) {
             paused = s.paused;
             delete s.paused;
             for (i = 0; (args = paused[i]); i++) {
-                run.checkDeps.apply(run, args);
+                require.checkDeps.apply(require, args);
             }
         }
-        run.checkLoaded(s.ctxName);
+        require.checkLoaded(s.ctxName);
     };
 
     /**
-     * Run down the dependencies to see if they are loaded. If not, trigger
+     * Trace down the dependencies to see if they are loaded. If not, trigger
      * the load.
      * @param {String} pluginPrefix the plugin prefix, if any associated with the name.
      *
@@ -496,19 +494,19 @@ var run;
      *
      * @private
      */
-    run.checkDeps = function (pluginPrefix, name, deps, context) {
+    require.checkDeps = function (pluginPrefix, name, deps, context) {
         //Figure out if all the modules are loaded. If the module is not
         //being loaded or already loaded, add it to the "to load" list,
         //and request it to be loaded.
         var i, dep, index, depPrefix;
 
         if (pluginPrefix) {
-            //>>excludeStart("runExcludePlugin", pragmas.runExcludePlugin);
+            //>>excludeStart("requireExcludePlugin", pragmas.requireExcludePlugin);
             callPlugin(pluginPrefix, context, {
                 name: "checkDeps",
                 args: [name, deps, context]
             });
-            //>>excludeEnd("runExcludePlugin");
+            //>>excludeEnd("requireExcludePlugin");
         } else {
             for (i = 0; (dep = deps[i]); i++) {
                 //If it is a string, then a plain dependency
@@ -519,7 +517,7 @@ var run;
                         //If a plugin, call its load method.
                         index = dep.indexOf("!");
                         if (index !== -1) {
-                            //>>excludeStart("runExcludePlugin", pragmas.runExcludePlugin);
+                            //>>excludeStart("requireExcludePlugin", pragmas.requireExcludePlugin);
                             depPrefix = dep.substring(0, index);
                             dep = dep.substring(index + 1, dep.length);
 
@@ -527,9 +525,9 @@ var run;
                                 name: "load",
                                 args: [dep, context.contextName]
                             });
-                            //>>excludeEnd("runExcludePlugin");
+                            //>>excludeEnd("requireExcludePlugin");
                         } else {
-                            run.load(dep, context.contextName);
+                            require.load(dep, context.contextName);
                         }
                     }
                 } else {
@@ -539,14 +537,14 @@ var run;
         }
     };
 
-    //>>excludeStart("runExcludeModify", pragmas.runExcludeModify);
+    //>>excludeStart("requireExcludeModify", pragmas.requireExcludeModify);
     /**
      * Register a module that modifies another module. The modifier will
      * only be called once the target module has been loaded.
      *
      * First syntax:
      *
-     * run.modify({
+     * require.modify({
      *     "some/target1": "my/modifier1",
      *     "some/target2": "my/modifier2",
      * });
@@ -556,7 +554,7 @@ var run;
      *
      * Second syntax, defining a modifier.
      *
-     * run.modify("some/target1", "my/modifier",
+     * require.modify("some/target1", "my/modifier",
      *                        ["some/target1", "some/other"],
      *                        function (target, other) {
      *                            //Modify properties of target here.
@@ -565,7 +563,7 @@ var run;
      *                        }
      * );
      */
-    run.modify = function (target, name, deps, callback, contextName) {
+    require.modify = function (target, name, deps, callback, contextName) {
         var prop, modifier, list,
                 cName = (typeof target === "string" ? contextName : name) || s.ctxName,
                 context = s.contexts[cName],
@@ -581,7 +579,7 @@ var run;
             }
 
             //Trigger the normal module definition logic.
-            run.def(name, deps, callback, contextName);
+            require.def(name, deps, callback, contextName);
         } else {
             //A list of modifiers. Save them for future reference.
             for (prop in target) {
@@ -595,55 +593,55 @@ var run;
 
                         if (context.specified[prop]) {
                             //Load the modifier right away.
-                            run([modifier], cName);
+                            require([modifier], cName);
                         }
                     }
                 }
             }
         }
     };
-    //>>excludeEnd("runExcludeModify");
+    //>>excludeEnd("requireExcludeModify");
 
-    run.isArray = function (it) {
+    require.isArray = function (it) {
         return ostring.call(it) === "[object Array]";
     };
 
-    run.isFunction = isFunction;
+    require.isFunction = isFunction;
 
     /**
      * Makes the request to load a module. May be an async load depending on
      * the environment and the circumstance of the load call.
      */
-    run.load = function (moduleName, contextName) {
+    require.load = function (moduleName, contextName) {
         var context = s.contexts[contextName], url;
         s.isDone = false;
         context.loaded[moduleName] = false;
-        //>>excludeStart("runExcludeContext", pragmas.runExcludeContext);
+        //>>excludeStart("requireExcludeContext", pragmas.requireExcludeContext);
         if (contextName !== s.ctxName) {
             //Not in the right context now, hold on to it until
             //the current context finishes all its loading.
             contextLoads.push(arguments);
         } else {
-        //>>excludeEnd("runExcludeContext");
+        //>>excludeEnd("requireExcludeContext");
             //First derive the path name for the module.
-            url = run.nameToUrl(moduleName, null, contextName);
-            run.attach(url, contextName, moduleName);
+            url = require.nameToUrl(moduleName, null, contextName);
+            require.attach(url, contextName, moduleName);
             context.startTime = (new Date()).getTime();
-        //>>excludeStart("runExcludeContext", pragmas.runExcludeContext);
+        //>>excludeStart("requireExcludeContext", pragmas.requireExcludeContext);
         }
-        //>>excludeEnd("runExcludeContext");
+        //>>excludeEnd("requireExcludeContext");
     };
 
-    run.jsExtRegExp = /\.js$/;
+    require.jsExtRegExp = /\.js$/;
 
     /**
      * Converts a module name to a file path.
      */
-    run.nameToUrl = function (moduleName, ext, contextName) {
+    require.nameToUrl = function (moduleName, ext, contextName) {
         var paths, syms, i, parentModule, url,
             config = s.contexts[contextName].config;
 
-        if (run.jsExtRegExp.test(moduleName)) {
+        if (require.jsExtRegExp.test(moduleName)) {
             //Just a plain path, not module name lookup, so just return it.
             return moduleName;
         } else {
@@ -674,7 +672,7 @@ var run;
      *
      * @private
      */
-    run.checkLoaded = function (contextName) {
+    require.checkLoaded = function (contextName) {
         var context = s.contexts[contextName || s.ctxName],
                 waitInterval = context.config.waitSeconds * 1000,
                 //It is possible to disable the wait interval by using waitSeconds of 0.
@@ -683,9 +681,9 @@ var run;
                 modifiers = context.modifiers, waiting = context.waiting, noLoads = "",
                 hasLoadedProp = false, stillLoading = false, prop,
 
-                //>>excludeStart("runExcludePlugin", pragmas.runExcludePlugin);
+                //>>excludeStart("requireExcludePlugin", pragmas.requireExcludePlugin);
                 pIsWaiting = s.plugins.isWaiting, pOrderDeps = s.plugins.orderDeps,
-                //>>excludeEnd("runExcludePlugin");
+                //>>excludeEnd("requireExcludePlugin");
 
                 i, module, allDone, loads, loadArgs,
                 traced = {};
@@ -696,8 +694,8 @@ var run;
             return;
         }
 
-        //Signal that checkLoaded is being run, so other calls that could be triggered
-        //by calling a waiting callback that then calls run and then this function
+        //Signal that checkLoaded is being require, so other calls that could be triggered
+        //by calling a waiting callback that then calls require and then this function
         //should not proceed. At the end of this function, if there are still things
         //waiting, then checkLoaded will be called again.
         context.isCheckLoaded = true;
@@ -719,9 +717,9 @@ var run;
 
         //Check for exit conditions.
         if (!hasLoadedProp && !waiting.length
-            //>>excludeStart("runExcludePlugin", pragmas.runExcludePlugin);
+            //>>excludeStart("requireExcludePlugin", pragmas.requireExcludePlugin);
             && (!pIsWaiting || !pIsWaiting(context))
-            //>>excludeEnd("runExcludePlugin");
+            //>>excludeEnd("requireExcludePlugin");
            ) {
             //If the loaded object had no items, then the rest of
             //the work below does not need to be done.
@@ -730,14 +728,14 @@ var run;
         }
         if (expired && noLoads) {
             //If wait time expired, throw error of unloaded modules.
-            throw new Error("run.js load timeout for modules: " + noLoads);
+            throw new Error("require.js load timeout for modules: " + noLoads);
         }
         if (stillLoading) {
             //Something is still waiting to load. Wait for it.
             context.isCheckLoaded = false;
-            if (run.isBrowser) {
+            if (require.isBrowser) {
                 setTimeout(function () {
-                    run.checkLoaded(contextName);
+                    require.checkLoaded(contextName);
                 }, 50);
             }
             return;
@@ -749,48 +747,48 @@ var run;
         context.waiting = [];
         context.loaded = {};
 
-        //>>excludeStart("runExcludePlugin", pragmas.runExcludePlugin);
+        //>>excludeStart("requireExcludePlugin", pragmas.requireExcludePlugin);
         //Call plugins to order their dependencies, do their
         //module definitions.
         if (pOrderDeps) {
             pOrderDeps(context);
         }
-        //>>excludeEnd("runExcludePlugin");
+        //>>excludeEnd("requireExcludePlugin");
 
-        //>>excludeStart("runExcludeModify", pragmas.runExcludeModify);
+        //>>excludeStart("requireExcludeModify", pragmas.requireExcludeModify);
         //Before defining the modules, give priority treatment to any modifiers
         //for modules that are already defined.
         for (prop in modifiers) {
             if (!(prop in empty)) {
                 if (defined[prop]) {
-                    run.execModifiers(prop, traced, waiting, context);
+                    require.execModifiers(prop, traced, waiting, context);
                 }
             }
         }
-        //>>excludeEnd("runExcludeModify");
+        //>>excludeEnd("requireExcludeModify");
 
         //Define the modules, doing a depth first search.
         for (i = 0; (module = waiting[i]); i++) {
-            run.exec(module, traced, waiting, context);
+            require.exec(module, traced, waiting, context);
         }
 
         //Indicate checkLoaded is now done.
         context.isCheckLoaded = false;
 
         if (context.waiting.length
-            //>>excludeStart("runExcludePlugin", pragmas.runExcludePlugin);
+            //>>excludeStart("requireExcludePlugin", pragmas.requireExcludePlugin);
             || (pIsWaiting && pIsWaiting(context))
-            //>>excludeEnd("runExcludePlugin");
+            //>>excludeEnd("requireExcludePlugin");
            ) {
             //More things in this context are waiting to load. They were probably
             //added while doing the work above in checkLoaded, calling module
-            //callbacks that triggered other run calls.
-            run.checkLoaded(contextName);
+            //callbacks that triggered other require calls.
+            require.checkLoaded(contextName);
         } else if (contextLoads.length) {
-            //>>excludeStart("runExcludeContext", pragmas.runExcludeContext);
+            //>>excludeStart("requireExcludeContext", pragmas.requireExcludeContext);
             //Check for other contexts that need to load things.
             //First, make sure current context has no more things to
-            //load. After defining the modules above, new run calls
+            //load. After defining the modules above, new require calls
             //could have been made.
             loaded = context.loaded;
             allDone = true;
@@ -810,17 +808,17 @@ var run;
                 //are for yet another context.
                 contextLoads = [];
                 for (i = 0; (loadArgs = loads[i]); i++) {
-                    run.load.apply(run, loadArgs);
+                    require.load.apply(require, loadArgs);
                 }
             }
-            //>>excludeEnd("runExcludeContext");
+            //>>excludeEnd("requireExcludeContext");
         } else {
             //Make sure we reset to default context.
             s.ctxName = defContextName;
             s.isDone = true;
-            //>>excludeStart("runExcludePageLoad", pragmas.runExcludePageLoad);
-            run.callReady();
-            //>>excludeEnd("runExcludePageLoad");
+            //>>excludeStart("requireExcludePageLoad", pragmas.requireExcludePageLoad);
+            require.callReady();
+            //>>excludeEnd("requireExcludePageLoad");
         }
     };
 
@@ -829,7 +827,7 @@ var run;
      * 
      * @private
      */
-    run.exec = function (module, traced, waiting, context) {
+    require.exec = function (module, traced, waiting, context) {
         //Some modules are just plain script files, abddo not have a formal
         //module definition, 
         if (!module) {
@@ -859,20 +857,20 @@ var run;
                 }
                 //Get dependent module. It could not exist, for a circular
                 //dependency or if the loaded dependency does not actually call
-                //run. Favor not throwing an error here if undefined because
-                //we want to allow code that does not use run as a module
+                //require. Favor not throwing an error here if undefined because
+                //we want to allow code that does not use require as a module
                 //definition framework to still work -- allow a web site to
                 //gradually update to contained modules. That is seen as more
                 //important than forcing a throw for the circular dependency case.
-                depModule = dep in defined ? defined[dep] : (traced[dep] ? undefined : run.exec(waiting[waiting[dep]], traced, waiting, context));
+                depModule = dep in defined ? defined[dep] : (traced[dep] ? undefined : require.exec(waiting[waiting[dep]], traced, waiting, context));
                 args.push(depModule);
             }
         }
 
         //Call the callback to define the module, if necessary.
         cb = module.callback;
-        if (cb && run.isFunction(cb)) {
-            ret = run.execCb(name, cb, args);
+        if (cb && require.isFunction(cb)) {
+            ret = require.execCb(name, cb, args);
             if (name) {
                 if (name in defined) {
                     throw new Error(name + " has already been defined");
@@ -882,10 +880,10 @@ var run;
             }
         }
 
-        //>>excludeStart("runExcludeModify", pragmas.runExcludeModify);
+        //>>excludeStart("requireExcludeModify", pragmas.requireExcludeModify);
         //Execute modifiers, if they exist.
-        run.execModifiers(name, traced, waiting, context);
-        //>>excludeEnd("runExcludeModify");
+        require.execModifiers(name, traced, waiting, context);
+        //>>excludeEnd("requireExcludeModify");
 
         return ret;
     };
@@ -900,11 +898,11 @@ var run;
      *
      * @private
      */
-    run.execCb = function (name, cb, args) {
+    require.execCb = function (name, cb, args) {
         return cb.apply(null, args);
     };
 
-    //>>excludeStart("runExcludeModify", pragmas.runExcludeModify);
+    //>>excludeStart("requireExcludeModify", pragmas.requireExcludeModify);
     /**
      * Executes modifiers for the given module name.
      * @param {String} target
@@ -913,7 +911,7 @@ var run;
      *
      * @private
      */
-    run.execModifiers = function (target, traced, waiting, context) {
+    require.execModifiers = function (target, traced, waiting, context) {
         var modifiers = context.modifiers, mods = modifiers[target], mod, i;
         if (mods) {
             for (i = 0; i < mods.length; i++) {
@@ -921,13 +919,13 @@ var run;
                 //Not all modifiers define a module, they might collect other modules.
                 //If it is just a collection it will not be in waiting.
                 if (mod in waiting) {
-                    run.exec(waiting[waiting[mod]], traced, waiting, context);
+                    require.exec(waiting[waiting[mod]], traced, waiting, context);
                 }
             }
             delete modifiers[target];
         }
     };
-    //>>excludeEnd("runExcludeModify");
+    //>>excludeEnd("requireExcludeModify");
 
     /**
      * callback for script loads, used to check status of loading.
@@ -937,24 +935,24 @@ var run;
      *
      * @private
      */
-    run.onScriptLoad = function (evt) {
+    require.onScriptLoad = function (evt) {
         var node = evt.target || evt.srcElement, contextName, moduleName;
         if (evt.type === "load" || readyRegExp.test(node.readyState)) {
             //Pull out the name of the module and the context.
-            contextName = node.getAttribute("data-runcontext");
-            moduleName = node.getAttribute("data-runmodule");
+            contextName = node.getAttribute("data-requirecontext");
+            moduleName = node.getAttribute("data-requiremodule");
 
             //Mark the module loaded.
             s.contexts[contextName].loaded[moduleName] = true;
 
-            run.checkLoaded(contextName);
+            require.checkLoaded(contextName);
 
             //Clean up script binding.
             if (node.removeEventListener) {
-                node.removeEventListener("load", run.onScriptLoad, false);
+                node.removeEventListener("load", require.onScriptLoad, false);
             } else {
                 //Probably IE.
-                node.detachEvent("onreadystatechange", run.onScriptLoad);
+                node.detachEvent("onreadystatechange", require.onScriptLoad);
             }
         }
     };
@@ -964,20 +962,20 @@ var run;
      * environment. Right now only supports browser loading,
      * but can be redefined in other environments to do the right thing.
      */
-    run.attach = function (url, contextName, moduleName) {
-        if (run.isBrowser) {
+    require.attach = function (url, contextName, moduleName) {
+        if (require.isBrowser) {
             var node = document.createElement("script");
             node.type = "text/javascript";
             node.charset = "utf-8";
-            node.setAttribute("data-runcontext", contextName);
-            node.setAttribute("data-runmodule", moduleName);
+            node.setAttribute("data-requirecontext", contextName);
+            node.setAttribute("data-requiremodule", moduleName);
     
             //Set up load listener.
             if (node.addEventListener) {
-                node.addEventListener("load", run.onScriptLoad, false);
+                node.addEventListener("load", require.onScriptLoad, false);
             } else {
                 //Probably IE.
-                node.attachEvent("onreadystatechange", run.onScriptLoad);
+                node.attachEvent("onreadystatechange", require.onScriptLoad);
             }
             node.src = url;
 
@@ -986,10 +984,10 @@ var run;
         return null;
     };
 
-    //Determine what baseUrl should be if not already defined via a run config object
+    //Determine what baseUrl should be if not already defined via a require config object
     s.baseUrl = cfg && cfg.baseUrl;
-    if (run.isBrowser && (!s.baseUrl || !s.head)) {
-        //Figure out baseUrl. Get it from the script tag with run.js in it.
+    if (require.isBrowser && (!s.baseUrl || !s.head)) {
+        //Figure out baseUrl. Get it from the script tag with require.js in it.
         scripts = document.getElementsByTagName("script");
         //>>includeStart("jquery", pragmas.jquery);
         rePkg = /jquery[\-\d\.]*(min)?\.js(\W|$)/i;
@@ -1002,7 +1000,7 @@ var run;
         //>>excludeStart("dojoConvert", pragmas.dojoConvert);
 
         //>>excludeStart("jquery", pragmas.jquery);
-        rePkg = /run\.js(\W|$)/i;
+        rePkg = /require\.js(\W|$)/i;
         //>>excludeEnd("jquery");
 
         //>>excludeEnd("dojoConvert");
@@ -1028,22 +1026,22 @@ var run;
         }
     }
 
-    //>>excludeStart("runExcludePageLoad", pragmas.runExcludePageLoad);
+    //>>excludeStart("requireExcludePageLoad", pragmas.requireExcludePageLoad);
     //****** START page load functionality ****************
     /**
      * Sets the page as loaded and triggers check for all modules loaded.
      */
-    run.pageLoaded = function () {
+    require.pageLoaded = function () {
         if (!s.isPageLoaded) {
             s.isPageLoaded = true;
             if (scrollIntervalId) {
                 clearInterval(scrollIntervalId);
             }
-            run.callReady();
+            require.callReady();
         }
     };
 
-    run.callReady = function () {
+    require.callReady = function () {
         var callbacks = s.readyCalls, i, callback;
 
         if (s.isPageLoaded && s.isDone && callbacks.length) {
@@ -1057,23 +1055,23 @@ var run;
     /**
      * Registers functions to call when the page is loaded
      */
-    run.ready = function (callback) {
+    require.ready = function (callback) {
         if (s.isPageLoaded && s.isDone) {
             callback();
         } else {
             s.readyCalls.push(callback);
         }
-        return run;
+        return require;
     };
 
-    if (run.isBrowser) {
+    if (require.isBrowser) {
         if (document.addEventListener) {
             //Standards. Hooray! Assumption here that if standards based,
             //it knows about DOMContentLoaded.
-            document.addEventListener("DOMContentLoaded", run.pageLoaded, false);
-            window.addEventListener("load", run.pageLoaded, false);
+            document.addEventListener("DOMContentLoaded", require.pageLoaded, false);
+            window.addEventListener("load", require.pageLoaded, false);
         } else if (window.attachEvent) {
-            window.attachEvent("onload", run.pageLoaded);
+            window.attachEvent("onload", require.pageLoaded);
 
             //DOMContentLoaded approximation, as found by Diego Perini:
             //http://javascript.nwbox.com/IEContentLoaded/
@@ -1081,7 +1079,7 @@ var run;
                 scrollIntervalId = setInterval(function () {
                     try {
                         document.documentElement.doScroll("left");
-                        run.pageLoaded();
+                        require.pageLoaded();
                     } catch (e) {}
                 }, 30);
             }
@@ -1089,16 +1087,16 @@ var run;
 
         //Check if document already complete, and if so, just trigger page load
         //listeners. NOTE: does not work with Firefox before 3.6. To support
-        //those browsers, manually call run.pageLoaded().
+        //those browsers, manually call require.pageLoaded().
         if (document.readyState === "complete") {
-            run.pageLoaded();
+            require.pageLoaded();
         }
     }
     //****** END page load functionality ****************
-    //>>excludeEnd("runExcludePageLoad");
+    //>>excludeEnd("requireExcludePageLoad");
 
-    //Set up default context. If run was a configuration object, use that as base config.
+    //Set up default context. If require was a configuration object, use that as base config.
     if (cfg) {
-        run(cfg);
+        require(cfg);
     }
 }());

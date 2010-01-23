@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>run.js: I18N Test</title>
-    <script type="text/javascript" src="../../run.js"></script>
+    <title>require.js: I18N Test</title>
+    <script type="text/javascript" src="../../require.js"></script>
     <script type="text/javascript" src="../doh/runner.js"></script>
     <script type="text/javascript" src="../doh/_browserRunner.js"></script>
     <script type="text/javascript">
@@ -30,11 +30,11 @@
             red = "rouge";
             blue = "bleu";
         }
-        run({
+        require({
             locale: locale,
             baseUrl: "./",
             paths: {
-                run: "../../run"
+                require: "../../require"
             }
         },
         [bundle],
@@ -55,7 +55,7 @@
 </head>
 <body>
     <h1>i18n bundle test</h1>
-    <p>This page tests the i18n bundling in run.js. You can change the locale to use by passing locale= or bundle=</p>
+    <p>This page tests the i18n bundling in require.js. You can change the locale to use by passing locale= or bundle=</p>
 </body>
 </html>
 

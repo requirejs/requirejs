@@ -1,6 +1,6 @@
 "use strict";
-/*global run: false */
-run.def("epsilon",
+/*global require: false */
+require.def("epsilon",
     {
         name: "epsilon"
     }

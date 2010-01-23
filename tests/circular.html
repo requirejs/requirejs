@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>run.js: Circular Test</title>
-    <script type="text/javascript" src="../run.js"></script>
+    <title>require.js: Circular Test</title>
+    <script type="text/javascript" src="../require.js"></script>
     <script type="text/javascript" src="doh/runner.js"></script>
     <script type="text/javascript" src="doh/_browserRunner.js"></script>
     <script type="text/javascript">
-    run({
+    require({
 	    baseUrl: "./"
 	},
-    	["run", "two", "funcTwo", "funcThree"],
-	function(run, two, funcTwo, funcThree) {
+    	["require", "two", "funcTwo", "funcThree"],
+	function(require, two, funcTwo, funcThree) {
 	    var args = two.doSomething();
 	    var twoInst = new funcTwo("TWO");
 	    doh.register(
@@ -34,7 +34,7 @@
     </script>
 </head>
 <body>
-    <h1>run.js: Circular Test</h1>
+    <h1>require.js: Circular Test</h1>
     <p>Check console for messages</p>
 </body>
 </html>

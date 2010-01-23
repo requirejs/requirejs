@@ -1,4 +1,4 @@
-run.def("i18n!nls/fr/colors",
+require.def("i18n!nls/fr/colors",
   {
     red: "rouge",
     blue: "bleu"

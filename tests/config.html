@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>run.js: Config Test</title>
+    <title>require.js: Config Test</title>
     <script type="text/javascript" src="doh/runner.js"></script>
     <script type="text/javascript" src="doh/_browserRunner.js"></script>
     <script>
@@ -20,10 +20,10 @@
         }
 
         var s, d, f,
-            run = {
+            require = {
                 baseUrl: "./",
-                deps: ["run", "simple", "dimple", "func"],
-                callback: function (run, simple, dimple, func) {
+                deps: ["require", "simple", "dimple", "func"],
+                callback: function (require, simple, dimple, func) {
                     s = simple;
                     d = dimple;
                     f = func;
@@ -33,11 +33,11 @@
                 }
             };
     </script>
-    <script type="text/javascript" src="../run.js"></script>
+    <script type="text/javascript" src="../require.js"></script>
 </head>
 <body>
-    <h1>run.js: Config Test</h1>
-    <p>Tests run being defined as an object with init and ready configuration.</p>
+    <h1>require.js: Config Test</h1>
+    <p>Tests require being defined as an object with init and ready configuration.</p>
     <p>Check console for messages.</p>
 </body>
 </html>

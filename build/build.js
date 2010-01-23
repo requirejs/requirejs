@@ -1,21 +1,21 @@
 /**
  * @license Copyright (c) 2004-2010, The Dojo Foundation All Rights Reserved.
  * Available via the MIT, GPL or new BSD license.
- * see: http://github.com/jrburke/runjs for details
+ * see: http://github.com/jrburke/requirejs for details
  */
 
 /*
- * This file will optimize files that can be loaded via run.js into one file.
- * This file needs Rhino to run, and if the Closure compiler is used to minify
+ * This file will optimize files that can be loaded via require.js into one file.
+ * This file needs Rhino to require, and if the Closure compiler is used to minify
  * files, Java 6 is required.
  *
  * Call this file like so:
- * java -jar path/to/js.jar runbuild.js directory/containing/runbuild.js/ build.js
+ * java -jar path/to/js.jar build.js directory/containing/build.js/ build.js
  *
  * General use:
  *
- * Create a build.js file that has run calls to the build layer/bundle that you
- * want to create. Use the config option on runjs to specify paths on where
+ * Create a build.js file that has require calls to the build layer/bundle that you
+ * want to create. Use the config option on requirejs to specify paths on where
  * to find things. See example.build.js for more information.
  */
 
@@ -24,15 +24,15 @@
   fileUtil: false, java: false, Packages: false, readFile: false */
 
 "use strict";
-var run;
+var require;
 
 (function (args) {
-    var runbuildPath, buildFile, baseUrlFile, buildPaths, deps, fileName, fileNames,
-        prop, props, paths, path, i, fileContents, buildFileContents = "", builtRunPath,
-        pauseResumeRegExp = /run\s*\.\s*(pause|resume)\s*\(\s*\)(;)?/g,
+    var requireBuildPath, buildFile, baseUrlFile, buildPaths, deps, fileName, fileNames,
+        prop, props, paths, path, i, fileContents, buildFileContents = "", builtrequirePath,
+        pauseResumeRegExp = /require\s*\.\s*(pause|resume)\s*\(\s*\)(;)?/g,
         textDepRegExp = /["'](text)\!([^"']+)["']/g,
         conditionalRegExp = /(exclude|include)Start\s*\(\s*["'](\w+)["']\s*,(.*)\)/,
-        context, doClosure, runContents, specified, delegate, baseConfig, override,
+        context, doClosure, requireContents, specified, delegate, baseConfig, override,
         JSSourceFilefromCode, placeHolderModName, url,
 
         //Set up defaults for the config.
@@ -105,7 +105,7 @@ var run;
         FLAG_compilation_level = flags.Flag.value(jscomp.CompilationLevel.SIMPLE_OPTIMIZATIONS);
         FLAG_compilation_level.get().setOptionsForCompilationLevel(options);
 
-        //Run the compiler
+        //Trigger the compiler
         compiler = new Packages.com.google.javascript.jscomp.Compiler();
         compiler.compile(externSourceFile, jsSourceFile, options);
         return compiler.toSource();  
@@ -142,9 +142,9 @@ var run;
                 //Already an inlined resource, return.
                 return match;
             } else {
-                content = readFile(run.nameToUrl(modName, "." + ext, run.s.ctxName));
+                content = readFile(require.nameToUrl(modName, "." + ext, require.s.ctxName));
                 if (strip) {
-                    content = run.textStrip(content);
+                    content = require.textStrip(content);
                 }
                 return "'" + prefix  +
                        "!" + modName +
@@ -244,16 +244,16 @@ var run;
     };
 
     if (!args || args.length < 2) {
-        print("java -jar path/to/js.jar runbuild.js directory/containing/runbuild.js/ build.js\n" +
+        print("java -jar path/to/js.jar build.js directory/containing/build.js/ build.js\n" +
               "where build.js is the name of the build file (see example.build.js for hints on how to make a build file.");
         quit();
     }
 
     //First argument to this script should be the directory on where to find this script.
-    runbuildPath = args[0];
+    requireBuildPath = args[0];
 
-    load(runbuildPath + "/jslib/logger.js");
-    load(runbuildPath + "/jslib/fileUtil.js");
+    load(requireBuildPath + "/jslib/logger.js");
+    load(requireBuildPath + "/jslib/fileUtil.js");
 
     //Find the build file, and make sure it exists.
     buildFile = new java.io.File(args[1]).getAbsoluteFile();
@@ -268,12 +268,12 @@ var run;
     //Set up some defaults in the default config
     config.appDir = "";
     config.baseUrl = baseUrlFile.getAbsolutePath() + "";
-    config.runUrl = baseUrlFile.getParentFile().getAbsolutePath() + "/run.js";
+    config.requireUrl = baseUrlFile.getParentFile().getAbsolutePath() + "/require.js";
     config.dir = baseUrlFile.getAbsolutePath() + "/build/";
 
-    //Set up the build file environment by creating a dummy run function to
+    //Set up the build file environment by creating a dummy require function to
     //catch the build file information.
-    run = function (cfg, name, deps) {
+    require = function (cfg, name, deps) {
         var layer;
         //Normalize parameters
         if (typeof cfg === "string") {
@@ -295,8 +295,8 @@ var run;
                 if (cfg.excludes) {
                     layer.excludes = cfg.excludes;
                 }
-                if (cfg.includeRun) {
-                    layer.includeRun = true;
+                if (cfg.includeRequire) {
+                    layer.includeRequire = true;
                 }
                 if (cfg.override) {
                     layer.override = cfg.override;
@@ -309,11 +309,11 @@ var run;
         }
     };
 
-    //Load the build file, reset run to null, then load run.js
+    //Load the build file, reset require to null, then load require.js
     load(buildFile.toString());
-    run = null;
-    load(config.runUrl);
-    load(runbuildPath + "/jslib/runPatch.js");
+    require = null;
+    load(config.requireUrl);
+    load(requireBuildPath + "/jslib/requirePatch.js");
 
     //Adjust the path properties as appropriate.
     //First make sure build paths use front slashes and end in a slash
@@ -329,8 +329,8 @@ var run;
 
     //Set up build output paths. Include baseUrl directory.
     paths = config.paths;
-    if (!paths.run) {
-        paths.run = config.runUrl.substring(0, config.runUrl.lastIndexOf("/")) + "/run";
+    if (!paths.require) {
+        paths.require = config.requireUrl.substring(0, config.requireUrl.lastIndexOf("/")) + "/require";
     }
     buildPaths = {};
     
@@ -355,56 +355,56 @@ var run;
         }
     }
 
-    //If run.js does not exist in build output, put it in there.
-    builtRunPath = config.dirBaseUrl + "run.js";
-    if (!((new Packages.java.io.File(builtRunPath)).exists())) {
-        fileUtil.copyFile(config.runUrl, builtRunPath, true);
+    //If require.js does not exist in build output, put it in there.
+    builtRequirePath = config.dirBaseUrl + "require.js";
+    if (!((new Packages.java.io.File(builtRequirePath)).exists())) {
+        fileUtil.copyFile(config.requireUrl, builtRequirePath, true);
     }
 
-    //Figure out source file location for each layer. Do this by seeding run
+    //Figure out source file location for each layer. Do this by seeding require
     //with source area configuration. This is needed so that later the layers
     //can be manually copied over to the source area, since the build may be
-    //run multiple times and the above copyDir call only copies newer files.
-    run({
+    //require multiple times and the above copyDir call only copies newer files.
+    require({
         baseUrl: config.baseUrl,
         paths: paths
     });
     for (layerName in layers) {
         if (layers.hasOwnProperty(layerName)) {
-            layers[layerName]._sourcePath = run.nameToUrl(layerName, null, run.s.ctxName);
+            layers[layerName]._sourcePath = require.nameToUrl(layerName, null, require.s.ctxName);
         }
     }
 
-    //Now set up the config for run to use the build area, and calculate the
+    //Now set up the config for require to use the build area, and calculate the
     //build file locations. Pass along any config info too.
     baseConfig = {
         baseUrl: config.dirBaseUrl,
         paths: buildPaths
     };
     mixin(baseConfig, config);
-    run(baseConfig);
+    require(baseConfig);
 
     for (layerName in layers) {
         if (layers.hasOwnProperty(layerName)) {
             layer = layers[layerName];
-            layer._buildPath = run.nameToUrl(layerName, null, run.s.ctxName);
+            layer._buildPath = require.nameToUrl(layerName, null, require.s.ctxName);
             fileUtil.copyFile(layer._sourcePath, layer._buildPath);
         }
     }
 
-    //For each layer, call run to calculate dependencies, and then save
+    //For each layer, call require to calculate dependencies, and then save
     //the calculated layer to disk in the build area.
-    context = run.s.contexts[run.s.ctxName];
+    context = require.s.contexts[require.s.ctxName];
     for (layerName in layers) {
         if (layers.hasOwnProperty(layerName)) {
             layer = layers[layerName];
 
-            //Reset some state set up in runPatch.js
-            run.buildPathMap = {};
-            run.buildFileToModule = {};
-            run.buildFilePaths = [];
-            run.loadedFiles = {};
-            run.modulesWithNames = {};
+            //Reset some state set up in requirePatch.js
+            require.buildPathMap = {};
+            require.buildFileToModule = {};
+            require.buildFilePaths = [];
+            require.loadedFiles = {};
+            require.modulesWithNames = {};
 
             logger.trace("\nFiguring out dependencies for: " + layerName);
             deps = [layerName];
@@ -417,47 +417,47 @@ var run;
             if (layer.override) {
                 override = delegate(baseConfig);
                 mixin(override, layer.override, true);
-                run(override);
+                require(override);
             }
 
-            //Figure out layer dependencies by calling run to do the work.
-            run(deps);
+            //Figure out layer dependencies by calling require to do the work.
+            require(deps);
 
             //Add any other files that did not have an explicit name on them.
-            //These are files that do not call back into run when loaded.
-            for (prop in run.buildPathMap) {
-                if (run.buildPathMap.hasOwnProperty(prop)) {
-                    url = run.buildPathMap[prop];
-                    if (!run.loadedFiles[url]) {
-                        run.buildFileToModule[url] = prop;
-                        run.buildFilePaths.push(url);
-                        run.loadedFiles[url] = true;
+            //These are files that do not call back into require when loaded.
+            for (prop in require.buildPathMap) {
+                if (require.buildPathMap.hasOwnProperty(prop)) {
+                    url = require.buildPathMap[prop];
+                    if (!require.loadedFiles[url]) {
+                        require.buildFileToModule[url] = prop;
+                        require.buildFilePaths.push(url);
+                        require.loadedFiles[url] = true;
                     }
                 }
             }
 
             //Reset config
             if (layer.override) {
-                run(baseConfig);
+                require(baseConfig);
             }
 
             //Start build output for the layer.
             buildFileContents += "\n" + layer._buildPath.replace(config.dir, "") + "\n----------------\n";
 
-            //If the file wants run.js added to the layer, add it now
-            runContents = "";
-            if (layer.includeRun) {
-                runContents = this.processPragmas(config.runUrl, fileUtil.readFile(config.runUrl), context.config);
-                buildFileContents += "run.js\n";
+            //If the file wants require.js added to the layer, add it now
+            requireContents = "";
+            if (layer.includeRequire) {
+                requireContents = this.processPragmas(config.requireUrl, fileUtil.readFile(config.requireUrl), context.config);
+                buildFileContents += "require.js\n";
     
                 //Check for any plugins loaded.
                 specified = context.specified;
                 for (prop in specified) {
                     if (specified.hasOwnProperty(prop)) {
-                        if (prop.indexOf("run/") === 0) {
-                            path = run.buildPathMap[prop];
+                        if (prop.indexOf("require/") === 0) {
+                            path = require.buildPathMap[prop];
                             buildFileContents += path.replace(config.dir, "") + "\n";
-                            runContents += this.processPragmas(path, fileUtil.readFile(path), context.config);
+                            requireContents += this.processPragmas(path, fileUtil.readFile(path), context.config);
                         }
                     }
                 }
@@ -465,29 +465,29 @@ var run;
 
             //Write the build layer to disk, and build up the build output.
             fileContents = "";
-            for (i = 0; (path = run.buildFilePaths[i]); i++) {
+            for (i = 0; (path = require.buildFilePaths[i]); i++) {
                 fileContents += fileUtil.readFile(path);
                 buildFileContents += path.replace(config.dir, "") + "\n";
-                //Some files may not have declared a run module, and if so,
-                //put in a placeholder call so the run does not try to load them
+                //Some files may not have declared a require module, and if so,
+                //put in a placeholder call so the require does not try to load them
                 //after the layer is processed.
-                placeHolderModName = run.buildFileToModule[path];
+                placeHolderModName = require.buildFileToModule[path];
                 //If we have a name, but no defined module, then add in the placeholder.
-                if (placeHolderModName && !run.modulesWithNames[placeHolderModName]) {
-                    fileContents += 'run.def("' + placeHolderModName + '", function(){});\n';
+                if (placeHolderModName && !require.modulesWithNames[placeHolderModName]) {
+                    fileContents += 'require.def("' + placeHolderModName + '", function(){});\n';
                 }
             }
 
-            //Remove any run.pause/resume calls, then add them back around
+            //Remove any require.pause/resume calls, then add them back around
             //the whole file, but only if there were files written out, besides
-            //the run.js and plugin files.
-            if (run.buildFilePaths.length) {
+            //the require.js and plugin files.
+            if (require.buildFilePaths.length) {
                 fileContents = fileContents.replace(pauseResumeRegExp, "");
-                fileContents = "run.pause();\n" + fileContents + "\nrun.resume();\n";
+                fileContents = "require.pause();\n" + fileContents + "\nrequire.resume();\n";
             }
 
-            //Add the run file contents to the head of the file.
-            fileContents = (runContents ? runContents + "\n" : "") + fileContents;
+            //Add the require file contents to the head of the file.
+            fileContents = (requireContents ? requireContents + "\n" : "") + fileContents;
 
             fileUtil.saveUtf8File(layer._buildPath, fileContents);
         }
@@ -499,7 +499,7 @@ var run;
     //Do bulk optimizations
     if (config.inlineText) {
         //Make sure text extension is loaded.
-        run(["run/text"]);
+        require(["require/text"]);
         logger.info("Inlining text dependencies");
     }
     doClosure = (config.optimize + "").indexOf("closure") === 0;

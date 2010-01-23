@@ -1,18 +1,18 @@
-//A build file that builds run in different configurations via pragmas.
-run({
+//A build file that builds require in different configurations via pragmas.
+require({
         baseUrl: ".",
-        runUrl: "../../run.js",
-        includeRun: true,
+        requireUrl: "../../require.js",
+        includeRequire: true,
         dir: "dist",
         optimize: "none",
         inlineText: false,
         pragmas: {
             jquery: true,
-            runExcludeModify: true,
-            runExcludePlugin: true,
-            runExcludePageLoad: true,
-            runExcludeContext: true
+            requireExcludeModify: true,
+            requireExcludePlugin: true,
+            requireExcludePageLoad: true,
+            requireExcludeContext: true
         }
     },
-    "jquery-run"
+    "jquery-require"
 );

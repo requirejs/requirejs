@@ -1,8 +1,8 @@
-//A build file that builds run in different configurations via pragmas.
-run({
-        baseUrl: "./dojorun",
-        runUrl: "../../run.js",
-        includeRun: true,
+//A build file that builds require in different configurations via pragmas.
+require({
+        baseUrl: "./dojorequire",
+        requireUrl: "../../require.js",
+        includeRequire: true,
         //optimize: "none",
         dir: "build",
         pragmas: {
@@ -10,9 +10,9 @@ run({
         }
     },
     "dojo",
-    ["run/text", "run/i18n", "dojo/_base"]
+    ["require/text", "require/i18n", "dojo/_base"]
 );
 
-run("dijit/dijit");
+require("dijit/dijit");
 
-run("dijit/dijit-all");
+require("dijit/dijit-all");

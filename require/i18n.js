@@ -1,10 +1,10 @@
 /**
- * @license RunJS i18n Copyright (c) 2004-2010, The Dojo Foundation All Rights Reserved.
+ * @license RequireJS i18n Copyright (c) 2004-2010, The Dojo Foundation All Rights Reserved.
  * Available via the MIT, GPL or new BSD license.
- * see: http://github.com/jrburke/runjs for details
+ * see: http://github.com/jrburke/requirejs for details
  */
 /*jslint regexp: false, nomen: false, plusplus: false */
-/*global run: false, navigator: false */
+/*global require: false, navigator: false */
 
 "use strict";
 
@@ -121,17 +121,17 @@
 
         //Load any bundles that are still needed.
         if (toLoad.length) {
-            context.defined.run(toLoad);
+            context.defined.require(toLoad);
         }
     }
 
-    run.plugin({
+    require.plugin({
         prefix: "i18n",
 
         /**
          * This callback is prefix-specific, only gets called for this prefix
          */
-        run: function (name, deps, callback, context) {
+        require: function (name, deps, callback, context) {
             var i, match, nlsw, bundle, master, toLoad, obj = context.defined[name];
 
             //All i18n modules must match the nls module name structure.
@@ -149,7 +149,7 @@
                 bundle = context.nls[master];
                 if (!bundle) {
                     //No master bundle yet, ask for it.
-                    context.defined.run([master]);
+                    context.defined.require([master]);
                     bundle = context.nls[master] = {};
                 }
                 //For nls modules, the callback is just a regular object,
@@ -162,7 +162,7 @@
                     //A specific locale already started the bundle object.
                     //Do a mixin (which will not overwrite the locale property
                     //on the bundle that has the previously loaded locale's info)
-                    run.mixin(bundle, obj);
+                    require.mixin(bundle, obj);
                 } else {
                     bundle = context.nls[name] = obj;
                 }
@@ -186,7 +186,7 @@
          * context-specific info on it.
          */
         newContext: function (context) {
-            run.mixin(context, {
+            require.mixin(context, {
                 nlsWaiting: [],
                 nls: {},
                 nlsRootLoaded: {},
@@ -214,18 +214,18 @@
             if (match[5]) {
                 //locale-specific bundle
                 masterName = match[1] + match[5];
-                context = run.s.contexts[contextName];
+                context = require.s.contexts[contextName];
                 bundle = context.nls[masterName];
                 if (context.nlsRootLoaded[masterName] && bundle) {
                     resolveLocale(masterName, bundle, locale, context);
                 } else {
                     //Store this locale to figure out after masterName is loaded and load masterName.
                     (context.nlsToLoad[masterName] || (context.nlsToLoad[masterName] = [])).push(locale);
-                    context.defined.run([masterName]);
+                    context.defined.require([masterName]);
                 }
             } else {
                 //Top-level bundle. Just call regular load.
-                run.load(name, contextName);
+                require.load(name, contextName);
             }
         },
 
@@ -234,7 +234,7 @@
          */
         checkDeps: function (name, deps, context) {
             //i18n bundles are always defined as objects for their "dependencies",
-            //and that object is already processed in the run method, no need to
+            //and that object is already processed in the require method, no need to
             //do work in here.
         },
 
@@ -291,11 +291,11 @@
                             for (j = parts.length; j > 0; j--) {
                                 locPart = parts.slice(0, j).join("-");
                                 if (locPart !== "root" && bundle[locPart]) {
-                                    run.mixin(mixed, bundle[locPart]);
+                                    require.mixin(mixed, bundle[locPart]);
                                 }
                             }
                             if (bundle.root) {
-                                run.mixin(mixed, bundle.root);
+                                require.mixin(mixed, bundle.root);
                             }
 
                             context.defined[modulePrefix + "/" + loc + "/" + moduleSuffix] = mixed;

@@ -1,4 +1,4 @@
-run.def("simple",
+require.def("simple",
   function() {
     return {
       color: "blue"

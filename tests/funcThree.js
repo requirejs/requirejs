@@ -1,8 +1,8 @@
-run.def("funcThree",
+require.def("funcThree",
     ["funcFour"],
     function (four) {
         var three = function (arg) {
-            return arg + "-" + run.get("funcFour").suffix();
+            return arg + "-" + require("funcFour").suffix();
         };
 
         three.suffix = function () {
