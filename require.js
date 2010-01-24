@@ -855,14 +855,27 @@ var require;
                 if (prefix !== -1) {
                     dep = dep.substring(prefix + 1, dep.length);
                 }
-                //Get dependent module. It could not exist, for a circular
-                //dependency or if the loaded dependency does not actually call
-                //require. Favor not throwing an error here if undefined because
-                //we want to allow code that does not use require as a module
-                //definition framework to still work -- allow a web site to
-                //gradually update to contained modules. That is seen as more
-                //important than forcing a throw for the circular dependency case.
-                depModule = dep in defined ? defined[dep] : (traced[dep] ? undefined : require.exec(waiting[waiting[dep]], traced, waiting, context));
+
+                if (dep === "exports") {
+                    //CommonJS module spec 1.1
+                    depModule = defined[name] = {};
+                } else if (dep === "module") {
+                    //CommonJS module spec 1.1
+                    depModule = {
+                        id: name,
+                        uri: require.nameToUrl(name, null, context.contextName)
+                    };
+                } else {
+                    //Get dependent module. It could not exist, for a circular
+                    //dependency or if the loaded dependency does not actually call
+                    //require. Favor not throwing an error here if undefined because
+                    //we want to allow code that does not use require as a module
+                    //definition framework to still work -- allow a web site to
+                    //gradually update to contained modules. That is seen as more
+                    //important than forcing a throw for the circular dependency case.
+                    depModule = dep in defined ? defined[dep] : (traced[dep] ? undefined : require.exec(waiting[waiting[dep]], traced, waiting, context));
+                }
+
                 args.push(depModule);
             }
         }
