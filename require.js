@@ -89,6 +89,9 @@ var require;
         if (typeof deps === "string" && !isFunction(callback)) {
             //Just return the module wanted. In this scenario, the
             //second arg (if passed) is just the contextName.
+            if (deps === "exports" || deps === "module") {
+                throw new Error("require of " + deps + " is not allowed.");
+            }
             contextName = callback || s.ctxName;
             var ret = s.contexts[contextName].defined[deps];
             if (ret === undefined) {
@@ -205,7 +208,9 @@ var require;
                 },
                 waiting: [],
                 specified: {
-                    "require": true
+                    "require": true,
+                    "exports": true,
+                    "module": true
                 },
                 loaded: {
                     "require": true
@@ -835,7 +840,8 @@ var require;
         }
 
         var name = module.name, cb = module.callback, deps = module.deps, j, dep,
-            defined = context.defined, ret, args = [], prefix, depModule;
+            defined = context.defined, ret, args = [], prefix, depModule,
+            usingExports = false;
 
         //If already traced or defined, do not bother a second time.
         if (name) {
@@ -859,11 +865,12 @@ var require;
                 if (dep === "exports") {
                     //CommonJS module spec 1.1
                     depModule = defined[name] = {};
+                    usingExports = true;
                 } else if (dep === "module") {
                     //CommonJS module spec 1.1
                     depModule = {
                         id: name,
-                        uri: require.nameToUrl(name, null, context.contextName)
+                        uri: name ? require.nameToUrl(name, null, context.contextName) : undefined
                     };
                 } else {
                     //Get dependent module. It could not exist, for a circular
@@ -885,10 +892,14 @@ var require;
         if (cb && require.isFunction(cb)) {
             ret = require.execCb(name, cb, args);
             if (name) {
-                if (name in defined) {
-                    throw new Error(name + " has already been defined");
+                if (usingExports) {
+                    ret = defined[name];
                 } else {
-                    defined[name] = ret;
+                    if (name in defined) {
+                        throw new Error(name + " has already been defined");
+                    } else {
+                        defined[name] = ret;
+                    }
                 }
             }
         }

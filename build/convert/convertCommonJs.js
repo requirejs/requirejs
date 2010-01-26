@@ -2,10 +2,10 @@
  * Converts CommonJS modules to be requirejs compliant modules.
  * 
  * Usage:
- * java -jar path/to/rhino/js.jar convertCommonJs.js path/to/commonjs requirecommonjs
+ * java -jar ../lib/rhino/js.jar convertCommonJs.js path/to/commonjs outputDir
  *
  * For debugger: 
- * java -classpath ../lib/rhino/js.jar org.mozilla.javascript.tools.debugger.Main convertCommonJs.js path/to/commonjs requirecommonjs
+ * java -classpath ../lib/rhino/js.jar org.mozilla.javascript.tools.debugger.Main convertCommonJs.js path/to/commonjs outputDir
  *
  */
 /*jslint plusplus: false */
@@ -20,6 +20,7 @@ var startTime = (new Date()).getTime(),
     convertTime,
     commonJsPath = arguments[0],
     savePath = arguments[1],
+    prefix = arguments[2] ? arguments[2] + "/" : "",
     //Get list of files to convert.
     fileList = fileUtil.getFilteredFileList(commonJsPath, /\w/, true),
     jsFileRegExp = /\.js$/,
@@ -53,7 +54,7 @@ if (!fileList || !fileList.length) {
             moduleName = fileName.replace(commonJsPath + "/", "").replace(/\.js$/, "");
 
             fileContents = fileUtil.readFile(fileName);
-            fileContents = convert(moduleName, fileName, fileContents);
+            fileContents = convert(prefix + moduleName, fileName, fileContents);
             fileUtil.saveUtf8File(convertedFileName, fileContents);
         } else {
             //Just copy the file over.

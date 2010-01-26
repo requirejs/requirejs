@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>require.js: Narwhal Conversion Test</title>
+    <script type="text/javascript" src="commonjs/global-es5.js"></script>
+    <script type="text/javascript" src="../../require.js"></script>
+    <script type="text/javascript">
+    var global = window;
+
+    function print(message) {
+        console.log(message);
+    }
+
+    require({
+            baseUrl: "./narwhal/lib/",
+            //These paths are relative to baseUrl
+            paths: {
+                "binary-engine": "../../commonjs/binary-engine",
+                "binary": "../../commonjs/binary",
+                "file-engine": "../../commonjs/file-engine",
+                "os-engine": "../../commonjs/os-engine",
+                "io-engine": "../../commonjs/io-engine",
+                "system": "../../commonjs/system",
+                "tests": "../tests",
+                "test/runner": "../../commonjs/test/runner"
+            }
+        },
+        ["require", "exports", "module", "os", "test/runner", "tests/uri"],
+        function (require, exports, module, os, runner, uri) {
+            runner.run(function(context) {
+                console.log("Tests passed: " + context.passed);
+                if (context.failed.length) {
+                    context.failed.map(function(item) {
+                        console.error("FAILED: " + item.prop + ": ", item.error);
+                    });
+                }
+                if (context.error.length) {
+                    context.error.map(function(item) {
+                        console.error("ERROR: " + item.prop + ": ", item.error);
+                    });
+                }
+            }, uri);
+        }
+    );
+    </script>
+</head>
+<body>
+    <h1>require.js: Narwhal Conversion Test</h1>
+    <p>This test page assumes the following commands have been run to convert
+    regular CommonJS modules in Narwhal to the require transport format that
+    require.js runs:</p>
+    <pre>
+        > java -jar ../lib/rhino/js.jar convertCommonJs.js path/to/narwhal/lib narwhal/lib
+        > java -jar ../lib/rhino/js.jar convertCommonJs.js path/to/narwhal/tests narwhal/tests tests    
+    </pre>
+    
+    <p>Those commands will create a narwhal directory that is a sibling to this file.</p>
+    
+    <p>Check console for test output.</p>
+</body>
+</html>
