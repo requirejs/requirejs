@@ -89,18 +89,7 @@ var require;
         if (typeof deps === "string" && !isFunction(callback)) {
             //Just return the module wanted. In this scenario, the
             //second arg (if passed) is just the contextName.
-            if (deps === "exports" || deps === "module") {
-                throw new Error("require of " + deps + " is not allowed.");
-            }
-            contextName = callback || s.ctxName;
-            var ret = s.contexts[contextName].defined[deps];
-            if (ret === undefined) {
-                throw new Error("require: module name '" +
-                                deps +
-                                "' has not been loaded yet for context: " +
-                                contextName);
-            }
-            return ret;
+            return require.get(deps, callback);
         }
 
         //Do more work, either 
@@ -614,8 +603,40 @@ var require;
     require.isFunction = isFunction;
 
     /**
+     * Gets one module's exported value. This method is used by require().
+     * It is broken out as a separate function to allow a host environment
+     * shim to overwrite this function with something appropriate for that
+     * environment.
+     *
+     * @param {String} moduleName the name of the module.
+     * @param {String} [contextName] the name of the context to use. Uses
+     * default context if no contextName is provided.
+     *
+     * @returns {Object} the exported module value.
+     */
+    require.get = function(moduleName, contextName) {
+        if (moduleName === "exports" || moduleName === "module") {
+            throw new Error("require of " + moduleName + " is not allowed.");
+        }
+        contextName = contextName || s.ctxName;
+        var ret = s.contexts[contextName].defined[moduleName];
+        if (ret === undefined) {
+            throw new Error("require: module name '" +
+                            moduleName +
+                            "' has not been loaded yet for context: " +
+                            contextName);
+        }
+        return ret;
+    };
+
+    /**
      * Makes the request to load a module. May be an async load depending on
-     * the environment and the circumstance of the load call.
+     * the environment and the circumstance of the load call. Override this
+     * method in a host environment shim to do something specific for that
+     * environment.
+     *
+     * @param {String} moduleName the name of the module.
+     * @param {String} contextName the name of the context to use.
      */
     require.load = function (moduleName, contextName) {
         var context = s.contexts[contextName], url;

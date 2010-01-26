@@ -2,6 +2,8 @@
 
 require.js loads JavaScript modules and JavaScript files. It is optimized for in-browser use, but can be easily adapted to other JavaScript environments.
 
+It implements the API the [CommonJS Transport/C proposal](http://wiki.commonjs.org/wiki/Modules/Transport/C). To adapt it to another environment, create a shim JS file that is loaded after require.js that overrides require.get() and require.load() to something that is appropriate for that environment. The plugin feature may not work in another environment, the plugin feature probably needs to allow for intercepting require.get() calls.
+
 If the loaded file calls require.def() to define a JavaScript module, then require.js can properly trace the module's dependencies and evaluate modules in the correct order. RequireJS allows for module modifiers and has a plugin system that supports features like i18n string bundles and text file dependencies.
 
 It uses plain script tags to load modules/files, so it should allow for easy debugging.
