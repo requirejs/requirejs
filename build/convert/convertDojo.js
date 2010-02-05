@@ -9,17 +9,8 @@
  * the isDebug block to be if(dojo.config.isDebug){require(["dojo/_firebug/firebug"]);}
  * * In dijit/_editor/RichText.js, remove the allowXdRichTextSave block, or force it not to doc.write.
  *
- * It requires a Dojo build that:
- * * has buildUtil.addGuardsAndBaseRequires not do anything. So it will not work
- * with customDojoBase builds. It also means modifying buildUtil.addGuardsAndBaseRequires
- * to just return instead of doing its work.
- * * Comment out the inclusion of dojoGuardStart.jsfrag and dojoGuardEnd.jsfrag
- * in buildUtil.js.
- * * In dojo._base.query, move the provide/require calls to the top
- * * After the build put a dependency in dijit.dijit-all for dijit.dijit to get reloads in IE to work.
- * 
  * Usage:
- * java -jar path/to/rhino/js.jar convertDojo.js path/to/dojo requiredojo
+ * java -jar ../lib/rhino/js.jar convertDojo.js path/to/dojo dojorequire
  *
  */
 /*jslint plusplus: false */

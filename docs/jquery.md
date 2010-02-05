@@ -13,7 +13,7 @@ RequireJS has a module system that lets you define well-scoped modules, but you 
 First step is integrating require.js with your code. There are two options:
 
 1. Grab require.js from the RequireJS project and drop it in directory with jquery.js
-2. Build jQuery integrated with require.js: You can use [this patch to the jQuery source](http://github.com/jrburke/jquery/commit/8678f98a3a514f0a5f14a51edad970c616d46a6f).
+2. Build jQuery integrated with require.js: You can use [this fork of the jQuery source](http://github.com/jrburke/jquery).
 
 
 **NOTE**: Following the above approaches will get RequireJS set up with its core feature set. Later, if you want to use the i18n or text plugins with RequireJS or more sophisticated things like loading multiple versions of modules or creating module modifiers, you will need to grab the complete source version of require.js along with the require directory (which contains the i18n.js and text.js files).

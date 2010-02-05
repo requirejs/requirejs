@@ -6,11 +6,11 @@ It implements the API the [CommonJS Transport/C proposal](http://wiki.commonjs.o
 
 If the loaded file calls require.def() to define a JavaScript module, then require.js can properly trace the module's dependencies and evaluate modules in the correct order. RequireJS allows for module modifiers and has a plugin system that supports features like i18n string bundles and text file dependencies.
 
-It uses plain script tags to load modules/files, so it should allow for easy debugging.
+It uses plain script tags to load modules/files, so it should allow for easy debugging. It can also be used simply to load other JavaScript files that do not use require.def() to define modules, so you can add it to your existing project without having to re-write your JavaScript files.
 
 Part of the dependency tracking code comes from the Dojo JavaScript Toolkit, but require.js does not have any dependencies on a JavaScript framework. It is a standalone JavaScript file that can be used in any project.
 
-The core require.js file around 3.1KB when minified via Closure Compiler and gzipped.
+The core require.js file around 3.5KB when minified via Closure Compiler and gzipped. require.js can also be built without some features, with the smallest option (just dependency tracking and simple module loading) weighing in at 2.4KB minified, gzipped.
 
 It is still in development, but the existing unit tests work in IE 6+, Firefox 3.5+, Safari 4+, Chrome 3+, and Opera 10+.
 
