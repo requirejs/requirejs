@@ -5,26 +5,7 @@
     <script type="text/javascript" src="../require.js"></script>
     <script type="text/javascript" src="doh/runner.js"></script>
     <script type="text/javascript" src="doh/_browserRunner.js"></script>
-    <script type="text/javascript">
-    require({
-            baseUrl: "./"    
-        },
-        ["require", "simple", "dimple", "func"],
-        function(require, simple, dimple, func) {
-            doh.register(
-                "simple", 
-                [
-                    function colors(t){
-                        t.is("blue", simple.color);
-                        t.is("dimple-blue", dimple.color);
-                        t.is("You called a function", func());
-                    }
-                ]
-            );
-            doh.run();
-        }
-    );
-    </script>
+    <script type="text/javascript" src="simple-tests.js"></script>
 </head>
 <body>
     <h1>require.js: Simple Test</h1>

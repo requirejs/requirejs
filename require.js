@@ -94,7 +94,7 @@ var require;
 
         //Do more work, either 
         return require.def.apply(require, arguments);
-    }
+    };
 
     /**
      * The function that handles definitions of modules. Differs from
@@ -614,7 +614,7 @@ var require;
      *
      * @returns {Object} the exported module value.
      */
-    require.get = function(moduleName, contextName) {
+    require.get = function (moduleName, contextName) {
         if (moduleName === "exports" || moduleName === "module") {
             throw new Error("require of " + moduleName + " is not allowed.");
         }

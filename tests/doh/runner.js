@@ -1367,130 +1367,133 @@ doh.average = function(/* Number [] */ a){
 
 tests = doh;
 
-(function(){
-	// scope protection
-	var x;
-	try{
-		if(typeof dojo != "undefined"){
-			dojo.platformRequire({
-				browser: ["doh._browserRunner"],
-				rhino: ["doh._rhinoRunner"],
-				spidermonkey: ["doh._rhinoRunner"]
-			});
-			try{
-				var _shouldRequire = dojo.isBrowser ? (dojo.global == dojo.global["parent"] || !Boolean(dojo.global.parent.doh) ) : true;
-			}catch(e){
-				//can't access dojo.global.parent.doh, then we need to do require
-				_shouldRequire = true;
-			}
-			if(_shouldRequire){
-				if(dojo.isBrowser){
-					dojo.addOnLoad(function(){
-						if (dojo.global.registerModulePath){
-							dojo.forEach(dojo.global.registerModulePath, function(m){
-								dojo.registerModulePath(m[0], m[1]);
-							});
-						}
-						if(dojo.byId("testList")){
-							var _tm = ( (dojo.global.testModule && dojo.global.testModule.length) ? dojo.global.testModule : "dojo.tests.module");
-							dojo.forEach(_tm.split(","), dojo.require, dojo);
-							setTimeout(function(){
-								doh.run();
-							}, 500);
-						}
-					});
-				}else{
-					// dojo.require("doh._base");
-				}
-			}
-		}else{
-			if(typeof load == "function" &&
-				(typeof Packages == "function" || typeof Packages == "object")){
-				throw new Error();
-			}else if(typeof load == "function"){
-				throw new Error();
-			}
-
-			if(this["document"]){
-				/*
-				// if we survived all of that, we're probably in a browser but
-				// don't have Dojo handy. Load _browserRunner.js using a
-				// document.write() call.
-
-				// find runner.js, load _browserRunner relative to it
-				var scripts = document.getElementsByTagName("script"), runnerFile;
-				for(x=0; x<scripts.length; x++){
-					var s = scripts[x].src;
-					if(s){
-						if(!runnerFile && s.substr(s.length - 9) == "runner.js"){
-							runnerFile = s;
-						}else if(s.substr(s.length - 17) == "_browserRunner.js"){
-							runnerFile = null;
-							break;
-						}
-					}
-				}
-				if(runnerFile){
-					document.write("<scri"+"pt src='" + runnerFile.substr(0, runnerFile.length - 9)
-						+ "_browserRunner.js' type='text/javascript'></scr"+"ipt>");
-				}
-				*/
-			}
-		}
-	}catch(e){
-		print("\n"+doh._line);
-		print("The Dojo Unit Test Harness, $Rev: 20389 $");
-		print("Copyright (c) 2009, The Dojo Foundation, All Rights Reserved");
-		print(doh._line, "\n");
-
-		try{
-			var dojoUrl = "../../dojo/dojo.js";
-			var testUrl = "";
-			var testModule = "dojo.tests.module";
-			var dohBase = "";
-			for(x=0; x<arguments.length; x++){
-				if(arguments[x].indexOf("=") > 0){
-					var tp = arguments[x].split("=");
-					if(tp[0] == "dohBase"){
-						dohBase = tp[1];
-						//Convert slashes to unix style and make sure properly
-						//ended.
-						dohBase = dohBase.replace(/\\/g, "/");
-						if(dohBase.charAt(dohBase.length - 1) != "/"){
-							dohBase += "/";
-						}
-					}
-					if(tp[0] == "dojoUrl"){
-						dojoUrl = tp[1];
-					}
-					if(tp[0] == "testUrl"){
-						testUrl = tp[1];
-					}
-					if(tp[0] == "testModule"){
-						testModule = tp[1];
-					}
-				}
-			}
-
-			load(dohBase + "_rhinoRunner.js");
-
-			if(dojoUrl.length){
-				if(!this["djConfig"]){
-					djConfig = {};
-				}
-				djConfig.baseUrl = dojoUrl.split("dojo.js")[0];
-				load(dojoUrl);
-			}
-			if(testUrl.length){
-				load(testUrl);
-			}
-			if(testModule.length){
-				dojo.forEach(testModule.split(","), dojo.require, dojo);
-			}
-		}catch(e){
-			print("An exception occurred: " + e);
-		}
-
-		doh.run();
-	}
-}).apply(this, typeof arguments != "undefined" ? arguments : [null]);
+if (typeof skipDohSetup === "undefined") {
+    
+    (function(){
+            // scope protection
+            var x;
+            try{
+                    if(typeof dojo != "undefined"){
+                            dojo.platformRequire({
+                                    browser: ["doh._browserRunner"],
+                                    rhino: ["doh._rhinoRunner"],
+                                    spidermonkey: ["doh._rhinoRunner"]
+                            });
+                            try{
+                                    var _shouldRequire = dojo.isBrowser ? (dojo.global == dojo.global["parent"] || !Boolean(dojo.global.parent.doh) ) : true;
+                            }catch(e){
+                                    //can't access dojo.global.parent.doh, then we need to do require
+                                    _shouldRequire = true;
+                            }
+                            if(_shouldRequire){
+                                    if(dojo.isBrowser){
+                                            dojo.addOnLoad(function(){
+                                                    if (dojo.global.registerModulePath){
+                                                            dojo.forEach(dojo.global.registerModulePath, function(m){
+                                                                    dojo.registerModulePath(m[0], m[1]);
+                                                            });
+                                                    }
+                                                    if(dojo.byId("testList")){
+                                                            var _tm = ( (dojo.global.testModule && dojo.global.testModule.length) ? dojo.global.testModule : "dojo.tests.module");
+                                                            dojo.forEach(_tm.split(","), dojo.require, dojo);
+                                                            setTimeout(function(){
+                                                                    doh.run();
+                                                            }, 500);
+                                                    }
+                                            });
+                                    }else{
+                                            // dojo.require("doh._base");
+                                    }
+                            }
+                    }else{
+                            if(typeof load == "function" &&
+                                    (typeof Packages == "function" || typeof Packages == "object")){
+                                    throw new Error();
+                            }else if(typeof load == "function"){
+                                    throw new Error();
+                            }
+    
+                            if(this["document"]){
+                                    /*
+                                    // if we survived all of that, we're probably in a browser but
+                                    // don't have Dojo handy. Load _browserRunner.js using a
+                                    // document.write() call.
+    
+                                    // find runner.js, load _browserRunner relative to it
+                                    var scripts = document.getElementsByTagName("script"), runnerFile;
+                                    for(x=0; x<scripts.length; x++){
+                                            var s = scripts[x].src;
+                                            if(s){
+                                                    if(!runnerFile && s.substr(s.length - 9) == "runner.js"){
+                                                            runnerFile = s;
+                                                    }else if(s.substr(s.length - 17) == "_browserRunner.js"){
+                                                            runnerFile = null;
+                                                            break;
+                                                    }
+                                            }
+                                    }
+                                    if(runnerFile){
+                                            document.write("<scri"+"pt src='" + runnerFile.substr(0, runnerFile.length - 9)
+                                                    + "_browserRunner.js' type='text/javascript'></scr"+"ipt>");
+                                    }
+                                    */
+                            }
+                    }
+            }catch(e){
+                    print("\n"+doh._line);
+                    print("The Dojo Unit Test Harness, $Rev: 20389 $");
+                    print("Copyright (c) 2009, The Dojo Foundation, All Rights Reserved");
+                    print(doh._line, "\n");
+    
+                    try{
+                            var dojoUrl = "../../dojo/dojo.js";
+                            var testUrl = "";
+                            var testModule = "dojo.tests.module";
+                            var dohBase = "";
+                            for(x=0; x<arguments.length; x++){
+                                    if(arguments[x].indexOf("=") > 0){
+                                            var tp = arguments[x].split("=");
+                                            if(tp[0] == "dohBase"){
+                                                    dohBase = tp[1];
+                                                    //Convert slashes to unix style and make sure properly
+                                                    //ended.
+                                                    dohBase = dohBase.replace(/\\/g, "/");
+                                                    if(dohBase.charAt(dohBase.length - 1) != "/"){
+                                                            dohBase += "/";
+                                                    }
+                                            }
+                                            if(tp[0] == "dojoUrl"){
+                                                    dojoUrl = tp[1];
+                                            }
+                                            if(tp[0] == "testUrl"){
+                                                    testUrl = tp[1];
+                                            }
+                                            if(tp[0] == "testModule"){
+                                                    testModule = tp[1];
+                                            }
+                                    }
+                            }
+    
+                            load(dohBase + "_rhinoRunner.js");
+    
+                            if(dojoUrl.length){
+                                    if(!this["djConfig"]){
+                                            djConfig = {};
+                                    }
+                                    djConfig.baseUrl = dojoUrl.split("dojo.js")[0];
+                                    load(dojoUrl);
+                            }
+                            if(testUrl.length){
+                                    load(testUrl);
+                            }
+                            if(testModule.length){
+                                    dojo.forEach(testModule.split(","), dojo.require, dojo);
+                            }
+                    }catch(e){
+                            print("An exception occurred: " + e);
+                    }
+    
+                    doh.run();
+            }
+    }).apply(this, typeof arguments != "undefined" ? arguments : [null]);
+}

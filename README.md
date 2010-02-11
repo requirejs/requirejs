@@ -341,6 +341,7 @@ Some advanced features:
 * Loading code after page load
 * require.pause()/require.resume() for build layers/bundles
 * Module Modifiers
+* Rhino support
 
 ## Multiversion Support
 
@@ -474,6 +475,24 @@ For the example given above in Modifier Registration, where "my/target1" is the 
             target1.foo = function(){};
         }
     );
+
+## Rhino Support
+
+RequireJS can be used in Rhino, just be sure to load require.js and require/rhino.js before doing any require calls:
+
+    load("requirejs/require.js");
+    load("requirejs/require/rhino.js");
+
+    //Set up any config values, baseUrl is required so module names
+    //will map correctly to paths.
+    require({
+        baseUrl: 'path/to/scripts'
+    });
+
+    //Now load the top level script.
+    require(['startingscript']);
+
+You can see an example of RequireJS working in Rhino by looking at [tests/all-rhino.js](tests/all-rhino.js). The test file is a bit different from above since each test sets its own baseUrl.
 
 # History and Influences
 

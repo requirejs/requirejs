@@ -5,33 +5,7 @@
     <script type="text/javascript" src="../require.js"></script>
     <script type="text/javascript" src="doh/runner.js"></script>
     <script type="text/javascript" src="doh/_browserRunner.js"></script>
-    <script type="text/javascript">
-    require({
-	    baseUrl: "./"
-	},
-    	["require", "two", "funcTwo", "funcThree"],
-	function(require, two, funcTwo, funcThree) {
-	    var args = two.doSomething();
-	    var twoInst = new funcTwo("TWO");
-	    doh.register(
-		"circular",
-		[
-		    function circular(t) {
-			t.is("small", args.size);
-			t.is("redtwo", args.color);
-		    },
-		    
-		    function circularFunc(t) {
-			t.is("TWO", twoInst.name);
-			t.is("ONE-NESTED", twoInst.oneName());
-			t.is("THREE-THREE_SUFFIX", funcThree("THREE"));
-		    }
-		]
-	    );
-	    doh.run();
-	}
-    );
-    </script>
+    <script type="text/javascript" src="circular-tests.js"></script>
 </head>
 <body>
     <h1>require.js: Circular Test</h1>
