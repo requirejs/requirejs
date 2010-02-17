@@ -6,6 +6,23 @@
     <script type="text/javascript" src="doh/runner.js"></script>
     <script type="text/javascript" src="doh/_browserRunner.js"></script>
     <script type="text/javascript" src="simple-tests.js"></script>
+    <script type="text/javascript">
+        //This test is only in the HTML since it uses an URL for a require
+        //argument. It will not work well in say, the Rhino tests.
+        var path = location.href.replace(/simple\.html$/, "foo");
+        require([path], function() {
+            doh.register(
+                        "fooUrl", 
+                        [
+                            function fooUrl(t){
+                                t.is("foo", foo.name); 
+                            }
+                        ]
+                    );
+            doh.run();
+            
+        });
+    </script>
 </head>
 <body>
     <h1>require.js: Simple Test</h1>

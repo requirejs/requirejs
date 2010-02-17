@@ -667,7 +667,9 @@ var require;
         var paths, syms, i, parentModule, url,
             config = s.contexts[contextName].config;
 
-        if (require.jsExtRegExp.test(moduleName)) {
+        //If a colon is in the URL, it indicates a protocol is used and it is just
+        //an URL to a file, or if it ends with .js, it is just a plain file.
+        if (moduleName.indexOf(":") !== -1 || require.jsExtRegExp.test(moduleName)) {
             //Just a plain path, not module name lookup, so just return it.
             return moduleName;
         } else {
