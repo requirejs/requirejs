@@ -844,9 +844,9 @@ var require;
             //Make sure we reset to default context.
             s.ctxName = defContextName;
             s.isDone = true;
-            //>>excludeStart("requireExcludePageLoad", pragmas.requireExcludePageLoad);
-            require.callReady();
-            //>>excludeEnd("requireExcludePageLoad");
+            if (require.callReady) {
+                require.callReady();
+            }
         }
     };
 
@@ -1088,6 +1088,11 @@ var require;
         }
     };
 
+    /**
+     * Internal function that calls back any ready functions. If you are
+     * integrating RequireJS with another library without require.ready support,
+     * you can define this method to call your page ready code instead.
+     */
     require.callReady = function () {
         var callbacks = s.readyCalls, i, callback;
 
