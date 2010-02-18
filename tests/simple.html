@@ -9,13 +9,17 @@
     <script type="text/javascript">
         //This test is only in the HTML since it uses an URL for a require
         //argument. It will not work well in say, the Rhino tests.
-        var path = location.href.replace(/simple\.html$/, "foo");
-        require([path], function() {
+        var path = location.href.replace(/simple\.html$/, "foo"),
+            index = path.indexOf(":"),
+            noProtocolPath = path.substring(index + 1, path.length).replace(/foo/, "bar");
+
+        require([path, noProtocolPath], function() {
             doh.register(
-                        "fooUrl", 
+                        "fooBar", 
                         [
-                            function fooUrl(t){
+                            function fooBar(t){
                                 t.is("foo", foo.name); 
+                                t.is("bar", bar.name); 
                             }
                         ]
                     );

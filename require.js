@@ -668,8 +668,9 @@ var require;
             config = s.contexts[contextName].config;
 
         //If a colon is in the URL, it indicates a protocol is used and it is just
-        //an URL to a file, or if it ends with .js, it is just a plain file.
-        if (moduleName.indexOf(":") !== -1 || require.jsExtRegExp.test(moduleName)) {
+        //an URL to a file, or if it starts with a slash or ends with .js, it is just a plain file.
+        //The slash is important for protocol-less URLs as well as full paths.
+        if (moduleName.indexOf(":") !== -1 || moduleName.charAt(0) === '/' || require.jsExtRegExp.test(moduleName)) {
             //Just a plain path, not module name lookup, so just return it.
             return moduleName;
         } else {

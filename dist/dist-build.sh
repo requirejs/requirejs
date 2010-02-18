@@ -10,12 +10,14 @@ build/
         xrequire.js
         xallplugins-require.js
         xrequirejs.zip
-        jquery.js
+        xjquery.js
         jquery-sample.zip
-        jquery+plugins.js
+        xjquery+plugins.js
 
 #version should be something like 0.9.0beta or 0.9.0
 version=$1
+
+jqueryName=jquery-1.4.2
 
 # Setup a build directory
 rm ../../requirejs-build
@@ -39,4 +41,19 @@ cd build
 cp require.js ../../../$version/comments/require.js
 cp allplugins-require.js ../../../$version/comments/allplugins-require.js
 
-NOT DONE
+# Build jquery options
+cd ../../jquery
+./build.sh
+jqueryRequire=($(cat dist/jquery-require.js))
+jqueryPluginRequire=($(cat dist/jquery-allplugins-require.js))
+jquery=($(cat $jqueryName.js))
+simpleJQuery=$jquery | sed s/\/\/REQUIREJS/$jqueryRequire/
+pluginJQuery=$jquery | sed s/\/\/REQUIREJS/$jqueryPluginRequire/
+
+# Save jQuery options
+cd ../../
+simpleJQuery > docs/jquery-require-sample/webapp/scripts/jquery.js
+simpleJQuery > $version/comments/$jqueryName.js
+pluginJQuery > $version/comments/plugins-$jqueryName.js
+
+# 

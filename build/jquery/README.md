@@ -2,7 +2,4 @@
 
 This directory builds requirejs in configurations for use with jquery.
 
-Some changes need to be made to integrate jQuery with RequireJS:
-
-* outro.js: add this:
-    require.def("jquery", function() { return jQuery; })
+This directory is used by http://github.com/jrburke/jquery/ to build jQuery with integrated RequireJS support.
