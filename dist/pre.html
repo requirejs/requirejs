@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>${title}</title>
+    <link rel="stylesheet" type="text/css" href="main.css">
+    <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/dojo/1.4/dojox/highlight/resources/highlight.css">
+    <script src="http://ajax.googleapis.com/ajax/libs/dojo/1.4/dojo/dojo.xd.js"></script>
+    <script type="text/javascript">
+        dojo.require("dojox.highlight");
+        dojo.require("dojox.highlight.languages.javascript");
+        dojo.require("dojox.highlight.languages.html");
+        dojo.ready(function() {
+            dojo.query("pre > code")
+                .forEach(function(node) {
+                    if (node.innerHTML.indexOf("DOCTYPE") !== -1 || node.innerHTML.indexOf('&lt;script') !== -1) {
+                        dojo.addClass(node, "html");
+                    } else {
+                        dojo.addClass(node, "javascript");
+                    }
+                })
+                .forEach(dojox.highlight.init);
+        });
+    </script>
+</head>
+<body>
+<ul id="header">
+    <li class="first"><a href="../">RequireJS</a></li>
+    <li><a class="local" href="start.html">Start</a></li>
+    <li><a class="local" href="download.html">Download</a></li>
+    <li><a class="local" href="api.html">API</a></li>
+    <li><a class="local" href="why.html">Why</a></li>
+    <li><a class="local" href="requirements.html">Requirements</a></li>
+    <li><a class="local" href="history.html">History</a></li>
+    <li><a href="http://groups.google.com/group/requirejs">Get Help</a></li>
+    <li><a href="http://tagneto.blogspot.com">Blog</a></li>
+</ul>

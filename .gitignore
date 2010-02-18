@@ -8,3 +8,5 @@ build/tests/buildcircular/
 build/jquery/dist/
 build/require/build/
 docs/jquery-require-sample/webapp-build/
+dist/dist-site/
+dist/dist-build/
