@@ -18,21 +18,7 @@ require({
 );
 
 require({
-        includerequire: true,
-        override: {
-            pragmas: {
-                jquery: true,
-                requireExcludeModify: true,
-                requireExcludePageLoad: true,
-                requireExcludeContext: true
-            }
-        }
-    },
-    "jquery-plugin-require"
-);
-
-require({
-        includerequire: true,
+        includeRequire: true,
         override: {
             pragmas: {
                 jquery: true,
