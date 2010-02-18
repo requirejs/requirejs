@@ -479,4 +479,4 @@ RequireJS can be used in Rhino, just be sure to load require.js and require/rhin
     //Now load the top level script.
     require(['startingscript']);
 
-You can see an example of RequireJS working in Rhino by looking at [tests/all-rhino.js](tests/all-rhino.js). The test file is a bit different from above since each test sets its own baseUrl.
+You can see an example of RequireJS working in Rhino by looking at [tests/all-rhino.js](http://github.com/jrburke/requirejs/blob/master/tests/all-rhino.js). The test file is a bit different from above since each test sets its own baseUrl.

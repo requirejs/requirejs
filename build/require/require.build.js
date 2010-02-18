@@ -4,7 +4,7 @@ require({
         requireUrl: "../../require.js",
         includeRequire: true,
         dir: "build",
-        //optimize: "none",
+        optimize: "none",
         pragmas: {
             requireExcludeModify: true,
             requireExcludePlugin: true,

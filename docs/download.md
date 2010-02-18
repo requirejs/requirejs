@@ -9,40 +9,59 @@
 All you need to start using require.js. Does not include i18n, text plugins or rhino support
 Download: Minified | With Comments
 
-#### require with plugins
+#### require.js with plugins
 
-A zip file containing require.js and the require/ directory that contains i18n, text plugins and rhino support.
+require.js with the i18n and text plugins included.
 Download: Minified | With Comments
 
-### Optimization Tool
+### Optimization Tool / Full Source
 
 A zip file that is the optimization tool for RequireJS. It also includes the full source for require.js and its plugins.
+
+Use this download if you want to use RequireJS in Rhino.
+
 Download
 
 #### jQuery 1.4.1 with require()
 
-A build of jQuery with integrated require() support. Does not include RequireJS i18n, text plugins or rhino support.
+A build of jQuery with integrated require() support. Just includes the basic RequireJS, does not have the following features:
+
+* i18n, text plugins
+* multiversion support
+* page load support (it is assumed you will use jQuery's methods)
+* require.modify() support
+
 Download: Minified | With Comments
 
 #### Sample jQuery 1.4.1 project with require()
 
 A zip file containing a build of jQuery with integrated require() support, with an sample project included to show how it can be used when using jQuery. Does not include these features in RequireJS:
-* i18n, text plugins or rhino support.
+
+* i18n, text plugins
 * multiversion support
 * page load support (it is assumed you will use jQuery's methods)
-* require.modify() support.
+* require.modify() support
 
 Download
 
 #### jQuery 1.4.1 with require() and plugins
 
-A zip file containing a build of jQuery with integrated require() support and the require/ directory that contains i18n, text plugins and rhino support.
+A build of jQuery with integrated require() support and the i18n and text plugins. Does not include these other RequireJS features:
+
+* multiversion support
+* page load support (it is assumed you will use jQuery's methods)
+* require.modify() support
+
 Download: Minified | With Comments
 
 #### Release Notes
 
 * Renamed from RunJS to RequireJS
 * Adds better support for existing JS files
+
+<hr>
+<hr>
+<hr>
 
 ### Previous releases
 

@@ -16,3 +16,32 @@ require({
     },
     "jquery-require"
 );
+
+require({
+        includerequire: true,
+        override: {
+            pragmas: {
+                jquery: true,
+                requireExcludeModify: true,
+                requireExcludePageLoad: true,
+                requireExcludeContext: true
+            }
+        }
+    },
+    "jquery-plugin-require"
+);
+
+require({
+        includerequire: true,
+        override: {
+            pragmas: {
+                jquery: true,
+                requireExcludeModify: true,
+                requireExcludePageLoad: true,
+                requireExcludeContext: true
+            }
+        }
+    },
+    "jquery-allplugins-require",
+    ["require/i18n", "require/text"]
+);

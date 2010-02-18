@@ -1,3 +1,9 @@
+/**
+ * @license RequireJS Copyright (c) 2004-2010, The Dojo Foundation All Rights Reserved.
+ * Available via the MIT, GPL or new BSD license.
+ * see: http://github.com/jrburke/requirejs for details
+ */
+
 /*
 This file assumes Java 1.6 or greater is installed:
 

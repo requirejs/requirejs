@@ -40,8 +40,10 @@ td
   {
   background-color: #333399; /* Dark blue */
   color: white;
-  font-family: monospace;
   padding: 0.2em;
+  -moz-border-radius: 0.5em;
+  -webkit-border-radius: 0.5em;
+  border-radius: 0.5em;
   }
 
 #headerLogo
@@ -52,6 +54,7 @@ td
 
 #header
   {
+  margin: 0;
   padding: 0.5em;
   width: 100%;
   }

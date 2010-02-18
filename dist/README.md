@@ -21,3 +21,7 @@ Now pull down the tagged version to do a distribution:
 * cd dist
 
 Run the distribution tasks.
+
+To generate the web site:
+
+* java -jar ../build/lib/rhino/js.jar dist-site.js
