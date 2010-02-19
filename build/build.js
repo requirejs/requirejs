@@ -430,7 +430,11 @@ var require;
                     url = require.buildPathMap[prop];
                     if (!require.loadedFiles[url]) {
                         require.buildFileToModule[url] = prop;
-                        require.buildFilePaths.push(url);
+                        //Only add require plugins to build file paths if
+                        //require is not included in the layer
+                        if (prop.indexOf("require/") !== 0 || !layer.includeRequire) {
+                            require.buildFilePaths.push(url);
+                        }
                         require.loadedFiles[url] = true;
                     }
                 }
