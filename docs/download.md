@@ -24,7 +24,7 @@ A build of jQuery with integrated require() support. Just includes the basic Req
 * page load support (it is assumed you will use jQuery's methods)
 * require.modify() support
 
-#### jQuery 1.4.2 with require() and plugins [Minified](release/0.8.0/minified/require.js) | [With Comments](release/0.8.0/comments/require.js)
+#### jQuery 1.4.2 with require() and plugins [Minified](release/0.8.0/minified/requireplugins-jquery-1.4.2.js) | [With Comments](release/0.8.0/comments/requireplugins-jquery-1.4.2.js)
 
 A build of jQuery with integrated require() support and the i18n and text plugins. Does not include these other RequireJS features:
 

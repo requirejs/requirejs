@@ -23,8 +23,7 @@ Now pull down the tagged version to do a distribution:
 
 * git clone git://github.com/jrburke/requirejs.git requirejs-dist
 * cd requirejs-dist
-* git checkout master 0.0.0
-* cd ..
+* git checkout 0.0.0
 * cd dist
 
 Run the distribution tasks.
