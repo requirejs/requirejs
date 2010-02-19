@@ -94,9 +94,19 @@ require(
         //full to find the require calls/dependencies, but the code is executed
         //in the Rhino JavaScript environment. Set this value to false
         //if the code does not follow the strict require pattern of wrapping all
-        //code in a require callback.
-        execModules: true
+        //code in a require callback. If you are using jQuery, you should set
+        //this value explicitly to false.
+        execModules: true,
 
+        //For build profiles that contain more than one require() call for build
+        //layers, normally the first call's require() configuration options are used
+        //for subsequent layers. However, if you pass a configuration object to
+        //a later require call, you can pass the config object with an override
+        //property to just override some config values for just that require()
+        //call's build layer, and subsequent build layers will not get those
+        //overrided values. The override's value is just an object that can
+        //contain any of the other build options in this file.
+        override: null
 /*
         TODO:
         - way to optimize CSS? default to true

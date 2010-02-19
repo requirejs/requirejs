@@ -1,7 +1,25 @@
 # RequireJS API
 
+* [Usage](#usage)
+    * [Loading JavaScript Files](#jsfiles)
+    * [Defining a Module](#define)
+        * [Other Module Notes](#modulenotes)
+        * [Circular Dependencies](#circular)
+    * [Define an I18N Bundle](#i18n)
+    * [Define a Text File Dependency](#text)
+* [Mechanics](#mechanics)
+* [Configuration Options](#config)
+* [Page Load Event Support](#pageload)
+* [Advanced Usage](#advanced)
+    * [Multiversion Support](#multiversion)
+    * [Loading Code After Page Load](#afterload)
+    * [require.pause()/require.resume() for Build Layers](#pauseresume)
+    * [Module Modifiers](#modifiers)
+        * [Modifier Registration](#modregister)
+        * [Modifier Definition](#moddef)
+    * [Rhino Support](#rhino)
 
-# Usage
+# <a name="usage">Usage</a>
 
 There are 4 basic ways to use require.js:
 
@@ -10,7 +28,7 @@ There are 4 basic ways to use require.js:
 3. Define an internationalization (i18n) bundle.
 4. Specify a text file dependency.
 
-## Loading JavaScript Files
+## <a name="jsfiles">Loading JavaScript Files</a>
 
 If you just want to load some JavaScript files, do the following inside the HEAD tag in an HTML document:
 
@@ -35,7 +53,7 @@ Files that end in ".js" are assumed to just be plain JS files that do not use re
 
 See the **Configuration Options** section for information on changing the lookup paths used for dependencies.
 
-## Defining a Module
+## <a name="define">Defining a Module</a>
 
 If the module does not have any dependencies, then just specify the name of the module as the first argument to require.def() and and the second argument is just an object literal that defines the module's properties. For example:
 
@@ -92,11 +110,11 @@ If the modules do not have to return objects. Any valid return value from a func
         }
     );
 
-### Other Module Notes
+### <a name="modulenotes">Other Module Notes</a>
 
 Only one module should be defined per JavaScript file, given the nature of the module name-to-path lookup algorithm.
 
-### Circular Dependencies
+### <a name="circular">Circular Dependencies</a>
 
 If you define a circular dependency (A needs B and B needs A), then in this case when B's module function is called, it will get an undefined value for A. B can fetch A later after modules have been defined by using the require() method (be sure to specify require as a dependency so the right context is used to look up A):
 
@@ -113,7 +131,7 @@ If you define a circular dependency (A needs B and B needs A), then in this case
 
 Normally you should not need to use require() to fetch a module, but instead rely on the module being passed in to the function as an argument. Circular dependencies are rare, and usually a sign that you might want to rethink the design. However, sometimes they are needed, and in that case, use require() as specified above.
 
-## Define an I18N Bundle
+## <a name="i18n">Define an I18N Bundle</a>
 
 Once your web app gets to a certain size and popularity, localizing the strings in the interface and providing other locale-specific information becomes more useful. However, it can be cumbersome to work out a scheme that scales well for supporting multiple locales.
 
@@ -195,7 +213,7 @@ Then the value for red in "root" will be used. This works for all locale pieces.
 * my/nls/fr/colors.js
 * my/nls/colors.js
 
-## Specify a Text File Dependency
+## <a name="text">Specify a Text File Dependency</a>
 
 It is nice to build HTML using regular HTML tags, instead of building up DOM structures in script. However, there is no good way to embed HTML in a JavaScript file. The best that can be done is using a string of HTML, but that can be hard to manage, particularly for multi-line HTML.
 
@@ -226,7 +244,7 @@ The text files are loaded via asynchronous XMLHttpRequest (XHR) calls, so you ca
 
 However, the build system for require.js will inline any text! references with the actual text file contents into the modules, so after a build, the modules that have text! dependencies can be used from other domains.
 
-# Mechanics
+# <a name="mechanics">Mechanics</a>
 
 require.js loads each dependency as a script tag, using head.appendChild(). In the near future, there may be an optimization or a configuration option to allow using document.write() to write out the script tag (with an src= attribute) if the page has not loaded yet.
 
@@ -236,7 +254,7 @@ Using require.js in a server-side JavaScript enviroment that has synchronous loa
 
 In the future, this code may be pulled into the require/ directory as an optional module that you can load in your env to get the right load behavior based on the host environment.
 
-# Configuration Options
+# <a name="config">Configuration Options</a>
 
 When using require() in the top-level HTML page (or top-level script file that does not define a module), a configuration object can be passed as the first option:
 
@@ -300,7 +318,7 @@ If no baseUrl is passed in, the path to require.js is used as the baseUrl path.
 
 **ready**: An function to pass to require.ready(). Useful when require is defined as a config object before require.js is loaded, and you want to specify a require.ready callback to set as soon as require() is defined.
 
-# Page Load Event Support
+# <a name="pageload">Page Load Event Support</a>
 
 require.js also has a method for notifying your code when the page has loaded. require.js uses the DOMContentLoaded event for browsers that support it, or window onload for browsers that do not.
 
@@ -320,7 +338,7 @@ To use it in conjunction with module loading:
         }
     );
 
-# Advanced Usage
+# <a name="advanced">Advanced Usage</a>
 
 Some advanced features:
 
@@ -330,7 +348,7 @@ Some advanced features:
 * Module Modifiers
 * Rhino support
 
-## Multiversion Support
+## <a name="multiversion">Multiversion Support</a>
 
 As mentioned in **Configuration Options**, multiple versions of a module can be loaded in a page by using different "context" configuration options. Here is an example that loads two different versions of the alpha and beta modules (this example is taken from one of the test files):
 
@@ -375,11 +393,11 @@ As mentioned in **Configuration Options**, multiple versions of a module can be 
     );
     </script>
 
-## Loading Code After Page Load
+## <a name="afterload">Loading Code After Page Load</a>
 
 The example above in the **Multiversion Support** section shows how code can later be loaded by nested require() calls. Note that "require" is specified as a dependency for the module. This allows the require method that is passed to the function callback to use the right context to load the modules correctly for multiversion support.
 
-## require.pause()/require.resume() for build layers/bundles
+## <a name="pauseresume">require.pause()/require.resume() for Build Layers</a>
 
 If you want to include many modules that use require.def() in one script, and those modules may depend on each other, then use require.pause() before the set of require calls to prevent require.js from tracing dependencies on each require call. When all the require calls have finished in the file, call require.resume() to have the dependencies properly traced.
 
@@ -409,7 +427,7 @@ Example:
 
 If require.pause() and require.resume() were not used, then the require.def() call to define "alpha" would have tried to load "beta" via another network/file IO call.
 
-## Module Modifiers
+## <a name="modifiers">Module Modifiers</a>
 
 There are some cases where you want to be able to modify the behavior of a module. A common case is setting up a base module but modifying it only if some specific information or state is available.
 
@@ -427,7 +445,7 @@ require.modify() is used for modifiers, and require.modify() can be called in tw
 * Modifier registration.
 * Modifier definition.
 
-### Modifier Registration
+### <a name="modregister">Modifier Registration</a>
 
 If you want to tell require.js that there is a modifier, but not actually load the modifier or the target yet, then just register the modifiers with require.js:
 
@@ -441,7 +459,7 @@ This call tells require.js to load the "my/modifier1" and "my/modifier2" modules
 
 You are not required to register modifiers with require.js. Only do it if you want to avoid loading the target modules and defining the modifiers right away. Otherwise, you can use Modifier Definition.
 
-### Modifier Definition
+### <a name="moddef">Modifier Definition</a>
 
 A modifier definition looks like a normal require.def() module definition, but:
 
@@ -463,7 +481,7 @@ For the example given above in Modifier Registration, where "my/target1" is the 
         }
     );
 
-## Rhino Support
+## <a name="rhino">Rhino Support</a>
 
 RequireJS can be used in Rhino, just be sure to load require.js and require/rhino.js before doing any require calls:
 

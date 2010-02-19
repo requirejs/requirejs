@@ -63,7 +63,7 @@ for (i = 0; (mdFile = files[i]); i++) {
     fileContents = fileContents.replace(/\$\{title\}/, h1);
 
     //Change any .md references to .html references
-    fileContents = fileContents.replace(/href="([^"]+)\.md"/g, 'href="$1.html"');
+    fileContents = fileContents.replace(/href="([^"]+)\.md/g, 'href="$1.html');
 
     //Adjust the path the main.css
     path = htmlFile.replace(/\/[^\/]+$/, "").replace(/^\.\/dist-site\//, "");
