@@ -14,8 +14,6 @@
  * Date: Sat Feb 13 22:33:48 2010 -0500
  */
 
-//REQUIREJS
-
 (function( window, undefined ) {
 
 // Define a local copy of jQuery
@@ -6252,6 +6250,7 @@ jQuery.each([ "Height", "Width" ], function( i, name ) {
 window.jQuery = window.$ = jQuery;
 
 if (useRequire) {
+    require.callReady = jQuery.callReady;
     require.def("jquery", function() { return jQuery; });
     require.def("jQuery", function() { return jQuery; });
 }

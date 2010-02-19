@@ -4,23 +4,13 @@
 #Available via the MIT, GPL or new BSD license.
 #see: http://github.com/jrburke/requirejs for details
 
-build/
-    minified/
-    comments/
-        xrequire.js
-        xallplugins-require.js
-        xrequirejs.zip
-        xjquery.js
-        jquery-sample.zip
-        xjquery+plugins.js
-
 #version should be something like 0.9.0beta or 0.9.0
 version=$1
 
-jqueryName=jquery-1.4.2
+jqueryName=jquery-1.4.2.js
 
 # Setup a build directory
-rm ../../requirejs-build
+rm -rf ../../requirejs-build
 mkdir ../../requirejs-build
 cp -r ../ ../../requirejs-build/requirejs-$version
 
@@ -35,25 +25,31 @@ mkdir $version/comments
 mv requirejs-$version.zip $version
 
 # Build requirejs
-cd build/require
+cd requirejs-$version/build/require
 ./build.sh
 cd build
-cp require.js ../../../$version/comments/require.js
-cp allplugins-require.js ../../../$version/comments/allplugins-require.js
+cp require.js ../../../../$version/comments/require.js
+cp allplugins-require.js ../../../../$version/comments/allplugins-require.js
 
 # Build jquery options
 cd ../../jquery
-./build.sh
-jqueryRequire=($(cat dist/jquery-require.js))
-jqueryPluginRequire=($(cat dist/jquery-allplugins-require.js))
-jquery=($(cat $jqueryName.js))
-simpleJQuery=$jquery | sed s/\/\/REQUIREJS/$jqueryRequire/
-pluginJQuery=$jquery | sed s/\/\/REQUIREJS/$jqueryPluginRequire/
+../build.sh jquery.build.js
 
-# Save jQuery options
+cat dist/jquery-require.js $jqueryName > ../../docs/jquery-require-sample/webapp/scripts/jquery.js
+cat dist/jquery-require.js $jqueryName > ../../../$version/comments/$jqueryName
+cat dist/jquery-allplugins-require.js $jqueryName > ../../../$version/comments/requirejsplugins-$jqueryName
+
+# Build the sample jQuery project
 cd ../../
-simpleJQuery > docs/jquery-require-sample/webapp/scripts/jquery.js
-simpleJQuery > $version/comments/$jqueryName.js
-pluginJQuery > $version/comments/plugins-$jqueryName.js
+cd docs/jquery-require-sample
+./dist.sh
+cp dist/jquery-require-sample.zip ../../../$version
 
-# 
+# Minify any of the JS files
+cd ../../../$version/comments
+java -jar ../../requirejs-$version/build/lib/closure/compiler.jar --js require.js --js_output_file ../minified/require.js
+java -jar ../../requirejs-$version/build/lib/closure/compiler.jar --js allplugins-require.js --js_output_file ../minified/allplugins-require.js
+java -jar ../../requirejs-$version/build/lib/closure/compiler.jar --js $jqueryName --js_output_file ../minified/$jqueryName
+java -jar ../../requirejs-$version/build/lib/closure/compiler.jar --js requirejsplugins-$jqueryName --js_output_file ../minified/requirejsplugins-$jqueryName
+
+cd ../../../
