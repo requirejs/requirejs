@@ -6,6 +6,10 @@
 
 #version should be something like 0.9.0beta or 0.9.0
 version=$1
+if [ -z $version ]; then
+    echo "Please pass in a version number"
+    exit 1
+fi
 
 jqueryName=jquery-1.4.2.js
 
@@ -35,9 +39,9 @@ cp allplugins-require.js ../../../../$version/comments/allplugins-require.js
 cd ../../jquery
 ../build.sh jquery.build.js
 
-cat dist/jquery-require.js $jqueryName > ../../docs/jquery-require-sample/webapp/scripts/jquery.js
-cat dist/jquery-require.js $jqueryName > ../../../$version/comments/$jqueryName
-cat dist/jquery-allplugins-require.js $jqueryName > ../../../$version/comments/requirejsplugins-$jqueryName
+cat dist/jquery-require.js $jqueryName > ../../docs/jquery-require-sample/webapp/scripts/require-jquery.js
+cat dist/jquery-require.js $jqueryName > ../../../$version/comments/require-$jqueryName
+cat dist/jquery-allplugins-require.js $jqueryName > ../../../$version/comments/requireplugins-$jqueryName
 
 # Build the sample jQuery project
 cd ../../
@@ -49,7 +53,7 @@ cp dist/jquery-require-sample.zip ../../../$version
 cd ../../../$version/comments
 java -jar ../../requirejs-$version/build/lib/closure/compiler.jar --js require.js --js_output_file ../minified/require.js
 java -jar ../../requirejs-$version/build/lib/closure/compiler.jar --js allplugins-require.js --js_output_file ../minified/allplugins-require.js
-java -jar ../../requirejs-$version/build/lib/closure/compiler.jar --js $jqueryName --js_output_file ../minified/$jqueryName
-java -jar ../../requirejs-$version/build/lib/closure/compiler.jar --js requirejsplugins-$jqueryName --js_output_file ../minified/requirejsplugins-$jqueryName
+java -jar ../../requirejs-$version/build/lib/closure/compiler.jar --js require-$jqueryName --js_output_file ../minified/require-$jqueryName
+java -jar ../../requirejs-$version/build/lib/closure/compiler.jar --js requireplugins-$jqueryName --js_output_file ../minified/requireplugins-$jqueryName
 
 cd ../../../

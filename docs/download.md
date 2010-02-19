@@ -7,12 +7,12 @@
 #### require.js
 
 All you need to start using require.js. Does not include i18n, text plugins or rhino support
-Download: Minified | With Comments
+Download: [Minified](release/0.8.0/minified/require.js) | [With Comments](release/0.8.0/comments/require.js)
 
 #### require.js with plugins
 
 require.js with the i18n and text plugins included.
-Download: Minified | With Comments
+Download: [Minified](release/0.8.0/minified/allplugins-require.js) | [With Comments](release/0.8.0/comments/allplugins-require.js)
 
 ### Optimization Tool / Full Source
 
@@ -20,7 +20,7 @@ A zip file that is the optimization tool for RequireJS. It also includes the ful
 
 Use this download if you want to use RequireJS in Rhino.
 
-Download
+[Download](release/0.8.0/requirejs-0.8.0.zip)
 
 #### jQuery 1.4.1 with require()
 
@@ -31,7 +31,7 @@ A build of jQuery with integrated require() support. Just includes the basic Req
 * page load support (it is assumed you will use jQuery's methods)
 * require.modify() support
 
-Download: Minified | With Comments
+[Download: Minified](release/0.8.0/minified/require-jquery-1.4.2.js) | [With Comments](release/0.8.0/comments/require-jquery-1.4.2.js)
 
 #### Sample jQuery 1.4.1 project with require()
 
@@ -42,7 +42,7 @@ A zip file containing a build of jQuery with integrated require() support, with 
 * page load support (it is assumed you will use jQuery's methods)
 * require.modify() support
 
-Download
+[Download](release/0.8.0/jquery-require-sample.zip)
 
 #### jQuery 1.4.1 with require() and plugins
 
@@ -52,7 +52,7 @@ A build of jQuery with integrated require() support and the i18n and text plugin
 * page load support (it is assumed you will use jQuery's methods)
 * require.modify() support
 
-Download: Minified | With Comments
+Download: [Minified](release/0.8.0/minified/require.js) | [With Comments](release/0.8.0/comments/require.js)
 
 #### Release Notes
 

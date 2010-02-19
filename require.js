@@ -1038,7 +1038,7 @@ var require;
         //Figure out baseUrl. Get it from the script tag with require.js in it.
         scripts = document.getElementsByTagName("script");
         //>>includeStart("jquery", pragmas.jquery);
-        rePkg = /jquery[\-\d\.]*(min)?\.js(\W|$)/i;
+        rePkg = /(requireplugins-|require-)?jquery[\-\d\.]*(min)?\.js(\W|$)/i;
         //>>includeEnd("jquery");
 
         //>>includeStart("dojoConvert", pragmas.dojoConvert);
@@ -1048,7 +1048,7 @@ var require;
         //>>excludeStart("dojoConvert", pragmas.dojoConvert);
 
         //>>excludeStart("jquery", pragmas.jquery);
-        rePkg = /require\.js(\W|$)/i;
+        rePkg = /(allplugins-)?require\.js(\W|$)/i;
         //>>excludeEnd("jquery");
 
         //>>excludeEnd("dojoConvert");
