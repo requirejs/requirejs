@@ -29,7 +29,7 @@ var require;
 (function (args) {
     var requireBuildPath, buildFile, baseUrlFile, buildPaths, deps, fileName, fileNames,
         prop, props, paths, path, i, fileContents, buildFileContents = "", builtrequirePath,
-        pauseResumeRegExp = /require\s*\.\s*(pause|resume)\s*\(\s*\)(;)?/g,
+        resumeRegExp = /require\s*\.\s*resume\s*\(\s*\)(;)?/g,
         textDepRegExp = /["'](text)\!([^"']+)["']/g,
         conditionalRegExp = /(exclude|include)Start\s*\(\s*["'](\w+)["']\s*,(.*)\)/,
         context, doClosure, requireContents, specified, delegate, baseConfig, override,
@@ -483,12 +483,16 @@ var require;
                 }
             }
 
-            //Remove any require.pause/resume calls, then add them back around
+            //Remove any require.resume calls, then add one at the end of
             //the whole file, but only if there were files written out, besides
-            //the require.js and plugin files.
+            //the require.js and plugin files. Include a require.pause() call at
+            //the top, but in some cases when require.js is not added to the file
+            //in this build pass, it may already be there. So always add it with a
+            //guard around the pause() call. Multiple pause() calls are OK, but
+            //there should only be one resume() call at the end of the file.
             if (require.buildFilePaths.length) {
-                fileContents = fileContents.replace(pauseResumeRegExp, "");
-                fileContents = "require.pause();\n" + fileContents + "\nrequire.resume();\n";
+                fileContents = fileContents.replace(resumeRegExp, "");
+                fileContents = "if (typeof require !== 'undefined' && require.pause) {require.pause();}\n" + fileContents + "\nrequire.resume();\n";
             }
 
             //Add the require file contents to the head of the file.
