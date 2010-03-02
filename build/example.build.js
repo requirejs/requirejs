@@ -92,11 +92,11 @@ require(
 
         //If execModules is true, each script is execute in
         //full to find the require calls/dependencies, but the code is executed
-        //in the Rhino JavaScript environment. Set this value to false
-        //if the code does not follow the strict require pattern of wrapping all
-        //code in a require callback. If you are using jQuery, you should set
-        //this value explicitly to false.
-        execModules: true,
+        //in the Rhino JavaScript environment. Set this value to true only
+        //if the code follows the strict require pattern of wrapping all
+        //code in a require callback. If you are using jQuery, Prototype or MooTools
+        //you should not set this value to true. Default is false.
+        execModules: false,
 
         //For build profiles that contain more than one require() call for build
         //layers, normally the first call's require() configuration options are used

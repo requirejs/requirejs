@@ -9,13 +9,12 @@
 
 /*jslint nomen: false, plusplus: false, regexp: false */
 /*global load: false, require: false, logger: false, setTimeout: true,
-readFile: false, processPragmas: false */
+readFile: false, processPragmas: false, Packages: false */
 "use strict";
 
 (function () {
-    var requireStartRegExp = /(^|\s+|;)require\s*\(/g,
-        requireDepsRegExp = /require(\s*\.\s*def)?\s*\(\s*(['"][^'"]+['"]\s*,)?\s*(\[[^\]]+\])/,
-        oldExec = require.exec;
+    var requireDepsRegExp = /require(\s*\.\s*def)?\s*\(\s*((['"]([^'"]+)['"])\s*,)?\s*(\[[^\]]+\])?/g,
+        quotedStringRegExp = /^\s*['"][^'"]+['"]\s*$/;
 
     //These variables are not contextName-aware since the build should
     //only have one context.
@@ -26,76 +25,27 @@ readFile: false, processPragmas: false */
     require.modulesWithNames = {};
 
     //Helper functions for the execModules: false case
-    function removeComments(contents) {
-        //strips JS comments from a string. Not bulletproof, but does a good enough job
-        //for stripping out stuff that is not related to mapping resource dependencies.
-
-        //If we get the contents of the file from Rhino, it might not be a JS
-        //string, but rather a Java string, which will cause the replace() method
-        //to bomb.
-        contents = contents ? contents + "" : "";
-        //clobber all comments
-        return contents.replace(/(\/\*([\s\S]*?)\*\/|\/\/(.*)$)/mg, "");
-    }
-
-    function extractMatchedParens(regexp, fileContents) {
-        //Pass in a regexp that includes a start parens: (, and this function will
-        //find the matching end parens for that regexp, remove the matches from fileContents,
-        //and return an array of the matches found.
-
-        var results = [], startIndex, endPoint,
-            matches, matchCount, parenMatch,
-            cleanedContent = [],
-            previousLastIndex = 0,
-            parenRe = /[\(\)]/g, match;
-
-        regexp.lastIndex = 0;
-        parenRe.lastIndex = 0;
-        
-        while ((matches = regexp.exec(fileContents))) {
-            //Find end of the call by finding the matching end paren
-            parenRe.lastIndex = regexp.lastIndex;
-            matchCount = 1;
-            while ((parenMatch = parenRe.exec(fileContents))) {
-                if (parenMatch[0] === ")") {
-                    matchCount -= 1;
-                } else {
-                    matchCount += 1;
-                }
-                if (matchCount === 0) {
-                    break;
-                }
-            }
+    function removeComments(fileName, contents) {
+        //Use Rhino to strip out comments automatically.
+        var context = Packages.org.mozilla.javascript.Context.enter(), script;
+        try {
+            // Use the interpreter for interactive input (copied this from Main rhino class).
+            context.setOptimizationLevel(-1);
     
-            if (matchCount !== 0) {
-                throw "unmatched paren around character " + parenRe.lastIndex + " in: " + fileContents;
-            }
-    
-            // Put the master matching string in the results.
-            startIndex = regexp.lastIndex - matches[0].length;
-            results.push(fileContents.substring(startIndex, parenRe.lastIndex));
-            // add file's fragment from previous console.* match to current match 
-            cleanedContent.push(fileContents.substring(previousLastIndex, startIndex));
-            
-            // Account for ending semicolon if desired.
-            endPoint = parenRe.lastIndex;
-
-            previousLastIndex = regexp.lastIndex = endPoint;
-    
+            script = context.compileString(contents, fileName, 1, null);
+            contents = context.decompileScript(script, 0) + "";
+        } finally {
+            Packages.org.mozilla.javascript.Context.exit();
         }
-    
-        // add the last matched fragment to the cleaned output
-        cleanedContent.push(fileContents.substring(previousLastIndex, fileContents.length));
-
-        return results;
+        return contents;
     }
-
 
     //Override load so that the file paths can be collected.
     require.load = function (moduleName, contextName) {
         /*jslint evil: true */
         var url = require.nameToUrl(moduleName, null, contextName), map,
-            contents, matches, match, i, deps,
+            contents, i, deps, matchName, matchDeps, depAry,
+            invalidDep = false, unquotedMatchName,
             context = require.s.contexts[contextName];
         context.loaded[moduleName] = false;
 
@@ -115,28 +65,57 @@ readFile: false, processPragmas: false */
             //evaluate those. This path is useful when the code
             //does not follow the strict require pattern of wrapping all
             //code in a require callback.
-            contents = removeComments(contents);
-            matches = extractMatchedParens(requireStartRegExp, contents);
-            if (matches.length) {
-                for (i = 0; (match = matches[i]); i++) {
-                    deps = requireDepsRegExp.exec(match);
-                    if (deps) {
-                        //If have a module name be sure to track that in the require call.
-                        if (deps[2] && deps[3]) {
-                            //If the deps[1] matches the moduleName, then mark it as having
-                            //a name.
-                            if (deps[2].match(new RegExp('[\'"]' + moduleName + '[\'"]'))) {
-                                require.modulesWithNames[moduleName] = true;
+            contents = removeComments(url, contents);
+
+            //Pause require, since the file might have many modules defined in it
+            require.pause();
+
+            requireDepsRegExp.lastIndex = 0;
+            while ((deps = requireDepsRegExp.exec(contents))) {
+                //Validate matched name and deps, if either one is not
+                //a JS string (or array of strings for deps), then do
+                //not try to use them, since it is a runtime-computed value.
+
+                //If matchName exists, then it is quoted, given the structure
+                //of the regexp, which wants to find quotes around the value.
+                matchName = deps[3];
+                unquotedMatchName = deps[4];
+                matchDeps = deps[5];
+                if (matchDeps) {
+                    depAry = matchDeps.replace(/^\s*\[/, "").replace(/\]\s*$/, "").split(/\s*,\s*/);
+                    if (!depAry) {
+                        continue;
+                    } else {
+                        //Go through each dep and see if they are quoted strings.
+                        //If not, then skip this match
+                        invalidDep = false;
+                        for (i = 0; i < depAry.length; i++) {
+                            if ((invalidDep = !quotedStringRegExp.test(depAry[i]))) {
+                                break;
                             }
-                            eval('require.def(' + deps[2] + deps[3] + ');');
                         }
-                        //Just call with dependencies.
-                        if (deps[3]) {
-                            eval('require(' + deps[3] + ');');
+                        if (invalidDep) {
+                            continue;
                         }
                     }
+
+                    matchDeps = eval('(' + matchDeps  + ')');
+                }
+
+                //If have a module name be sure to track that in the require call.
+                if (matchName) {
+                    require.modulesWithNames[moduleName] = true;
+                    require.def(unquotedMatchName, matchDeps);
+                    //eval('require.def(' + matchName + ', ' + matchDeps + ', );');
+                } else if (matchDeps) {
+                    //Just call with dependencies.
+                    require(matchDeps);
                 }
             }
+
+            //Resume require now that processing of the file has finished.
+            require.resume();
+
         }
 
         //Mark the module loaded.

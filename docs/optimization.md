@@ -14,6 +14,10 @@ The build tool works by defining a build profile, normally in a file with a suff
 
 The optimization tool uses [Google Closure Compiler](http://code.google.com/closure/compiler/) to do the code minification, and therefore requires [Java 6](http://java.com/) to run.
 
+## Download
+
+You can download the tool on [the download page](download.md#optimizationtool).
+
 ## How to structure your project
 
 Please see [the jQuery example page](jquery.md) for a description on how to best lay out your project, and where to place the optimization tool relative to your code. The ***app.build.js*** file in that example is the build profile.

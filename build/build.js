@@ -42,7 +42,7 @@ var require;
             optimize: "closure",
             optimizeCss: true,
             inlineText: true,
-            execModules: true
+            execModules: false
         },
         layers = {}, layer, layerName, ostring = Object.prototype.toString;
 
@@ -341,17 +341,18 @@ var require;
     if (config.appDir) {
         config.dirBaseUrl = config.dir + config.baseUrl;
         config.baseUrl = config.appDir + config.baseUrl;
+        //All the paths should be inside the appDir
+        buildPaths = paths;
     } else {
         config.dirBaseUrl = config.dir;
-    }
-
-    //Now copy all paths.
-    for (prop in paths) {
-        if (paths.hasOwnProperty(prop)) {
-            //Set up build path for each path prefix.
-            buildPaths[prop] = prop.replace(/\./g, "/");
-            //Copy files to build area. Copy all files (the /\w/ regexp)
-            fileUtil.copyDir(paths[prop], config.dirBaseUrl + buildPaths[prop], /\w/, true);
+        //If no appDir, then make sure to copy the other paths to this directory.
+        for (prop in paths) {
+            if (paths.hasOwnProperty(prop)) {
+                //Set up build path for each path prefix.
+                buildPaths[prop] = prop.replace(/\./g, "/");
+                //Copy files to build area. Copy all files (the /\w/ regexp)
+                fileUtil.copyDir(paths[prop], config.dirBaseUrl + buildPaths[prop], /\w/, true);
+            }
         }
     }
 

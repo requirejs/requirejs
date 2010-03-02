@@ -1,7 +1,4 @@
-- Update jquery patch for require.isDone check in jquery ready for the case when
-  a $().ready call is made before all modules are evaluated, particularly if
-  the $().ready call is done inside a module callback that is not at the top
-  of the dependency chain (like dojo.parser in Dojo)
+- Link to GitHub, twitter on the pages.
   
 Differences with rcgill's fork. Master has:
 - Checks for existing require, exits out.
