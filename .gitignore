@@ -5,6 +5,7 @@ build/convert/dojo/
 build/tests/build/
 build/tests/buildtext/
 build/tests/buildcircular/
+build/tests/cssbuild/
 build/jquery/dist/
 build/require/build/
 docs/jquery-require-sample/webapp-build/

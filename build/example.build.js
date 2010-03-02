@@ -58,8 +58,23 @@ require(
         //mode to minify the code.
         //- "closure.keepLines": Same as closure option, but keeps line returns
         //in the minified files.
+        //- "none": no minification will be done.
         optimize: "closure",
-        
+
+        //Allow CSS optimizations. Allowed values:
+        //- "standard": @import inlining, comment removal and line returns.
+        //Removing line returns may have problems in IE, depending on the type
+        //of CSS.
+        //- "standard.keepLines": like "standard" but keeps line returns.
+        //- "none": skip CSS optimizations.
+        optimizeCss: "standard.keepLines",
+
+        //If optimizeCss is in use, a list of of files to ignore for the @import
+        //inlining. The value of this option should be a comma separated list
+        //of CSS file names to ignore. The file names should match whatever
+        //strings are used in the @import calls.
+        cssImportIgnore: null,
+
         //Inlines the text for any text! dependencies, to avoid the separate
         //async XMLHttpRequest calls to load those dependencies.
         inlineText: true,

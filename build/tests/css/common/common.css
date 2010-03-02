@@ -1,0 +1,4 @@
+/* These are common styles */
+body {
+    background: blue url(img/body.png) bottom center;
+}

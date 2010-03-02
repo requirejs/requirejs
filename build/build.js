@@ -32,15 +32,18 @@ var require;
         resumeRegExp = /require\s*\.\s*resume\s*\(\s*\)(;)?/g,
         textDepRegExp = /["'](text)\!([^"']+)["']/g,
         conditionalRegExp = /(exclude|include)Start\s*\(\s*["'](\w+)["']\s*,(.*)\)/,
+        backSlashRegExp = /\\/g,
+        cssImportRegExp = /\@import\s+(url\()?\s*([^);]+)\s*(\))?([\w, ]*)(;)?/g,
+        cssUrlRegExp = /\url\(\s*([^\)]+)\s*\)?/g,
         context, doClosure, requireContents, specified, delegate, baseConfig, override,
-        JSSourceFilefromCode, placeHolderModName, url,
+        JSSourceFilefromCode, placeHolderModName, url, builtRequirePath,
 
         //Set up defaults for the config.
         config = {
             pragmas: {},
             paths: {},
             optimize: "closure",
-            optimizeCss: true,
+            optimizeCss: "standard.keepLines",
             inlineText: true,
             execModules: false
         },
@@ -156,6 +159,171 @@ var require;
     }
 
     /**
+     * If an URL from a CSS url value contains start/end quotes, remove them.
+     * This is not done in the regexp, since my regexp fu is not that strong,
+     * and the CSS spec allows for ' and " in the URL if they are backslash escaped.
+     * @param {String} url
+     */
+    function cleanCssUrlQuotes(url) {
+        //Make sure we are not ending in whitespace.
+        //Not very confident of the css regexps above that there will not be ending
+        //whitespace.
+        url = url.replace(/\s+$/, "");
+
+        if (url.charAt(0) === "'" || url.charAt(0) === "\"") {
+            url = url.substring(1, url.length - 1);
+        }
+
+        return url;
+    }
+
+    /**
+     * Inlines nested stylesheets that have @import calls in them.
+     * @param {String} fileName
+     * @param {String} fileContents
+     * @param {String} [cssImportIgnore]
+     */
+    function flattenCss(fileName, fileContents, cssImportIgnore) {
+        //Find the last slash in the name.
+        fileName = fileName.replace(backSlashRegExp, "/");
+        var endIndex = fileName.lastIndexOf("/"),
+            //Make a file path based on the last slash.
+            //If no slash, so must be just a file name. Use empty string then.
+            filePath = (endIndex !== -1) ? fileName.substring(0, endIndex + 1) : "";
+    
+        return fileContents.replace(cssImportRegExp, function (fullMatch, urlStart, importFileName, urlEnd, mediaTypes) {
+            //Only process media type "all" or empty media type rules.
+            if (mediaTypes && ((mediaTypes.replace(/^\s\s*/, '').replace(/\s\s*$/, '')) !== "all")) {
+                return fullMatch;
+            }
+    
+            importFileName = cleanCssUrlQuotes(importFileName);
+            
+            //Ignore the file import if it is part of an ignore list.
+            if (cssImportIgnore && cssImportIgnore.indexOf(importFileName + ",") !== -1) {
+                return fullMatch;
+            }
+
+            //Make sure we have a unix path for the rest of the operation.
+            importFileName = importFileName.replace(backSlashRegExp, "/");
+    
+            try {
+                //if a relative path, then tack on the filePath.
+                //If it is not a relative path, then the readFile below will fail,
+                //and we will just skip that import.
+                var fullImportFileName = importFileName.charAt(0) === "/" ? importFileName : filePath + importFileName,
+                    importContents = fileUtil.readFile(fullImportFileName), i,
+                    importEndIndex, importPath, fixedUrlMatch, colonIndex, parts;
+
+                //Make sure to flatten any nested imports.
+                importContents = flattenCss(fullImportFileName, importContents);
+
+                //Make the full import path
+                importEndIndex = importFileName.lastIndexOf("/");
+
+                //Make a file path based on the last slash.
+                //If no slash, so must be just a file name. Use empty string then.
+                importPath = (importEndIndex !== -1) ? importFileName.substring(0, importEndIndex + 1) : "";
+
+                //Modify URL paths to match the path represented by this file.
+                importContents = importContents.replace(cssUrlRegExp, function (fullMatch, urlMatch) {
+                    fixedUrlMatch = cleanCssUrlQuotes(urlMatch);
+                    fixedUrlMatch = fixedUrlMatch.replace(backSlashRegExp, "/");
+    
+                    //Only do the work for relative URLs. Skip things that start with / or have
+                    //a protocol.
+                    colonIndex = fixedUrlMatch.indexOf(":");
+                    if (fixedUrlMatch.charAt(0) !== "/" && (colonIndex === -1 || colonIndex > fixedUrlMatch.indexOf("/"))) {
+                        //It is a relative URL, tack on the path prefix
+                        urlMatch = importPath + fixedUrlMatch;
+                    } else {
+                        logger.trace(importFileName + "\n  URL not a relative URL, skipping: " + urlMatch);
+                    }
+
+                    //Collapse .. and .
+                    parts = urlMatch.split("/");
+                    for (i = parts.length - 1; i > 0; i--) {
+                        if (parts[i] === ".") {
+                            parts.splice(i, 1);
+                        } else if (parts[i] === "..") {
+                            if (i !== 0 && parts[i - 1] !== "..") {
+                                parts.splice(i - 1, 2);
+                                i -= 1;
+                            }
+                        }
+                    }
+    
+                    return "url(" + parts.join("/") + ")";
+                });
+    
+                return importContents;
+            } catch (e) {
+                logger.trace(fileName + "\n  Cannot inline css import, skipping: " + importFileName);
+                return fullMatch;
+            }
+        });
+    }
+
+   /**
+     * Optimizes CSS files, inlining @import calls, stripping comments, and
+     * optionally removes line returns.
+     * @param {String} startDir the path to the top level directory
+     * @param {String} optimizeType, the config's optimizeCss value.
+     * @param {String} a comma-separated list of paths to not @import inline.
+     */
+    function optimizeCss(startDir, optimizeType, cssImportIgnore) {
+        if (optimizeType.indexOf("standard") !== -1) {
+            //Make sure we have a delimited ignore list to make matching faster
+            if (cssImportIgnore) {
+                cssImportIgnore = cssImportIgnore + ",";
+            }
+
+            var i, fileName, startIndex, endIndex, originalFileContents, fileContents,
+                fileList = fileUtil.getFilteredFileList(startDir, /\.css$/, true);
+            if (fileList) {
+                for (i = 0; i < fileList.length; i++) {
+                    fileName = fileList[i];
+                    logger.trace("Optimizing (" + optimizeType + ") CSS file: " + fileName);
+                    
+                    //Read in the file. Make sure we have a JS string.
+                    originalFileContents = fileUtil.readFile(fileName);
+                    fileContents = flattenCss(fileName, originalFileContents, cssImportIgnore);
+    
+                    //Do comment removal.
+                    try {
+                        startIndex = -1;
+                        //Get rid of comments.
+                        while ((startIndex = fileContents.indexOf("/*")) !== -1) {
+                            endIndex = fileContents.indexOf("*/", startIndex + 2);
+                            if (endIndex === -1) {
+                                throw "Improper comment in CSS file: " + fileName;
+                            }
+                            fileContents = fileContents.substring(0, startIndex) + fileContents.substring(endIndex + 2, fileContents.length);
+                        }
+                        //Get rid of newlines.
+                        if (optimizeType.indexOf(".keepLines") === -1) {
+                            fileContents = fileContents.replace(/[\r\n]/g, "");
+                            fileContents = fileContents.replace(/\s+/g, " ");
+                            fileContents = fileContents.replace(/\{\s/g, "{");
+                            fileContents = fileContents.replace(/\s\}/g, "}");
+                        } else {
+                            //Remove multiple empty lines.
+                            fileContents = fileContents.replace(/(\r\n)+/g, "\r\n");
+                            fileContents = fileContents.replace(/(\n)+/g, "\n");
+                        }
+                    } catch (e) {
+                        fileContents = originalFileContents;
+                        logger.error("Could not optimized CSS file: " + fileName + ", error: " + e);
+                    }
+        
+                    //Write out the file with appropriate copyright.
+                    fileUtil.saveUtf8File(fileName, fileContents);
+                }
+            }
+        }
+    }
+
+    /**
      * processes the fileContents for some //>> conditional statements
      */
     this.processPragmas = function (fileName, fileContents, config) {
@@ -263,7 +431,7 @@ var require;
     }
 
     baseUrlFile = buildFile.getAbsoluteFile().getParentFile();
-    buildFile = (buildFile.getAbsolutePath() + "").replace(/\\/g, "/");
+    buildFile = (buildFile.getAbsolutePath() + "").replace(backSlashRegExp, "/");
 
     //Set up some defaults in the default config
     config.appDir = "";
@@ -320,7 +488,7 @@ var require;
     props = ["appDir", "dir", "baseUrl"];
     for (i = 0; (prop = props[i]); i++) {
         if (config[prop]) {
-            config[prop] = config[prop].replace(/\\/g, "/");
+            config[prop] = config[prop].replace(backSlashRegExp, "/");
             if (config[prop].charAt(config[prop].length - 1) !== "/") {
                 config[prop] += "/";
             }
@@ -535,5 +703,9 @@ var require;
         fileUtil.saveUtf8File(fileName, fileContents);
     }
 
+    //Do CSS optimizations
+    if (config.optimizeCss && config.optimizeCss !== "none") {
+        optimizeCss(config.dir, config.optimizeCss, config.cssImportIgnore);
+    }
 
 }(arguments));

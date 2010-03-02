@@ -1,4 +1,9 @@
 - Link to GitHub, twitter on the pages.
+- Developer page? Code style guidelines?
+
+- i18n files not included in builds, even though they are listed as dependencies?
+
+
   
 Differences with rcgill's fork. Master has:
 - Checks for existing require, exits out.
@@ -35,8 +40,6 @@ but something weird is going on, where they still seem to be requested? And the 
 gets really slow up at the end (in FF)?
 
 - Determine if document.write helps with Operation Aborted in IE.
-
-- Add CSS optimization support (from dojo) to build tool.
 
 - Document build tool.
 

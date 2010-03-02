@@ -3,7 +3,7 @@
 RequireJS comes with an optimization tool that does the following:
 
 * Combines related scripts together into build layers and minifies them via Google Closure.
-* (Coming Soon) optimizes CSS by inlining CSS files referenced by @import and removing comments and extra whitespace.
+* Optimizes CSS by inlining CSS files referenced by @import and removing comments.
 * Can add require.js and any of its plugins to any optimized build layer.
 
 The optimization tool is in the requirejs/build directory, and it is designed to be run as part of a build or packaging step after you are done with development and are ready to deploy the code for your users.
