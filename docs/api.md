@@ -145,15 +145,13 @@ To define a bundle, put it in a directory called "nls" -- the i18n! plugin assum
 
 The contents of that file should look like so:
 
-    require.def("i18n!my/nls/colors",
-        [{
-            "root": {
-                "red": "red",
-                "blue": "blue",
-                "green": "green"
-            }
-        }]
-    );
+    require.def("i18n!my/nls/colors", {
+        "root": {
+            "red": "red",
+            "blue": "blue",
+            "green": "green"
+        }
+    });
 
 Notice that an object literal with a property of "root" as given as the only dependency for this module. That is all you have to do to set the stage for later localization (l10n) work.
 
@@ -172,26 +170,22 @@ The my/lamps module has one property called "testMessage" that uses colors.red t
 
 Later, when you want to add a specific translation to a file, say for the fr-fr locale, change my/nls/colors to look like so:
 
-    require.def("i18n!my/nls/colors",
-        [{
-            "root": {
-                "red": "red",
-                "blue": "blue",
-                "green": "green"
-            },
-            "fr-fr": true
-        }]
-    );
+    require.def("i18n!my/nls/colors", {
+        "root": {
+            "red": "red",
+            "blue": "blue",
+            "green": "green"
+        },
+        "fr-fr": true
+    });
 
 Then define a file at my/nls/fr-fr/colors.js that has the following contents:
 
-    require.def("i18n!my/nls/fr-fr/colors",
-      {
+    require.def("i18n!my/nls/fr-fr/colors", {
         "red": "rouge",
         "blue": "bleu",
         "green": "vert"
-      }
-    );
+    });
 
 require.js will use browser's navigator.language or navigator.userLanguage property to determine what locale values to use for my/nls/colors, your app does not have to change. If you prefer to set the locale, you can use the locale: configuration parameter to require.js (see the **Configuration options** section).
 
@@ -199,12 +193,10 @@ require.js is also smart enough to pick the right locale bundle, the one that mo
 
 require.js also combines bundles together, so for instance, if the french bundle was defined like so (omitting a value for red):
 
-    require.def("i18n!my/nls/fr-fr/colors",
-      {
+    require.def("i18n!my/nls/fr-fr/colors", {
         "blue": "bleu",
         "green": "vert"
-      }
-    );
+    });
 
 Then the value for red in "root" will be used. This works for all locale pieces. If all the bundles listed below were defined, then require.js will use the values in the following priority order (the one at the top takes the most precedence):
 
