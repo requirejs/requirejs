@@ -67,10 +67,14 @@ var require;
         if (plugin) {
             plugin[obj.name].apply(null, obj.args);
         } else {
-            //Load the module and add the call to waitin queue.
-            context.defined.require(["require/" + prefix]);
+            //Put the call in the waiting call BEFORE requiring the module,
+            //since the require could be synchronous in some environments,
+            //like builds
             waiting = s.plugins.waiting[prefix] || (s.plugins.waiting[prefix] = []);
             waiting.push(obj);
+
+            //Load the module
+            context.defined.require(["require/" + prefix]);
         }
     }
     //>>excludeEnd("requireExcludePlugin");
