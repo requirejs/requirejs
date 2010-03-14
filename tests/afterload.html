@@ -5,7 +5,7 @@
     <script type="text/javascript" src="doh/runner.js"></script>
     <script type="text/javascript" src="doh/_browserRunner.js"></script>
     <script type="text/javascript">
-    var d;
+    var d, s, head;
 
     function goRequire() {
         //Need a hack to trigger require.pageLoaded() for pre Firefox 3.6 browsers.
@@ -21,14 +21,20 @@
             function (require, simple) {
                 require.ready(function() {
                     doh.is("blue", simple.color);
-                    d.callback(true);
+
+                    //Now test another script getting loaded will see
+                    //document.readyState === "complete".
+                    var s = document.createElement("script");
+                    s.src = "afterloadreadystate.js";
+                    s.charset = "utf-8";
+                    head.appendChild(s);
                 });
             }
         );
     }
 
     function loadRequire() {
-        var s, head, readyRegExp = /complete|loaded/;
+        var readyRegExp = /complete|loaded/;
         function onScriptLoad(evt) {
             var node = evt.target || evt.srcElement;
             if (evt.type === "load" || readyRegExp.test(node.readyState)) {
@@ -103,8 +109,8 @@
 </head>
 <body onload="loadRequire()">
     <h1>require.js: After Load Test</h1>
-    <p>Tests adding require after the page loads. Test will fail in Firefox 3.5 and
-    earlier, but Firefox 3.6+ will work.</p>
+    <p>Tests adding require after the page loads, and tests that require.js patches
+    up document.readyState for Firefox less than 3.6.</p>
     <p>Check console for messages</p>
 </body>
 </html>

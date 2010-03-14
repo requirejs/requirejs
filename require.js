@@ -19,7 +19,7 @@ var require;
     var version = "0.8.0",
             empty = {}, s,
             i, defContextName = "_", contextLoads = [],
-            scripts, script, rePkg, src, m, cfg,
+            scripts, script, rePkg, src, m, cfg, setReadyState,
             readyRegExp = /^(complete|loaded)$/,
             isBrowser = !!(typeof window !== "undefined" && navigator && document),
             ostring = Object.prototype.toString, scrollIntervalId;
@@ -1093,6 +1093,17 @@ var require;
             if (scrollIntervalId) {
                 clearInterval(scrollIntervalId);
             }
+
+            //Part of a fix for FF < 3.6 where readyState was not set to
+            //complete so libraries like jQuery that check for readyState
+            //after page load where not getting initialized correctly.
+            //Original approach suggested by Andrea Giammarchi:
+            //http://webreflection.blogspot.com/2009/11/195-chars-to-help-lazy-loading.html
+            //see other setReadyState reference for the rest of the fix.
+            if (setReadyState) {
+                document.readyState = "complete";
+            }
+
             require.callReady();
         }
     };
@@ -1131,6 +1142,11 @@ var require;
             //it knows about DOMContentLoaded.
             document.addEventListener("DOMContentLoaded", require.pageLoaded, false);
             window.addEventListener("load", require.pageLoaded, false);
+            //Part of FF < 3.6 readystate fix (see setReadyState refs for more info)
+            if (!document.readyState) {
+                setReadyState = true;
+                document.readyState = "loading";
+            }
         } else if (window.attachEvent) {
             window.attachEvent("onload", require.pageLoaded);
 
