@@ -1041,21 +1041,25 @@ var require;
     if (require.isBrowser && (!s.baseUrl || !s.head)) {
         //Figure out baseUrl. Get it from the script tag with require.js in it.
         scripts = document.getElementsByTagName("script");
-        //>>includeStart("jquery", pragmas.jquery);
-        rePkg = /(requireplugins-|require-)?jquery[\-\d\.]*(min)?\.js(\W|$)/i;
-        //>>includeEnd("jquery");
+        if (cfg && cfg.baseUrlMatch) {
+            rePkg = cfg.baseUrlMatch;
+        } else {
+            //>>includeStart("jquery", pragmas.jquery);
+            rePkg = /(requireplugins-|require-)?jquery[\-\d\.]*(min)?\.js(\W|$)/i;
+            //>>includeEnd("jquery");
 
-        //>>includeStart("dojoConvert", pragmas.dojoConvert);
-        rePkg = /dojo\.js(\W|$)/i;
-        //>>includeEnd("dojoConvert");
+            //>>includeStart("dojoConvert", pragmas.dojoConvert);
+            rePkg = /dojo\.js(\W|$)/i;
+            //>>includeEnd("dojoConvert");
 
-        //>>excludeStart("dojoConvert", pragmas.dojoConvert);
+            //>>excludeStart("dojoConvert", pragmas.dojoConvert);
 
-        //>>excludeStart("jquery", pragmas.jquery);
-        rePkg = /(allplugins-)?require\.js(\W|$)/i;
-        //>>excludeEnd("jquery");
+            //>>excludeStart("jquery", pragmas.jquery);
+            rePkg = /(allplugins-)?require\.js(\W|$)/i;
+            //>>excludeEnd("jquery");
 
-        //>>excludeEnd("dojoConvert");
+            //>>excludeEnd("dojoConvert");
+        }
 
         for (i = scripts.length - 1; (script = scripts[i]); i--) {
             //Set the "head" where we can append children by

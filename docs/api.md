@@ -296,6 +296,10 @@ Supported configuration options:
 
 If no baseUrl is passed in, the path to require.js is used as the baseUrl path.
 
+**baseUrlMatch**: If no baseUrl is specified, normally the path to require.js is used. However, if you build RequireJS into another file with a name that does not have "require.js" in it, then the autodetection of the baseUrl will fail. In that case you can set baseUrlMatch to match the name of the file you built. The value should be a Regular expression. For example:
+
+    baseUrlMatch: /mycustomlib\.js/i
+
 **paths**: allows configuration of some modules paths. Assumed to be relative to baseUrl. So for "some/module"'s script tag will have a src="/another/path/some/v1.0/module.js"
 
 **waitSeconds**: The number of seconds to wait before giving up on loading a script. The default is 7 seconds.
