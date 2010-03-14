@@ -1,8 +1,13 @@
 - Link to GitHub, twitter on the pages.
 - Developer page? Code style guidelines?
+- Put jquery github fork on download page.
+- Put most recent release link in the README
 
 - i18n files not included in builds, even though they are listed as dependencies?
+- require/i18n.js included in a layer, but may trigger a load of that plugin? Check
+  that even in a require.pause() state it is not requested, or move plugins to the top.
 
+- Really try to see if we can just use . for the text! suffix instead of ! I keep mistyping.
 
   
 Differences with rcgill's fork. Master has:

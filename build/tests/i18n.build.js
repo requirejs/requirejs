@@ -3,7 +3,8 @@ require({
         baseUrl: "../../tests/i18n",
         requireUrl: "../../require.js",
         dir: "buildi18n",
-        locale: "en-us-surfer"
+        locale: "en-us-surfer",
+        optimize: "none"
     },
     "nls/colors"
 );

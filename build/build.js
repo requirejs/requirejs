@@ -422,6 +422,7 @@ var require;
 
     load(requireBuildPath + "/jslib/logger.js");
     load(requireBuildPath + "/jslib/fileUtil.js");
+    load(requireBuildPath + "/jslib/parse.js");
 
     //Find the build file, and make sure it exists.
     buildFile = new java.io.File(args[1]).getAbsoluteFile();
