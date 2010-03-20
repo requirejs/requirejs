@@ -1,12 +1,14 @@
-- Link to GitHub, twitter on the pages.
 - Developer page? Code style guidelines?
-- Put jquery github fork on download page.
 - Put most recent release link in the README
 
 - i18n files not included in builds, even though they are listed as dependencies?
 - require/i18n.js included in a layer, but may trigger a load of that plugin? Check
   that even in a require.pause() state it is not requested, or move plugins to the top.
 
+- Build option to remove files that are not part of a layer.
+- Make sure text plugin works offline.
+- Get Blackberry simulator. Blackberry greater than 4.6, and particulary with the Blackberry 9500 simulator (with OS v4.7),
+install and launch Blackberry MDS service simulator before running simulator to get network.
 - Really try to see if we can just use . for the text! suffix instead of ! I keep mistyping.
 
   

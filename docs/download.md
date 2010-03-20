@@ -32,6 +32,8 @@ A build of jQuery with integrated require() support and the i18n and text plugin
 * page load support (it is assumed you will use jQuery's methods)
 * require.modify() support
 
+The integrated builds with jQuery contain the changes in [this jQuery fork](http://github.com/jrburke/jquery).
+
 <hr>
 
 #### <a name="samplejquery">Sample jQuery 1.4.2 project with require()</a> [Download](release/0.8.0/jquery-require-sample.zip)

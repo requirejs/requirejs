@@ -14,7 +14,7 @@ The core require.js file around 3.5KB when minified via Closure Compiler and gzi
 
 The unit tests work in IE 6+, Firefox 3.0+, Safari 4+, Chrome 3+, and Opera 10+.
 
-Latest Release: 0.8.0
+Latest Release: [0.8.0](http://requirejs.org/docs/download.html)
 
 * [Start](docs/start.md)
     * [Using it with jQuery](docs/jquery.md)

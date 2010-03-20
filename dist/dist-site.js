@@ -31,6 +31,7 @@ var files, i, mdFile, htmlFile, fileContents,
 //Copy all the text files to a dist directory
 fileUtil.deleteFile("./dist-site/");
 fileUtil.copyFile("main.css", "./dist-site/main.css");
+fileUtil.copyDir("fonts", "./dist-site/fonts", /\w/);
 fileUtil.copyFile("../README.md", "./dist-site/index.md");
 fileUtil.copyDir("../docs/", "./dist-site/docs/", /\w/);
 
