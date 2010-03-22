@@ -1061,7 +1061,7 @@ var require;
             //>>excludeEnd("dojoConvert");
         }
 
-        for (i = scripts.length - 1; (script = scripts[i]); i--) {
+        for (i = scripts.length - 1; i > -1 && (script = scripts[i]); i--) {
             //Set the "head" where we can append children by
             //using the script's parent.
             if (!s.head) {
