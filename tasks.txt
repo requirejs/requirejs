@@ -1,37 +1,15 @@
 - Developer page? Code style guidelines?
-- Put most recent release link in the README
-
-- i18n files not included in builds, even though they are listed as dependencies?
-- require/i18n.js included in a layer, but may trigger a load of that plugin? Check
-  that even in a require.pause() state it is not requested, or move plugins to the top.
 
 - Build option to remove files that are not part of a layer.
 - Make sure text plugin works offline.
+- Make sure text plugin works in rhino env.
 - Get Blackberry simulator. Blackberry greater than 4.6, and particulary with the Blackberry 9500 simulator (with OS v4.7),
 install and launch Blackberry MDS service simulator before running simulator to get network.
-- Really try to see if we can just use . for the text! suffix instead of ! I keep mistyping.
-
-  
-Differences with rcgill's fork. Master has:
-- Checks for existing require, exits out.
-- Allows config via a require object.
+- Really try to see if we can just use . for the text! file suffix instead of ! I keep mistyping.
 
 - Use JSDoc to document a full module?
 
-- build issue: module defined like so:
-require.def(
-  "dimple",
-  {
-    color: "dimple-blue"
-  }
-);
-will get an extra require("dimple", function(){}) output in a layer. Because it does not get tracked
-by require.modulesWithNames. See simple.build.js.
-
 - Fix build.bat on windows.
-
-- Expand tests for no head tag, slow connection. Put require.js in a div inside body, or head tag after
-body etc...
 
 - loading more than one locale for a page. A locales= option? Need this for full
   Dojo conversion.
@@ -42,17 +20,9 @@ allow at least a build pragma to exclude it.
 - When doing docs via jsdoc, using {some/module} as return types? How does JSDoc deal with the nested objects?
   Probably needs custom work to get it recognize the module concept thing.
 
-- Specifying locale: root for a build layer puts the root bundles in the layer,
-but something weird is going on, where they still seem to be requested? And the browser
-gets really slow up at the end (in FF)?
-
 - Determine if document.write helps with Operation Aborted in IE.
 
 - Document build tool.
-
-- Rhino tests.
-
-- Build converters that can convert dojo and commonjs modules into require.js format.
 
 Considered, but not implemented
 -------------------------------

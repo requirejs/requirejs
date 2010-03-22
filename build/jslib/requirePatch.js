@@ -13,13 +13,18 @@ readFile: false, processPragmas: false, Packages: false, parse: false */
 "use strict";
 
 (function () {
-    //These variables are not contextName-aware since the build should
-    //only have one context.
-    require.buildPathMap = {};
-    require.buildFileToModule = {};
-    require.buildFilePaths = [];
-    require.loadedFiles = {};
-    require.modulesWithNames = {};
+    /** Reset state for each build layer pass. */
+    require._buildReset = function () {
+        //These variables are not contextName-aware since the build should
+        //only have one context.
+        require.buildPathMap = {};
+        require.buildFileToModule = {};
+        require.buildFilePaths = [];
+        require.loadedFiles = {};
+        require.modulesWithNames = {};
+    };
+
+    require._buildReset();
 
     //Override load so that the file paths can be collected.
     require.load = function (moduleName, contextName) {
@@ -27,7 +32,8 @@ readFile: false, processPragmas: false, Packages: false, parse: false */
         var url = require.nameToUrl(moduleName, null, contextName), map,
             contents, i, deps, matchName, matchDeps, depAry,
             invalidDep = false, unquotedMatchName,
-            context = require.s.contexts[contextName];
+            context = require.s.contexts[contextName],
+            previouslyDefined = context.defined[moduleName];
         context.loaded[moduleName] = false;
 
         //Save the module name to path mapping.
@@ -38,26 +44,36 @@ readFile: false, processPragmas: false, Packages: false, parse: false */
         contents = readFile(url);
         contents = processPragmas(url, contents, context.config);
 
-        //Only eval contents if asked, or if it is a require extension.
-        if (context.config.execModules || moduleName === "require/text" || moduleName === "require/i18n") {
-            require.pause();
-            eval(contents);
-            require.resume();
-        } else {
+        //Only eval complete contents if asked, or if it is a require extension.
+        //Otherwise, treat the module as not safe for execution and parse out
+        //the require calls.
+        if (!context.config.execModules && moduleName !== "require/text" && moduleName !== "require/i18n") {
             //Only find the require parts with [] dependencies and
             //evaluate those. This path is useful when the code
             //does not follow the strict require pattern of wrapping all
             //code in a require callback.
             contents = parse(url, contents);
-            if (contents) {
-                //Pause require, since the file might have many modules defined in it
-                require.pause();
+        }
 
-                eval(contents);
+        if (contents) {
+            //Pause require, since the file might have many modules defined in it
+            require.pause();
 
-                //Resume require now that processing of the file has finished.
-                require.resume();
+            eval(contents);
+
+            //At this point, if the module is defined, it means it was a
+            //simple module with no dependencies, defined by an object literal,
+            //like an i18n bundle. Do this before require.resume() is called
+            //to guarantee this is just an object literal.
+            if (!previouslyDefined && context.defined[moduleName]) {
+                //Call the overridden require.execCb here, defined
+                //below, to get the module tracked as module with a real
+                //name.
+                require.execCb(moduleName);
             }
+
+            //Resume require now that processing of the file has finished.
+            require.resume();
         }
 
         //Mark the module loaded.
@@ -71,6 +87,10 @@ readFile: false, processPragmas: false, Packages: false, parse: false */
         callback(readFile(url));
     };
 
+    //Marks the module as part of the loaded set, and puts
+    //it in the right position for output in the build layer,
+    //since require() already did the dependency checks and should have
+    //called this method already for those dependencies.
     require.execCb = function (name, cb, args) {
         var url = name && require.buildPathMap[name];
         if (url && !require.loadedFiles[url]) {

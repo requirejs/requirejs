@@ -570,11 +570,7 @@ var require;
             layer = layers[layerName];
 
             //Reset some state set up in requirePatch.js
-            require.buildPathMap = {};
-            require.buildFileToModule = {};
-            require.buildFilePaths = [];
-            require.loadedFiles = {};
-            require.modulesWithNames = {};
+            require._buildReset();
 
             logger.trace("\nFiguring out dependencies for: " + layerName);
             deps = [layerName];
@@ -600,9 +596,9 @@ var require;
                     url = require.buildPathMap[prop];
                     if (!require.loadedFiles[url]) {
                         require.buildFileToModule[url] = prop;
-                        //Only add require plugins to build file paths if
-                        //require is not included in the layer
-                        if (prop.indexOf("require/") !== 0 || !layer.includeRequire) {
+                        //Do not add plugins to build file paths since they will
+                        //be added later, near the top of the layer.
+                        if (prop.indexOf("require/") !== 0) {
                             require.buildFilePaths.push(url);
                         }
                         require.loadedFiles[url] = true;
@@ -623,16 +619,17 @@ var require;
             if (layer.includeRequire) {
                 requireContents = this.processPragmas(config.requireUrl, fileUtil.readFile(config.requireUrl), context.config);
                 buildFileContents += "require.js\n";
-    
-                //Check for any plugins loaded.
-                specified = context.specified;
-                for (prop in specified) {
-                    if (specified.hasOwnProperty(prop)) {
-                        if (prop.indexOf("require/") === 0) {
-                            path = require.buildPathMap[prop];
-                            buildFileContents += path.replace(config.dir, "") + "\n";
-                            requireContents += this.processPragmas(path, fileUtil.readFile(path), context.config);
-                        }
+            }
+
+            //Check for any plugins loaded, and hoist to the top, but below
+            //the require() definition.
+            specified = context.specified;
+            for (prop in specified) {
+                if (specified.hasOwnProperty(prop)) {
+                    if (prop.indexOf("require/") === 0) {
+                        path = require.buildPathMap[prop];
+                        buildFileContents += path.replace(config.dir, "") + "\n";
+                        requireContents += this.processPragmas(path, fileUtil.readFile(path), context.config);
                     }
                 }
             }

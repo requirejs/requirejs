@@ -205,8 +205,8 @@
             //Make sure the root bundle is loaded, to check if we can support
             //loading the requested locale, or if a different one needs
             //to be chosen.
-            var masterName, context, bundle, match = nlsRegExp.exec(name),
-                locale = match[4];
+            var masterName, context = require.s.contexts[contextName], bundle,
+                match = nlsRegExp.exec(name), locale = match[4];
 
             //If match[5] is blank, it means this is the top bundle definition,
             //so it does not have to be handled. Only deal with ones that have a locale
@@ -214,7 +214,6 @@
             if (match[5]) {
                 //locale-specific bundle
                 masterName = match[1] + match[5];
-                context = require.s.contexts[contextName];
                 bundle = context.nls[masterName];
                 if (context.nlsRootLoaded[masterName] && bundle) {
                     resolveLocale(masterName, bundle, locale, context);
@@ -224,8 +223,10 @@
                     context.defined.require([masterName]);
                 }
             } else {
-                //Top-level bundle. Just call regular load.
-                require.load(name, contextName);
+                //Top-level bundle. Just call regular load, if not already loaded
+                if (!context.nlsRootLoaded[name]) {
+                    require.load(name, contextName);
+                }
             }
         },
 

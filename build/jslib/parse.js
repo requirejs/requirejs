@@ -110,28 +110,26 @@ var parse;
      * Otherwise null.
      */
     parse.parseNode = function (node) {
-        var call, require, def, name, deps;
+        var call, name, deps;
 
-        if (node.getType() === EXPR_RESULT &&
-            node.getFirstChild().getType() === CALL &&
-            node.getFirstChild().getFirstChild().getType() === GETPROP &&
-            node.getFirstChild().getFirstChild().getFirstChild().getType() === NAME &&
-            nodeString(node.getFirstChild().getFirstChild().getFirstChild()) === "require") {
-
-            //call.getChildAt(1) should give first arg to the call.
+        if (node.getType() === EXPR_RESULT && node.getFirstChild().getType() === CALL) {
             call = node.getFirstChild();
-            require = call.getFirstChild().getChildAtIndex(0);
-            def = call.getFirstChild().getChildAtIndex(1);
+            
+            if (call.getFirstChild().getType() === NAME &&
+                nodeString(call.getFirstChild()) === "require") {
 
-            if (!def) {
                 //It is a plain require() call.
                 deps = call.getChildAtIndex(1);
                 if (!validateDeps(deps)) {
                     return null;
                 }
                 return parse.nodeToString(call);
-            } else if (nodeString(def) === "def") {
-                //A require.def call
+
+            } else if (call.getFirstChild().getType() === GETPROP &&
+                call.getFirstChild().getFirstChild().getType() === NAME &&
+                nodeString(call.getFirstChild().getFirstChild()) === "require") {
+
+                //A require.def() call
                 name = call.getChildAtIndex(1);
                 deps = call.getChildAtIndex(2);
 
@@ -146,6 +144,7 @@ var parse;
                 return parse.nodeToString(call);
             }
         }
+
         return null;
     };
 
