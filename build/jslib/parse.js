@@ -110,7 +110,7 @@ var parse;
      * Otherwise null.
      */
     parse.parseNode = function (node) {
-        var call, name, deps;
+        var call, methodName, targetName, name, deps;
 
         if (node.getType() === EXPR_RESULT && node.getFirstChild().getType() === CALL) {
             call = node.getFirstChild();
@@ -129,19 +129,42 @@ var parse;
                 call.getFirstChild().getFirstChild().getType() === NAME &&
                 nodeString(call.getFirstChild().getFirstChild()) === "require") {
 
-                //A require.def() call
-                name = call.getChildAtIndex(1);
-                deps = call.getChildAtIndex(2);
+                //Possibly a require.def/require.modify call
 
-                //Validate def name as a string
-                if (name.getType() !== STRING) {
-                    return null;
-                }
-                if (!validateDeps(deps)) {
-                    return null;
-                }
+                methodName = nodeString(call.getChildAtIndex(0).getChildAtIndex(1));
+                if (methodName === "def") {
 
-                return parse.nodeToString(call);
+                    //A require.def() call
+                    name = call.getChildAtIndex(1);
+                    deps = call.getChildAtIndex(2);
+    
+                    //Validate def name as a string
+                    if (name.getType() !== STRING) {
+                        return null;
+                    }
+                    if (!validateDeps(deps)) {
+                        return null;
+                    }
+    
+                    return parse.nodeToString(call);
+                } else if (methodName === "modify") {
+
+                    //A require.modify() call
+                    targetName = call.getChildAtIndex(1);
+                    name = call.getChildAtIndex(2);
+                    deps = call.getChildAtIndex(3);
+
+                    //Validate def name as a string
+                    if (targetName.getType() !== STRING && name.getType() !== STRING) {
+                        return null;
+                    }
+                    if (!validateDeps(deps)) {
+                        return null;
+                    }
+
+                    return parse.nodeToString(call);
+
+                }
             }
         }
 
