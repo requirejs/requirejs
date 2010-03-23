@@ -6,6 +6,7 @@ require({
         //optimize: "none",
         dir: "build",
         pragmas: {
+            useStrict: false,
             dojoConvert: true
         }
     },

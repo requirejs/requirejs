@@ -88,6 +88,12 @@ require(
         //is evaluated to see if the code between the Start and End pragma
         //lines should be included or excluded.
         pragmas: {
+            //Should "use strict"; be included in the RequireJS files.
+            //You may want to turn this off for legacy code. This is to
+            //kick the JS interpreter in to ES5 strict mode which does not like
+            //some constructs, like "with". Default is true.
+            useStrict: true,
+
             //Indicates require will be included with jquery.
             jquery: true,
             //Remove require.modify() code

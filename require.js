@@ -9,9 +9,9 @@
 setTimeout: false, traceDeps: true, clearInterval: false, self: false,
 setInterval: false */
 
-//>>excludeStart("dojoConvert", pragmas.dojoConvert);
+//>>includeStart("useStrict", pragmas.useStrict);
 "use strict";
-//>>excludeEnd("dojoConvert");
+//>>includeEnd("useStrict");
 
 var require;
 (function () {

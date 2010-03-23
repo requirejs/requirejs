@@ -40,7 +40,9 @@ var require;
 
         //Set up defaults for the config.
         config = {
-            pragmas: {},
+            pragmas: {
+                useStrict: true
+            },
             paths: {},
             optimize: "closure",
             optimizeCss: "standard.keepLines",
@@ -637,7 +639,7 @@ var require;
             //Write the build layer to disk, and build up the build output.
             fileContents = "";
             for (i = 0; (path = require.buildFilePaths[i]); i++) {
-                fileContents += fileUtil.readFile(path);
+                fileContents += this.processPragmas(path, fileUtil.readFile(path), context.config);
                 buildFileContents += path.replace(config.dir, "") + "\n";
                 //Some files may not have declared a require module, and if so,
                 //put in a placeholder call so the require does not try to load them

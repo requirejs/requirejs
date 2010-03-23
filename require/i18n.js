@@ -6,7 +6,9 @@
 /*jslint regexp: false, nomen: false, plusplus: false */
 /*global require: false, navigator: false */
 
+//>>includeStart("useStrict", pragmas.useStrict);
 "use strict";
+//>>includeEnd("useStrict");
 
 /**
  * This plugin handles i18n! prefixed modules. It does the following:

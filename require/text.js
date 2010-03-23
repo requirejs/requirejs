@@ -6,7 +6,9 @@
 /*jslint regexp: false, nomen: false, plusplus: false */
 /*global require: false, XMLHttpRequest: false, ActiveXObject: false */
 
+//>>includeStart("useStrict", pragmas.useStrict);
 "use strict";
+//>>includeEnd("useStrict");
 
 (function () {
     var progIds = ['Msxml2.XMLHTTP', 'Microsoft.XMLHTTP', 'Msxml2.XMLHTTP.4.0'],

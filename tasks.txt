@@ -7,6 +7,9 @@
 install and launch Blackberry MDS service simulator before running simulator to get network.
 - Really try to see if we can just use . for the text! file suffix instead of ! I keep mistyping.
 
+- with appName, and no native require, setting path to be outside the baseUrl meant that the require path was really
+  relative to the output folder name?
+
 - Use JSDoc to document a full module?
 
 - Fix build.bat on windows.
