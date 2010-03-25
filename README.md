@@ -2,11 +2,11 @@
 
 RequireJS loads plain JavaScript files as well as more defined modules. It is optimized for in-browser use, but it can be used in other JavaScript environments, like Rhino. It implements the [CommonJS Transport/C proposal](http://wiki.commonjs.org/wiki/Modules/Transport/C) API.
 
-RequireJS uses plain script tags to load modules/files, so it should allow for easy debugging. It can be used [simply to load existing JavaScript files](docs/api.md#jsfiles), so you can add it to your existing project without having to re-write your JavaScript files.
+RequireJS uses plain script tags to load modules/files, so it should allow for easy debugging. It can be used [simply to load existing JavaScript files](requirejs/tree/master/docs/api.md#jsfiles), so you can add it to your existing project without having to re-write your JavaScript files.
 
-RequireJS includes [an optimization tool](docs/optimization.md) you can run as part of your packaging steps for deploying your code. The optimization tool can combine and minify your JavaScript files to allow for better performance.
+RequireJS includes [an optimization tool](requirejs/tree/master/docs/optimization.md) you can run as part of your packaging steps for deploying your code. The optimization tool can combine and minify your JavaScript files to allow for better performance.
 
-If the JavaScript file defines a JavaScript module via [require.def()](docs/api.md#define), then there are other benefits RequireJS can offer: [better CommonJS support](http://wiki.commonjs.org/wiki/Modules/Transport/C) and [loading multiple versions](docs/api.md#multiversion) of a module in a page. RequireJS also allows for [module modifiers](docs/api.md#modifiers) and has a plugin system that supports features like [i18n string bundles](docs/api.md#i18n) and [text file dependencies](docs/api.md#text).
+If the JavaScript file defines a JavaScript module via [require.def()](requirejs/tree/master/docs/api.md#define), then there are other benefits RequireJS can offer: [better CommonJS support](http://wiki.commonjs.org/wiki/Modules/Transport/C) and [loading multiple versions](requirejs/tree/master/docs/api.md#multiversion) of a module in a page. RequireJS also allows for [module modifiers](requirejs/tree/master/docs/api.md#modifiers) and has a plugin system that supports features like [i18n string bundles](requirejs/tree/master/docs/api.md#i18n) and [text file dependencies](requirejs/tree/master/docs/api.md#text).
 
 RequireJS does not have any dependencies on a JavaScript framework. It is tri-licensed -- BSD, MIT, and GPL.
 
