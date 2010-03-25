@@ -22,6 +22,7 @@ readFile: false, processPragmas: false, Packages: false, parse: false */
         require.buildFilePaths = [];
         require.loadedFiles = {};
         require.modulesWithNames = {};
+        require.existingRequireUrl = "";
     };
 
     require._buildReset();
@@ -43,6 +44,15 @@ readFile: false, processPragmas: false, Packages: false, parse: false */
         //evaluate it.
         contents = readFile(url);
         contents = processPragmas(url, contents, context.config);
+
+        //Find out if the file contains a require() definition. Need to know
+        //this so we can inject plugins right after it, but before they are needed,
+        //and to make sure this file is first, so that require.def calls work.
+        //This situation mainly occurs when the build is done on top of the output
+        //of another build, where the first build may include require somewhere in it.
+        if (!require.existingRequireUrl && parse.definesRequire(url, contents)) {
+            require.existingRequireUrl = url;
+        }
 
         //Only eval complete contents if asked, or if it is a require extension.
         //Otherwise, treat the module as not safe for execution and parse out

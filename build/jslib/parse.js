@@ -105,31 +105,31 @@ var parse;
 
 
     /**
-     * Determines if the file defines require.plugin().
+     * Determines if the file defines require().
      * @param {String} fileName
      * @param {String} fileContents
      * @returns {Boolean}
      */
-    parse.definesRequirePlugin = function (fileName, fileContents) {
+    parse.definesRequire = function (fileName, fileContents) {
         var i, node, result = null, parsed,
         jsSourceFile = closurefromCode(String(fileName), String(fileContents)),
         astRoot = compiler.parse(jsSourceFile);
 
-        return parse.nodeHasRequirePlugin(astRoot);
+        return parse.nodeHasRequire(astRoot);
     };
 
     /**
-     * Determines if a given node contains a require.plugin() definition.
+     * Determines if a given node contains a require() definition.
      * @param {Packages.com.google.javascript.rhino.Node} node
      * @returns {Boolean}
      */
-    parse.nodeHasRequirePlugin = function (node) {
-        if (parse.isRequirePluginNode(node)) {
+    parse.nodeHasRequire = function (node) {
+        if (parse.isRequireNode(node)) {
             return true;
         }
 
         for (var i = 0, n; (n = node.getChildAtIndex(i)); i++) {
-            if (parse.nodeHasRequirePlugin(n)) {
+            if (parse.nodeHasRequire(n)) {
                 return true;
             }
         }
@@ -142,20 +142,20 @@ var parse;
      * @param {Packages.com.google.javascript.rhino.Node} node
      * @returns {Boolean}
      */
-    parse.isRequirePluginNode = function (node) {
-        if (node.getType() === EXPR_RESULT) {
-            assign = node.getFirstChild();
-            if (assign.getType() === ASSIGN) {
-                prop = assign.getFirstChild();
-                if (prop.getType() === GETPROP) {
-                    name = prop.getFirstChild();
-                    if (name.getType() == NAME) {
-                        if (nodeString(name) === "require") {
-                            plugin = prop.getChildAtIndex(1);
-                            if (plugin && plugin.getType() === STRING &&
-                                nodeString(plugin) === "plugin") {
-                                return true;
-                            }
+    parse.isRequireNode = function (node) {
+        //Actually look for the require.s = assignment, since
+        //that is more indicative of RequireJS vs a plain require definition.
+        var prop, name, s;
+        if (node.getType() === ASSIGN) {
+            prop = node.getFirstChild();
+            if (prop.getType() === GETPROP) {
+                name = prop.getFirstChild();
+                if (name.getType() === NAME) {
+                    if (nodeString(name) === "require") {
+                        s = prop.getChildAtIndex(1);
+                        if (s && s.getType() === STRING &&
+                            nodeString(s) === "s") {
+                            return true;
                         }
                     }
                 }

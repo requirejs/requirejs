@@ -32,13 +32,13 @@ doh.register(
             t.is('require.modify("one","one-mod",["two","three"],function(){});', parse("good1", good1));
             t.is(null, parse("bad1", bad1));   
         },
-        
-        function hasRequirePlugin(t) {
-            var good1 = "var require; function(){ require = function(){}; require.plugin = function(){};}",
-                bad1 = "var require; function(){ require.plugin(); }";
 
-            t.is(true, parse.definesRequirePlugin("good1", good1));
-            t.is(false, parse.definesRequirePlugin("bad1", bad1));   
+        function hasRequire(t) {
+            var good1 = "var require; function(){ require = function(){}; s = require.s = {};}",
+                bad1 = "var require; function(){ var require = function(){}; }";
+
+            t.is(true, parse.definesRequire("good1", good1));
+            t.is(false, parse.definesRequire("bad1", bad1));   
 
         }
     ]

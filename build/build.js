@@ -618,6 +618,7 @@ var require;
 
             //If the file wants require.js added to the layer, add it now
             requireContents = "";
+            pluginContents = "";
             if (layer.includeRequire) {
                 requireContents = this.processPragmas(config.requireUrl, fileUtil.readFile(config.requireUrl), context.config);
                 buildFileContents += "require.js\n";
@@ -631,9 +632,18 @@ var require;
                     if (prop.indexOf("require/") === 0) {
                         path = require.buildPathMap[prop];
                         buildFileContents += path.replace(config.dir, "") + "\n";
-                        requireContents += this.processPragmas(path, fileUtil.readFile(path), context.config);
+                        pluginContents += this.processPragmas(path, fileUtil.readFile(path), context.config);
                     }
                 }
+            }
+
+            //If there was an existing file with require in it, hoist to the top.
+            if (!layer.includeRequire && require.existingRequireUrl) {
+                reqIndex = require.buildFilePaths.indexOf(require.existingRequireUrl);
+                if (reqIndex != -1) {
+                    require.buildFilePaths.splice(reqIndex, 1);
+                }
+                require.buildFilePaths.unshift(require.existingRequireUrl);
             }
 
             //Write the build layer to disk, and build up the build output.
@@ -648,6 +658,14 @@ var require;
                 //If we have a name, but no defined module, then add in the placeholder.
                 if (placeHolderModName && !require.modulesWithNames[placeHolderModName]) {
                     fileContents += 'require.def("' + placeHolderModName + '", function(){});\n';
+                }
+
+                //If we have plugins but are not injecting require.js,
+                //then need to place the plugins after the require definition,
+                //if it was found.
+                if (require.existingRequireUrl === path && !layer.includeRequire) {
+                    fileContents += pluginContents;
+                    pluginContents = "";
                 }
             }
 
@@ -664,7 +682,9 @@ var require;
             }
 
             //Add the require file contents to the head of the file.
-            fileContents = (requireContents ? requireContents + "\n" : "") + fileContents;
+            fileContents = (requireContents ? requireContents + "\n" : "") +
+                           (pluginContents ? pluginContents + "\n" : "") +
+                           fileContents;
 
             fileUtil.saveUtf8File(layer._buildPath, fileContents);
         }

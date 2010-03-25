@@ -1,6 +1,10 @@
 - Developer page? Code style guidelines?
 - README.md does not work in dist, tree links still there.
 
+- put plugin output in right buildFileContents place.
+- place require.pause() after finding the require file. Will that help avoid the call to rdCouch.js?
+- de-dupe plugins?
+
 - Build option to remove files that are not part of a layer.
 - Build option for quick commandline concat thing.
 
