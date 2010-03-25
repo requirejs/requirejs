@@ -1,6 +1,10 @@
 - Developer page? Code style guidelines?
+- README.md does not work in dist, tree links still there.
 
 - Build option to remove files that are not part of a layer.
+- Build option for quick commandline concat thing.
+
+
 - Make sure text plugin works offline.
 - Make sure text plugin works in rhino env.
 - Get Blackberry simulator. Blackberry greater than 4.6, and particulary with the Blackberry 9500 simulator (with OS v4.7),

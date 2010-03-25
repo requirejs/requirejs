@@ -26,7 +26,7 @@ load("../build/jslib/fileUtil.js");
 
 var files, i, mdFile, htmlFile, fileContents,
     runtime = Packages.java.lang.Runtime.getRuntime(),
-    process, preContents, postContents, h1, path, length, j, isTopPage = false;
+    process, preContents, postContents, h1, homePath, cssPath, length, j, isTopPage = false;
 
 //Copy all the text files to a dist directory
 fileUtil.deleteFile("./dist-site/");
@@ -63,24 +63,27 @@ for (i = 0; (mdFile = files[i]); i++) {
 
     fileContents = fileContents.replace(/\$\{title\}/, h1);
 
-    //Change any .md references to .html references
-    fileContents = fileContents.replace(/href="([^"]+)\.md/g, 'href="$1.html');
+    //Change any .md references to .html references, and remove tree/master
+    //links
+    fileContents = fileContents.replace(/href="\/tree\/master\/docs\//g, 'href="docs/').replace(/href="([^"]+)\.md/g, 'href="$1.html');
 
-    //Adjust the path the main.css
-    path = htmlFile.replace(/\/[^\/]+$/, "").replace(/^\.\/dist-site\//, "");
-    if (!path || path === "./dist-site") {
+    //Adjust the path the home and main.css
+    homePath = htmlFile.replace(/\/[^\/]+$/, "").replace(/^\.\/dist-site\//, "");
+    if (!homePath || homePath === "./dist-site") {
         isTopPage = true;
-        path = "main.css";
+        homePath = "./";
+        cssPath = "main.css";
     } else {
         isTopPage = false;
-        length = path.split("/").length;
-        path = "";
+        length = homePath.split("/").length;
+        homePath = "";
         for (j = 0; j < length; j++) {
-            path += "../";
+            homePath += "../";
         }
-        path += "main.css";
+        cssPath = homePath + "main.css";
     }
-    fileContents = fileContents.replace(/\main\.css/, path);
+    fileContents = fileContents.replace(/HOMEPATH/, homePath);
+    fileContents = fileContents.replace(/\main\.css/, cssPath);
 
 
     //If it is the top page, adjust the header links

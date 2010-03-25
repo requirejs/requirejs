@@ -29,6 +29,7 @@ var parse;
         STRING = 40,
         ARRAYLIT = 63,
         OBJECTLIT = 64,
+        ASSIGN = 86,
         EXPR_RESULT = 130,
 
         //Oh Java, you rascal.
@@ -100,6 +101,67 @@ var parse;
             }
         }
         return result;
+    };
+
+
+    /**
+     * Determines if the file defines require.plugin().
+     * @param {String} fileName
+     * @param {String} fileContents
+     * @returns {Boolean}
+     */
+    parse.definesRequirePlugin = function (fileName, fileContents) {
+        var i, node, result = null, parsed,
+        jsSourceFile = closurefromCode(String(fileName), String(fileContents)),
+        astRoot = compiler.parse(jsSourceFile);
+
+        return parse.nodeHasRequirePlugin(astRoot);
+    };
+
+    /**
+     * Determines if a given node contains a require.plugin() definition.
+     * @param {Packages.com.google.javascript.rhino.Node} node
+     * @returns {Boolean}
+     */
+    parse.nodeHasRequirePlugin = function (node) {
+        if (parse.isRequirePluginNode(node)) {
+            return true;
+        }
+
+        for (var i = 0, n; (n = node.getChildAtIndex(i)); i++) {
+            if (parse.nodeHasRequirePlugin(n)) {
+                return true;
+            }
+        }
+
+        return false;
+    };
+
+    /**
+     * Is the given node the actual definition of require()
+     * @param {Packages.com.google.javascript.rhino.Node} node
+     * @returns {Boolean}
+     */
+    parse.isRequirePluginNode = function (node) {
+        if (node.getType() === EXPR_RESULT) {
+            assign = node.getFirstChild();
+            if (assign.getType() === ASSIGN) {
+                prop = assign.getFirstChild();
+                if (prop.getType() === GETPROP) {
+                    name = prop.getFirstChild();
+                    if (name.getType() == NAME) {
+                        if (nodeString(name) === "require") {
+                            plugin = prop.getChildAtIndex(1);
+                            if (plugin && plugin.getType() === STRING &&
+                                nodeString(plugin) === "plugin") {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     };
 
     /**

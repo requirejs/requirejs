@@ -37,3 +37,7 @@ Each call to require() defines a build layer. The require() call looks similar t
 ## Build layer configuration options
 
 There is an [example.build.js](http://github.com/jrburke/requirejs/blob/master/build/example.build.js) file in the requirejs/build directory that details all the options that are allowed in the configuration options. It also gives some examples of require() calls for build layers.
+
+## More Questions?
+
+See the [Optimization FAQ](faq-optimization.md) for a discussion of different optimization approaches.
