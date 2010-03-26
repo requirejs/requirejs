@@ -4,14 +4,15 @@ require({
         requireUrl: "../../require.js",
         includeRequire: true,
         //optimize: "none",
-        dir: "build",
+        locale: "en-us",
+        dir: "dojo-build",
         pragmas: {
             useStrict: false,
             dojoConvert: true
         }
     },
     "dojo",
-    ["require/text", "require/i18n", "dojo/_base"]
+    ["require/text", "require/i18n"]
 );
 
 require("dijit/dijit");

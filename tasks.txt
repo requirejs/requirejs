@@ -5,7 +5,7 @@
 
 - Build option to remove files that are not part of a layer.
 - Build option for quick commandline concat thing.
-
+- Right now multiple layers are exclusionary, but they should not be.
 
 - Make sure text plugin works offline.
 - Make sure text plugin works in rhino env.

@@ -636,8 +636,13 @@ var require;
                 if (specified.hasOwnProperty(prop)) {
                     if (prop.indexOf("require/") === 0) {
                         path = require.buildPathMap[prop];
-                        pluginBuildFileContents += path.replace(config.dir, "") + "\n";
-                        pluginContents += this.processPragmas(path, fileUtil.readFile(path), context.config);
+                        //Path may be null, context.specified is populated by
+                        //all layers at the moment, but buildPathMaps are reset
+                        //for each layer. TODO: fix this.
+                        if (path) {
+                            pluginBuildFileContents += path.replace(config.dir, "") + "\n";
+                            pluginContents += this.processPragmas(path, fileUtil.readFile(path), context.config);
+                        }
                     }
                 }
             }

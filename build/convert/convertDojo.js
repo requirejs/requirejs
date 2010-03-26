@@ -5,7 +5,7 @@
  * Non-build file changes:
  * * In dojo._base.query, move the provide/require calls to the top
  * * dojo/_base.js convert requireIf to dojo.require("dojo._base.browser");
- * * dojo/_base/hostenv_browser.js, remove the debugAtAllCosts block and change
+ * * dojo/_base/_loader/hostenv_browser.js, remove the debugAtAllCosts block and change
  * the isDebug block to be if(dojo.config.isDebug){require(["dojo/_firebug/firebug"]);}
  * * In dijit/_editor/RichText.js, remove the allowXdRichTextSave block, or force it not to doc.write.
  *
