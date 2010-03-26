@@ -35,7 +35,8 @@ var require;
         backSlashRegExp = /\\/g,
         cssImportRegExp = /\@import\s+(url\()?\s*([^);]+)\s*(\))?([\w, ]*)(;)?/g,
         cssUrlRegExp = /\url\(\s*([^\)]+)\s*\)?/g,
-        context, doClosure, requireContents, specified, delegate, baseConfig, override,
+        context, doClosure, requireContents, pluginContents, pluginBuildFileContents,
+        currContents, needPause, reqIndex, specified, delegate, baseConfig, override,
         JSSourceFilefromCode, placeHolderModName, url, builtRequirePath,
 
         //Set up defaults for the config.
@@ -619,8 +620,12 @@ var require;
             //If the file wants require.js added to the layer, add it now
             requireContents = "";
             pluginContents = "";
+            pluginBuildFileContents = "";
             if (layer.includeRequire) {
                 requireContents = this.processPragmas(config.requireUrl, fileUtil.readFile(config.requireUrl), context.config);
+                if (require.buildFilePaths.length) {
+                    requireContents += "require.pause();\n";
+                }
                 buildFileContents += "require.js\n";
             }
 
@@ -631,16 +636,20 @@ var require;
                 if (specified.hasOwnProperty(prop)) {
                     if (prop.indexOf("require/") === 0) {
                         path = require.buildPathMap[prop];
-                        buildFileContents += path.replace(config.dir, "") + "\n";
+                        pluginBuildFileContents += path.replace(config.dir, "") + "\n";
                         pluginContents += this.processPragmas(path, fileUtil.readFile(path), context.config);
                     }
                 }
+            }
+            if (layer.includeRequire) {
+                //require.js will be included so the plugins will appear right after it.
+                buildFileContents += pluginBuildFileContents;
             }
 
             //If there was an existing file with require in it, hoist to the top.
             if (!layer.includeRequire && require.existingRequireUrl) {
                 reqIndex = require.buildFilePaths.indexOf(require.existingRequireUrl);
-                if (reqIndex != -1) {
+                if (reqIndex !== -1) {
                     require.buildFilePaths.splice(reqIndex, 1);
                 }
                 require.buildFilePaths.unshift(require.existingRequireUrl);
@@ -649,7 +658,19 @@ var require;
             //Write the build layer to disk, and build up the build output.
             fileContents = "";
             for (i = 0; (path = require.buildFilePaths[i]); i++) {
-                fileContents += this.processPragmas(path, fileUtil.readFile(path), context.config);
+                //Add the contents but remove any pragmas and require.pause/resume calls.
+                currContents = this.processPragmas(path, fileUtil.readFile(path), context.config);
+                needPause = resumeRegExp.test(currContents);
+
+                fileContents += currContents;
+
+                //If the file contents had a require.resume() we need to now pause
+                //dependency resolution for the rest of the files. Multiple require.pause()
+                //calls are OK.
+                if (needPause) {
+                    fileContents += "require.pause();\n";
+                }
+
                 buildFileContents += path.replace(config.dir, "") + "\n";
                 //Some files may not have declared a require module, and if so,
                 //put in a placeholder call so the require does not try to load them
@@ -665,20 +686,15 @@ var require;
                 //if it was found.
                 if (require.existingRequireUrl === path && !layer.includeRequire) {
                     fileContents += pluginContents;
+                    buildFileContents += pluginBuildFileContents;
                     pluginContents = "";
+                    fileContents += "require.pause();\n";
                 }
             }
 
-            //Remove any require.resume calls, then add one at the end of
-            //the whole file, but only if there were files written out, besides
-            //the require.js and plugin files. Include a require.pause() call at
-            //the top, but in some cases when require.js is not added to the file
-            //in this build pass, it may already be there. So always add it with a
-            //guard around the pause() call. Multiple pause() calls are OK, but
-            //there should only be one resume() call at the end of the file.
+            //Resume dependency resolution
             if (require.buildFilePaths.length) {
-                fileContents = fileContents.replace(resumeRegExp, "");
-                fileContents = "if (typeof require !== 'undefined' && require.pause) {require.pause();}\n" + fileContents + "\nrequire.resume();\n";
+                fileContents += "\nrequire.resume();\n";
             }
 
             //Add the require file contents to the head of the file.
