@@ -9,7 +9,7 @@
 
 /*jslint nomen: false, plusplus: false, regexp: false */
 /*global load: false, require: false, logger: false, setTimeout: true,
-readFile: false, processPragmas: false, Packages: false, parse: false */
+readFile: false, pragma: false, Packages: false, parse: false */
 "use strict";
 
 (function () {
@@ -43,7 +43,7 @@ readFile: false, processPragmas: false, Packages: false, parse: false */
         //Load the file contents, process for conditionals, then
         //evaluate it.
         contents = readFile(url);
-        contents = processPragmas(url, contents, context.config);
+        contents = pragma.process(url, contents, context.config);
 
         //Find out if the file contains a require() definition. Need to know
         //this so we can inject plugins right after it, but before they are needed,

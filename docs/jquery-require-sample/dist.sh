@@ -33,11 +33,6 @@ cp ../../../../require.js requirejs/
 cp -r ../../../../require requirejs/require
 cp ../../../../LICENSE requirejs/LICENSE
 
-# Change path to require in the build script.
-cat webapp/scripts/app.build.js | sed 's/requireUrl\:[^\,]*/requireUrl: "..\/..\/requirejs\/require.js"/' > webapp/scripts/app.build.js2
-rm webapp/scripts/app.build.js
-mv webapp/scripts/app.build.js2 webapp/scripts/app.build.js
-
 # Start the build.
 cd webapp/scripts
 ../../requirejs/build/build.sh app.build.js

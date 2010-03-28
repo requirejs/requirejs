@@ -48,14 +48,11 @@ In that case, create a build profile, call it app.build.js, and put it in the **
 
     require({
         baseUrl: "./"
-        dir: "../scripts-build",
-        requireUrl: "../../requirejs/require.js"
+        dir: "../scripts-build"
     },
     "app");
 
 This build profile tells RequireJS to treat the baseUrl to find scripts as the current directory (the **scripts** directory since this example assumes app.build.js is in the **scripts** directory), and to put the built output in the **scripts-build** directory, which will be a sibling to the **scripts** directory. It is strongly suggested you use a different output directory than the source directory -- otherwise bad things will likely happen as the optimization tool overwrites your source.
-
-The **requireUrl** tells the optimization tool where to find the require.js that accompanies the optimization tool. The tool uses require.js in the optimization process.
 
 The final argument to the require() call, **"app"**, tells the build system to use app.js as the basis for the build layer. The build system will then trace the dependencies for app.js and inject them into the **scripts-build/app.js** file.
 
@@ -76,7 +73,6 @@ In that case, assuming the same setup as above, add the **includeRequire: true**
     require({
         baseUrl: "./"
         dir: "../scripts-build",
-        requireUrl: "../../requirejs/require.js",
         includeRequire: true
     },
     "app");

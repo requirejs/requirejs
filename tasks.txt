@@ -7,6 +7,8 @@
 - Build option for quick commandline concat thing.
 - Right now multiple layers are exclusionary, but they should not be.
 
+./build.sh foo.js out=../some/path deps=one,two,three optimize
+
 - Make sure text plugin works offline.
 - Make sure text plugin works in rhino env.
 - Get Blackberry simulator. Blackberry greater than 4.6, and particulary with the Blackberry 9500 simulator (with OS v4.7),
@@ -31,7 +33,6 @@ allow at least a build pragma to exclude it.
 
 - Determine if document.write helps with Operation Aborted in IE.
 
-- Document build tool.
 
 Considered, but not implemented
 -------------------------------

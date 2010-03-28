@@ -2,7 +2,6 @@
 require({
         appDir: "./css",
         dir: "cssbuild",
-        requireUrl: "../../require.js",
         optimize: "none"
     }
 );

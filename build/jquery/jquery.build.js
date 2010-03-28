@@ -1,7 +1,6 @@
 //A build file that builds require in different configurations via pragmas.
 require({
         baseUrl: ".",
-        requireUrl: "../../require.js",
         includeRequire: true,
         dir: "dist",
         optimize: "none",

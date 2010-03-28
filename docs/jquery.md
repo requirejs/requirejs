@@ -59,7 +59,6 @@ Then, in the scripts directory that has require-jquery.js and app.js, create a f
     require({
             appDir: "../",
             baseUrl: "scripts/",
-            requireUrl: "../../requirejs/require.js",
             dir: "../webapp-build",
             //Comment out the optimize line if you want
             //the code minified by Closure Compiler using

@@ -24,12 +24,6 @@ require(
         //the directory that holds the build file.
         baseUrl: "./",
 
-        //The file path for require.js. If not specified, then require.js is assumed to
-        //be in the same directory as your build file. Note that a complete
-        //source version of require.js should be specified, and the require/ directory
-        //that holds the plugins for require.js should be a sibling to this path.
-        requireUrl: "./require.js",
-
         //Should the contents of require.js be included in the build layer. Defaults
         //to false.
         includeRequire: false,

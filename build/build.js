@@ -21,7 +21,8 @@
 
 /*jslint regexp: false, nomen: false, plusplus: false */
 /*global load: false, print: false, quit: false, logger: false,
-  fileUtil: false, java: false, Packages: false, readFile: false */
+  fileUtil: false, lang: false, pragma: false, optimize: false, java: false,
+  Packages: false, readFile: false */
 
 "use strict";
 var require;
@@ -30,14 +31,9 @@ var require;
     var requireBuildPath, buildFile, baseUrlFile, buildPaths, deps, fileName, fileNames,
         prop, props, paths, path, i, fileContents, buildFileContents = "", builtrequirePath,
         resumeRegExp = /require\s*\.\s*resume\s*\(\s*\)(;)?/g,
-        textDepRegExp = /["'](text)\!([^"']+)["']/g,
-        conditionalRegExp = /(exclude|include)Start\s*\(\s*["'](\w+)["']\s*,(.*)\)/,
-        backSlashRegExp = /\\/g,
-        cssImportRegExp = /\@import\s+(url\()?\s*([^);]+)\s*(\))?([\w, ]*)(;)?/g,
-        cssUrlRegExp = /\url\(\s*([^\)]+)\s*\)?/g,
         context, doClosure, requireContents, pluginContents, pluginBuildFileContents,
-        currContents, needPause, reqIndex, specified, delegate, baseConfig, override,
-        JSSourceFilefromCode, placeHolderModName, url, builtRequirePath,
+        currContents, needPause, reqIndex, specified, baseConfig, override,
+        placeHolderModName, url, builtRequirePath, cmdConfig,
 
         //Set up defaults for the config.
         config = {
@@ -50,369 +46,9 @@ var require;
             inlineText: true,
             execModules: false
         },
-        layers = {}, layer, layerName, ostring = Object.prototype.toString;
 
-    //Bind to Closure compiler, but if it is not available, do not sweat it.
-    try {
-        JSSourceFilefromCode = java.lang.Class.forName('com.google.javascript.jscomp.JSSourceFile').getMethod('fromCode', [java.lang.String, java.lang.String]);
-    } catch (e) {}
+        layers = {}, layer, layerName;
 
-    function isArray(it) {
-        return ostring.call(it) === "[object Array]";    
-    }
-
-    /**
-     * Simple function to mix in properties from source into target,
-     * but only if target does not already have a property of the same name.
-     */
-    function mixin(target, source, override) {
-        //Use an empty object to avoid other bad JS code that modifies
-        //Object.prototype.
-        var empty = {}, prop;
-        for (prop in source) {
-            if (override || !(prop in target)) {
-                target[prop] = source[prop];
-            }
-        }
-    }
-
-    delegate = (function () {
-        // boodman/crockford delegation w/ cornford optimization
-        function TMP() {}
-        return function (obj, props) {
-            TMP.prototype = obj;
-            var tmp = new TMP();
-            TMP.prototype = null;
-            if (props) {
-                mixin(tmp, props);
-            }
-            return tmp; // Object
-        };
-    }());
-
-    //Helper for closureOptimize, because of weird Java-JavaScript interactions.
-    function closurefromCode(filename, content) {
-        return JSSourceFilefromCode.invoke(null, [filename, content]);
-    }
-
-    function closureOptimize(fileName, fileContents, keepLines) {
-        var jscomp = Packages.com.google.javascript.jscomp,
-            flags = Packages.com.google.common.flags,
-            //Fake extern
-            externSourceFile = closurefromCode("fakeextern.js", " "),
-            //Set up source input
-            jsSourceFile = closurefromCode(String(fileName), String(fileContents)),
-            options, FLAG_compilation_level, FLAG_warning_level, compiler;
-
-        //Set up options
-        options = new jscomp.CompilerOptions();
-        options.prettyPrint = keepLines;
-
-        FLAG_compilation_level = flags.Flag.value(jscomp.CompilationLevel.SIMPLE_OPTIMIZATIONS);
-        FLAG_compilation_level.get().setOptionsForCompilationLevel(options);
-
-        //Trigger the compiler
-        compiler = new Packages.com.google.javascript.jscomp.Compiler();
-        compiler.compile(externSourceFile, jsSourceFile, options);
-        return compiler.toSource();  
-    }
-
-    //Adds escape sequences for non-visual characters, double quote and backslash
-    //and surrounds with double quotes to form a valid string literal.
-    //Assumes the string will be in a single quote string value.
-    function jsEscape(text) {
-        return text.replace(/(['\\])/g, '\\$1')
-            .replace(/[\f]/g, "\\f")
-            .replace(/[\b]/g, "\\b")
-            .replace(/[\n]/g, "\\n")
-            .replace(/[\t]/g, "\\t")
-            .replace(/[\r]/g, "\\r");
-    }
-
-    //Inlines text! dependencies.
-    function inlineText(fileName, fileContents) {
-        var parts, modName, ext, strip, content;
-        return fileContents.replace(textDepRegExp, function (match, prefix, dep) {
-            parts = dep.split("!");
-            modName = parts[0];
-            ext = parts[1];
-            strip = parts[2];
-            content = parts[3];
-            
-            if (strip !== "strip") {
-                content = strip;
-                strip = null;
-            }
-            
-            if (content) {
-                //Already an inlined resource, return.
-                return match;
-            } else {
-                content = readFile(require.nameToUrl(modName, "." + ext, require.s.ctxName));
-                if (strip) {
-                    content = require.textStrip(content);
-                }
-                return "'" + prefix  +
-                       "!" + modName +
-                       "!" + ext +
-                       (strip ? "!strip" : "") +
-                       "!" + jsEscape(content) + "'";
-            }
-        });
-    }
-
-    /**
-     * If an URL from a CSS url value contains start/end quotes, remove them.
-     * This is not done in the regexp, since my regexp fu is not that strong,
-     * and the CSS spec allows for ' and " in the URL if they are backslash escaped.
-     * @param {String} url
-     */
-    function cleanCssUrlQuotes(url) {
-        //Make sure we are not ending in whitespace.
-        //Not very confident of the css regexps above that there will not be ending
-        //whitespace.
-        url = url.replace(/\s+$/, "");
-
-        if (url.charAt(0) === "'" || url.charAt(0) === "\"") {
-            url = url.substring(1, url.length - 1);
-        }
-
-        return url;
-    }
-
-    /**
-     * Inlines nested stylesheets that have @import calls in them.
-     * @param {String} fileName
-     * @param {String} fileContents
-     * @param {String} [cssImportIgnore]
-     */
-    function flattenCss(fileName, fileContents, cssImportIgnore) {
-        //Find the last slash in the name.
-        fileName = fileName.replace(backSlashRegExp, "/");
-        var endIndex = fileName.lastIndexOf("/"),
-            //Make a file path based on the last slash.
-            //If no slash, so must be just a file name. Use empty string then.
-            filePath = (endIndex !== -1) ? fileName.substring(0, endIndex + 1) : "";
-    
-        return fileContents.replace(cssImportRegExp, function (fullMatch, urlStart, importFileName, urlEnd, mediaTypes) {
-            //Only process media type "all" or empty media type rules.
-            if (mediaTypes && ((mediaTypes.replace(/^\s\s*/, '').replace(/\s\s*$/, '')) !== "all")) {
-                return fullMatch;
-            }
-    
-            importFileName = cleanCssUrlQuotes(importFileName);
-            
-            //Ignore the file import if it is part of an ignore list.
-            if (cssImportIgnore && cssImportIgnore.indexOf(importFileName + ",") !== -1) {
-                return fullMatch;
-            }
-
-            //Make sure we have a unix path for the rest of the operation.
-            importFileName = importFileName.replace(backSlashRegExp, "/");
-    
-            try {
-                //if a relative path, then tack on the filePath.
-                //If it is not a relative path, then the readFile below will fail,
-                //and we will just skip that import.
-                var fullImportFileName = importFileName.charAt(0) === "/" ? importFileName : filePath + importFileName,
-                    importContents = fileUtil.readFile(fullImportFileName), i,
-                    importEndIndex, importPath, fixedUrlMatch, colonIndex, parts;
-
-                //Make sure to flatten any nested imports.
-                importContents = flattenCss(fullImportFileName, importContents);
-
-                //Make the full import path
-                importEndIndex = importFileName.lastIndexOf("/");
-
-                //Make a file path based on the last slash.
-                //If no slash, so must be just a file name. Use empty string then.
-                importPath = (importEndIndex !== -1) ? importFileName.substring(0, importEndIndex + 1) : "";
-
-                //Modify URL paths to match the path represented by this file.
-                importContents = importContents.replace(cssUrlRegExp, function (fullMatch, urlMatch) {
-                    fixedUrlMatch = cleanCssUrlQuotes(urlMatch);
-                    fixedUrlMatch = fixedUrlMatch.replace(backSlashRegExp, "/");
-    
-                    //Only do the work for relative URLs. Skip things that start with / or have
-                    //a protocol.
-                    colonIndex = fixedUrlMatch.indexOf(":");
-                    if (fixedUrlMatch.charAt(0) !== "/" && (colonIndex === -1 || colonIndex > fixedUrlMatch.indexOf("/"))) {
-                        //It is a relative URL, tack on the path prefix
-                        urlMatch = importPath + fixedUrlMatch;
-                    } else {
-                        logger.trace(importFileName + "\n  URL not a relative URL, skipping: " + urlMatch);
-                    }
-
-                    //Collapse .. and .
-                    parts = urlMatch.split("/");
-                    for (i = parts.length - 1; i > 0; i--) {
-                        if (parts[i] === ".") {
-                            parts.splice(i, 1);
-                        } else if (parts[i] === "..") {
-                            if (i !== 0 && parts[i - 1] !== "..") {
-                                parts.splice(i - 1, 2);
-                                i -= 1;
-                            }
-                        }
-                    }
-    
-                    return "url(" + parts.join("/") + ")";
-                });
-    
-                return importContents;
-            } catch (e) {
-                logger.trace(fileName + "\n  Cannot inline css import, skipping: " + importFileName);
-                return fullMatch;
-            }
-        });
-    }
-
-   /**
-     * Optimizes CSS files, inlining @import calls, stripping comments, and
-     * optionally removes line returns.
-     * @param {String} startDir the path to the top level directory
-     * @param {String} optimizeType, the config's optimizeCss value.
-     * @param {String} a comma-separated list of paths to not @import inline.
-     */
-    function optimizeCss(startDir, optimizeType, cssImportIgnore) {
-        if (optimizeType.indexOf("standard") !== -1) {
-            //Make sure we have a delimited ignore list to make matching faster
-            if (cssImportIgnore) {
-                cssImportIgnore = cssImportIgnore + ",";
-            }
-
-            var i, fileName, startIndex, endIndex, originalFileContents, fileContents,
-                fileList = fileUtil.getFilteredFileList(startDir, /\.css$/, true);
-            if (fileList) {
-                for (i = 0; i < fileList.length; i++) {
-                    fileName = fileList[i];
-                    logger.trace("Optimizing (" + optimizeType + ") CSS file: " + fileName);
-                    
-                    //Read in the file. Make sure we have a JS string.
-                    originalFileContents = fileUtil.readFile(fileName);
-                    fileContents = flattenCss(fileName, originalFileContents, cssImportIgnore);
-    
-                    //Do comment removal.
-                    try {
-                        startIndex = -1;
-                        //Get rid of comments.
-                        while ((startIndex = fileContents.indexOf("/*")) !== -1) {
-                            endIndex = fileContents.indexOf("*/", startIndex + 2);
-                            if (endIndex === -1) {
-                                throw "Improper comment in CSS file: " + fileName;
-                            }
-                            fileContents = fileContents.substring(0, startIndex) + fileContents.substring(endIndex + 2, fileContents.length);
-                        }
-                        //Get rid of newlines.
-                        if (optimizeType.indexOf(".keepLines") === -1) {
-                            fileContents = fileContents.replace(/[\r\n]/g, "");
-                            fileContents = fileContents.replace(/\s+/g, " ");
-                            fileContents = fileContents.replace(/\{\s/g, "{");
-                            fileContents = fileContents.replace(/\s\}/g, "}");
-                        } else {
-                            //Remove multiple empty lines.
-                            fileContents = fileContents.replace(/(\r\n)+/g, "\r\n");
-                            fileContents = fileContents.replace(/(\n)+/g, "\n");
-                        }
-                    } catch (e) {
-                        fileContents = originalFileContents;
-                        logger.error("Could not optimized CSS file: " + fileName + ", error: " + e);
-                    }
-        
-                    //Write out the file with appropriate copyright.
-                    fileUtil.saveUtf8File(fileName, fileContents);
-                }
-            }
-        }
-    }
-
-    /**
-     * processes the fileContents for some //>> conditional statements
-     */
-    this.processPragmas = function (fileName, fileContents, config) {
-        /*jslint evil: true */
-        var foundIndex = -1, startIndex = 0, lineEndIndex, conditionLine,
-            matches, type, marker, condition, isTrue, endRegExp, endMatches,
-            endMarkerIndex, shouldInclude, startLength, pragmas = config.pragmas,
-            //Legacy arg defined to help in dojo conversion script. Remove later
-            //when dojo no longer needs conversion:
-            kwArgs = {
-                profileProperties: {
-                    hostenvType: "browser"
-                }
-            };
-
-        //If pragma work is not desired, skip it.
-        if (config.skipPragmas) {
-            return fileContents;
-        }
-
-        while ((foundIndex = fileContents.indexOf("//>>", startIndex)) !== -1) {
-            //Found a conditional. Get the conditional line.
-            lineEndIndex = fileContents.indexOf("\n", foundIndex);
-            if (lineEndIndex === -1) {
-                lineEndIndex = fileContents.length - 1;
-            }
-    
-            //Increment startIndex past the line so the next conditional search can be done.
-            startIndex = lineEndIndex + 1;
-    
-            //Break apart the conditional.
-            conditionLine = fileContents.substring(foundIndex, lineEndIndex + 1);
-            matches = conditionLine.match(conditionalRegExp);
-            if (matches) {
-                type = matches[1];
-                marker = matches[2];
-                condition = matches[3];
-                isTrue = false;
-                //See if the condition is true.
-                try {
-                    isTrue = !!eval("(" + condition + ")");
-                } catch (e) {
-                    throw "Error in file: " +
-                           fileName +
-                           ". Conditional comment: " +
-                           conditionLine +
-                           " failed with this error: " + e;
-                }
-            
-                //Find the endpoint marker.
-                endRegExp = new RegExp('\\/\\/\\>\\>\\s*' + type + 'End\\(\\s*[\'"]' + marker + '[\'"]\\s*\\)', "g");
-                endMatches = endRegExp.exec(fileContents.substring(startIndex, fileContents.length));
-                if (endMatches) {
-                    endMarkerIndex = startIndex + endRegExp.lastIndex - endMatches[0].length;
-                    
-                    //Find the next line return based on the match position.
-                    lineEndIndex = fileContents.indexOf("\n", endMarkerIndex);
-                    if (lineEndIndex === -1) {
-                        lineEndIndex = fileContents.length - 1;
-                    }
-    
-                    //Should we include the segment?
-                    shouldInclude = ((type === "exclude" && !isTrue) || (type === "include" && isTrue));
-                    
-                    //Remove the conditional comments, and optionally remove the content inside
-                    //the conditional comments.
-                    startLength = startIndex - foundIndex;
-                    fileContents = fileContents.substring(0, foundIndex) +
-                        (shouldInclude ? fileContents.substring(startIndex, endMarkerIndex) : "") +
-                        fileContents.substring(lineEndIndex + 1, fileContents.length);
-                    
-                    //Move startIndex to foundIndex, since that is the new position in the file
-                    //where we need to look for more conditionals in the next while loop pass.
-                    startIndex = foundIndex;
-                } else {
-                    throw "Error in file: " +
-                          fileName +
-                          ". Cannot find end marker for conditional comment: " +
-                          conditionLine;
-                    
-                }
-            }
-        }
-    
-        return fileContents;
-    };
 
     if (!args || args.length < 2) {
         print("java -jar path/to/js.jar build.js directory/containing/build.js/ build.js\n" +
@@ -421,26 +57,48 @@ var require;
     }
 
     //First argument to this script should be the directory on where to find this script.
+    //This path should end in a slash.
     requireBuildPath = args[0];
+    if (requireBuildPath.charAt(requireBuildPath.length - 1) !== "/") {
+        requireBuildPath += "/";
+    }
 
-    load(requireBuildPath + "/jslib/logger.js");
-    load(requireBuildPath + "/jslib/fileUtil.js");
-    load(requireBuildPath + "/jslib/parse.js");
+    ["lang", "logger", "fileUtil", "parse", "optimize", "pragma"].forEach(function (path) {
+        load(requireBuildPath + "jslib/" + path + ".js");
+    });
 
-    //Find the build file, and make sure it exists.
-    buildFile = new java.io.File(args[1]).getAbsoluteFile();
-    if (!buildFile.exists()) {
+    //Next args can include a build file path as well as other build args.
+    //build file path comes first. If it does not contain an = then it is
+    //a build file path. Otherwise, just all build args.
+    if (args[1].indexOf("=") === -1) {
+        buildFile = new java.io.File(args[1]).getAbsoluteFile();
+        args.splice(0, 2);
+    } else {
+        args.splice(0, 1);
+    }
+
+    //Remaining args are options to the build
+    cmdConfig = lang.convertArrayToObject(args);
+
+    //If this is a one file build, then skip some things.
+    lang.mixin(config, cmdConfig, true);
+    config.optimizeCss = "none";
+
+    //Find the build file, and make sure it exists, if this is a build
+    //that has a build profile, and not just command line args with an in=path
+    if (buildFile && !buildFile.exists() || cmdConfig["in"]) {
         print("ERROR: build file does not exist: " + buildFile.getAbsolutePath());
         quit();
     }
 
     baseUrlFile = buildFile.getAbsoluteFile().getParentFile();
-    buildFile = (buildFile.getAbsolutePath() + "").replace(backSlashRegExp, "/");
+
+    buildFile = (buildFile.getAbsolutePath() + "").replace(lang.backSlashRegExp, "/");
 
     //Set up some defaults in the default config
     config.appDir = "";
     config.baseUrl = baseUrlFile.getAbsolutePath() + "";
-    config.requireUrl = baseUrlFile.getParentFile().getAbsolutePath() + "/require.js";
+    config.requireUrl = requireBuildPath + "../require.js";
     config.dir = baseUrlFile.getAbsolutePath() + "/build/";
 
     //Set up the build file environment by creating a dummy require function to
@@ -456,7 +114,7 @@ var require;
         }
 
         if (cfg) {
-            mixin(config, cfg, true);
+            lang.mixin(config, cfg, true);
         }
 
         layer = null;
@@ -485,14 +143,14 @@ var require;
     load(buildFile.toString());
     require = null;
     load(config.requireUrl);
-    load(requireBuildPath + "/jslib/requirePatch.js");
+    load(requireBuildPath + "jslib/requirePatch.js");
 
     //Adjust the path properties as appropriate.
     //First make sure build paths use front slashes and end in a slash
     props = ["appDir", "dir", "baseUrl"];
     for (i = 0; (prop = props[i]); i++) {
         if (config[prop]) {
-            config[prop] = config[prop].replace(backSlashRegExp, "/");
+            config[prop] = config[prop].replace(lang.backSlashRegExp, "/");
             if (config[prop].charAt(config[prop].length - 1) !== "/") {
                 config[prop] += "/";
             }
@@ -554,7 +212,7 @@ var require;
         baseUrl: config.dirBaseUrl,
         paths: buildPaths
     };
-    mixin(baseConfig, config);
+    lang.mixin(baseConfig, config);
     require(baseConfig);
 
     for (layerName in layers) {
@@ -584,8 +242,8 @@ var require;
             //If there are overrides to basic config, set that up now.
             baseConfig = context.config;
             if (layer.override) {
-                override = delegate(baseConfig);
-                mixin(override, layer.override, true);
+                override = lang.delegate(baseConfig);
+                lang.mixin(override, layer.override, true);
                 require(override);
             }
 
@@ -622,7 +280,7 @@ var require;
             pluginContents = "";
             pluginBuildFileContents = "";
             if (layer.includeRequire) {
-                requireContents = this.processPragmas(config.requireUrl, fileUtil.readFile(config.requireUrl), context.config);
+                requireContents = pragma.process(config.requireUrl, fileUtil.readFile(config.requireUrl), context.config);
                 if (require.buildFilePaths.length) {
                     requireContents += "require.pause();\n";
                 }
@@ -641,7 +299,7 @@ var require;
                         //for each layer. TODO: fix this.
                         if (path) {
                             pluginBuildFileContents += path.replace(config.dir, "") + "\n";
-                            pluginContents += this.processPragmas(path, fileUtil.readFile(path), context.config);
+                            pluginContents += pragma.process(path, fileUtil.readFile(path), context.config);
                         }
                     }
                 }
@@ -664,7 +322,7 @@ var require;
             fileContents = "";
             for (i = 0; (path = require.buildFilePaths[i]); i++) {
                 //Add the contents but remove any pragmas and require.pause/resume calls.
-                currContents = this.processPragmas(path, fileUtil.readFile(path), context.config);
+                currContents = pragma.process(path, fileUtil.readFile(path), context.config);
                 needPause = resumeRegExp.test(currContents);
 
                 fileContents += currContents;
@@ -731,12 +389,12 @@ var require;
 
         //Inline text files.
         if (config.inlineText) {
-            fileContents = inlineText(fileName, fileContents);
+            fileContents = optimize.inlineText(fileName, fileContents);
         }
 
         //Optimize the JS files if asked.
         if (doClosure) {
-            fileContents = closureOptimize(fileName,
+            fileContents = optimize.closure(fileName,
                                            fileContents,
                                            (config.optimize.indexOf(".keepLines") !== -1));
         }
@@ -746,7 +404,7 @@ var require;
 
     //Do CSS optimizations
     if (config.optimizeCss && config.optimizeCss !== "none") {
-        optimizeCss(config.dir, config.optimizeCss, config.cssImportIgnore);
+        optimize.css(config.dir, config.optimizeCss, config.cssImportIgnore);
     }
 
-}(arguments));
+}(Array.prototype.slice.call(arguments)));

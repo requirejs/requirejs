@@ -2,7 +2,6 @@
 require({
         appDir: "../../",
         baseUrl: "tests/i18n",
-        requireUrl: "../../require.js",
         inlineText: false,
         dir: "buildi18n",
         locale: "en-us-surfer",

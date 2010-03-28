@@ -1,7 +1,6 @@
 //A build file that builds require in different configurations via pragmas.
 require({
         baseUrl: "./dojorequire",
-        requireUrl: "../../require.js",
         includeRequire: true,
         //optimize: "none",
         locale: "en-us",
