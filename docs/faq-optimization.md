@@ -44,17 +44,21 @@ app.js loads one.js, two.js and three.js via a require call:
 
 You just want combine app.js, one.js, two.js and three.js into one script file, and you just want to process the .js files, you do not want the optimization tool to copy over your HTML and CSS, and therefore skip the CSS optimizations.
 
-In that case, create a build profile, call it app.build.js, and put it in the **scripts** directory. The app.build.js file can live anywhere, but just be sure to adjust the paths accordingly in the example below -- all paths will be relative to where the app.build.js is located.
+In that case, create a build profile, call it app.build.js, and put it in the **scripts** directory. The app.build.js file can live anywhere, but just be sure to adjust the paths accordingly in the example below -- all paths will be relative to where the app.build.js is located. Example app.build.js:
 
-    require({
+    {
         baseUrl: "./"
-        dir: "../scripts-build"
-    },
-    "app");
+        dir: "../scripts-build",
+        modules: [
+            {
+                name: "app"
+            }
+        ]
+    }
 
 This build profile tells RequireJS to treat the baseUrl to find scripts as the current directory (the **scripts** directory since this example assumes app.build.js is in the **scripts** directory), and to put the built output in the **scripts-build** directory, which will be a sibling to the **scripts** directory. It is strongly suggested you use a different output directory than the source directory -- otherwise bad things will likely happen as the optimization tool overwrites your source.
 
-The final argument to the require() call, **"app"**, tells the build system to use app.js as the basis for the build layer. The build system will then trace the dependencies for app.js and inject them into the **scripts-build/app.js** file.
+In the **modules** array, specify the module names that you want to optimize, in the example, "app". "app" will be mapped to app.js in your project. The build system will then trace the dependencies for app.js and inject them into the **scripts-build/app.js** file.
 
 To run the build on Unix/Linux systems, run this command from inside the **scripts** directory:
 
@@ -68,14 +72,18 @@ Once the build is done, you can use **scripts-build/app.js** in your deployed ap
 
 ### Expanding on the previous question, what if I want optimize to just one JS request?
 
-In that case, assuming the same setup as above, add the **includeRequire: true** to the build profile:
+In that case, assuming the same setup as above, add the **includeRequire: true** to the "app" module definition:
 
-    require({
+    {
         baseUrl: "./"
         dir: "../scripts-build",
-        includeRequire: true
-    },
-    "app");
+        modules: [
+            {
+                name: "app",
+                includeRequire: true
+            }
+        ]
+    }
 
 After the optimization tool runs, the **scripts-build/app.js** will include the contents of require.js, app.js, one.js, two.js and three.js. Copy **scripts-build/app.js** to your deployment area and rename it to **require.js** to load everything in one script call.
 

@@ -24,19 +24,21 @@ Please see [the jQuery example page](jquery.md) for a description on how to best
 
 ## Build profiles
 
-Build profiles are just javascript files that have a special call into require() to register ***build layers***. You can define multiple build layers in a build profile. You can see examples in [the build profile that builds require.js](http://github.com/jrburke/requirejs/blob/master/build/require/require.build.js) with different options and in the [jquery build profile](http://github.com/jrburke/requirejs/blob/master/build/jquery/jquery.build.js)
+Build profiles are files that declare build preferences via a JavaScript object. They can be written in strict JSON syntax too. In the build preferences, you define a ***modules*** array that specifies the ***build layers***. You can define multiple build layers in a build profile. You can see examples in [the build profile that builds require.js](http://github.com/jrburke/requirejs/blob/master/build/require/require.build.js) with different options and in the [jquery build profile](http://github.com/jrburke/requirejs/blob/master/build/jquery/jquery.build.js)
 
 ## Build layers
 
-Each call to require() defines a build layer. The require() call looks similar to a regular require() call. The arguments to pass to require:
+Each entry in the ***modules*** array defines a build layer. Only modules that map to a module file on disk will work. Each entry in the modules array can have the following properties:
 
-* A config object with the options for the layer
-* The name of the layer. This ***must*** map to an existing file in your project.
-* An array of module names that should be included in the layer. Any nested dependencies will also be included automatically by the optimization tool.
+* 
+* name: The name of the layer. This ***must*** map to an existing file in your project.
+* include: an array of other modules to include, besides the ones that are included by default as part of any require() or require.def() calls in the module. All nested dependencies will be included in the build layer.
+* includeRequire: a boolean indicating if the contents of require.js should be included in the build layer.
+* override: an object specifying overrides specific to the build layer that take precedence over the top-level build options set in the build profile.
 
 ## Build layer configuration options
 
-There is an [example.build.js](http://github.com/jrburke/requirejs/blob/master/build/example.build.js) file in the requirejs/build directory that details all the options that are allowed in the configuration options. It also gives some examples of require() calls for build layers.
+There is an [example.build.js](http://github.com/jrburke/requirejs/blob/master/build/example.build.js) file in the requirejs/build directory that details all of the allowed configuration options.
 
 ## More Questions?
 

@@ -34,11 +34,11 @@ var optimize;
     //Assumes the string will be in a single quote string value.
     function jsEscape(text) {
         return text.replace(/(['\\])/g, '\\$1')
-            .replace(/\f/g, "\\f")
-            .replace(/\b/g, "\\b")
-            .replace(/\n/g, "\\n")
-            .replace(/\t/g, "\\t")
-            .replace(/\r/g, "\\r");
+            .replace(/[\f]/g, "\\f")
+            .replace(/[\b]/g, "\\b")
+            .replace(/[\n]/g, "\\n")
+            .replace(/[\t]/g, "\\t")
+            .replace(/[\r]/g, "\\r");
     }
 
     /**
@@ -200,6 +200,41 @@ var optimize;
                            "!" + jsEscape(content) + "'";
                 }
             });
+        },
+
+        /**
+         * Optimizes a file that contains JavaScript content. It will inline
+         * text plugin files and run it through Google Closure Compiler
+         * minification, if the config options specify it.
+         *
+         * @param {String} fileName the name of the file to optimize
+         * @param {Object} config the build config object.
+         */
+        js: function (fileName, config) {
+            var doClosure = (config.optimize + "").indexOf("closure") === 0,
+                fileContents;
+
+            if (config.inlineText && !optimize.textLoaded) {
+                //Make sure text extension is loaded.
+                require(["require/text"]);
+                optimize.textLoaded = true;
+            }
+
+            fileContents = fileUtil.readFile(fileName);
+
+            //Inline text files.
+            if (config.inlineText) {
+                fileContents = optimize.inlineText(fileName, fileContents);
+            }
+
+            //Optimize the JS files if asked.
+            if (doClosure) {
+                fileContents = optimize.closure(fileName,
+                                               fileContents,
+                                               (config.optimize.indexOf(".keepLines") !== -1));
+            }
+
+            fileUtil.saveUtf8File(fileName, fileContents);
         },
 
         /**

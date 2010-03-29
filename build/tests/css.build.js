@@ -1,7 +1,6 @@
-//A simple build file using the tests directory for requirejs
-require({
-        appDir: "./css",
-        dir: "cssbuild",
-        optimize: "none"
-    }
-);
+//A simple build file for testing css optimizations.
+{
+    appDir: "./css",
+    dir: "buildcss",
+    optimize: "none"
+}

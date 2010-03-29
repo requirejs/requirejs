@@ -1,13 +1,18 @@
 //A simple build file using the circular tests for requirejs
-require({
-        baseUrl: "../../tests",
-        optimize: "none",
-        execModules: false,
-        dir: "buildcircular"
-    },
-    "two"
-);
+({
+    baseUrl: "../../tests",
+    optimize: "none",
+    dir: "buildcircular",
 
-require("funcTwo");
-
-require("funcThree");
+    modules: [
+        {
+            name: "two"
+        },
+        {
+            name: "funcTwo"
+        },
+        {
+            name: "funcThree"
+        }
+    ]
+})

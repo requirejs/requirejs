@@ -238,7 +238,7 @@ However, the build system for require.js will inline any text! references with t
 
 # <a name="mechanics">Mechanics</a>
 
-require.js loads each dependency as a script tag, using head.appendChild(). In the near future, there may be an optimization or a configuration option to allow using document.write() to write out the script tag (with an src= attribute) if the page has not loaded yet.
+require.js loads each dependency as a script tag, using head.appendChild().
 
 require.js waits for all dependencies to load, figures out the right order in which to call the functions that define the modules, then calls the module definition functions in the right order.
 
