@@ -80,17 +80,22 @@ var build;
                 lang.mixin(config, cfg, true);
             } else {
                 //Base URL is relative to the in file.
-                if (!config.name) {
-                    throw new Error("ERROR: name= argument missing.");
+                if (!config.name && !config.cssIn) {
+                    throw new Error("ERROR: 'name' or 'cssIn' option missing.");
                 }
                 if (!config.out) {
-                    throw new Error("ERROR: out= argument missing.");
+                    throw new Error("ERROR: 'out' option missing.");
                 } else {
                     config.out = config.out.replace(lang.backSlashRegExp, "/");
                 }
-                if (!cfg.baseUrl) {
-                    throw new Error("ERROR: baseUrl= argument missing.");
+
+                if (config.name && !cfg.baseUrl) {
+                    throw new Error("ERROR: 'baseUrl' option missing.");
                 }
+            }
+
+            if (config.name) {
+                //Just one file to optimize.
 
                 //Set up dummy module layer to build.
                 config.modules = [
@@ -99,6 +104,10 @@ var build;
                         include: config.include
                     }
                 ];
+
+                if (config.includeRequire) {
+                    config.modules[0].includeRequire = true;
+                }
 
                 //Does not have a build file, so set up some defaults.
                 //Optimizing CSS should not be allowed, unless explicitly

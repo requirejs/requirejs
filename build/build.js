@@ -72,7 +72,7 @@ var require;
     load(config.requireUrl);
     load(requireBuildPath + "jslib/requirePatch.js");
 
-    if (!config.name) {
+    if (!config.name && !config.cssIn) {
         //This is not just a one-off file build but a full build profile, with
         //lots of files to process.
 
@@ -124,7 +124,7 @@ var require;
         //Just set up the _buildPath for the module layer.
         require(config);
         config.modules[0]._buildPath = config.out;
-    } else {
+    } else if (!config.cssIn) {
         //Now set up the config for require to use the build area, and calculate the
         //build file locations. Pass along any config info too.
         baseConfig = {
@@ -156,21 +156,26 @@ var require;
     if (config.name) {
         //Just need to worry about one file.
         fileName = config.modules[0]._buildPath;
-        optimize.js(fileName, config);
-    } else {   
+        optimize.jsFile(fileName, fileName, config);
+    } else if (!config.cssIn) {   
         //JS optimizations.
         fileNames = fileUtil.getFilteredFileList(config.dir, /\.js$/, true);    
         for (i = 0; (fileName = fileNames[i]); i++) {
-            optimize.js(fileName, config);
+            optimize.jsFile(fileName, fileName, config);
         }
 
         //CSS optimizations
         if (config.optimizeCss && config.optimizeCss !== "none") {
-            optimize.css(config.dir, config.optimizeCss, config.cssImportIgnore);
+            optimize.css(config.dir, config);
         }
 
         //All module layers are done, write out the build.txt file.
         fileUtil.saveUtf8File(config.dir + "build.txt", buildFileContents);
+    }
+
+    //If just have one CSS file to optimize, do that here.
+    if (config.cssIn) {
+        optimize.cssFile(config.cssIn, config.out, config);
     }
 
     //Print out what was built into which layers.
