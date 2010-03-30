@@ -109,7 +109,7 @@ var require;
      */
     require.def = function (name, deps, callback, contextName) {
         var config = null, context, newContext, contextRequire, loaded,
-            canSetContext, prop, newLength,
+            canSetContext, prop, newLength, outDeps,
             mods, pluginPrefix, paths, index, i;
 
         //Normalize the arguments.
@@ -293,10 +293,13 @@ var require;
         }
 
         //Normalize dependency strings: need to determine if they have
-        //prefixes and to also normalize any relative paths.
+        //prefixes and to also normalize any relative paths. Replace the deps
+        //array of strings with an array of objects.
         if (deps) {
-            for (i = 0; i < deps.length; i++) {
-                deps[i] = require.splitPrefix(deps[i], name);
+            outDeps = deps;
+            deps = [];
+            for (i = 0; i < outDeps.length; i++) {
+                deps[i] = require.splitPrefix(outDeps[i], name);
             }
         }
 

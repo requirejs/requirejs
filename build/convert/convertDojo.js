@@ -12,6 +12,8 @@
  * Usage:
  * java -jar ../lib/rhino/js.jar convertDojo.js path/to/dojo dojorequire
  *
+ * With Debugger:
+ * java -classpath ../lib/rhino/js.jar org.mozilla.javascript.tools.debugger.Main convertDojo.js path/to/dojo dojorequire
  */
 /*jslint plusplus: false */
 /*global load: false, fileUtil: false, logger: false, Packages: false, convert: true */
@@ -141,7 +143,9 @@ function writeRequireEnd(prefixProps, contents) {
 
         //Build up the req string and args string.
         for (i = 0; (req = prefixProps.reqs[i]); i++) {
-            reqString += ', "' + req.replace(/\./g, "/") + '"';
+            //Replace dots with slashes, except for text! dependencies which are already
+            //constructed correctly and can have a valid dot in their name.
+            reqString += ', "' + (req.indexOf("text!") !== 0 ? req.replace(/\./g, "/") : req) + '"';
             argString += ', _R' + i;
         }
 
