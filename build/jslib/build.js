@@ -256,6 +256,12 @@ var build;
         if (config.name) {
             //Just one file to optimize.
 
+            //Make sure include is an array, and not a string from command line.
+            //Assume if it is a string then it is a comma-separated list of values.
+            if (typeof config.include === "string") {
+                config.include = config.include.split(",");
+            }
+
             //Set up dummy module layer to build.
             config.modules = [
                 {

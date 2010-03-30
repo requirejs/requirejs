@@ -1,0 +1,13 @@
+
+body {
+    background: blue url(../common/img/body.png) bottom center;
+}
+nav {
+    color: red;
+    background-image: url(../nav.png);
+}
+.sub {
+    background: transparent url(../../img/sub.png);
+    
+    position: relative;
+}

@@ -23,17 +23,8 @@ fileUtil.deleteFile("builds");
     //Do a build of require.js to get default pragmas processed.
     build(["..", "name=require", "baseUrl=../..", "out=builds/require.js", "includeRequire=true", "optimize=none"]);
 
-    var requirejs = c("builds/require.js");
-
-    doh.register(
-        "builds", 
-        [
-            function simple(t) {
-                //Do the build
-                build(["..", "simple.build.js"]);
-    
-                //Result should be 
-                var result = [
+    var requirejs = c("builds/require.js"),
+        oneResult = [
                     requirejs,
                     "require.pause();\n",
                     c("../../tests/two.js"),
@@ -42,7 +33,39 @@ fileUtil.deleteFile("builds");
                     "\nrequire.resume();\n"
                 ].join("");
 
-                t.is(nol(result), nol(fileUtil.readFile("builds/simple/one.js")));
+    doh.register(
+        "builds", 
+        [
+            function onCssFile(t) {
+                build(["..", "cssIn=css/sub/sub1.css", "out=builds/sub1.css"]);
+
+                t.is(nol(c("cssTestCompare.css")), nol(c("builds/sub1.css")));
+
+                //Reset require internal state for the contexts so future
+                //builds in these tests will work correctly.
+                require.s.contexts = {};
+            },
+
+            function oneJsFile(t) {
+                build(["..", "name=one", "include=dimple", "out=builds/outSingle.js",
+                       "baseUrl=../../tests", "includeRequire=true", "optimize=none"]);
+
+                t.is(nol(oneResult), nol(c("builds/outSingle.js")));
+
+                //Reset require internal state for the contexts so future
+                //builds in these tests will work correctly.
+                require.s.contexts = {};
+            },
+
+            function simple(t) {
+                //Do the build
+                build(["..", "simple.build.js"]);
+
+                t.is(nol(oneResult), nol(c("builds/simple/one.js")));
+
+                //Reset require internal state for the contexts so future
+                //builds in these tests will work correctly.
+                require.s.contexts = {};
             }
         ]
     );
