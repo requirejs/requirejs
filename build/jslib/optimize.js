@@ -179,12 +179,21 @@ var optimize;
         inlineText: function (fileName, fileContents) {
             var parts, modName, ext, strip, content;
             return fileContents.replace(textDepRegExp, function (match, prefix, dep) {
+                var index;
+
                 parts = dep.split("!");
                 modName = parts[0];
-                ext = parts[1];
-                strip = parts[2];
-                content = parts[3];
-                
+                ext = "";
+                strip = parts[1];
+                content = parts[2];
+
+                //Extension is part of modName
+                index = modName.lastIndexOf(".");
+                if (index !== -1) {
+                    ext = modName.substring(index + 1, modName.length);
+                    modName = modName.substring(0, index);
+                }
+
                 if (strip !== "strip") {
                     content = strip;
                     strip = null;
@@ -200,7 +209,7 @@ var optimize;
                     }
                     return "'" + prefix  +
                            "!" + modName +
-                           "!" + ext +
+                           (ext ? "." + ext : "") +
                            (strip ? "!strip" : "") +
                            "!" + jsEscape(content) + "'";
                 }

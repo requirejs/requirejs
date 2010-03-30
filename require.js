@@ -110,7 +110,7 @@ var require;
     require.def = function (name, deps, callback, contextName) {
         var config = null, context, newContext, contextRequire, loaded,
             canSetContext, prop, newLength,
-            mods, pluginPrefix, paths, index;
+            mods, pluginPrefix, paths, index, i;
 
         //Normalize the arguments.
         if (typeof name === "string") {
@@ -289,6 +289,14 @@ var require;
             //then return.
             if (!deps) {
                 return require;
+            }
+        }
+
+        //Normalize dependency strings: need to determine if they have
+        //prefixes and to also normalize any relative paths.
+        if (deps) {
+            for (i = 0; i < deps.length; i++) {
+                deps[i] = require.splitPrefix(deps[i], name);
             }
         }
 
@@ -496,7 +504,7 @@ var require;
         //Figure out if all the modules are loaded. If the module is not
         //being loaded or already loaded, add it to the "to load" list,
         //and request it to be loaded.
-        var i, dep, index, depPrefix;
+        var i, dep, index, depPrefix, split;
 
         if (pluginPrefix) {
             //>>excludeStart("requireExcludePlugin", pragmas.requireExcludePlugin);
@@ -507,29 +515,20 @@ var require;
             //>>excludeEnd("requireExcludePlugin");
         } else {
             for (i = 0; (dep = deps[i]); i++) {
-                //If it is a string, then a plain dependency
-                if (typeof dep === "string") {
-                    if (!context.specified[dep]) {
-                        context.specified[dep] = true;
+                if (!context.specified[dep.fullName]) {
+                    context.specified[dep.fullName] = true;
 
-                        //If a plugin, call its load method.
-                        index = dep.indexOf("!");
-                        if (index !== -1) {
-                            //>>excludeStart("requireExcludePlugin", pragmas.requireExcludePlugin);
-                            depPrefix = dep.substring(0, index);
-                            dep = dep.substring(index + 1, dep.length);
-
-                            callPlugin(depPrefix, context, {
-                                name: "load",
-                                args: [dep, context.contextName]
-                            });
-                            //>>excludeEnd("requireExcludePlugin");
-                        } else {
-                            require.load(dep, context.contextName);
-                        }
+                    //If a plugin, call its load method.
+                    if (dep.prefix) {
+                        //>>excludeStart("requireExcludePlugin", pragmas.requireExcludePlugin);
+                        callPlugin(dep.prefix, context, {
+                            name: "load",
+                            args: [dep.name, context.contextName]
+                        });
+                        //>>excludeEnd("requireExcludePlugin");
+                    } else {
+                        require.load(dep.name, context.contextName);
                     }
-                } else {
-                    throw new Error("Unsupported non-string dependency: " + dep);
                 }
             }
         }
@@ -664,6 +663,74 @@ var require;
 
     require.jsExtRegExp = /\.js$/;
 
+    
+    /**
+     * Given a relative module name, like ./something, normalize it to
+     * a real name that can be mapped to a path.
+     * @param {String} name the relative name
+     * @param {String} baseName a real name that the name arg is relative
+     * to.
+     * @returns {String} normalized name
+     */
+    require.normalizeName = function (name, baseName) {
+        //Adjust any relative paths.
+        var part;
+        if (name.charAt(0) === ".") {
+            //Convert baseName to array, and lop off the last part,
+            //so that . matches that "directory" and not name of the baseName's
+            //module. For instance, baseName of "one/two/three", maps to
+            //"one/two/three.js", but we want the directory, "one/two" for
+            //this normalization.
+            baseName = baseName.split("/");
+            baseName = baseName.slice(0, baseName.length - 1);
+
+            name = baseName.concat(name.split("/"));
+            for (i = 0; (part = name[i]); i++) {
+                if (part === ".") {
+                    name.splice(i, 1);
+                    i -= 1;
+                } else if (part === "..") {
+                    name.splice(i - 1, 2);
+                    i -= 2;
+                }
+            }
+            name = name.join("/");
+        }
+        return name;
+    };
+
+    /**
+     * Splits a name into a possible plugin prefix and
+     * the module name. If baseName is provided it will
+     * also normalize the name via require.normalizeName()
+     * 
+     * @param {String} name the module name
+     * @param {String} [baseName] base name that name is
+     * relative to.
+     *
+     * @returns {Object} with properties, 'prefix' (which
+     * may be null), 'name' and 'fullName', which is a combination
+     * of the prefix (if it exists) and the name.
+     */
+    require.splitPrefix = function (name, baseName) {
+        var index = name.indexOf("!"), prefix = null;
+        if (index !== -1) {
+            prefix = name.substring(0, index);
+            name = name.substring(index + 1, name.length);
+        }
+
+        //Account for relative paths if there is a base name.
+        if (baseName) {
+            name = require.normalizeName(name, baseName);
+        }
+
+        return {
+            prefix: prefix,
+            name: name,
+            fullName: prefix ? prefix + "!" + name : name
+        };
+    };
+
     /**
      * Converts a module name to a file path.
      */
@@ -677,6 +744,8 @@ var require;
         if (moduleName.indexOf(":") !== -1 || moduleName.charAt(0) === '/' || require.jsExtRegExp.test(moduleName)) {
             //Just a plain path, not module name lookup, so just return it.
             return moduleName;
+        } else if (moduleName.charAt(0) === ".") {
+            throw new Error("require.nameToUrl does not handle relative module names (ones that start with '.' or '..')");
         } else {
             //A module that needs to be converted to a path.
             paths = config.paths;
@@ -869,7 +938,7 @@ var require;
 
         var name = module.name, cb = module.callback, deps = module.deps, j, dep,
             defined = context.defined, ret, args = [], prefix, depModule,
-            usingExports = false;
+            usingExports = false, depName;
 
         //If already traced or defined, do not bother a second time.
         if (name) {
@@ -884,17 +953,12 @@ var require;
 
         if (deps) {
             for (j = 0; (dep = deps[j]); j++) {
-                //Adjust dependency for plugins.
-                prefix = dep.indexOf("!");
-                if (prefix !== -1) {
-                    dep = dep.substring(prefix + 1, dep.length);
-                }
-
-                if (dep === "exports") {
+                depName = dep.name;
+                if (depName === "exports") {
                     //CommonJS module spec 1.1
                     depModule = defined[name] = {};
                     usingExports = true;
-                } else if (dep === "module") {
+                } else if (depName === "module") {
                     //CommonJS module spec 1.1
                     depModule = {
                         id: name,
@@ -906,9 +970,9 @@ var require;
                     //require. Favor not throwing an error here if undefined because
                     //we want to allow code that does not use require as a module
                     //definition framework to still work -- allow a web site to
-                    //gradually update to contained modules. That is seen as more
+                    //gradually update to contained modules. That is more
                     //important than forcing a throw for the circular dependency case.
-                    depModule = dep in defined ? defined[dep] : (traced[dep] ? undefined : require.exec(waiting[waiting[dep]], traced, waiting, context));
+                    depModule = depName in defined ? defined[depName] : (traced[depName] ? undefined : require.exec(waiting[waiting[depName]], traced, waiting, context));
                 }
 
                 args.push(depModule);

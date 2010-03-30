@@ -4,16 +4,12 @@
 - de-dupe plugins?
 
 - Build option to remove files that are not part of a layer.
-- Build option for quick commandline concat thing.
 - Right now multiple layers are exclusionary, but they should not be.
-
-./build.sh foo.js out=../some/path deps=one,two,three optimize
 
 - Make sure text plugin works offline.
 - Make sure text plugin works in rhino env.
 - Get Blackberry simulator. Blackberry greater than 4.6, and particulary with the Blackberry 9500 simulator (with OS v4.7),
 install and launch Blackberry MDS service simulator before running simulator to get network.
-- Really try to see if we can just use . for the text! file suffix instead of ! I keep mistyping.
 
 - with appName, and no native require, setting path to be outside the baseUrl meant that the require path was really
   relative to the output folder name?

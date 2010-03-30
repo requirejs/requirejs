@@ -95,7 +95,6 @@ function convert(moduleName, fileName, fileContents) {
 
         //Find dependencies in the code that was not in comments.
         while ((match = depRegExp.exec(tempContents))) {
-            //Find the list of dojo.provide and require calls.
             depName = match[1];
             logger.trace("  " + depName);
             if (depName) {

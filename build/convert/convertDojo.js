@@ -100,8 +100,6 @@ function writeRequireEnd(prefixProps, contents) {
         //Convert dojo.cache references to be text! dependencies.
         contents = contents.replace(/dojo\s*\.\s*cache\s*\(['"]([^'"]+)['"]\s*\,\s*['"]([^'"]+)['"]\s*\)/g, function (match, modName, fileName) {
             var textName = "text!" + modName.replace(/\./g, "/") + "/" + fileName;
-            //Make sure to use a bang for file extension part.
-            textName = textName.split(".").join("!");
 
             prefixProps.reqs.push(textName);
             return '_R' + (prefixProps.reqs.length - 1);

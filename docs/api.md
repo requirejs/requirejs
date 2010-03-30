@@ -213,7 +213,7 @@ require.js has a plugin, require/text.js, that can help with this issue. It will
 
 You can specify a text file resource as a dependency like so:
 
-    require(["some/module", "text!some/module!html", "text!some/module!css"],
+    require(["some/module", "text!some/module.html", "text!some/module.css"],
         function(module, html, css) {
             //the html variable will be the text of the some/module.html file
             //the css variable will be the text of the som/module.css file.    
@@ -221,11 +221,11 @@ You can specify a text file resource as a dependency like so:
     );
 
 
-Notice the !html and !css suffixes to specify the extension of the file.
+Notice the .html and .css suffixes to specify the extension of the file. The "some/module" part of the path will be resolved according to normal module name resolution: it will use the **baseUrl** and **paths** [configuration options](#config) to map that name to a path.
 
 For HTML/XML/SVG files, there is another option you can pass !strip, which strips XML declarations so that external SVG and XML documents can be added to a document without worry. Also, if the string is an HTML document, only the part inside the body tag is returned. Example:
 
-    require(["text!some/module!html!strip"],
+    require(["text!some/module.html!strip"],
         function(html) {
             //the html variable will be the text of the some/module.html file,
             //but only the part inside the body tag.   
