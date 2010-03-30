@@ -2,6 +2,7 @@
 {
     baseUrl: "../../tests",
     optimize: "none",
+    dir: "builds/simple",
     modules: [
         {
             name: "one",

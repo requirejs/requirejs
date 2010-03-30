@@ -1,6 +1,6 @@
 //A simple build file for testing css optimizations.
 {
     appDir: "./css",
-    dir: "buildcss",
+    dir: "builds/css",
     optimize: "none"
 }

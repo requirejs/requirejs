@@ -3,7 +3,7 @@
     appDir: "../../",
     baseUrl: "tests/i18n",
     inlineText: false,
-    dir: "buildi18n",
+    dir: "builds/i18n",
     locale: "en-us-surfer",
     optimize: "none",
     modules: [

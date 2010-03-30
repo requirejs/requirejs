@@ -2,7 +2,7 @@
 ({
     baseUrl: "../../tests",
     optimize: "none",
-    dir: "buildcircular",
+    dir: "builds/circular",
 
     modules: [
         {

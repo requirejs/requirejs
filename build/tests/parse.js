@@ -4,7 +4,7 @@
 "use strict";
 
 //Load the file to test.
-load("../parse.js");
+load("../jslib/parse.js");
 
 doh.register(
     "parse", 
@@ -19,10 +19,14 @@ doh.register(
 
         function requireDef(t) {
             var good1 = "require.def('one', ['two', 'three'], function(){});",
-                bad1 = "require.def('one', [foo, 'me'], function() {});";
+                good2 = "require.def('one', function(){});",
+                bad1 = "require.def('one', [foo, 'me'], function() {});",
+                bad2 = "require.def('one', somevar)";
 
             t.is('require.def("one",["two","three"],function(){});', parse("good1", good1));
+            t.is('require.def("one",function(){});', parse("good2", good2));
             t.is(null, parse("bad1", bad1));
+            t.is(null, parse("bad2", bad2));
         },
 
         function requireModify(t) {
