@@ -27,19 +27,11 @@ allow at least a build pragma to exclude it.
 - When doing docs via jsdoc, using {some/module} as return types? How does JSDoc deal with the nested objects?
   Probably needs custom work to get it recognize the module concept thing.
 
-- Determine if document.write helps with Operation Aborted in IE.
-
-
 Considered, but not implemented
 -------------------------------
 - Bryan: test if document load and document domcontentloaded. Safari 3 has trouble, can do addEventListener, but no DOMContentLoaded?
   Tested existing code (uses window load and document domcontentloaded, and require.ready fires correctly in Safari 3.2.3 on Windows, so this is not a high priority
   item.
-
-- Use . instead of ! for file extensions for text! dependencies? It is tempting, but it gives
-  mixed guidance for things like .js files. When a dependency ends in .js it is loaded
-  relative to the page's URL. However, text! extensions should always use the baseUrl/config.paths
-  paths. So leaving the separator as ! or now.
 
 - Look at module function call during recurse instead of building up the ordered
   array of modules. It was there to prevent issues with small call stacks in older Safaris,

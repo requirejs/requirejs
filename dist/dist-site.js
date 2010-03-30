@@ -65,7 +65,7 @@ for (i = 0; (mdFile = files[i]); i++) {
 
     //Change any .md references to .html references, and remove tree/master
     //links
-    fileContents = fileContents.replace(/href="\/tree\/master\/docs\//g, 'href="docs/').replace(/href="([^"]+)\.md/g, 'href="$1.html');
+    fileContents = fileContents.replace(/href="requirejs\/tree\/master\/docs\//g, 'href="docs/').replace(/href="([^"]+)\.md/g, 'href="$1.html');
 
     //Adjust the path the home and main.css
     homePath = htmlFile.replace(/\/[^\/]+$/, "").replace(/^\.\/dist-site\//, "");

@@ -8,7 +8,7 @@
  * 
  */
 
-({
+{
     //The top level directory that contains your app. If this option is used
     //then it assumed your scripts are in a subdirectory under this path.
     //This option is not required. If it is not specified, then baseUrl
@@ -156,6 +156,6 @@
         }
         
     ]
-})
+}
 
 
