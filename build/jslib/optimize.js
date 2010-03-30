@@ -15,6 +15,7 @@ var optimize;
 (function () {
     var JSSourceFilefromCode,
         textDepRegExp = /["'](text)\!([^"']+)["']/g,
+        relativeDefRegExp = /require\s*\.\s*def\s*\(\s*['"]([^'"]+)['"]/g,
         cssImportRegExp = /\@import\s+(url\()?\s*([^);]+)\s*(\))?([\w, ]*)(;)?/g,
         cssUrlRegExp = /\url\(\s*([^\)]+)\s*\)?/g;
 
@@ -177,9 +178,9 @@ var optimize;
     
         //Inlines text! dependencies.
         inlineText: function (fileName, fileContents) {
-            var parts, modName, ext, strip, content;
-            return fileContents.replace(textDepRegExp, function (match, prefix, dep) {
-                var index;
+            return fileContents.replace(textDepRegExp, function (match, prefix, dep, offset) {
+                var parts, modName, ext, strip, content, normalizedName, index,
+                    defSegment, defStart, defMatch, tempMatch, defName;
 
                 parts = dep.split("!");
                 modName = parts[0];
@@ -194,16 +195,46 @@ var optimize;
                     modName = modName.substring(0, index);
                 }
 
+                //Adjust the text path to be a full name, not a relative
+                //one, if needed.
+                normalizedName = modName;
+                if (modName.charAt(0) === ".") {
+                    //Need to backtrack an arbitrary amount in the file
+                    //to find the require.def call
+                    //that includes this relative name, to find what path to use
+                    //for the relative part.
+                    defStart = offset - 1000;
+                    if (defStart < 0) {
+                        defStart = 0;
+                    }
+                    defSegment = fileContents.substring(defStart, offset);
+
+                    //Take the last match, the one closest to current text! string.
+                    relativeDefRegExp.lastIndex = 0;
+                    while ((tempMatch = relativeDefRegExp.exec(defSegment)) !== null) {
+                        defMatch = tempMatch;
+                    }
+
+                    if (!defMatch) {
+                        throw new Error("Cannot resolve relative dependency: " + dep + " in file: " + fileName);
+                    }
+
+                    //Take the last match, the one closest to current text! string.
+                    defName = defMatch[1];
+                    
+                    normalizedName = require.normalizeName(modName, defName);
+                }
+
                 if (strip !== "strip") {
                     content = strip;
                     strip = null;
                 }
-                
+
                 if (content) {
                     //Already an inlined resource, return.
                     return match;
                 } else {
-                    content = readFile(require.nameToUrl(modName, "." + ext, require.s.ctxName));
+                    content = readFile(require.nameToUrl(normalizedName, "." + ext, require.s.ctxName));
                     if (strip) {
                         content = require.textStrip(content);
                     }
@@ -312,7 +343,7 @@ var optimize;
                     for (i = 0; i < fileList.length; i++) {
                         fileName = fileList[i];
                         logger.trace("Optimizing (" + config.optimizeCss + ") CSS file: " + fileName);
-                        optimize.cssFile(fileName, fileName, config)
+                        optimize.cssFile(fileName, fileName, config);
                     }
                 }
             }
