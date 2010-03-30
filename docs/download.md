@@ -10,7 +10,7 @@
     * Now possible to build just one JS file or one CSS file at a time, no need for a build profile! See the [Optimization docs](optimization.md) for full details.
     * **Backwards incompatible change**: the format of build profiles has changed. It no longer uses require() calls but it is a completely declarative format. This should be more robust for the future, and it allowed for a cleaner refactoring of the optimization tool.
 * **Support for relative module names in require.def dependencies**
-    * require.def("my/project/module", ["./dependency1"]); will now load my/project/dependency1.js. This should help cut down the amount of typing for larger projects.
+    * require.def("my/project/module", ["./dependency1"], function(){}); will now load my/project/dependency1.js. This should help cut down the amount of typing for larger projects.
     * The first argument to require.def, which gives the name of the module being defined, still needs to be a full name. It cannot be a relative name (cannot start with a . or ..).
     * require.nameToUrl() does not accept relative names.
 * **Backwards incompatible change**: text! plugin URLs now use . instead of ! for the file extension. So, instead of "text!some/module/sample!html" it is now "text!some/module/sample.html". Please update your code, the old !html will no longer work.

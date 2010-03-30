@@ -2,7 +2,7 @@
 ({
     baseUrl: ".",
     dir: "build",
-    //optimize: "none",
+    optimize: "none",
     pragmas: {
         requireExcludeModify: true,
         requireExcludePlugin: true,
