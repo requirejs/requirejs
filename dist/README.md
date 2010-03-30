@@ -8,6 +8,7 @@ When doing a release, do the following:
     * require.js
     * README.md
     * docs/download.md: check for nested paths too, add new release section
+    * pre.html
 * Update integrated jQuery versioned-builds:
     * Save a built jQuery to build/jquery
     * Make sure to apply changes in this changeset: http://github.com/jrburke/jquery/commit/cab11462962517c1a61cab947aa4e8f4f6292e61
@@ -36,3 +37,4 @@ To generate a build
 
 * ./dist-build.sh 0.0.0
 
+When done, reset versions to X.X.git in the files listed at the top of these instructions.
