@@ -30,6 +30,7 @@ var parse;
         ARRAYLIT = 63,
         OBJECTLIT = 64,
         ASSIGN = 86,
+        FUNCTION = 105,
         EXPR_RESULT = 130,
 
         //Oh Java, you rascal.
@@ -56,7 +57,7 @@ var parse;
     function validateDeps(node) {
         var type = node.getType(), i, dep;
 
-        if (type === OBJECTLIT) {
+        if (type === OBJECTLIT || type === FUNCTION) {
             return true;
         }
 

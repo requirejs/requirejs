@@ -80,13 +80,12 @@ fileContents = 'require.baseUrlRegExp = /dojo(\\.xd)?\\.js(\\W|$)/i;' +
                fileUtil.readFile(savePath + "/dojo/_base/_loader/hostenv_browser.js");
 
 //Do a require.modify call to get dojo/_base defined before other things that need dojo.
-fileContents += 'require.def("dojo", dojo);' +
+fileContents += 'require.def("dojo", function() {return dojo;});' +
+                'require.def("dijit", function() {return dijit;});' +
+                'require.def("dojox", function() {return dojox;});' +
                 'require.modify("dojo", "dojo-base", ["dojo", "dojo/_base"], function(){});';
 
 fileUtil.saveUtf8File(savePath + "/dojo.js", fileContents);
-
-fileUtil.saveUtf8File(savePath + "/dijit.js", 'require.def("dijit", dijit);\n');
-fileUtil.saveUtf8File(savePath + "/dojox.js", 'require.def("dojox", dojox);\n');
 
 convertTime = ((new Date().getTime() - startTime) / 1000);
 logger.info("Convert time: " + convertTime + " seconds");
