@@ -387,7 +387,7 @@ var build;
         }
         if (includeRequire) {
             requireContents = pragma.process(config.requireUrl, fileUtil.readFile(config.requireUrl), context.config);
-            if (require.buildFilePaths.length) {
+            if (require.buildFilePaths.length && !config.skipModuleInsertion) {
                 requireContents += "require.pause();\n";
             }
             buildFileContents += "require.js\n";
@@ -434,7 +434,7 @@ var build;
             //If this is the first file, and require() is not part of the file
             //and require() is not added later at the end to the top of the file,
             //need to start off with a require.pause() call.
-            if (i === 0 && require.existingRequireUrl !== path && !includeRequire) {
+            if (i === 0 && require.existingRequireUrl !== path && !includeRequire && !config.skipModuleInsertion) {
                 fileContents += "require.pause()\n";
             }
 
@@ -446,7 +446,7 @@ var build;
             //after the module is processed.
             placeHolderModName = require.buildFileToModule[path];
             //If we have a name, but no defined module, then add in the placeholder.
-            if (placeHolderModName && !require.modulesWithNames[placeHolderModName]) {
+            if (placeHolderModName && !require.modulesWithNames[placeHolderModName] && !config.skipModuleInsertion) {
                 fileContents += 'require.def("' + placeHolderModName + '", function(){});\n';
             }
 
@@ -457,19 +457,21 @@ var build;
                 fileContents += pluginContents;
                 buildFileContents += pluginBuildFileContents;
                 pluginContents = "";
-                fileContents += "require.pause();\n";
+                if (!config.skipModuleInsertion) {
+                    fileContents += "require.pause();\n";
+                }
             }
 
             //If the file contents had a require.resume() we need to now pause
             //dependency resolution for the rest of the files. Multiple require.pause()
             //calls are OK.
-            if (needPause) {
+            if (needPause && !config.skipModuleInsertion) {
                 fileContents += "require.pause();\n";
             }
         }
 
         //Resume dependency resolution
-        if (require.buildFilePaths.length) {
+        if (require.buildFilePaths.length && !config.skipModuleInsertion) {
             fileContents += "\nrequire.resume();\n";
         }
 
