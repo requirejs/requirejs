@@ -72,7 +72,7 @@ var build;
         load(config.requireUrl);
         load(requireBuildPath + "jslib/requirePatch.js");
     
-        if (!config.name && !config.cssIn) {
+        if (!config.out && !config.cssIn) {
             //This is not just a one-off file build but a full build profile, with
             //lots of files to process.
     
@@ -112,15 +112,17 @@ var build;
         
         if (modules) {
             modules.forEach(function (module) {
-                module._sourcePath = require.nameToUrl(module.name, null, require.s.ctxName);
-                if (!(new java.io.File(module._sourcePath)).exists()) {
-                    throw new Error("ERROR: module path does not exist: " +
-                                    module._searchPath + " for module named: " + module.name);
+                if (module.name) {
+                    module._sourcePath = require.nameToUrl(module.name, null, require.s.ctxName);
+                    if (!(new java.io.File(module._sourcePath)).exists()) {
+                        throw new Error("ERROR: module path does not exist: " +
+                                        module._searchPath + " for module named: " + module.name);
+                    }
                 }
             });
         }
-    
-        if (config.name) {
+
+        if (config.out) {
             //Just set up the _buildPath for the module layer.
             require(config);
             config.modules[0]._buildPath = config.out;
@@ -136,8 +138,10 @@ var build;
     
             if (modules) {
                 modules.forEach(function (module) {
-                    module._buildPath = require.nameToUrl(module.name, null, require.s.ctxName);
-                    fileUtil.copyFile(module._sourcePath, module._buildPath);
+                    if (module.name) {
+                        module._buildPath = require.nameToUrl(module.name, null, require.s.ctxName);
+                        fileUtil.copyFile(module._sourcePath, module._buildPath);
+                    }
                 });
             }
         }
@@ -153,7 +157,7 @@ var build;
         }
     
         //Do other optimizations.
-        if (config.name) {
+        if (config.out) {
             //Just need to worry about one file.
             fileName = config.modules[0]._buildPath;
             optimize.jsFile(fileName, fileName, config);
@@ -239,8 +243,8 @@ var build;
             lang.mixin(config, cfg, true);
         } else {
             //Base URL is relative to the in file.
-            if (!config.name && !config.cssIn) {
-                throw new Error("ERROR: 'name' or 'cssIn' option missing.");
+            if (!config.out && !config.cssIn) {
+                throw new Error("ERROR: 'out' or 'cssIn' option missing.");
             }
             if (!config.out) {
                 throw new Error("ERROR: 'out' option missing.");
@@ -248,12 +252,12 @@ var build;
                 config.out = config.out.replace(lang.backSlashRegExp, "/");
             }
 
-            if (config.name && !cfg.baseUrl) {
+            if (!config.cssIn && !cfg.baseUrl) {
                 throw new Error("ERROR: 'baseUrl' option missing.");
             }
         }
 
-        if (config.name) {
+        if (config.out && !config.cssIn) {
             //Just one file to optimize.
 
             //Make sure include is an array, and not a string from command line.
@@ -266,6 +270,7 @@ var build;
             config.modules = [
                 {
                     name: config.name,
+                    out: config.out,
                     include: config.include
                 }
             ];
@@ -328,8 +333,8 @@ var build;
         //Reset some state set up in requirePatch.js
         require._buildReset();
 
-        logger.trace("\nTracing dependencies for: " + module.name);
-        include = [module.name];
+        logger.trace("\nTracing dependencies for: " + (module.name || module.out));
+        include = module.name ? [module.name] : [];
         if (module.include) {
             include = include.concat(module.include);
         }
