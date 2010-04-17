@@ -16,11 +16,17 @@
             includeRequire: true
         },
         {
-            name: "dijit/dijit"
+            name: "dijit/dijit",
+            exclude: [
+                "dojo"
+            ]
         },
         {
-            name: "dijit/dijit-all"
+            name: "dijit/dijit-all",
+            exclude: [
+                "dojo",
+                "dijit/dijit"
+            ]
         }
     ]
-    
 }

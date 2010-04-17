@@ -125,7 +125,9 @@ var build;
         if (config.out) {
             //Just set up the _buildPath for the module layer.
             require(config);
-            config.modules[0]._buildPath = config.out;
+            if (!config.cssIn) {
+                config.modules[0]._buildPath = config.out;
+            }
         } else if (!config.cssIn) {
             //Now set up the config for require to use the build area, and calculate the
             //build file locations. Pass along any config info too.
@@ -145,23 +147,69 @@ var build;
                 });
             }
         }
-    
-        //For each module layer, call require to calculate dependencies, and then save
-        //the calculated module layer to disk in the build area.
+
         if (modules) {
+            //For each module layer, call require to calculate dependencies.
             modules.forEach(function (module) {
-                builtModule = build.flattenModule(module, config);
+                module.layer = build.traceDependencies(module, config);
+            });
+
+            //Now build up shadow layers for anything that should be excluded.
+            //Do this after tracing dependencies for each module, in case one
+            //of those modules end up being one of the excluded values.
+            modules.forEach(function (module) {
+                if (module.exclude) {
+                    module.excludeLayers = [];
+                    module.exclude.forEach(function (exclude, i) {
+                        //See if it is already in the list of modules.
+                        //If not trace dependencies for it.
+                        module.excludeLayers[i] = build.findBuildModule(exclude, modules) ||
+                                                  build.traceDependencies(exclude, config);
+                    });
+                }
+            });
+
+            modules.forEach(function (module) {
+                //Remove any exclusions from each module.
+                //Do not forget shallowExcludes.
+                if (module.exclude) {
+                    //module.exclude is an array of module names.
+                    module.exclude.forEach(function (excludeModule, i) {
+                        var excludeLayer = module.excludeLayers[i].layer, map = excludeLayer.buildPathMap, prop;
+                        for (prop in map) {
+                            if (map.hasOwnProperty(prop)) {
+                                build.removeModulePath(prop, map[prop], module.layer);
+                            }
+                        }
+                    });
+                }
+                if (module.shallowExclude) {
+                    //module.shallowExclude is an array of module names.
+                    //shallow exclusions are just that module itself, and not
+                    //its nested dependencies.
+                    module.shallowExclude.forEach(function (shallowExcludeModule) {
+                        var path = module.layer.buildPathMap[shallowExcludeModule];
+                        if (path) {
+                            build.removeModulePath(shallowExcludeModule, path, module.layer);
+                        }
+                    });
+                }
+
+                //Flatten them and collect the build output for each module.
+                builtModule = build.flattenModule(module, module.layer, config);
                 fileUtil.saveUtf8File(module._buildPath, builtModule.text);
                 buildFileContents += builtModule.buildText;
             });
         }
-    
+
         //Do other optimizations.
-        if (config.out) {
-            //Just need to worry about one file.
+        if (config.out && !config.cssIn) {
+            //Just need to worry about one JS file.
             fileName = config.modules[0]._buildPath;
             optimize.jsFile(fileName, fileName, config);
-        } else if (!config.cssIn) {   
+        } else if (!config.cssIn) {
+            //Normal optimizations across modules.
+
             //JS optimizations.
             fileNames = fileUtil.getFilteredFileList(config.dir, /\.js$/, true);    
             for (i = 0; (fileName = fileNames[i]); i++) {
@@ -176,12 +224,12 @@ var build;
             //All module layers are done, write out the build.txt file.
             fileUtil.saveUtf8File(config.dir + "build.txt", buildFileContents);
         }
-    
+
         //If just have one CSS file to optimize, do that here.
         if (config.cssIn) {
             optimize.cssFile(config.cssIn, config.out, config);
         }
-    
+
         //Print out what was built into which layers.
         if (buildFileContents) {
             print(buildFileContents);
@@ -313,25 +361,61 @@ var build;
     build.resumeRegExp = /require\s*\.\s*resume\s*\(\s*\)(;)?/g;
 
     /**
-     * Uses the module build config object to create an flattened version
-     * of the module, with deep dependencies included.
+     * finds the module being built/optimized with the given moduleName,
+     * or returns null.
+     * @param {String} moduleName
+     * @param {Array} modules
+     * @returns {Object} the module object from the build profile, or null.
+     */
+    build.findBuildModule = function (moduleName, modules) {
+        var i, module;
+        for (i = 0; (module = modules[i]); i++) {
+            if (module.name === moduleName) {
+                return module;
+            }
+        }
+        return null;
+    };
+
+    /**
+     * Removes a module name and path from a layer, if it is supposed to be
+     * excluded from the layer.
+     * @param {String} moduleName the name of the module
+     * @param {String} path the file path for the module
+     * @param {Object} layer the layer to remove the module/path from
+     */
+    build.removeModulePath = function (module, path, layer) {
+        var index = layer.buildFilePaths.indexOf(path);
+        if (index !== -1) {
+            layer.buildFilePaths.splice(index, 1);
+        }
+
+        //Take it out of the specified modules. Specified modules are mostly
+        //used to find require modifiers.
+        delete layer.specified[module];
+    };
+
+    /**
+     * Uses the module build config object to trace the dependencies for the
+     * given module.
      * 
      * @param {Object} module the module object from the build config info.
      * @param {Object} the build config object.
      *
-     * @returns {Object} with two properties: "text", the text of the flattened
-     * module, and "buildText", a string of text representing which files were
-     * included in the flattened module text.
+     * @returns {Object} layer information about what paths and modules should
+     * be in the flattened module.
      */
-    build.flattenModule = function (module, config) {
-        var include, override, prop, url, buildFileContents = "", requireContents = "",
-            pluginContents = "", pluginBuildFileContents = "", includeRequire,
-            specified, path, reqIndex, fileContents, currContents,
-            i, placeHolderModName, needPause,
-            context = require.s.contexts[require.s.ctxName];
+    build.traceDependencies = function (module, config) {
+        var include, override, url, layer, prop,
+            context = require.s.contexts[require.s.ctxName],
+            baseConfig = context.config;
 
-        //Reset some state set up in requirePatch.js
+        //Reset some state set up in requirePatch.js, and clean up require's
+        //current context.
         require._buildReset();
+
+        //Put back basic config
+        require(baseConfig);
 
         logger.trace("\nTracing dependencies for: " + (module.name || module.out));
         include = module.name ? [module.name] : [];
@@ -339,8 +423,7 @@ var build;
             include = include.concat(module.include);
         }
 
-        //If there are overrides to basic config, set that up now.
-        baseConfig = context.config;
+        //If there are overrides to basic config, set that up now.;
         if (module.override) {
             override = lang.delegate(baseConfig);
             lang.mixin(override, module.override, true);
@@ -350,19 +433,23 @@ var build;
         //Figure out module layer dependencies by calling require to do the work.
         require(include);
 
+        //Pull out the layer dependencies
+        layer = require._layer;
+        layer.specified = context.specified;
+
         //Add any other files that did not have an explicit name on them.
         //These are files that do not call back into require when loaded.
-        for (prop in require.buildPathMap) {
-            if (require.buildPathMap.hasOwnProperty(prop)) {
-                url = require.buildPathMap[prop];
-                if (!require.loadedFiles[url]) {
-                    require.buildFileToModule[url] = prop;
+        for (prop in layer.buildPathMap) {
+            if (layer.buildPathMap.hasOwnProperty(prop)) {
+                url = layer.buildPathMap[prop];
+                if (!layer.loadedFiles[url]) {
+                    layer.buildFileToModule[url] = prop;
                     //Do not add plugins to build file paths since they will
                     //be added later, near the top of the module layer.
                     if (prop.indexOf("require/") !== 0) {
-                        require.buildFilePaths.push(url);
+                        layer.buildFilePaths.push(url);
                     }
-                    require.loadedFiles[url] = true;
+                    layer.loadedFiles[url] = true;
                 }
             }
         }
@@ -371,6 +458,30 @@ var build;
         if (module.override) {
             require(baseConfig);
         }
+        
+        return layer;
+    };
+
+    /**
+     * Uses the module build config object to create an flattened version
+     * of the module, with deep dependencies included.
+     * 
+     * @param {Object} module the module object from the build config info.
+     *
+     * @param {Object} layer the layer object returned from build.traceDependencies.
+     * 
+     * @param {Object} the build config object.
+     *
+     * @returns {Object} with two properties: "text", the text of the flattened
+     * module, and "buildText", a string of text representing which files were
+     * included in the flattened module text.
+     */
+    build.flattenModule = function (module, layer, config) {
+        var buildFileContents = "", requireContents = "",
+            pluginContents = "", pluginBuildFileContents = "", includeRequire,
+            prop, path, reqIndex, fileContents, currContents,
+            i, needPause, placeHolderModName, specified,
+            context = require.s.contexts[require.s.ctxName];
 
         //Start build output for the module.
         buildFileContents += "\n" +
@@ -387,7 +498,7 @@ var build;
         }
         if (includeRequire) {
             requireContents = pragma.process(config.requireUrl, fileUtil.readFile(config.requireUrl), context.config);
-            if (require.buildFilePaths.length && !config.skipModuleInsertion) {
+            if (layer.buildFilePaths.length && !config.skipModuleInsertion) {
                 requireContents += "require.pause();\n";
             }
             buildFileContents += "require.js\n";
@@ -395,11 +506,11 @@ var build;
 
         //Check for any plugins loaded, and hoist to the top, but below
         //the require() definition.
-        specified = context.specified;
+        specified = layer.specified;
         for (prop in specified) {
             if (specified.hasOwnProperty(prop)) {
                 if (prop.indexOf("require/") === 0) {
-                    path = require.buildPathMap[prop];
+                    path = layer.buildPathMap[prop];
                     //Path may be null, context.specified is populated by
                     //all module layers at the moment, but buildPathMaps are reset
                     //for each module layer. TODO: fix this.
@@ -416,17 +527,17 @@ var build;
         }
 
         //If there was an existing file with require in it, hoist to the top.
-        if (!includeRequire && require.existingRequireUrl) {
-            reqIndex = require.buildFilePaths.indexOf(require.existingRequireUrl);
+        if (!includeRequire && layer.existingRequireUrl) {
+            reqIndex = layer.buildFilePaths.indexOf(layer.existingRequireUrl);
             if (reqIndex !== -1) {
-                require.buildFilePaths.splice(reqIndex, 1);
+                layer.buildFilePaths.splice(reqIndex, 1);
+                layer.buildFilePaths.unshift(layer.existingRequireUrl);
             }
-            require.buildFilePaths.unshift(require.existingRequireUrl);
         }
 
         //Write the built module to disk, and build up the build output.
         fileContents = "";
-        for (i = 0; (path = require.buildFilePaths[i]); i++) {
+        for (i = 0; (path = layer.buildFilePaths[i]); i++) {
             //Add the contents but remove any pragmas and require.pause/resume calls.
             currContents = pragma.process(path, fileUtil.readFile(path), context.config);
             needPause = build.resumeRegExp.test(currContents);
@@ -434,7 +545,7 @@ var build;
             //If this is the first file, and require() is not part of the file
             //and require() is not added later at the end to the top of the file,
             //need to start off with a require.pause() call.
-            if (i === 0 && require.existingRequireUrl !== path && !includeRequire && !config.skipModuleInsertion) {
+            if (i === 0 && layer.existingRequireUrl !== path && !includeRequire && !config.skipModuleInsertion) {
                 fileContents += "require.pause()\n";
             }
 
@@ -444,16 +555,16 @@ var build;
             //Some files may not have declared a require module, and if so,
             //put in a placeholder call so the require does not try to load them
             //after the module is processed.
-            placeHolderModName = require.buildFileToModule[path];
+            placeHolderModName = layer.buildFileToModule[path];
             //If we have a name, but no defined module, then add in the placeholder.
-            if (placeHolderModName && !require.modulesWithNames[placeHolderModName] && !config.skipModuleInsertion) {
+            if (placeHolderModName && !layer.modulesWithNames[placeHolderModName] && !config.skipModuleInsertion) {
                 fileContents += 'require.def("' + placeHolderModName + '", function(){});\n';
             }
 
             //If we have plugins but are not injecting require.js,
             //then need to place the plugins after the require definition,
             //if it was found.
-            if (require.existingRequireUrl === path && !includeRequire) {
+            if (layer.existingRequireUrl === path && !includeRequire) {
                 fileContents += pluginContents;
                 buildFileContents += pluginBuildFileContents;
                 pluginContents = "";
@@ -471,7 +582,7 @@ var build;
         }
 
         //Resume dependency resolution
-        if (require.buildFilePaths.length && !config.skipModuleInsertion) {
+        if (layer.buildFilePaths.length && !config.skipModuleInsertion) {
             fileContents += "\nrequire.resume();\n";
         }
 

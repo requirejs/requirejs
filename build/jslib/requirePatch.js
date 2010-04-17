@@ -13,16 +13,23 @@ readFile: false, pragma: false, Packages: false, parse: false */
 "use strict";
 
 (function () {
+    var layer;
+
     /** Reset state for each build layer pass. */
     require._buildReset = function () {
+        //Clear up the existing context.
+        delete require.s.contexts[require.s.ctxName];
+
         //These variables are not contextName-aware since the build should
         //only have one context.
-        require.buildPathMap = {};
-        require.buildFileToModule = {};
-        require.buildFilePaths = [];
-        require.loadedFiles = {};
-        require.modulesWithNames = {};
-        require.existingRequireUrl = "";
+        layer = require._layer = {
+            buildPathMap: {},
+            buildFileToModule: {},
+            buildFilePaths: [],
+            loadedFiles: {},
+            modulesWithNames: {},
+            existingRequireUrl: ""
+        };
     };
 
     require._buildReset();
@@ -38,7 +45,7 @@ readFile: false, pragma: false, Packages: false, parse: false */
         context.loaded[moduleName] = false;
 
         //Save the module name to path mapping.
-        map = require.buildPathMap[moduleName] = url;
+        map = layer.buildPathMap[moduleName] = url;
 
         //Load the file contents, process for conditionals, then
         //evaluate it.
@@ -50,8 +57,8 @@ readFile: false, pragma: false, Packages: false, parse: false */
         //and to make sure this file is first, so that require.def calls work.
         //This situation mainly occurs when the build is done on top of the output
         //of another build, where the first build may include require somewhere in it.
-        if (!require.existingRequireUrl && parse.definesRequire(url, contents)) {
-            require.existingRequireUrl = url;
+        if (!layer.existingRequireUrl && parse.definesRequire(url, contents)) {
+            layer.existingRequireUrl = url;
         }
 
         //Only eval complete contents if asked, or if it is a require extension.
@@ -102,11 +109,11 @@ readFile: false, pragma: false, Packages: false, parse: false */
     //since require() already did the dependency checks and should have
     //called this method already for those dependencies.
     require.execCb = function (name, cb, args) {
-        var url = name && require.buildPathMap[name];
-        if (url && !require.loadedFiles[url]) {
-            require.buildFilePaths.push(url);
-            require.loadedFiles[url] = true;
-            require.modulesWithNames[name] = true;
+        var url = name && layer.buildPathMap[name];
+        if (url && !layer.loadedFiles[url]) {
+            layer.buildFilePaths.push(url);
+            layer.loadedFiles[url] = true;
+            layer.modulesWithNames[name] = true;
         }
     };
 }());

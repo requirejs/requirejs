@@ -1,10 +1,13 @@
+- Put in unit test for excludeShallow and exclude
+- Write some docs for excludeShallow and exclude
+
 - Developer page? Code style guidelines?
 - README.md does not work in dist, tree links still there.
 
 - de-dupe plugins?
 
-- Build option to remove files that are not part of a layer.
-- Right now multiple layers are exclusionary, but they should not be.
+- require.nameToUrl convertDojo.js for dojo.moduleUrl("dojo", "resources/blank.gif")
+  would be cool to pass require.nameToUrl("dojo/resources/blank.gif") and have that work. Why is .js assumed?
 
 - Make sure text plugin works offline.
 - Make sure text plugin works in rhino env.

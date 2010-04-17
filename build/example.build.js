@@ -108,17 +108,26 @@
     //you should not set this value to true. Default is false.
     execModules: false,
 
+    //If skipModuleInsertion is false, then files that do not use require.def
+    //to define modules will get a require.def() placeholder inserted for them.
+    //Also, require.pause/resume calls will be inserted.
+    //Set it to true to avoid this. This is useful if you are building code that
+    //does not use require() in the built project or in the JS files, but you
+    //still want to use the optimization tool from RequireJS to concatenate modules
+    //together.
+    skipModuleInsertion: false,
+
     //List the modules that will be optimized. All their immediate and deep
     //dependencies will be included in the module's file when the build is
     //done. If that module or any of its dependencies includes i18n bundles,
     //only the root bundles will be included unless the locale: section is set above.
     modules: [
-        //Just specifying a moduleID means that module will be converted into
+        //Just specifying a module name means that module will be converted into
         //a built file that contains all of its dependencies. If that module or any
         //of its dependencies includes i18n bundles, they may not be included in the
         //built file unless the locale: section is set above.
         {
-            id: "foo/bar/bop",
+            name: "foo/bar/bop",
             
             //Should the contents of require.js be included in the optimized module.
             //Defaults to false.
@@ -136,26 +145,37 @@
             }
         },
 
-        //This invocation combines all the dependencies of foo/bar/bop and foo/bar/bee
+        //This module entry combines all the dependencies of foo/bar/bop and foo/bar/bee
         //and any of their dependencies into one file.
         {
-            id: "foo/bar/bop",
+            name: "foo/bar/bop",
             include: ["foo/bar/bee"]
         },
 
-        //This invocation combines all the dependencies of foo/bar/bip into one file,
-        //but excludes foo/bar/bop and its dependencies from the built file. The list
-        //of exclude modules can only be other build layer module ids, and those
-        //build layer *must* be defined before the require call with the exclude option.
-        //TODO: not supported yet.
+        //This module entry combines all the dependencies of foo/bar/bip into one file,
+        //but excludes foo/bar/bop and its dependencies from the built file. If you want
+        //to exclude a module that is also another module being optimized, it is more
+        //efficient if you define that module optimization entry before using it
+        //in an exclude array.
         {
-            id: "foo/bar/bip",
+            name: "foo/bar/bip",
             exclude: [
                 "foo/bar/bop"
             ]
+        },
+
+        //This module entry shows how to specify a specific module be excluded
+        //from the built module file. shallowExclude means just exclude that
+        //specific module, but if that module has nested dependencies that are
+        //part of the built file, keep them in there. This is useful during
+        //development when you want to have a fast bundled set of modules, but
+        //just develop/debug one or two modules at a time.
+        {
+            name: "foo/bar/bin",
+            shallowExclude: [
+                "foo/bar/bot"
+            ]
         }
-        
     ]
 }
-
 
