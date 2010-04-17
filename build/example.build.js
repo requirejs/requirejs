@@ -165,14 +165,14 @@
         },
 
         //This module entry shows how to specify a specific module be excluded
-        //from the built module file. shallowExclude means just exclude that
+        //from the built module file. excludeShallow means just exclude that
         //specific module, but if that module has nested dependencies that are
         //part of the built file, keep them in there. This is useful during
         //development when you want to have a fast bundled set of modules, but
         //just develop/debug one or two modules at a time.
         {
             name: "foo/bar/bin",
-            shallowExclude: [
+            excludeShallow: [
                 "foo/bar/bot"
             ]
         }

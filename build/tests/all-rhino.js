@@ -24,6 +24,6 @@ load("builds.js");
 
 //Hmm, this is an odd requirement, call doh.run() for each test listed above?
 //May be because the tests above call doh.run() in a callback sometimes?
-for (var i = 0; i < 6; i++) {
+for (var i = 0; i < 8; i++) {
     doh.run();
 }

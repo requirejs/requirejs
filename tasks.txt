@@ -1,5 +1,5 @@
-- Put in unit test for excludeShallow and exclude
 - Write some docs for excludeShallow and exclude
+- Get rid of closure compiler log messages
 
 - Developer page? Code style guidelines?
 - README.md does not work in dist, tree links still there.

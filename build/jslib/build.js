@@ -38,7 +38,7 @@ var build;
                   "where build.js is the name of the build file (see example.build.js for hints on how to make a build file.");
             quit();
         }
-    
+
         //First argument to this script should be the directory on where to find this script.
         //This path should end in a slash.
         requireBuildPath = args[0];
@@ -61,7 +61,7 @@ var build;
         }
     
         //Remaining args are options to the build
-        cmdConfig = lang.convertArrayToObject(args);
+        cmdConfig = build.convertArrayToObject(args);
         cmdConfig.buildFile = buildFile;
         cmdConfig.requireBuildPath = requireBuildPath;
     
@@ -164,16 +164,18 @@ var build;
                         //See if it is already in the list of modules.
                         //If not trace dependencies for it.
                         module.excludeLayers[i] = build.findBuildModule(exclude, modules) ||
-                                                  build.traceDependencies(exclude, config);
+                                                  {
+                                                      layer: build.traceDependencies({name: exclude}, config)
+                                                  };
                     });
                 }
             });
 
             modules.forEach(function (module) {
-                //Remove any exclusions from each module.
-                //Do not forget shallowExcludes.
                 if (module.exclude) {
-                    //module.exclude is an array of module names.
+                    //module.exclude is an array of module names. For each one,
+                    //get the nested dependencies for it via a matching entry
+                    //in the module.excludeLayers array.
                     module.exclude.forEach(function (excludeModule, i) {
                         var excludeLayer = module.excludeLayers[i].layer, map = excludeLayer.buildPathMap, prop;
                         for (prop in map) {
@@ -183,14 +185,14 @@ var build;
                         }
                     });
                 }
-                if (module.shallowExclude) {
-                    //module.shallowExclude is an array of module names.
+                if (module.excludeShallow) {
+                    //module.excludeShallow is an array of module names.
                     //shallow exclusions are just that module itself, and not
                     //its nested dependencies.
-                    module.shallowExclude.forEach(function (shallowExcludeModule) {
-                        var path = module.layer.buildPathMap[shallowExcludeModule];
+                    module.excludeShallow.forEach(function (excludeShallowModule) {
+                        var path = module.layer.buildPathMap[excludeShallowModule];
                         if (path) {
-                            build.removeModulePath(shallowExcludeModule, path, module.layer);
+                            build.removeModulePath(excludeShallowModule, path, module.layer);
                         }
                     });
                 }
@@ -235,6 +237,47 @@ var build;
             print(buildFileContents);
         }
         
+    };
+
+    /**
+     * Converts an array that has String members of "name=value"
+     * into an object, where the properties on the object are the names in the array.
+     * Also converts the strings "true" and "false" to booleans for the values.
+     * member name/value pairs, and converts some comma-separated lists into
+     * arrays.
+     * @param {Array} ary
+     */
+    build.convertArrayToObject = function (ary) {
+        var result = {}, i, separatorIndex, prop, value,
+            needArray = {
+                "include": true,
+                "exclude": true,
+                "excludeShallow": true
+            };
+
+        for (i = 0; i < ary.length; i++) {
+            separatorIndex = ary[i].indexOf("=");
+            if (separatorIndex === -1) {
+                throw "Malformed name/value pair: [" + ary[i] + "]. Format should be name=value";
+            }
+
+            value = ary[i].substring(separatorIndex + 1, ary[i].length);
+            if (value === "true") {
+                value = true;
+            } else if (value === "false") {
+                value = false;
+            }
+
+            prop = ary[i].substring(0, separatorIndex);
+
+            //Convert to array if necessary
+            if (needArray[prop]) {
+                value = value.split(",");
+            }
+
+            result[prop] = value;
+        }
+        return result; //Object
     };
 
     /**
@@ -308,18 +351,14 @@ var build;
         if (config.out && !config.cssIn) {
             //Just one file to optimize.
 
-            //Make sure include is an array, and not a string from command line.
-            //Assume if it is a string then it is a comma-separated list of values.
-            if (typeof config.include === "string") {
-                config.include = config.include.split(",");
-            }
-
             //Set up dummy module layer to build.
             config.modules = [
                 {
                     name: config.name,
                     out: config.out,
-                    include: config.include
+                    include: config.include,
+                    exclude: config.exclude,
+                    excludeShallow: config.excludeShallow
                 }
             ];
 
@@ -546,7 +585,7 @@ var build;
             //and require() is not added later at the end to the top of the file,
             //need to start off with a require.pause() call.
             if (i === 0 && layer.existingRequireUrl !== path && !includeRequire && !config.skipModuleInsertion) {
-                fileContents += "require.pause()\n";
+                fileContents += "require.pause();\n";
             }
 
             fileContents += currContents;

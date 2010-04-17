@@ -66,6 +66,23 @@ fileUtil.deleteFile("builds");
                 //Reset require internal state for the contexts so future
                 //builds in these tests will work correctly.
                 require.s.contexts = {};
+            },
+
+            function excludeShallow(t) {
+                build(["..", "name=uno", "excludeShallow=dos", "out=builds/unoExcludeShallow.js",
+                       "baseUrl=../../tests", "optimize=none"]);
+                t.is(nol("require.pause();\n" +
+                     c("../../tests/tres.js") +
+                     c("../../tests/uno.js") +
+                     "\nrequire.resume();\n"), nol(c("builds/unoExcludeShallow.js")));
+            },
+
+            function exclude(t) {
+                build(["..", "name=uno", "exclude=dos", "out=builds/unoExclude.js",
+                       "baseUrl=../../tests", "optimize=none"]);
+                t.is(nol("require.pause();\n" +
+                     c("../../tests/uno.js") +
+                     "\nrequire.resume();\n"), nol(c("builds/unoExclude.js")));
             }
         ]
     );

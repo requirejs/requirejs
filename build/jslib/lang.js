@@ -26,7 +26,7 @@ var lang = {
             }
         }
     },
-    
+
     delegate: (function () {
         // boodman/crockford delegation w/ cornford optimization
         function TMP() {}
@@ -39,33 +39,6 @@ var lang = {
             }
             return tmp; // Object
         };
-    }()),
-
-    /**
-     * Converts an array that has String members of "name=value"
-     * into an object, where the properties on the object are the names in the array.
-     * Also converts the strings "true" and "false" to booleans for the values.
-     * member name/value pairs.
-     * @param {Array} ary
-     */
-    convertArrayToObject: function (ary) {
-        var result = {}, i, separatorIndex, value;
-        for (i = 0; i < ary.length; i++) {
-            separatorIndex = ary[i].indexOf("=");
-            if (separatorIndex === -1) {
-                throw "Malformed name/value pair: [" + ary[i] + "]. Format should be name=value";
-            }
-
-            value = ary[i].substring(separatorIndex + 1, ary[i].length);
-            if (value === "true") {
-                value = true;
-            } else if (value === "false") {
-                value = false;
-            }
-
-            result[ary[i].substring(0, separatorIndex)] = value;
-        }
-        return result; //Object
-    }
+    }())
 };
 
