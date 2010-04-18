@@ -14,7 +14,13 @@ fileUtil.deleteFile("builds");
     function c(file) {
         return fileUtil.readFile(file);
     }
-    
+
+    function cPragma(file) {
+        var contents = c(file);
+        //buildBaseConfig comes from jslib/build.js and pragma is defined
+        //in jslib/pragma.js, both loaded by the build process.
+        return pragma.process(file, contents, buildBaseConfig);
+    }
     //Remove line returns to make comparisons easier.
     function nol(contents) {
         return contents.replace(/[\r\n]/g, "");
@@ -80,9 +86,21 @@ fileUtil.deleteFile("builds");
             function exclude(t) {
                 build(["..", "name=uno", "exclude=dos", "out=builds/unoExclude.js",
                        "baseUrl=../../tests", "optimize=none"]);
+
                 t.is(nol("require.pause();\n" +
-                     c("../../tests/uno.js") +
-                     "\nrequire.resume();\n"), nol(c("builds/unoExclude.js")));
+                         c("../../tests/uno.js") +
+                         "\nrequire.resume();\n"), nol(c("builds/unoExclude.js")));
+            },
+
+            function textPluginIncluded(t) {
+                build(["..", "name=one", "include=require/text", "out=builds/oneText.js",
+                       "baseUrl=../../tests", "optimize=none"]);
+
+                t.is(nol(cPragma("../../require/text.js") +
+                         "require.pause();\n" +
+                         c("../../tests/two.js") +
+                         c("../../tests/one.js") +
+                         "\nrequire.resume();\n"), nol(c("builds/oneText.js")));
             }
         ]
     );

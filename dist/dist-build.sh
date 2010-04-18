@@ -37,11 +37,11 @@ cp allplugins-require.js ../../../../$version/comments/allplugins-require.js
 
 # Build jquery options
 cd ../../jquery
-../build.sh jquery.build.js
+../build.sh require-jquery.build.js
+../build.sh requireplugins-jquery.build.js
 
-cat dist/jquery-require.js $jqueryName > ../../docs/jquery-require-sample/webapp/scripts/require-jquery.js
-cat dist/jquery-require.js $jqueryName > ../../../$version/comments/require-$jqueryName
-cat dist/jquery-allplugins-require.js $jqueryName > ../../../$version/comments/requireplugins-$jqueryName
+mv dist/require-jquery.js ../../../$version/comments/require-$jqueryName
+mv dist/requireplugins-jquery.js ../../../$version/comments/requireplugins-$jqueryName
 
 # Build the sample jQuery project
 cd ../../

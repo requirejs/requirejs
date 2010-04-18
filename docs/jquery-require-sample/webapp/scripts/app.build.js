@@ -6,7 +6,6 @@
     //the code minified by Closure Compiler using
     //the "simple" optimizations mode
     optimize: "none",
-    inlineText: false,
 
     modules: [
         {

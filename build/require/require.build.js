@@ -3,6 +3,7 @@
     baseUrl: ".",
     dir: "build",
     optimize: "none",
+    skipModuleInsertion: true,
     pragmas: {
         requireExcludeModify: true,
         requireExcludePlugin: true,

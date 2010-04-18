@@ -63,7 +63,7 @@ var jQuery = function( selector, context ) {
 	// The functions to execute on DOM ready
 	readyList = [],
 
-        useRequire = !!( typeof require !== "undefined" && require.s ),
+        useRequire = !!( typeof require !== "undefined" && require.def ),
 
 	// The ready event handler
 	DOMContentLoaded,

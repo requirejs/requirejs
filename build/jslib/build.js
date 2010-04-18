@@ -11,9 +11,9 @@
 
 "use strict";
 
-var build;
+var build, buildBaseConfig;
 (function () {
-    var baseConfig = {
+    buildBaseConfig = {
             requireBuildPath: "../",
             appDir: "",
             pragmas: {
@@ -164,9 +164,7 @@ var build;
                         //See if it is already in the list of modules.
                         //If not trace dependencies for it.
                         module.excludeLayers[i] = build.findBuildModule(exclude, modules) ||
-                                                  {
-                                                      layer: build.traceDependencies({name: exclude}, config)
-                                                  };
+                                                 {layer: build.traceDependencies({name: exclude}, config)};
                     });
                 }
             });
@@ -296,7 +294,7 @@ var build;
         var config = {}, baseUrl, buildFileContents, buildFileConfig,
             paths, props, i, prop;
 
-        lang.mixin(config, baseConfig);
+        lang.mixin(config, buildBaseConfig);
         lang.mixin(config, cfg, true);
 
         //Normalize build directory location, and set up path to require.js
@@ -472,9 +470,11 @@ var build;
         //Figure out module layer dependencies by calling require to do the work.
         require(include);
 
-        //Pull out the layer dependencies
+        //Pull out the layer dependencies. Do not use the old context
+        //but grab the latest value from inside require() since it was reset
+        //since our last context reference.
         layer = require._layer;
-        layer.specified = context.specified;
+        layer.specified = require.s.contexts[require.s.ctxName].specified;
 
         //Add any other files that did not have an explicit name on them.
         //These are files that do not call back into require when loaded.
@@ -519,8 +519,13 @@ var build;
         var buildFileContents = "", requireContents = "",
             pluginContents = "", pluginBuildFileContents = "", includeRequire,
             prop, path, reqIndex, fileContents, currContents,
-            i, needPause, placeHolderModName, specified,
-            context = require.s.contexts[require.s.ctxName];
+            i, needPause, placeHolderModName, specified;
+
+        //Use override settings, particularly for pragmas
+        if (module.override) {
+            config = lang.delegate(config);
+            lang.mixin(config, module.override, true);
+        }
 
         //Start build output for the module.
         buildFileContents += "\n" +
@@ -536,7 +541,7 @@ var build;
             includeRequire = module.includeRequire;
         }
         if (includeRequire) {
-            requireContents = pragma.process(config.requireUrl, fileUtil.readFile(config.requireUrl), context.config);
+            requireContents = pragma.process(config.requireUrl, fileUtil.readFile(config.requireUrl), config);
             if (layer.buildFilePaths.length && !config.skipModuleInsertion) {
                 requireContents += "require.pause();\n";
             }
@@ -550,12 +555,9 @@ var build;
             if (specified.hasOwnProperty(prop)) {
                 if (prop.indexOf("require/") === 0) {
                     path = layer.buildPathMap[prop];
-                    //Path may be null, context.specified is populated by
-                    //all module layers at the moment, but buildPathMaps are reset
-                    //for each module layer. TODO: fix this.
                     if (path) {
                         pluginBuildFileContents += path.replace(config.dir, "") + "\n";
-                        pluginContents += pragma.process(path, fileUtil.readFile(path), context.config);
+                        pluginContents += pragma.process(path, fileUtil.readFile(path), config);
                     }
                 }
             }
@@ -578,7 +580,7 @@ var build;
         fileContents = "";
         for (i = 0; (path = layer.buildFilePaths[i]); i++) {
             //Add the contents but remove any pragmas and require.pause/resume calls.
-            currContents = pragma.process(path, fileUtil.readFile(path), context.config);
+            currContents = pragma.process(path, fileUtil.readFile(path), config);
             needPause = build.resumeRegExp.test(currContents);
 
             //If this is the first file, and require() is not part of the file

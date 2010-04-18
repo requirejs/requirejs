@@ -1,5 +1,14 @@
 # RequireJS Optimization Tool
 
+* [Requirements](#requirements)
+* [Download](#download)
+* [Example Setup](#setup)
+* [Optimizing one JavaScript file](#onejs)
+* [Shallow exclusions for fast development](#shallow)
+* [Optimizing one CSS file](#onecss)
+* [Optimizing a whole project](#wholeproject)
+* [All configuration options](#options)
+
 RequireJS comes with an optimization tool that does the following:
 
 * Combines related scripts together into build layers and minifies them via Google Closure.
@@ -83,6 +92,41 @@ If you wanted to include require.js with the app.js source, you can use this com
 
 Once that is done, you can then rename the app-built.js file to require.js and your optimized project will only need to make one script request!
 
+## <a name="shallow">Shallow exclusions for fast development</a>
+
+You can use the [one JavaScript file optimization](#onejs) approach to make your development experience faster. By optimizing all the modules in your project into one file, except the one you are currently developing, you can reload your project quickly in the browser, but still give you the option of fine grained debugging in a module.
+
+You can do this by using the **excludeShallow** option. Using the [example setup](#example) above, assume you are currently building out or debugging two.js. You could use thing optimization command:
+
+    ../../requirejs/build/build.sh name=app excludeShallow=two out=app-built.js baseUrl=. includeRequire=true
+
+If you do not want the app-build.js file minified, pass **optimize=none** in the command above.
+
+Then configure the HTML page to load the app-built.js file instead of app.js by configuring the path used for "app" to be "app-built":
+
+    <!DOCTYPE html>
+    <html>
+        <head>
+            <title>My App</title>
+            <link rel="stylesheet" type="text/css" href="css/app.css">
+            <script src="scripts/require.js"></script>
+            <script>
+                require({
+                    paths: {
+                        //Comment out this line to go back to loading
+                        //the non-optimized app.js source file.
+                        "app": "app-built"
+                    }
+                }, ["app"]);
+            </script>
+        </head>
+        <body>
+            <h1>My App</h1>
+        </body>
+    </html>
+
+Now, when this page is loaded, the require() for "app" will load the app-built.js file. Since excludeShallow told it just to exclude two.js, two.js will still be loaded as a separate file, allowing you to see it as a separate file in the browser's debugger, so you can set breakpoints and better track its individual changes.
+
 ## <a name="onecss">Optimizing one CSS file</a>
 
 Use the above example setup, if you just wanted to optimize app.css, you could use this command, from inside the **appdirectory/css** directory:
@@ -95,7 +139,7 @@ See the notes for the [Optimizing one JavaScript file](#onejs) about avoiding sa
 
 **NOTE**: The url() path fixing will always fix the paths relative to the **cssIn** build option path, not the **out** build option.
 
-##Optimizing a whole project
+## <a name="wholeproject">Optimizing a whole project</a>
 
 The optimization tool can take care of optimizing all the CSS and JS files in your project by using a build profile.
 
@@ -130,6 +174,6 @@ For windows operating systems (a .bat file is in the works to make this easier):
 
 Once the build is done, you can use **appdirectory-build** as your optimized project, ready for deployment.
 
-## <a name="options">Build layer configuration options</a>
+## <a name="options">All configuration options</a>
 
-There is an [example.build.js](http://github.com/jrburke/requirejs/blob/master/build/example.build.js) file in the requirejs/build directory that details all of the allowed configuration options.
+There is an [example.build.js](http://github.com/jrburke/requirejs/blob/master/build/example.build.js) file in the requirejs/build directory that details all of the allowed optimization tool configuration options.
