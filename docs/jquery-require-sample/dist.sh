@@ -24,8 +24,7 @@ mkdir requirejs/build
 cp -r ../../../../build/jslib requirejs/build/jslib
 cp -r ../../../../build/lib requirejs/build/lib
 cp ../../../../build/example.build.js requirejs/build/example.build.js
-# Windows thing not working yet.
-# cp ../../../../build/build.bat requirejs/build/build.bat
+cp ../../../../build/build.bat requirejs/build/build.bat
 cp ../../../../build/build.js requirejs/build/build.js
 cp ../../../../build/build.sh requirejs/build/build.sh
 

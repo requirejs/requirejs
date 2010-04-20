@@ -1,9 +1,6 @@
-- Fix build.bat on windows.
-- Update jQuery branch
 - Do a release
 - Developer page? Code style guidelines?
 - Look at jquery ui adapter
-
 
 - README.md does not work in dist, tree links still there.
 

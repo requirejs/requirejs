@@ -168,9 +168,9 @@ To run the build on Unix/Linux systems, run this command from inside the **appdi
 
     ../../requirejs/build/build.sh app.build.js
 
-For windows operating systems (a .bat file is in the works to make this easier):
+For windows operating systems:
 
-    java -classpath ..\..\requirejs\build\lib\rhino\js.jar;..\..\requirejs\build\lib\closure\compiler.jar org.mozilla.javascript.tools.shell.Main ..\..\requirejs\build\build.js ..\..\requirejs\build\ app.build.js
+    ..\..\requirejs\build\build.bat app.build.js
 
 Once the build is done, you can use **appdirectory-build** as your optimized project, ready for deployment.
 

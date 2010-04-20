@@ -78,9 +78,9 @@ For non-windows operating systems:
 
     ../../requirejs/build/build.sh app.build.js
 
-For windows operating systems (a .bat file is in the works to make this easier):
+For windows operating systems:
 
-    java -classpath ..\..\requirejs\build\lib\rhino\js.jar;..\..\requirejs\build\lib\closure\compiler.jar org.mozilla.javascript.tools.shell.Main ..\..\requirejs\build\build.js ..\..\requirejs\build\ app.build.js
+    ..\..\requirejs\build\build.bat app.build.js
 
 Now, in the webapp-build directory, app.js will have the app.js contents, jquery.alpha.js and jquery.beta.js inlined. If you then load the app.html file in the webapp-build directory, you should not see any network requests for jquery.alpha.js and jquery.beta.js.
 
