@@ -1,7 +1,10 @@
-- Write some docs for excludeShallow and exclude
-- Get rid of closure compiler log messages
-
+- Fix build.bat on windows.
+- Update jQuery branch
+- Do a release
 - Developer page? Code style guidelines?
+- Look at jquery ui adapter
+
+
 - README.md does not work in dist, tree links still there.
 
 - de-dupe plugins?
@@ -18,8 +21,6 @@ install and launch Blackberry MDS service simulator before running simulator to 
   relative to the output folder name?
 
 - Use JSDoc to document a full module?
-
-- Fix build.bat on windows.
 
 - loading more than one locale for a page. A locales= option? Need this for full
   Dojo conversion.

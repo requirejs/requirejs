@@ -161,17 +161,21 @@ var optimize;
                 externSourceFile = closurefromCode("fakeextern.js", " "),
                 //Set up source input
                 jsSourceFile = closurefromCode(String(fileName), String(fileContents)),
-                options, FLAG_compilation_level, FLAG_warning_level, compiler;
-    
+                options, FLAG_compilation_level, compiler,
+                Compiler = Packages.com.google.javascript.jscomp.Compiler;
+
+            logger.trace("Minifying file: " + fileName);
+
             //Set up options
             options = new jscomp.CompilerOptions();
             options.prettyPrint = keepLines;
-    
+
             FLAG_compilation_level = flags.Flag.value(jscomp.CompilationLevel.SIMPLE_OPTIMIZATIONS);
             FLAG_compilation_level.get().setOptionsForCompilationLevel(options);
-    
+
             //Trigger the compiler
-            compiler = new Packages.com.google.javascript.jscomp.Compiler();
+            Compiler.setLoggingLevel(Packages.java.util.logging.Level.WARNING);
+            compiler = new Compiler();
             compiler.compile(externSourceFile, jsSourceFile, options);
             return compiler.toSource();  
         },
