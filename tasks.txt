@@ -1,13 +1,15 @@
 - Do a release
-- Developer page? Code style guidelines?
 - Look at jquery ui adapter
 
-- README.md does not work in dist, tree links still there.
-
-- de-dupe plugins?
+- Expore allowing require("./something") inside function callbacks.
+  - it means a specific require() function for each module asking for require
+  - require.nameToUrl should also allow the relative IDs then.
 
 - require.nameToUrl convertDojo.js for dojo.moduleUrl("dojo", "resources/blank.gif")
   would be cool to pass require.nameToUrl("dojo/resources/blank.gif") and have that work. Why is .js assumed?
+
+- de-dupe plugins in a build, make sure they are only included once? Or does that work already now with
+  the latest changes?
 
 - Make sure text plugin works offline.
 - Make sure text plugin works in rhino env.
