@@ -31,3 +31,5 @@ require.load = function (moduleName, contextName) {
 //Globals set up by the rjs bootstrap
 require._nodeExecPath = global.__requireExecPath;
 require._log = global.__requireLog;
+delete global.__requireExecPath;
+delete global.__requireLog;

@@ -5,7 +5,7 @@
  */
 
 /*jslint nomen: false */
-/*global require: true, process: false */
+/*global require: true, process: false, global: false */
 "use strict";
 
 /*
@@ -22,7 +22,7 @@
         sys = require("sys"),
         cwd = process.cwd(),
         appFilePath = process.argv[2],
-        appDir;
+        appDir, files, pathMap = {}, paths = "";
 
     function execPath(path) {
         process.compile(fs.readFileSync(path), path);
@@ -33,6 +33,8 @@
     }
 
     //Set up two globals to be used by require/node.js
+    //require/node.js will delete these properties after
+    //it grabs the functions for itself.
     global.__requireExecPath = execPath;
     global.__requireLog = sys.puts;
 
@@ -50,23 +52,29 @@
     require = null;
 
     //Load up basic bootstrap.
-    //Would be good to simplify this, but for now,
-    //need the compiles to happen in same scope as this function.
+    [
+        join(appDir, "lib", "require.js"),
+        join(appDir, "lib", "require", "node.js")
+    ].forEach(function (path) {
+        execPath(path);
+    });
 
-    requirePath = join(appDir, "lib", "require.js");
-    requireNodePath = join(appDir, "lib", "require", "node.js");
-    pathsPath = join(appDir, "lib", "paths.cfg");
+    //Read the files in lib to generate correct path config for them.
+    files = fs.readdirSync(join(appDir, "lib"));
+    files.forEach(function (file) {
+        //Pull off any file extension
+        var lastIndex = file.lastIndexOf(".");
+        if (lastIndex !== -1) {
+            file = file.substring(0, lastIndex);
+        }
+        if (!pathMap[file]) {
+            paths += (paths ? ",\n" : "") + "'" + file + "': 'lib/" + file + "'";
+            pathMap[file] = true;
+        }
+    });
 
-    process.compile(fs.readFileSync(requirePath), requirePath);
-    process.compile(fs.readFileSync(requireNodePath), requireNodePath);
-    process.compile(fs.readFileSync(pathsPath), pathsPath);
-
-    //Set up method for require/node.js to exec modules
-    //require._nodeExecPath = execPath;
-    //require._log = sys.puts;
-
-    //Set the baseUrl to be the app directory.
-    process.compile("require({baseUrl: '" + appDir + "'});", "baseUrl");
+    //Set the baseUrl to be the app directory, and pass in the paths.
+    process.compile("require({baseUrl: '" + appDir + "', paths: {" + paths + "}});", "baseUrl");
 
     //Showtime!
     process.compile(fs.readFileSync(appFilePath), appFilePath);
