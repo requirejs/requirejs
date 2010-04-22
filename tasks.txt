@@ -16,6 +16,9 @@
 - Get Blackberry simulator. Blackberry greater than 4.6, and particulary with the Blackberry 9500 simulator (with OS v4.7),
 install and launch Blackberry MDS service simulator before running simulator to get network.
 
+- trying to find path of the file executed, as given to rhino:
+http://groups.google.com/group/jsdoc-2/msg/b1dd2f8991156fa0
+
 - with appName, and no native require, setting path to be outside the baseUrl meant that the require path was really
   relative to the output folder name?
 

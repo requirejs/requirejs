@@ -2,10 +2,10 @@
  * Converts CommonJS modules to be requirejs compliant modules.
  * 
  * Usage:
- * java -jar ../lib/rhino/js.jar convertCommonJs.js path/to/commonjs outputDir
+ * java -jar ../lib/rhino/js.jar convertCommonJs.js /path/containing/convertCommonJs.js/ path/to/commonjs outputDir
  *
  * For debugger: 
- * java -classpath ../lib/rhino/js.jar org.mozilla.javascript.tools.debugger.Main convertCommonJs.js path/to/commonjs outputDir
+ * java -classpath ../lib/rhino/js.jar org.mozilla.javascript.tools.debugger.Main /path/containing/convertCommonJs.js/ convertCommonJs.js path/to/commonjs outputDir
  *
  */
 /*jslint plusplus: false */
@@ -13,20 +13,26 @@
 
 "use strict";
 
-load("../jslib/fileUtil.js");
-load("../jslib/logger.js");
-
 var startTime = (new Date()).getTime(),
-    convertTime,
-    commonJsPath = arguments[0],
-    savePath = arguments[1],
-    prefix = arguments[2] ? arguments[2] + "/" : "",
-    //Get list of files to convert.
-    fileList = fileUtil.getFilteredFileList(commonJsPath, /\w/, true),
+    convertTime, fileList,
+    myPath = arguments[0],
+    commonJsPath = arguments[1],
+    savePath = arguments[2],
+    prefix = arguments[3] ? arguments[3] + "/" : "",
     jsFileRegExp = /\.js$/,
     depRegExp = /require\s*\(\s*["']([\w-_\.\/]+)["']\s*\)/g,
     fileName, moduleName, convertedFileName, fileContents,
     i;
+
+//Load libs to help
+if (myPath.charAt(myPath.length - 1) !== "/") {
+    myPath += "/";
+}
+load(myPath + "../jslib/fileUtil.js");
+load(myPath + "../jslib/logger.js");
+
+//Get list of files to convert.
+fileList = fileUtil.getFilteredFileList(commonJsPath, /\w/, true);
 
 //Normalize on front slashes and make sure the paths do not end in a slash.
 commonJsPath = commonJsPath.replace(/\\/g, "/");

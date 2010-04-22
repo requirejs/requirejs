@@ -1,0 +1,73 @@
+/**
+ * @license rjs Copyright (c) 2010, The Dojo Foundation All Rights Reserved.
+ * Available via the MIT, GPL or new BSD license.
+ * see: http://github.com/jrburke/requirejs for details
+ */
+
+/*jslint nomen: false */
+/*global require: true, process: false */
+"use strict";
+
+/*
+ This file is an adapter file to allow RequireJS to run in node.
+ This file assumes the create.js process has run to create a new
+ node project directory that works with RequireJS. Once create.js
+ has done its work, then you can run the project like so (assuming
+ you are in the new project's directory):
+ > node rjs index.js
+*/
+
+(function () {
+    var fs = require("fs"),
+        sys = require("sys"),
+        cwd = process.cwd(),
+        appFilePath = process.argv[2],
+        appDir;
+
+    function execPath(path) {
+        process.compile(fs.readFileSync(path), path);
+    }
+
+    function join() {
+        return Array.prototype.join.call(arguments, "/");
+    }
+
+    //Set up two globals to be used by require/node.js
+    global.__requireExecPath = execPath;
+    global.__requireLog = sys.puts;
+
+    //Make sure path to app file is absolute.
+    if (appFilePath.charAt(0) !== "/") {
+        appFilePath = join(cwd, appFilePath);
+    }
+
+    //Now get app directory.
+    appDir = appFilePath.split("/");
+    appDir.pop();
+    appDir = appDir.join("/");
+
+    //Clear our require, RequireJS can override.
+    require = null;
+
+    //Load up basic bootstrap.
+    //Would be good to simplify this, but for now,
+    //need the compiles to happen in same scope as this function.
+
+    requirePath = join(appDir, "lib", "require.js");
+    requireNodePath = join(appDir, "lib", "require", "node.js");
+    pathsPath = join(appDir, "lib", "paths.cfg");
+
+    process.compile(fs.readFileSync(requirePath), requirePath);
+    process.compile(fs.readFileSync(requireNodePath), requireNodePath);
+    process.compile(fs.readFileSync(pathsPath), pathsPath);
+
+    //Set up method for require/node.js to exec modules
+    //require._nodeExecPath = execPath;
+    //require._log = sys.puts;
+
+    //Set the baseUrl to be the app directory.
+    process.compile("require({baseUrl: '" + appDir + "'});", "baseUrl");
+
+    //Showtime!
+    process.compile(fs.readFileSync(appFilePath), appFilePath);
+}());
