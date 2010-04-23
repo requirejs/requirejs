@@ -56,7 +56,7 @@
     //TODO: this is a bit fragile, assumes dependencies.
     fixContents = fileUtil.readFile(projectPath + "lib/assert.js");
     fixContents = fileUtil.saveFile(projectPath + "lib/assert.js",
-                                    'require.def("assert", ["require", "exports", "module"], function(require, exports, module) {\n' +
+                                    'require.def("assert", ["require", "exports", "module", "sys"], function(require, exports, module) {\n' +
                                     fixContents +
                                     '\n});');
 
