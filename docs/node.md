@@ -4,11 +4,11 @@ There is some preliminary support for RequireJS for use in [Node](http://nodejs.
 
 ## Doesn't Node already have a module loader?
 
-Yes it does. That loader uses the CommonJS module format. [For various reasons](http://tagneto.blogspot.com/2010/03/commonjs-module-trade-offs.html), the CommonJS module format is non-optimal for the browser. By using RequireJS on the server, you can use one format for all your modules, whether they are running server side or in the browser. That way you can preserve the speed benefits and easy debugging you get with RequireJS in the browser, and not have to worry about extra translation costs for moving between two formats.
+Yes it does. That loader uses the CommonJS module format. The CommonJS module format is [non-optimal for the browser](why.md), and I do not prefer [some of the trade-offs made in the CommonJS module format](http://tagneto.blogspot.com/2010/03/commonjs-module-trade-offs.html). By using RequireJS on the server, you can use one format for all your modules, whether they are running server side or in the browser. That way you can preserve the speed benefits and easy debugging you get with RequireJS in the browser, and not have to worry about extra translation costs for moving between two formats.
 
 ## Can I use server modules already written in the CommonJS module format?
 
-Yes! The Node adapter for RequireJS, called r.js, can automatically convert CommonJS modules into the RequireJS format on the fly, as they are loaded, so you can use your existing modules without modifying them.
+Yes! The Node adapter for RequireJS, called r.js, automatically converts CommonJS modules to the RequireJS format on the fly, as they are loaded, so you can use your existing modules without modifying them.
 
 However, RequireJS does not use search paths for modules. It only does the following:
 
@@ -16,6 +16,10 @@ However, RequireJS does not use search paths for modules. It only does the follo
 * Otherwise the module is assumed to be relative to the file that is given to node to start your app.
 
 You can always use the [Configuration Options](api.md#config) for RequireJS in your top level app file to configure paths and even a different baseUrl for your modules.
+
+Also, even though RequireJS is an asynchronous loader in the browser, the RequireJS Node adapter loads modules synchronously in the Node environment. This was done to make the adapter easier to code. The adapter could be made asynchronous, but the primary benefit of RequireJS integration with Node is to allow you to write modules in the same format on the server and for the browser that work well in both environments.
+
+Finally, RequireJS in Node can only load modules that are on the local disk -- fetching modules across http, for instance, is not supported at this time.
 
 ## How do I use it?
 

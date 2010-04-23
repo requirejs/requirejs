@@ -1,5 +1,8 @@
+- include i18n and text plugins in node integration. Make sure text plugin works?
 - Do a release
 - Look at jquery ui adapter
+
+- Transport/D support.
 
 - Expore allowing require("./something") inside function callbacks.
   - it means a specific require() function for each module asking for require
