@@ -39,7 +39,12 @@ var injected = [
         fileUtil.readFile("../../jslib/commonJs.js")
     ].join("\n"),
 
-    requirejs = fileUtil.readFile("../../../require.js"),
+    requirejs = [
+        fileUtil.readFile("../../../require.js"),
+        fileUtil.readFile("../../../require/i18n.js"),
+        fileUtil.readFile("../../../require/text.js")
+    ].join("\n");
+
     adapter = fileUtil.readFile("requireAdapter.js"),
     r = fileUtil.readFile("r-source.js");
     

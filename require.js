@@ -16,7 +16,7 @@ setInterval: false */
 var require;
 (function () {
     //Change this version number for each release.
-    var version = "0.9.0",
+    var version = "0.10.0",
             empty = {}, s,
             i, defContextName = "_", contextLoads = [],
             scripts, script, rePkg, src, m, cfg, setReadyState,

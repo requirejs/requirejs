@@ -1,6 +1,6 @@
 # RequireJS
 
-RequireJS loads plain JavaScript files as well as more defined modules. It is optimized for in-browser use, but it can be used in other JavaScript environments, like Rhino. It implements the [CommonJS Transport/C proposal](http://wiki.commonjs.org/wiki/Modules/Transport/C) API.
+RequireJS loads plain JavaScript files as well as more defined modules. It is optimized for in-browser use, but it can be used in other JavaScript environments, like Rhino and [Node](requirejs/tree/master/docs/node.md). It implements the [CommonJS Transport/C proposal](http://wiki.commonjs.org/wiki/Modules/Transport/C) API.
 
 RequireJS uses plain script tags to load modules/files, so it should allow for easy debugging. It can be used [simply to load existing JavaScript files](requirejs/tree/master/docs/api.md#jsfiles), so you can add it to your existing project without having to re-write your JavaScript files.
 
@@ -10,11 +10,11 @@ If the JavaScript file defines a JavaScript module via [require.def()](requirejs
 
 RequireJS does not have any dependencies on a JavaScript framework. It is tri-licensed -- BSD, MIT, and GPL.
 
-The core require.js file around 3.5KB when minified via Closure Compiler and gzipped. require.js can also be built without some features, with the smallest option (just dependency tracking and simple module loading) weighing in at 2.5KB minified, gzipped.
+The standard require.js file is around 3.7KB when minified via Closure Compiler and gzipped. require.js can be built without some features, with the smallest option (just dependency tracking and simple module loading) weighing in at 2.6KB minified, gzipped.
 
 The unit tests work in IE 6+, Firefox 3.0+, Safari 4+, Chrome 3+, and Opera 10+.
 
-Latest Release: [0.9.0](http://requirejs.org/docs/download.html)
+Latest Release: [0.10.0](http://requirejs.org/docs/download.html)
 
 * [Start](requirejs/tree/master/docs/start.md)
     * [Using it with jQuery](requirejs/tree/master/docs/jquery.md)

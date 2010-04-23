@@ -1,6 +1,75 @@
 # Download RequireJS
 
-## Releases
+### Latest Release: 0.10.0
+
+* [RequireJS works in Node](node.md).
+* [Optimization tool enhancements](optimization.md):
+    * For a given module, you can now use **exclude** to exclude some modules and their nested dependencies.
+    * Use **excludeShallow** to just exclude a specific module, but still include its nested dependencies. This is particularly useful during development. You can do an optimized build, but just excludeShallow the current module you are developing/debugging to get fast dev load times, but still allow easy debugging and development.
+
+#### <a name="requirejs">require.js</a> [Minified](http://requirejs.org/docs/release/0.10.0/minified/require.js) | [With Comments](http://requirejs.org/docs/release/0.10.0/comments/require.js)
+
+All you need to start using require.js. Does not include i18n, text plugins or rhino support. 
+
+#### <a name="requirejsplugins">require.js with plugins</a> [Minified](http://requirejs.org/docs/release/0.10.0/minified/allplugins-require.js) | [With Comments](http://requirejs.org/docs/release/0.10.0/comments/allplugins-require.js)
+
+require.js with the i18n and text plugins included. 
+
+#### <a name="jqueryrequirejs">jQuery 1.4.2 with require()</a> [Minified](http://requirejs.org/docs/release/0.10.0/minified/require-jquery-1.4.2.js) | [With Comments](http://requirejs.org/docs/release/0.10.0/comments/require-jquery-1.4.2.js)
+
+A build of jQuery with integrated require() support. Just includes the basic RequireJS, does not have the following features:
+
+* i18n, text plugins
+* multiversion support
+* page load support (it is assumed you will use jQuery's methods)
+* require.modify() support
+
+#### <a name="jqueryrequirejsplugins">jQuery 1.4.2 with require() and plugins</a> [Minified](http://requirejs.org/docs/release/0.10.0/minified/requireplugins-jquery-1.4.2.js) | [With Comments](http://requirejs.org/docs/release/0.10.0/comments/requireplugins-jquery-1.4.2.js)
+
+A build of jQuery with integrated require() support and the i18n and text plugins. Does not include these other RequireJS features:
+
+* multiversion support
+* page load support (it is assumed you will use jQuery's methods)
+* require.modify() support
+
+The integrated builds with jQuery contain the changes in [this jQuery fork](http://github.com/jrburke/jquery).
+
+<hr>
+
+#### <a name="samplejquery">Sample jQuery 1.4.2 project with require()</a> [Download](http://requirejs.org/docs/release/0.10.0/jquery-require-sample.zip)
+
+A zip file containing a build of jQuery with integrated require() support, with an sample project included to show how it can be used when using jQuery. Does not include these features in RequireJS:
+
+* i18n, text plugins
+* multiversion support
+* page load support (it is assumed you will use jQuery's methods)
+* require.modify() support
+
+<hr>
+
+#### <a name="node">RequireJS adapter for Node</a> 
+
+**[r.js](http://requirejs.org/docs/release/0.10.0/node/r.js)**: use this file if you want to code to the RequireJS module format in Node. The [Node instructions](node.md) explain how to use it. It includes all the code needed for RequireJS to function with Node.
+
+**[index.js](http://requirejs.org/docs/release/0.10.0/node/index.js)**: the standard HTTP server-based Hello World app for Node, but coded to work with the r.js adapter. Download it in the same directory as r.js and then run this command:
+
+    node r.js index.js
+
+Then you can go to http://127.0.0.1:8000/ and see "Hello World" printed after about 2 seconds.
+
+<hr>
+
+#### <a name="optimizationtool">Optimization Tool / Full Source</a> [Download](http://requirejs.org/docs/release/0.10.0/requirejs-0.10.0.zip)
+
+A zip file that is the optimization tool for RequireJS. It also includes the full source for require.js and its plugins.
+
+If you want to use RequireJS in Rhino, you should use this download.
+
+<hr>
+<hr>
+<hr>
+
+### Previous releases
 
 ### 0.9.0
 
@@ -17,59 +86,6 @@
 * Bug fixes
 
 This release has a couple backwards incompatible changes. These kinds of changes will be generally avoided, and more notice via the RequireJS mailing list will be given if it needs to happen again. RequireJS has not reached 1.0, so these kinds of changes may still happen. However, there should be less of a need for a backwards incompatiable change now, and as of today, none are forecasted.
-
-#### <a name="requirejs">require.js</a> [Minified](http://requirejs.org/docs/release/0.9.0/minified/require.js) | [With Comments](http://requirejs.org/docs/release/0.9.0/comments/require.js)
-
-All you need to start using require.js. Does not include i18n, text plugins or rhino support. 
-
-#### <a name="requirejsplugins">require.js with plugins</a> [Minified](http://requirejs.org/docs/release/0.9.0/minified/allplugins-require.js) | [With Comments](http://requirejs.org/docs/release/0.9.0/comments/allplugins-require.js)
-
-require.js with the i18n and text plugins included. 
-
-#### <a name="jqueryrequirejs">jQuery 1.4.2 with require()</a> [Minified](http://requirejs.org/docs/release/0.9.0/minified/require-jquery-1.4.2.js) | [With Comments](http://requirejs.org/docs/release/0.9.0/comments/require-jquery-1.4.2.js)
-
-A build of jQuery with integrated require() support. Just includes the basic RequireJS, does not have the following features:
-
-* i18n, text plugins
-* multiversion support
-* page load support (it is assumed you will use jQuery's methods)
-* require.modify() support
-
-#### <a name="jqueryrequirejsplugins">jQuery 1.4.2 with require() and plugins</a> [Minified](http://requirejs.org/docs/release/0.9.0/minified/requireplugins-jquery-1.4.2.js) | [With Comments](http://requirejs.org/docs/release/0.9.0/comments/requireplugins-jquery-1.4.2.js)
-
-A build of jQuery with integrated require() support and the i18n and text plugins. Does not include these other RequireJS features:
-
-* multiversion support
-* page load support (it is assumed you will use jQuery's methods)
-* require.modify() support
-
-The integrated builds with jQuery contain the changes in [this jQuery fork](http://github.com/jrburke/jquery).
-
-<hr>
-
-#### <a name="samplejquery">Sample jQuery 1.4.2 project with require()</a> [Download](http://requirejs.org/docs/release/0.9.0/jquery-require-sample.zip)
-
-A zip file containing a build of jQuery with integrated require() support, with an sample project included to show how it can be used when using jQuery. Does not include these features in RequireJS:
-
-* i18n, text plugins
-* multiversion support
-* page load support (it is assumed you will use jQuery's methods)
-* require.modify() support
-
-<hr>
-
-#### <a name="optimizationtool">Optimization Tool / Full Source</a> [Download](http://requirejs.org/docs/release/0.9.0/requirejs-0.9.0.zip)
-
-A zip file that is the optimization tool for RequireJS. It also includes the full source for require.js and its plugins.
-
-If you want to use RequireJS in Rhino, you should use this download.
-
-<hr>
-<hr>
-<hr>
-
-### Previous releases
-
 
 ### 0.8.0
 
