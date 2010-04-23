@@ -1,10 +1,13 @@
 .DS_Store
 build/convert/build/
+build/convert/node/r.js
 build/convert/dojorequire/
 build/convert/dojo/
 build/tests/builds/
 build/jquery/dist/
 build/require/build/
 docs/jquery-require-sample/webapp-build/
+docs/jquery-require-sample/dist
 dist/dist-site/
 dist/dist-build/
+

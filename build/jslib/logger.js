@@ -36,6 +36,10 @@ var logger = {
 	},
 
 	_print: function(message){
-		print((this.logPrefix ? (this.logPrefix + " ") : "") + message);
-	}
+		this._sysPrint((this.logPrefix ? (this.logPrefix + " ") : "") + message);
+	},
+
+        _sysPrint: function(message){
+            print(message);
+        }
 }
