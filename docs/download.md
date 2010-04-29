@@ -15,6 +15,10 @@ All you need to start using require.js. Does not include i18n, text plugins or r
 
 require.js with the i18n and text plugins included. 
 
+#### <a name="requirejstransportD">require.js with Transport D and plugins</a> [Minified](http://requirejs.org/docs/release/0.10.0/minified/transportD-require.js) | [With Comments](http://requirejs.org/docs/release/0.10.0/comments/transportD-require.js)
+
+require.js with require.define support for [Transport D from CommonJS](http://wiki.commonjs.org/wiki/Modules/Transport/D), and i18n and text plugins included. 
+
 #### <a name="jqueryrequirejs">jQuery 1.4.2 with require()</a> [Minified](http://requirejs.org/docs/release/0.10.0/minified/require-jquery-1.4.2.js) | [With Comments](http://requirejs.org/docs/release/0.10.0/comments/require-jquery-1.4.2.js)
 
 A build of jQuery with integrated require() support. Just includes the basic RequireJS, does not have the following features:

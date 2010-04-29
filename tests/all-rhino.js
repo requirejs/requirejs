@@ -16,13 +16,16 @@ load("doh/_rhinoRunner.js");
 //Load require with rhino extension
 load("../require.js");
 load("../require/rhino.js");
+load("../require/transportD.js");
 
 //Load the tests.
 load("simple-tests.js");
 load("circular-tests.js");
 load("relative/relative-tests.js");
+load("transportD/transportD-tests.js");
 
 //Hmm, this is an odd requirement, call doh.run() for each test listed above?
 //May be because the tests above call doh.run() in a callback sometimes?
+doh.run();
 doh.run();
 doh.run();

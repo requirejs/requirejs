@@ -34,6 +34,7 @@ cd requirejs-$version/build/require
 cd build
 cp require.js ../../../../$version/comments/require.js
 cp allplugins-require.js ../../../../$version/comments/allplugins-require.js
+cp transportD-require.js ../../../../$version/comments/transportD-require.js
 
 # Build jquery options
 cd ../../jquery
@@ -62,6 +63,7 @@ cd ../../../
 cd ../$version/comments
 java -jar ../../requirejs-$version/build/lib/closure/compiler.jar --js require.js --js_output_file ../minified/require.js
 java -jar ../../requirejs-$version/build/lib/closure/compiler.jar --js allplugins-require.js --js_output_file ../minified/allplugins-require.js
+java -jar ../../requirejs-$version/build/lib/closure/compiler.jar --js transportD-require.js --js_output_file ../minified/transportD-require.js
 java -jar ../../requirejs-$version/build/lib/closure/compiler.jar --js require-$jqueryName --js_output_file ../minified/require-$jqueryName
 java -jar ../../requirejs-$version/build/lib/closure/compiler.jar --js requireplugins-$jqueryName --js_output_file ../minified/requireplugins-$jqueryName
 

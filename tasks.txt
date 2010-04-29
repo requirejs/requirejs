@@ -1,8 +1,11 @@
 - include i18n and text plugins in node integration. Make sure text plugin works?
-- Do a release
+- Optimization example for build layers for each page that refer to a common set.
 - Look at jquery ui adapter
+- jquery as a module
+- static dependencies up front: want async as fast, nested dependencies mean some are sync?
 
-- Transport/D support.
+- Transport/D support, sketch from Kris Zyp:
+  - distribution that includes require+transportD
 
 - Expore allowing require("./something") inside function callbacks.
   - it means a specific require() function for each module asking for require
@@ -10,6 +13,13 @@
 
 - require.nameToUrl convertDojo.js for dojo.moduleUrl("dojo", "resources/blank.gif")
   would be cool to pass require.nameToUrl("dojo/resources/blank.gif") and have that work. Why is .js assumed?
+- Deliver distribution of Dojo based on require
+  - fix for requireIf?
+
+- Explore a JSONP extension, so something like this would work:
+require(["https://www.google.com/jsapi?callback=?"], function(jsonpValue) {
+});
+
 
 - de-dupe plugins in a build, make sure they are only included once? Or does that work already now with
   the latest changes?
