@@ -240,9 +240,9 @@ However, the build system for require.js will inline any text! references with t
 
 ## <a name="jsonp">Specify a JSONP Service Dependency</a>
 
-[JSONP](http://en.wikipedia.org/wiki/JSON#JSONP) is a way of calling some services in JavaScript. It is great because it works across domains and is an established way to call services that just require an HTTP GET via a script tag.
+[JSONP](http://en.wikipedia.org/wiki/JSON#JSONP) is a way of calling some services in JavaScript. It works across domains and it is an established approach to calling services that just require an HTTP GET via a script tag.
 
-RequireJS has a plugin, require/jsonp.js, that allows you to specify JSONP API services as dependencies. RequireJS will handle setting up the callback function with the service, and once the service returns a value to that callback, it will use that value as the value for that JSONP service URL.
+RequireJS has a plugin, require/jsonp.js, that allows you to use JSONP API services as dependencies. RequireJS will handle setting up the callback function with the service, and once the service returns a value to that callback, it will use that value as the value for that JSONP service URL.
 
 To use a JSONP service in RequireJS, specify the jsonp! plugin prefix, then the URL to the service. For the JSONP callback parameter, use a question mark for the value, similar to how it is done in jQuery.
 
@@ -256,7 +256,7 @@ Here is an example that calls a twitter API endpoint. In this example, the JSONP
         }
     );
 
-Errors in loading a JSONP service are really just surfaced via timeouts for the service, since script tag loading does not give much detail into network problems. To detect errors, attach an event listener for window.onerror. The error object that will be received by that function will contain two properties if it is a timeout issue:
+Errors in loading a JSONP service are normally surfaced via timeouts for the service, since script tag loading does not give much detail into network problems. To detect errors, attach an event listener for window.onerror. The error object passed to the onerror function will contain two properties if it is a timeout issue:
 
 * **requireType**: value will be "timeout"
 * **requireModules**: an array of module names/URLs that timed out. You can find the JSONP service URL in here.
