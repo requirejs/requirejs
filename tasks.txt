@@ -1,11 +1,11 @@
+- Include a layers: config option that holds all loading until those items are resolved.
+- Test URLs with build tool. Be sure to skip them, as well as /some/path URLs.
+
 - include i18n and text plugins in node integration. Make sure text plugin works?
 - Optimization example for build layers for each page that refer to a common set.
 - Look at jquery ui adapter
 - jquery as a module
 - static dependencies up front: want async as fast, nested dependencies mean some are sync?
-
-- Transport/D support, sketch from Kris Zyp:
-  - distribution that includes require+transportD
 
 - Expore allowing require("./something") inside function callbacks.
   - it means a specific require() function for each module asking for require
@@ -14,12 +14,26 @@
 - require.nameToUrl convertDojo.js for dojo.moduleUrl("dojo", "resources/blank.gif")
   would be cool to pass require.nameToUrl("dojo/resources/blank.gif") and have that work. Why is .js assumed?
 - Deliver distribution of Dojo based on require
-  - fix for requireIf?
+  - manual fix for requireIf in dojo.gfx, like what is done for dojo._base
 
-- Explore a JSONP extension, so something like this would work:
-require(["https://www.google.com/jsapi?callback=?"], function(jsonpValue) {
-});
 
+KrisKowal:
+http://twitter.com/kriskowal/status/11056458715
+Promises are about calling functions and getting the return value without blocking other events, even if there is high latency.
+http://twitter.com/kriskowal/status/11056349497
+There's a common misconception that Promises are about turning functions into functions that get called later. 
+
+http://groups.google.com/group/nodejs/browse_thread/thread/7c06276186ddcf93/14f01e82602ea260?#14f01e82602ea260
+http://github.com/kriskowal/narwhal/blob/master/lib/events.js
+
+
+- Possibly change dependency stuff to call module as soon as just its dependencies
+  are ready instead of waiting for all the modules to "load", then are executed.
+  Although could that cause problems with things that do implicit changes,
+  things where there is not an explicit dependency listed, but still some things are expected to be there
+  to work. Not sure I have a concrete case, but thinking of things like extensions to chainable APIs...
+  Feels like there is something there important to consider. Right now I think
+  that behavior for waiting for all the modules to "load" then get executed is good.
 
 - de-dupe plugins in a build, make sure they are only included once? Or does that work already now with
   the latest changes?
@@ -39,9 +53,6 @@ http://groups.google.com/group/jsdoc-2/msg/b1dd2f8991156fa0
 
 - loading more than one locale for a page. A locales= option? Need this for full
   Dojo conversion.
-
-- Talking with Bryan: onScriptLoad is not really needed in a pure require() case, maybe
-allow at least a build pragma to exclude it.
 
 - When doing docs via jsdoc, using {some/module} as return types? How does JSDoc deal with the nested objects?
   Probably needs custom work to get it recognize the module concept thing.

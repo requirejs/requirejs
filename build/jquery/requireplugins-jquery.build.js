@@ -3,7 +3,7 @@
     out: "dist/requireplugins-jquery.js",
     optimize: "none",
 
-    include: ["require/i18n", "require/text", "jquery-1.4.2"],
+    include: ["require/i18n", "require/text", "require/jsonp", "jquery-1.4.2"],
     includeRequire: true,
     skipModuleInsertion: true,
     pragmas: {

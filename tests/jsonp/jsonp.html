@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>require.js: JSONP Plugin Test</title>
+    <script type="text/javascript" src="../../require.js"></script>
+    <script type="text/javascript" src="../doh/runner.js"></script>
+    <script type="text/javascript" src="../doh/_browserRunner.js"></script>
+    <script type="text/javascript">
+    require({
+            baseUrl: "./",
+            paths: {
+                require: "../../require"
+            }
+        },
+        ["require", "lamp", "jsonp!http://www.google.com/jsapi?callback=?"],
+        function (require, lamp, googleAjaxReady) {
+            //JSAPI is now loaded, load the language API pack
+            google.load("language", "1", {
+                callback: function () {
+                    //Language API pack now loaded, use it.
+                    google.language.translate("book", "en", "es", function(result) {
+                        doh.register(
+                            "jsonp",
+                            [
+                                function jsonp(t){
+                                    t.is("libro", result.translation);
+                                    t.is('blue', lamp.color);
+                                }
+                            ]
+                        );
+                        doh.run();
+                    });
+                }
+            });
+        }
+    );
+    </script>
+</head>
+<body>
+    <h1>require.js: JSONP Plugin Test</h1>
+    <p>Test for usage of jsonp! require plugin.</p>
+    <strong>REQUIRES access to internet/Google to run the test. Otherwise it will fail.</strong>
+    <p>Check console for messages</p>
+</body>
+</html>

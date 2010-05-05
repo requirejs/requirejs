@@ -507,7 +507,7 @@ var require;
         //Figure out if all the modules are loaded. If the module is not
         //being loaded or already loaded, add it to the "to load" list,
         //and request it to be loaded.
-        var i, dep, index, depPrefix, split;
+        var i, dep;
 
         if (pluginPrefix) {
             //>>excludeStart("requireExcludePlugin", pragmas.requireExcludePlugin);
@@ -790,7 +790,7 @@ var require;
                 pIsWaiting = s.plugins.isWaiting, pOrderDeps = s.plugins.orderDeps,
                 //>>excludeEnd("requireExcludePlugin");
 
-                i, module, allDone, loads, loadArgs,
+                i, module, allDone, loads, loadArgs, err,
                 traced = {};
 
         //If already doing a checkLoaded call,
@@ -833,7 +833,9 @@ var require;
         }
         if (expired && noLoads) {
             //If wait time expired, throw error of unloaded modules.
-            throw new Error("require.js load timeout for modules: " + noLoads);
+            err = new Error("require.js load timeout for modules: " + noLoads);
+            err.requireType = "timeout";
+            err.requireModules = noLoads;
         }
         if (stillLoading) {
             //Something is still waiting to load. Wait for it.
@@ -940,7 +942,7 @@ var require;
         }
 
         var name = module.name, cb = module.callback, deps = module.deps, j, dep,
-            defined = context.defined, ret, args = [], prefix, depModule,
+            defined = context.defined, ret, args = [], depModule,
             usingExports = false, depName;
 
         //If already traced or defined, do not bother a second time.
@@ -1086,6 +1088,15 @@ var require;
             var node = document.createElement("script");
             node.type = "text/javascript";
             node.charset = "utf-8";
+            //Use async so Gecko does not block on executing the script if something
+            //like a long-polling comet tag is being run first. Gecko likes
+            //to evaluate scripts in DOM order, even for dynamic scripts.
+            //It will fetch them async, but only evaluate the contents in DOM
+            //order, so a long-polling script tag can delay execution of scripts
+            //after it. But telling Gecko we expect async gets us the behavior
+            //we want -- execute it whenever it is finished downloading. Only
+            //Helps Firefox 3.6+
+            node.setAttribute("async", "async");
             node.setAttribute("data-requirecontext", contextName);
             node.setAttribute("data-requiremodule", moduleName);
     

@@ -6,7 +6,8 @@
         * [Other Module Notes](#modulenotes)
         * [Circular Dependencies](#circular)
     * [Define an I18N Bundle](#i18n)
-    * [Define a Text File Dependency](#text)
+    * [Specify a Text File Dependency](#text)
+    * [Specify a JSONP Service Dependency](#jsonp)
 * [Mechanics](#mechanics)
 * [Configuration Options](#config)
 * [Page Load Event Support](#pageload)
@@ -21,12 +22,13 @@
 
 # <a name="usage">Usage</a>
 
-There are 4 basic ways to use require.js:
+There are 5 basic ways to use require.js:
 
 1. Loading JavaScript files.
 2. Define a module that has other dependencies.
 3. Define an internationalization (i18n) bundle.
 4. Specify a text file dependency.
+4. Specify a JSONP service dependency.
 
 ## <a name="jsfiles">Loading JavaScript Files</a>
 
@@ -235,6 +237,29 @@ For HTML/XML/SVG files, there is another option you can pass !strip, which strip
 The text files are loaded via asynchronous XMLHttpRequest (XHR) calls, so you can only fetch files from the same domain as the web page.
 
 However, the build system for require.js will inline any text! references with the actual text file contents into the modules, so after a build, the modules that have text! dependencies can be used from other domains.
+
+## <a name="jsonp">Specify a JSONP Service Dependency</a>
+
+[JSONP](http://en.wikipedia.org/wiki/JSON#JSONP) is a way of calling some services in JavaScript. It is great because it works across domains and is an established way to call services that just require an HTTP GET via a script tag.
+
+RequireJS has a plugin, require/jsonp.js, that allows you to specify JSONP API services as dependencies. RequireJS will handle setting up the callback function with the service, and once the service returns a value to that callback, it will use that value as the value for that JSONP service URL.
+
+To use a JSONP service in RequireJS, specify the jsonp! plugin prefix, then the URL to the service. For the JSONP callback parameter, use a question mark for the value, similar to how it is done in jQuery.
+
+Here is an example that calls a twitter API endpoint. In this example, the JSONP callback parameter is called "callback":
+
+    require(["jsonp!http://search.twitter.com/trends/current.json?callback=?"],
+        function (trends) {
+            //The trends object will be the API response for the
+            //Twitter trends/current API
+            console.log(trends);
+        }
+    );
+
+Errors in loading a JSONP service are really just surfaced via timeouts for the service, since script tag loading does not give much detail into network problems. To detect errors, attach an event listener for window.onerror. The error object that will be received by that function will contain two properties if it is a timeout issue:
+
+* **requireType**: value will be "timeout"
+* **requireModules**: an array of module names/URLs that timed out. You can find the JSONP service URL in here.
 
 # <a name="mechanics">Mechanics</a>
 
