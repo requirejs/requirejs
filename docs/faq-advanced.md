@@ -1,6 +1,6 @@
 # FAQ: RequireJS Advanced Usage
 
-### <a name="usage">How can I use a different variable name instead of require?</a>
+### <a name="remap">How can I use a different variable name instead of require?</a>
 
 RequireJS and its optimization tool need to be version 0.11 or higher for this to work.
 
