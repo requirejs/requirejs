@@ -1,5 +1,5 @@
 - Include a layers: config option that holds all loading until those items are resolved.
-- Test URLs with build tool. Be sure to skip them, as well as /some/path URLs.
+- Test URLs with build tool. Be sure to skip them, as well as /some/path URLs, and URLs with ? in them, like JSONP ones.
 
 - include i18n and text plugins in node integration. Make sure text plugin works?
 - Optimization example for build layers for each page that refer to a common set.
@@ -15,16 +15,6 @@
   would be cool to pass require.nameToUrl("dojo/resources/blank.gif") and have that work. Why is .js assumed?
 - Deliver distribution of Dojo based on require
   - manual fix for requireIf in dojo.gfx, like what is done for dojo._base
-
-
-KrisKowal:
-http://twitter.com/kriskowal/status/11056458715
-Promises are about calling functions and getting the return value without blocking other events, even if there is high latency.
-http://twitter.com/kriskowal/status/11056349497
-There's a common misconception that Promises are about turning functions into functions that get called later. 
-
-http://groups.google.com/group/nodejs/browse_thread/thread/7c06276186ddcf93/14f01e82602ea260?#14f01e82602ea260
-http://github.com/kriskowal/narwhal/blob/master/lib/events.js
 
 
 - Possibly change dependency stuff to call module as soon as just its dependencies

@@ -17,8 +17,7 @@ var parse;
 (function () {
     //fileContents = 'require.def("foo", ["one", \n//This is a comment\n"two",\n/*Another comment*/"three"], {});',
     //fileContents = 'require.def("foo", {one: "two"});',
-    var rhino = Packages.com.google.javascript.rhino,
-        jscomp = Packages.com.google.javascript.jscomp,
+    var jscomp = Packages.com.google.javascript.jscomp,
         compiler = new jscomp.Compiler(),
 
         //Values taken from com.google.javascript.rhino.Token,
@@ -84,26 +83,34 @@ var parse;
      */
     parse = function (fileName, fileContents) {
         //Set up source input
-        var i, node, result = null, parsed,
+        var matches = [], result = null,
         jsSourceFile = closurefromCode(String(fileName), String(fileContents)),
         astRoot = compiler.parse(jsSourceFile);
 
-        //Only look at top level calls to require() and require.def()?
-        //May need to expand this a bit to look inside like anon function
-        //closures that can contain require calls.
-        for (i = 0; (node = astRoot.getChildAtIndex(i)); i++) {
-            parsed = parse.parseNode(node);
-            if (parsed) {
-                if (result) {
-                    result += "\n" + parsed;
-                } else {
-                    result = parsed;
-                }
-            }
+        parse.recurse(astRoot, matches);
+
+        if (matches.length) {
+            result = matches.join("\n");
         }
+
         return result;
     };
 
+    /**
+     * Handles parsing a file recursively for require calls.
+     * @param {Packages.com.google.javascript.rhino.Node} node
+     * @param {Array} matches where to store the string matches
+     */
+    parse.recurse = function (parentNode, matches) {
+        var i, node, parsed;
+        for (i = 0; (node = parentNode.getChildAtIndex(i)); i++) {
+            parsed = parse.parseNode(node);
+            if (parsed) {
+                matches.push(parsed);
+            }
+            parse.recurse(node, matches);
+        }        
+    };
 
     /**
      * Determines if the file defines require().
@@ -112,9 +119,8 @@ var parse;
      * @returns {Boolean}
      */
     parse.definesRequire = function (fileName, fileContents) {
-        var i, node, result = null, parsed,
-        jsSourceFile = closurefromCode(String(fileName), String(fileContents)),
-        astRoot = compiler.parse(jsSourceFile);
+        var jsSourceFile = closurefromCode(String(fileName), String(fileContents)),
+            astRoot = compiler.parse(jsSourceFile);
 
         return parse.nodeHasRequire(astRoot);
     };

@@ -20,11 +20,13 @@ doh.register(
         function requireDef(t) {
             var good1 = "require.def('one', ['two', 'three'], function(){});",
                 good2 = "require.def('one', function(){});",
+                good3 = 'function(){ var foo = { bar: function() { require.def("one", ["two"], function(){}); } };}';
                 bad1 = "require.def('one', [foo, 'me'], function() {});",
                 bad2 = "require.def('one', somevar)";
 
             t.is('require.def("one",["two","three"],function(){});', parse("good1", good1));
             t.is('require.def("one",function(){});', parse("good2", good2));
+            t.is('require.def("one",["two"],function(){});', parse("good3", good3));
             t.is(null, parse("bad1", bad1));
             t.is(null, parse("bad2", bad2));
         },
