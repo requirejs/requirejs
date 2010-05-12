@@ -4,9 +4,11 @@
 
 RequireJS and its optimization tool need to be version 0.11 or higher for this to work.
 
-You may have very strict global namespace requirements or you may be using code that already defines a require and you want to avoid interference. To do this requires two steps.
+Why may you want to do this? You may have very strict global namespace requirements or you may be using code that already defines a require and you want to avoid interference. There are two steps to get this to work:
 
-1) Modify the source of require.js to put in a wrapper like so:
+#### 1) Modify the source of require.js
+
+There needs to be a wrapper around the require.js code so you can set the require function to the name of your choosing:
 
     var myGlobalRequire = (function () {
         //Define a require object here that has any
@@ -23,7 +25,9 @@ You may have very strict global namespace requirements or you may be using code 
         return require;
     }());
 
-2) For any files you load with this new function, if those files reference require in any way, you will want to wrap them in an anonymous function to set the value of require to be your new function name defined in step 1:
+#### 2) Modify loaded files
+
+For any files you load with this new function, if those files reference require in any way, you will want to wrap them in an anonymous function to set the value of require to be your new function name that you set up in step 1:
 
     (function (require) {
 
@@ -31,6 +35,6 @@ You may have very strict global namespace requirements or you may be using code 
 
     }(myGlobalRequire));
 
-Following the step above should still allow you to use the optimization tool to combine scripts together effectively. You should not use the includeRequire optimization option, and instead if you want the require definition in the optimized script, reference your modified require.js directly.
+Following the steps above should still allow you to use the optimization tool to combine scripts together effectively. You should not use the **includeRequire** optimization option though. If you want your remapped require definition in the optimized script, reference your modified require.js directly in the **include** optimization option, or as the **name** option if you want to optimize that file directly.
 
 Thanks to [Alex Sexton](http://alexsexton.com/) and [Tobie Langel](http://tobielangel.com/) for suggesting parts of this solution.
