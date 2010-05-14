@@ -22,7 +22,7 @@ var require;
             scripts, script, rePkg, src, m, cfg, setReadyState,
             readyRegExp = /^(complete|loaded)$/,
             isBrowser = !!(typeof window !== "undefined" && navigator && document),
-            ostring = Object.prototype.toString, scrollIntervalId;
+            ostring = Object.prototype.toString, scrollIntervalId, req;
 
     function isFunction(it) {
         return ostring.call(it) === "[object Function]";
@@ -360,9 +360,9 @@ var require;
      * Simple function to mix in properties from source into target,
      * but only if target does not already have a property of the same name.
      */
-    require.mixin = function (target, source, override) {
+    require.mixin = function (target, source, force) {
         for (var prop in source) {
-            if (!(prop in empty) && (!(prop in target) || override)) {
+            if (!(prop in empty) && (!(prop in target) || force)) {
                 target[prop] = source[prop];
             }
         }
@@ -1252,6 +1252,10 @@ var require;
 
     //Set up default context. If require was a configuration object, use that as base config.
     if (cfg) {
-        require(cfg);
+        //Remap require to avoid a Caja compilation error about require.async
+        //should be used for non-string values. Caja is assuming CommonJS-like
+        //modules, but require.async is not uniformly accepted.
+        req = require;
+        req(cfg);
     }
 }());
