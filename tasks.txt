@@ -47,6 +47,8 @@ http://groups.google.com/group/jsdoc-2/msg/b1dd2f8991156fa0
 - When doing docs via jsdoc, using {some/module} as return types? How does JSDoc deal with the nested objects?
   Probably needs custom work to get it recognize the module concept thing.
 
+- To validate with Caja: http://caja.appspot.com/ and paste the code inside a script tag.
+
 Considered, but not implemented
 -------------------------------
 - Bryan: test if document load and document domcontentloaded. Safari 3 has trouble, can do addEventListener, but no DOMContentLoaded?

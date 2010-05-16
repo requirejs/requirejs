@@ -270,6 +270,16 @@ var require;
                 context.config.paths = paths;
             }
 
+            //If priority loading is in effect, trigger the loads now
+            if (config.priority) {
+                //Create a separate config property that can be
+                //easily tested for config priority completion.
+                //Do this instead of wiping out the config.priority
+                //in case it needs to be inspected for debug purposes later.
+                require(config.priority);
+                context.config.priorityWait = config.priority;
+            }
+
             //If a deps array or a config callback is specified, then call
             //require with those args. This is useful when require is defined as a
             //config object before require.js is loaded.
@@ -346,8 +356,8 @@ var require;
 
         //See if all is loaded. If paused, then do not check the dependencies
         //of the module yet.
-        if (s.paused) {
-            s.paused.push([pluginPrefix, name, deps, context]);
+        if (s.paused || context.config.priorityWait) {
+            (s.paused || (s.paused = [])).push([pluginPrefix, name, deps, context]);
         } else {
             require.checkDeps(pluginPrefix, name, deps, context);
             require.checkLoaded(contextName);
@@ -480,6 +490,12 @@ var require;
      */
     require.resume = function () {
         var i, args, paused;
+
+        //Skip the resume if current context is in priority wait.
+        if (s.contexts[s.ctxName].config.priorityWait) {
+            return;
+        }
+
         if (s.paused) {
             paused = s.paused;
             delete s.paused;
@@ -784,7 +800,8 @@ var require;
                 expired = waitInterval && (context.startTime + waitInterval) < new Date().getTime(),
                 loaded = context.loaded, defined = context.defined,
                 modifiers = context.modifiers, waiting = context.waiting, noLoads = "",
-                hasLoadedProp = false, stillLoading = false, prop,
+                hasLoadedProp = false, stillLoading = false, prop, priorityDone,
+                priorityName,
 
                 //>>excludeStart("requireExcludePlugin", pragmas.requireExcludePlugin);
                 pIsWaiting = s.plugins.isWaiting, pOrderDeps = s.plugins.orderDeps,
@@ -797,6 +814,26 @@ var require;
         //then do not bother checking loaded state.
         if (context.isCheckLoaded) {
             return;
+        }
+
+        //Determine if priority loading is done. If so clear the priority. If
+        //not, then do not check
+        if (context.config.priorityWait) {
+            priorityDone = true;
+            for (i = 0; (priorityName = context.config.priorityWait[i]); i++) {
+                if (!context.loaded[priorityName]) {
+                    priorityDone = false;
+                    break;
+                }
+            }
+            if (priorityDone) {
+                //Clean up priority and call resume, since it could have
+                //some waiting dependencies to trace.
+                delete context.config.priorityWait;
+                require.resume();
+            } else {
+                return;
+            }
         }
 
         //Signal that checkLoaded is being require, so other calls that could be triggered
@@ -1063,7 +1100,9 @@ var require;
             contextName = node.getAttribute("data-requirecontext");
             moduleName = node.getAttribute("data-requiremodule");
 
-            //Mark the module loaded.
+            //Mark the module loaded. Must do it here in addition
+            //to doing it in require.def in case a script does
+            //not call require.def
             s.contexts[contextName].loaded[moduleName] = true;
 
             require.checkLoaded(contextName);

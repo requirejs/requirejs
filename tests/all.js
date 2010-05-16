@@ -16,3 +16,4 @@ doh.registerUrl("text", "../text/text.html");
 doh.registerUrl("jsonp", "../jsonp/jsonp.html");
 doh.registerUrl("relative", "../relative/relative.html");
 doh.registerUrl("transportD", "../transportD/transportD.html");
+doh.registerUrl("priority", "../priority/priority.html");
