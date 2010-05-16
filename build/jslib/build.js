@@ -114,7 +114,9 @@ var build, buildBaseConfig;
             modules.forEach(function (module) {
                 if (module.name) {
                     module._sourcePath = require.nameToUrl(module.name, null, require.s.ctxName);
-                    if (!(new java.io.File(module._sourcePath)).exists()) {
+                    //If the module does not exist, and this is not a "new" module layer,
+                    //as indicated by a true "create" property on the module, then throw an error.
+                    if (!(new java.io.File(module._sourcePath)).exists() && !module.create) {
                         throw new Error("ERROR: module path does not exist: " +
                                         module._searchPath + " for module named: " + module.name);
                     }
@@ -142,7 +144,9 @@ var build, buildBaseConfig;
                 modules.forEach(function (module) {
                     if (module.name) {
                         module._buildPath = require.nameToUrl(module.name, null, require.s.ctxName);
-                        fileUtil.copyFile(module._sourcePath, module._buildPath);
+                        if (!module.create) {
+                            fileUtil.copyFile(module._sourcePath, module._buildPath);
+                        }
                     }
                 });
             }
@@ -455,7 +459,7 @@ var build, buildBaseConfig;
         require(baseConfig);
 
         logger.trace("\nTracing dependencies for: " + (module.name || module.out));
-        include = module.name ? [module.name] : [];
+        include = module.name && !module.create ? [module.name] : [];
         if (module.include) {
             include = include.concat(module.include);
         }

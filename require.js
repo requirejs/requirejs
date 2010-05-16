@@ -984,7 +984,7 @@ var require;
 
         //If already traced or defined, do not bother a second time.
         if (name) {
-            if (traced[name] || defined[name]) {
+            if (traced[name] || name in defined) {
                 return defined[name];
             }
     

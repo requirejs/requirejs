@@ -339,6 +339,8 @@ If no baseUrl is passed in, the path to require.js is used as the baseUrl path.
 
 **ready**: An function to pass to require.ready(). Useful when require is defined as a config object before require.js is loaded, and you want to specify a require.ready callback to set as soon as require() is defined.
 
+**priority**: An array of module/file names to load immediately, before tracing down any other dependencies. This allows you to set up a small set of files that are downloaded in parallel that contain most of the modules and their dependencies already built in. More information is in the [Optimization FAQ, Priority Downloads](faq-optimization#priority).
+
 # <a name="pageload">Page Load Event Support</a>
 
 require.js also has a method for notifying your code when the page has loaded. require.js uses the DOMContentLoaded event for browsers that support it, or window onload for browsers that do not.

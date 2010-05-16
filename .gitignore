@@ -4,6 +4,7 @@ build/convert/node/r.js
 build/convert/dojorequire/
 build/convert/dojo/
 build/tests/builds/
+build/tests/priority/webapp-build
 build/jquery/dist/
 build/require/build/
 docs/jquery-require-sample/webapp-build/
