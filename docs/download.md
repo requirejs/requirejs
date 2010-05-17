@@ -10,15 +10,15 @@
 
 #### <a name="requirejs">require.js</a> [Minified](http://requirejs.org/docs/release/0.11.0/minified/require.js) | [With Comments](http://requirejs.org/docs/release/0.11.0/comments/require.js)
 
-All you need to start using require.js. Does not include i18n, text, JSONP plugins or rhino support. 
+All you need to start using require.js in the browser. Does not include i18n, text, JSONP plugins or Node/Rhino support.
 
 #### <a name="requirejsplugins">require.js with plugins</a> [Minified](http://requirejs.org/docs/release/0.11.0/minified/allplugins-require.js) | [With Comments](http://requirejs.org/docs/release/0.11.0/comments/allplugins-require.js)
 
-require.js with the i18n, text and JSONP plugins included. 
+require.js for use in the browser with the i18n, text and JSONP plugins included. 
 
 #### <a name="requirejstransportD">require.js with Transport D and plugins</a> [Minified](http://requirejs.org/docs/release/0.11.0/minified/transportD-require.js) | [With Comments](http://requirejs.org/docs/release/0.11.0/comments/transportD-require.js)
 
-require.js with require.define support for [Transport D from CommonJS](http://wiki.commonjs.org/wiki/Modules/Transport/D), and i18n, text and JSONP plugins included. 
+require.js for use in the browser with require.define support for [Transport D from CommonJS](http://wiki.commonjs.org/wiki/Modules/Transport/D), and i18n, text and JSONP plugins included. 
 
 #### <a name="jqueryrequirejs">jQuery 1.4.2 with require()</a> [Minified](http://requirejs.org/docs/release/0.11.0/minified/require-jquery-1.4.2.js) | [With Comments](http://requirejs.org/docs/release/0.11.0/comments/require-jquery-1.4.2.js)
 

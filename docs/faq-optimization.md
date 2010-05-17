@@ -4,7 +4,7 @@
 
 See the [general optimization page](optimization.md) for basic set-up. Also see the [jQuery doc page](jquery.md) for a good way to set up your project, even if you are not using jQuery.
 
-### <a name="priority">How can I download in parallel all script dependencies?</a>
+### <a name="priority">How can I download all script dependencies in parallel?</a>
 
 Using [require()]() and [require.def()](api.md#define) to define script modules and dependencies is an efficient syntax for indicating related code. However, for deploying code in the browser, it may not lead to the best overall performance. To find nested dependencies, a script has to be fetched, then a require() or require.def() call in that script might trigger other script downloads.
 
@@ -18,7 +18,7 @@ However, if you have many pages in your web app, it may make more sense to optim
 
 Ideally you could do that layering after you finish development, and tune those layers for optimal, parallel download of the files, without having to change all your scripts.
 
-RequireJS allows you to do that by doing the following:
+This is possible with RequireJS:
 
 * [Optimize your project](optimization.md#wholeproject) to create the three script layers.
 * Use the [**priority** config value](api.md#config) to pass the list of layers to priority download to the top-level require() call in the HTML file(s).
@@ -126,4 +126,4 @@ In the web-build/page1.html and webapp-build/page2.html, comment out the **prior
         </body>
     </html>
 
-The **priority** config value tells RequireJS to load appcommon.js and page1.js in parallel before tracing dependencies. Since those two files, along with require-jquery.js (which contains the jQuery definition), all the dependencies in the page will be loaded with three requests, with the appcommon.js and page1.js scripts being loaded asynchronously and in parallel.
+The **priority** config value tells RequireJS to load appcommon.js and page1.js in parallel before tracing dependencies. With those two files, along with require-jquery.js (which contains the jQuery definition), all the dependencies in the page will be loaded with three requests, with the appcommon.js and page1.js scripts being loaded asynchronously and in parallel.
