@@ -1,11 +1,6 @@
-- Include a layers: config option that holds all loading until those items are resolved.
-- Test URLs with build tool. Be sure to skip them, as well as /some/path URLs, and URLs with ? in them, like JSONP ones.
-
 - include i18n and text plugins in node integration. Make sure text plugin works?
-- Optimization example for build layers for each page that refer to a common set.
 - Look at jquery ui adapter
 - jquery as a module
-- static dependencies up front: want async as fast, nested dependencies mean some are sync?
 
 - Expore allowing require("./something") inside function callbacks.
   - it means a specific require() function for each module asking for require

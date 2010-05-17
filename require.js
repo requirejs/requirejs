@@ -16,7 +16,7 @@ setInterval: false */
 var require;
 (function () {
     //Change this version number for each release.
-    var version = "0.10.0",
+    var version = "0.11.0",
             empty = {}, s,
             i, defContextName = "_", contextLoads = [],
             scripts, script, rePkg, src, m, cfg, setReadyState,
@@ -1291,7 +1291,7 @@ var require;
 
     //Set up default context. If require was a configuration object, use that as base config.
     if (cfg) {
-        //Remap require to avoid a Caja compilation error about require.async
+        //Rename require to avoid a Caja compilation error about require.async
         //should be used for non-string values. Caja is assuming CommonJS-like
         //modules, but require.async is not uniformly accepted.
         req = require;

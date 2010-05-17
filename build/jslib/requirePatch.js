@@ -34,6 +34,18 @@ readFile: false, pragma: false, Packages: false, parse: false */
 
     require._buildReset();
 
+    /**
+     * Makes sure the URL is something that can be supported by the
+     * optimization tool.
+     * @param {String} url
+     * @returns {Boolean}
+     */
+    require._isSupportedBuildUrl = function (url) {
+        //Ignore URLs with protocols or question marks, means either network
+        //access is needed to fetch it or it is too dynamic.
+        return url.indexOf(":") === -1 && url.indexOf("?") === -1;
+    };
+
     //Override load so that the file paths can be collected.
     require.load = function (moduleName, contextName) {
         /*jslint evil: true */
@@ -44,53 +56,58 @@ readFile: false, pragma: false, Packages: false, parse: false */
             previouslyDefined = context.defined[moduleName];
         context.loaded[moduleName] = false;
 
-        //Save the module name to path mapping.
-        map = layer.buildPathMap[moduleName] = url;
-
-        //Load the file contents, process for conditionals, then
-        //evaluate it.
-        contents = readFile(url);
-        contents = pragma.process(url, contents, context.config);
-
-        //Find out if the file contains a require() definition. Need to know
-        //this so we can inject plugins right after it, but before they are needed,
-        //and to make sure this file is first, so that require.def calls work.
-        //This situation mainly occurs when the build is done on top of the output
-        //of another build, where the first build may include require somewhere in it.
-        if (!layer.existingRequireUrl && parse.definesRequire(url, contents)) {
-            layer.existingRequireUrl = url;
-        }
-
-        //Only eval complete contents if asked, or if it is a require extension.
-        //Otherwise, treat the module as not safe for execution and parse out
-        //the require calls.
-        if (!context.config.execModules && moduleName !== "require/text" && moduleName !== "require/i18n") {
-            //Only find the require parts with [] dependencies and
-            //evaluate those. This path is useful when the code
-            //does not follow the strict require pattern of wrapping all
-            //code in a require callback.
-            contents = parse(url, contents);
-        }
-
-        if (contents) {
-            //Pause require, since the file might have many modules defined in it
-            require.pause();
-
-            eval(contents);
-
-            //At this point, if the module is defined, it means it was a
-            //simple module with no dependencies, defined by an object literal,
-            //like an i18n bundle. Do this before require.resume() is called
-            //to guarantee this is just an object literal.
-            if (!previouslyDefined && context.defined[moduleName]) {
-                //Call the overridden require.execCb here, defined
-                //below, to get the module tracked as module with a real
-                //name.
-                require.execCb(moduleName);
+        //Only handle urls that can be inlined, so that means avoiding some
+        //URLs like ones that require network access or may be too dynamic,
+        //like JSONP
+        if (require._isSupportedBuildUrl(url)) {
+            //Save the module name to path mapping.
+            map = layer.buildPathMap[moduleName] = url;
+    
+            //Load the file contents, process for conditionals, then
+            //evaluate it.
+            contents = readFile(url);
+            contents = pragma.process(url, contents, context.config);
+    
+            //Find out if the file contains a require() definition. Need to know
+            //this so we can inject plugins right after it, but before they are needed,
+            //and to make sure this file is first, so that require.def calls work.
+            //This situation mainly occurs when the build is done on top of the output
+            //of another build, where the first build may include require somewhere in it.
+            if (!layer.existingRequireUrl && parse.definesRequire(url, contents)) {
+                layer.existingRequireUrl = url;
             }
-
-            //Resume require now that processing of the file has finished.
-            require.resume();
+    
+            //Only eval complete contents if asked, or if it is a require extension.
+            //Otherwise, treat the module as not safe for execution and parse out
+            //the require calls.
+            if (!context.config.execModules && moduleName !== "require/text" && moduleName !== "require/i18n") {
+                //Only find the require parts with [] dependencies and
+                //evaluate those. This path is useful when the code
+                //does not follow the strict require pattern of wrapping all
+                //code in a require callback.
+                contents = parse(url, contents);
+            }
+    
+            if (contents) {
+                //Pause require, since the file might have many modules defined in it
+                require.pause();
+    
+                eval(contents);
+    
+                //At this point, if the module is defined, it means it was a
+                //simple module with no dependencies, defined by an object literal,
+                //like an i18n bundle. Do this before require.resume() is called
+                //to guarantee this is just an object literal.
+                if (!previouslyDefined && context.defined[moduleName]) {
+                    //Call the overridden require.execCb here, defined
+                    //below, to get the module tracked as module with a real
+                    //name.
+                    require.execCb(moduleName);
+                }
+    
+                //Resume require now that processing of the file has finished.
+                require.resume();
+            }
         }
 
         //Mark the module loaded.

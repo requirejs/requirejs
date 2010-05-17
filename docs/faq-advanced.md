@@ -1,6 +1,6 @@
 # FAQ: RequireJS Advanced Usage
 
-### <a name="remap">How can I use a different variable name instead of require?</a>
+### <a name="rename">How can I use a different variable name instead of require?</a>
 
 RequireJS and its optimization tool need to be version 0.11 or higher for this to work.
 
@@ -35,6 +35,6 @@ For any files you load with this new function, if those files reference require 
 
     }(myGlobalRequire));
 
-Following the steps above should still allow you to use the optimization tool to combine scripts together effectively. You should not use the **includeRequire** optimization option though. If you want your remapped require definition in the optimized script, reference your modified require.js directly in the **include** optimization option, or as the **name** option if you want to optimize that file directly.
+Following the steps above should still allow you to use the optimization tool to combine scripts together effectively. You should not use the **includeRequire** optimization option though. If you want your renamed require definition in the optimized script, reference your modified require.js directly in the **include** optimization option, or as the **name** option if you want to optimize that file directly.
 
 Thanks to [Alex Sexton](http://alexsexton.com/) and [Tobie Langel](http://tobielangel.com/) for suggesting parts of this solution.
