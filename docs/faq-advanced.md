@@ -1,10 +1,10 @@
 # FAQ: RequireJS Advanced Usage
 
-### <a name="rename">How can I use a different variable name instead of require?</a>
+### <a name="rename">How can I rename require?</a>
 
 RequireJS and its optimization tool need to be version 0.11 or higher for this to work.
 
-Why may you want to do this? You may have very strict global namespace requirements or you may be using code that already defines a require and you want to avoid interference. There are two steps to get this to work:
+Why would you want to do this? You may have very strict global namespace requirements or you may be using code that already defines a require and you want to avoid interference. There are two steps to use the require defined by RequireJS with a different name:
 
 #### 1) Modify the source of require.js
 
