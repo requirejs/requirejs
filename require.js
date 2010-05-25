@@ -99,6 +99,11 @@ var require;
         //Do more work, either 
         return require.def.apply(require, arguments);
     };
+    
+    //Alias for caja compliance internally -
+    //specifically: "Dynamically computed names should use require.async()"
+    //even though this spec isn't really decided on.
+    req = require;
 
     /**
      * The function that handles definitions of modules. Differs from
@@ -269,14 +274,14 @@ var require;
                 }
                 context.config.paths = paths;
             }
-
+            
             //If priority loading is in effect, trigger the loads now
             if (config.priority) {
                 //Create a separate config property that can be
                 //easily tested for config priority completion.
                 //Do this instead of wiping out the config.priority
                 //in case it needs to be inspected for debug purposes later.
-                require(config.priority);
+                req(config.priority);
                 context.config.priorityWait = config.priority;
             }
 
@@ -284,7 +289,7 @@ var require;
             //require with those args. This is useful when require is defined as a
             //config object before require.js is loaded.
             if (config.deps || config.callback) {
-                require(config.deps || [], config.callback);
+                req(config.deps || [], config.callback);
             }
 
             //>>excludeStart("requireExcludePageLoad", pragmas.requireExcludePageLoad);
@@ -333,7 +338,7 @@ var require;
             //Load any modifiers for the module.
             mods = context.modifiers[name];
             if (mods) {
-                require(mods, contextName);
+                req(mods, contextName);
             }
             //>>excludeEnd("requireExcludeModify");
         }
@@ -609,7 +614,7 @@ var require;
 
                         if (context.specified[prop]) {
                             //Load the modifier right away.
-                            require([modifier], cName);
+                            req([modifier], cName);
                         }
                     }
                 }
@@ -1308,7 +1313,6 @@ var require;
         //Rename require to avoid a Caja compilation error about require.async
         //should be used for non-string values. Caja is assuming CommonJS-like
         //modules, but require.async is not uniformly accepted.
-        req = require;
         req(cfg);
     }
 }());
