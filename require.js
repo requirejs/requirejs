@@ -1094,7 +1094,10 @@ var require;
      * @private
      */
     require.onScriptLoad = function (evt) {
-        var node = evt.target || evt.srcElement, contextName, moduleName;
+        //Using currentTarget instead of target for Firefox 2.0's sake. Not
+        //all old browsers will be supported, but this one was easy enough
+        //to support and still makes sense.
+        var node = evt.currentTarget || evt.srcElement, contextName, moduleName;
         if (evt.type === "load" || readyRegExp.test(node.readyState)) {
             //Pull out the name of the module and the context.
             contextName = node.getAttribute("data-requirecontext");
