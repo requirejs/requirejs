@@ -1125,10 +1125,11 @@ var require;
      * environment. Right now only supports browser loading,
      * but can be redefined in other environments to do the right thing.
      */
-    require.attach = function (url, contextName, moduleName) {
+    require.attach = function (url, contextName, moduleName, callback, type) {
         if (require.isBrowser) {
             var node = document.createElement("script");
-            node.type = "text/javascript";
+            callback = callback || require.onScriptLoad;
+            node.type = type || "text/javascript";
             node.charset = "utf-8";
             //Use async so Gecko does not block on executing the script if something
             //like a long-polling comet tag is being run first. Gecko likes
@@ -1144,10 +1145,10 @@ var require;
     
             //Set up load listener.
             if (node.addEventListener) {
-                node.addEventListener("load", require.onScriptLoad, false);
+                node.addEventListener("load", callback, false);
             } else {
                 //Probably IE.
-                node.attachEvent("onreadystatechange", require.onScriptLoad);
+                node.attachEvent("onreadystatechange", callback);
             }
             node.src = url;
 
