@@ -1,3 +1,5 @@
+- Best practices/architecture guide
+
 - include i18n and text plugins in node integration. Make sure text plugin works?
 - Look at jquery ui adapter
 - jquery as a module

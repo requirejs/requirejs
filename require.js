@@ -1275,8 +1275,18 @@ var require;
             if (self === self.top) {
                 scrollIntervalId = setInterval(function () {
                     try {
-                        document.documentElement.doScroll("left");
-                        require.pageLoaded();
+                        //From this ticket:
+                        //http://bugs.dojotoolkit.org/ticket/11106,
+                        //In IE HTML Application (HTA), such as in a selenium test,
+                        //javascript in the iframe can't see anything outside
+                        //of it, so self===self.top is true, but the iframe is
+                        //not the top window and doScroll will be available
+                        //before document.body is set. Test document.body
+                        //before trying the doScroll trick.
+                        if (document.body) {
+                            document.documentElement.doScroll("left");
+                            require.pageLoaded();
+                        }
                     } catch (e) {}
                 }, 30);
             }
