@@ -51,7 +51,7 @@
                 data = {
                     name: name
                 },
-                funcName = "f" + countId,
+                funcName = "f" + (countId++),
                 head = require.s.head,
                 node = head.ownerDocument.createElement("script");
 
