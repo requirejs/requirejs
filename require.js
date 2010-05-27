@@ -1310,9 +1310,6 @@ var require;
 
     //Set up default context. If require was a configuration object, use that as base config.
     if (cfg) {
-        //Rename require to avoid a Caja compilation error about require.async
-        //should be used for non-string values. Caja is assuming CommonJS-like
-        //modules, but require.async is not uniformly accepted.
         req(cfg);
     }
 }());
