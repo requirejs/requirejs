@@ -18,6 +18,7 @@
     * [Module Modifiers](#modifiers)
         * [Modifier Registration](#modregister)
         * [Modifier Definition](#moddef)
+    * [Web Worker Support](#webworker)
     * [Rhino Support](#rhino)
 
 # <a name="usage">Usage</a>
@@ -503,6 +504,14 @@ For the example given above in Modifier Registration, where "my/target1" is the 
             target1.foo = function(){};
         }
     );
+
+## <a name="webworker">Web Worker Support</a>
+
+As of release 0.12, RequireJS can be run inside a Web Worker. Just use importScripts() inside a web worker to load require.js (or the JS file that contains the require() definition), then call require.
+
+You will likely need to set the **baseUrl** [configuration option](#config) to make sure require() can find the scripts to load.
+
+You can see an example of its use by looking at one of the files used in [the unit test](http://github.com/jrburke/requirejs/blob/master/tests/workers.js).
 
 ## <a name="rhino">Rhino Support</a>
 

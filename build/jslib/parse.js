@@ -179,7 +179,7 @@ var parse;
      * Otherwise null.
      */
     parse.parseNode = function (node) {
-        var call, methodName, targetName, name, deps;
+        var call, methodName, targetName, name, deps, callChildCount;
 
         if (node.getType() === EXPR_RESULT && node.getFirstChild().getType() === CALL) {
             call = node.getFirstChild();
@@ -219,12 +219,19 @@ var parse;
                 } else if (methodName === "modify") {
 
                     //A require.modify() call
-                    targetName = call.getChildAtIndex(1);
-                    name = call.getChildAtIndex(2);
-                    deps = call.getChildAtIndex(3);
+                    callChildCount = call.getChildCount();
+                    if (callChildCount > 0) {
+                        targetName = call.getChildAtIndex(1);
+                    }
+                    if (callChildCount > 1) {
+                        name = call.getChildAtIndex(2);
+                    }
+                    if (callChildCount > 2) {
+                        deps = call.getChildAtIndex(3);
+                    }
 
                     //Validate def name as a string
-                    if (targetName.getType() !== STRING && name.getType() !== STRING) {
+                    if (!targetName || targetName.getType() !== STRING || !name || name.getType() !== STRING) {
                         return null;
                     }
                     if (!validateDeps(deps)) {

@@ -7,7 +7,7 @@
 /*jslint plusplus: false, laxbreak: true */
 /*global window: false, document: false, navigator: false,
 setTimeout: false, traceDeps: true, clearInterval: false, self: false,
-setInterval: false */
+setInterval: false, importScripts: false */
 
 //>>includeStart("useStrict", pragmas.useStrict);
 "use strict";
@@ -22,6 +22,7 @@ var require;
             scripts, script, rePkg, src, m, cfg, setReadyState,
             readyRegExp = /^(complete|loaded)$/,
             isBrowser = !!(typeof window !== "undefined" && navigator && document),
+            isWebWorker = !isBrowser && typeof importScripts !== "undefined",
             ostring = Object.prototype.toString, scrollIntervalId, req;
 
     function isFunction(it) {
@@ -882,7 +883,7 @@ var require;
         if (stillLoading) {
             //Something is still waiting to load. Wait for it.
             context.isCheckLoaded = false;
-            if (require.isBrowser) {
+            if (isBrowser || isWebWorker) {
                 setTimeout(function () {
                     require.checkLoaded(contextName);
                 }, 50);
@@ -1131,9 +1132,11 @@ var require;
      * but can be redefined in other environments to do the right thing.
      */
     require.attach = function (url, contextName, moduleName, callback, type) {
-        if (require.isBrowser) {
-            var node = document.createElement("script");
+        var node, loaded;
+        if (isBrowser) {
+            //In the browser so use a script tag
             callback = callback || require.onScriptLoad;
+            node = document.createElement("script");
             node.type = type || "text/javascript";
             node.charset = "utf-8";
             //Use async so Gecko does not block on executing the script if something
@@ -1147,7 +1150,7 @@ var require;
             node.setAttribute("async", "async");
             node.setAttribute("data-requirecontext", contextName);
             node.setAttribute("data-requiremodule", moduleName);
-    
+
             //Set up load listener.
             if (node.addEventListener) {
                 node.addEventListener("load", callback, false);
@@ -1158,13 +1161,26 @@ var require;
             node.src = url;
 
             return s.head.appendChild(node);
+        } else if (isWebWorker) {
+            //In a web worker, use importScripts. This is not a very
+            //efficient use of importScripts, importScripts will block until
+            //its script is downloaded and evaluated. However, if web workers
+            //are in play, the expectation that a build has been done so that
+            //only one script needs to be loaded anyway. This may need to be
+            //reevaluated if other use cases become common.
+            loaded = s.contexts[contextName].loaded;
+            loaded[moduleName] = false;
+            importScripts(url);
+            //Just mark the script loaded, someone else will check dependencies
+            //when all done.
+            loaded[moduleName] = true;
         }
         return null;
     };
 
     //Determine what baseUrl should be if not already defined via a require config object
     s.baseUrl = cfg && cfg.baseUrl;
-    if (require.isBrowser && (!s.baseUrl || !s.head)) {
+    if (isBrowser && (!s.baseUrl || !s.head)) {
         //Figure out baseUrl. Get it from the script tag with require.js in it.
         scripts = document.getElementsByTagName("script");
         if (cfg && cfg.baseUrlMatch) {
@@ -1262,7 +1278,7 @@ var require;
         return require;
     };
 
-    if (require.isBrowser) {
+    if (isBrowser) {
         if (document.addEventListener) {
             //Standards. Hooray! Assumption here that if standards based,
             //it knows about DOMContentLoaded.

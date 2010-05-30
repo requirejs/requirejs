@@ -1,6 +1,6 @@
 # RequireJS
 
-RequireJS loads plain JavaScript files as well as more defined modules. It is optimized for in-browser use, but it can be used in other JavaScript environments, like Rhino and [Node](requirejs/tree/master/docs/node.md). It implements the [CommonJS Transport/C proposal](http://wiki.commonjs.org/wiki/Modules/Transport/C) API.
+RequireJS loads plain JavaScript files as well as more defined modules. It is optimized for in-browser use, including in [a Web Worker](requirejs/tree/master/docs/api.md#webworker), but it can be used in other JavaScript environments, like Rhino and [Node](requirejs/tree/master/docs/node.md). It implements the [CommonJS Transport/C proposal](http://wiki.commonjs.org/wiki/Modules/Transport/C) API.
 
 RequireJS uses plain script tags to load modules/files, so it should allow for easy debugging. It can be used [simply to load existing JavaScript files](requirejs/tree/master/docs/api.md#jsfiles), so you can add it to your existing project without having to re-write your JavaScript files.
 

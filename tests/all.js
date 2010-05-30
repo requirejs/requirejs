@@ -17,3 +17,6 @@ doh.registerUrl("jsonp", "../jsonp/jsonp.html");
 doh.registerUrl("relative", "../relative/relative.html");
 doh.registerUrl("transportD", "../transportD/transportD.html");
 doh.registerUrl("priority", "../priority/priority.html");
+if (typeof Worker !== "undefined") {
+    doh.registerUrl("workers", "../workers.html");
+}
