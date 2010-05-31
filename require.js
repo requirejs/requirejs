@@ -1130,8 +1130,17 @@ var require;
      * Attaches the script represented by the URL to the current
      * environment. Right now only supports browser loading,
      * but can be redefined in other environments to do the right thing.
+     * @param {String} url the url of the script to attach.
+     * @param {String} contextName the name of the context that wants the script.
+     * @param {moduleName} the name of the module that is associated with the script.
+     * @param {Function} [callback] optional callback, defaults to require.onScriptLoad
+     * @param {String} [type] optional type, defaults to text/javascript
+     * @param {Boolean} [skipAsync] do not use the new "async" attribute on the tag.
+     * Useful mostly in the Firefox case where its default loading behavior is desired:
+     * async fetching of scripts, but evaluating them in the order they are placed
+     * in the DOM.
      */
-    require.attach = function (url, contextName, moduleName, callback, type) {
+    require.attach = function (url, contextName, moduleName, callback, type, skipAsync) {
         var node, loaded;
         if (isBrowser) {
             //In the browser so use a script tag
@@ -1147,7 +1156,9 @@ var require;
             //after it. But telling Gecko we expect async gets us the behavior
             //we want -- execute it whenever it is finished downloading. Only
             //Helps Firefox 3.6+
-            node.setAttribute("async", "async");
+            if (!skipAsync) {
+                node.setAttribute("async", "async");
+            }
             node.setAttribute("data-requirecontext", contextName);
             node.setAttribute("data-requiremodule", moduleName);
 
