@@ -6,3 +6,4 @@ doh.registerUrl("pause/resume", "../pauseresume/pauseresume.html", 10000);
 doh.registerUrl("jquery", "../jquery/jquery.html");
 doh.registerUrl("relative", "../relative/relative.html");
 doh.registerUrl("priority", "../priority/priority.html");
+doh.registerUrl("prioritySingleCall", "../priority/prioritySingleCall.html");

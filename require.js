@@ -804,8 +804,8 @@ var require;
                 waitInterval = context.config.waitSeconds * 1000,
                 //It is possible to disable the wait interval by using waitSeconds of 0.
                 expired = waitInterval && (context.startTime + waitInterval) < new Date().getTime(),
-                loaded = context.loaded, defined = context.defined,
-                modifiers = context.modifiers, waiting = context.waiting, noLoads = "",
+                loaded, defined = context.defined,
+                modifiers = context.modifiers, waiting, noLoads = "",
                 hasLoadedProp = false, stillLoading = false, prop, priorityDone,
                 priorityName,
 
@@ -847,6 +847,11 @@ var require;
         //should not proceed. At the end of this function, if there are still things
         //waiting, then checkLoaded will be called again.
         context.isCheckLoaded = true;
+
+        //Grab waiting and loaded lists here, since it could have changed since
+        //this function was first called, for instance, by the require.resume()
+        waiting = context.waiting;
+        loaded = context.loaded;
 
         //See if anything is still in flight.
         for (prop in loaded) {
