@@ -398,6 +398,8 @@ var require;
             waiting: {}
         },
         //>>excludeEnd("requireExcludePlugin");
+        //Stores a list of URLs that should not get async script tag treatment.
+        skipAsync: {},
         isBrowser: isBrowser,
         isPageLoaded: !isBrowser,
         readyCalls: [],
@@ -1140,12 +1142,8 @@ var require;
      * @param {moduleName} the name of the module that is associated with the script.
      * @param {Function} [callback] optional callback, defaults to require.onScriptLoad
      * @param {String} [type] optional type, defaults to text/javascript
-     * @param {Boolean} [skipAsync] do not use the new "async" attribute on the tag.
-     * Useful mostly in the Firefox case where its default loading behavior is desired:
-     * async fetching of scripts, but evaluating them in the order they are placed
-     * in the DOM.
      */
-    require.attach = function (url, contextName, moduleName, callback, type, skipAsync) {
+    require.attach = function (url, contextName, moduleName, callback, type) {
         var node, loaded;
         if (isBrowser) {
             //In the browser so use a script tag
@@ -1161,7 +1159,9 @@ var require;
             //after it. But telling Gecko we expect async gets us the behavior
             //we want -- execute it whenever it is finished downloading. Only
             //Helps Firefox 3.6+
-            if (!skipAsync) {
+            //Allow some URLs to not be fetched async. Mostly helps the order!
+            //plugin
+            if (!s.skipAsync[url]) {
                 node.setAttribute("async", "async");
             }
             node.setAttribute("data-requirecontext", contextName);

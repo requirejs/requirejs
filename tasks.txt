@@ -1,4 +1,5 @@
 - Best practices/architecture guide
+- FAQ entry on loading CSS, how to do it, issues with knowing when loaded.
 
 - include i18n and text plugins in node integration. Make sure text plugin works?
 - Look at jquery ui adapter
