@@ -23,7 +23,7 @@ var require;
             readyRegExp = /^(complete|loaded)$/,
             isBrowser = !!(typeof window !== "undefined" && navigator && document),
             isWebWorker = !isBrowser && typeof importScripts !== "undefined",
-            ostring = Object.prototype.toString, scrollIntervalId, req;
+            ostring = Object.prototype.toString, scrollIntervalId, req, baseElement;
 
     function isFunction(it) {
         return ostring.call(it) === "[object Function]";
@@ -407,7 +407,16 @@ var require;
     };
 
     require.isBrowser = s.isBrowser;
-    s.head = isBrowser ? document.getElementsByTagName("head")[0] : null;
+    if (isBrowser) {
+        s.head = document.getElementsByTagName("head")[0];
+        //If BASE tag is in play, using appendChild is a problem for IE6.
+        //When that browser dies, this can be removed. Details in this jQuery bug:
+        //http://dev.jquery.com/ticket/2709
+        baseElement = document.getElementsByTagName("base")[0];
+        if (baseElement) {
+            s.head = baseElement.parentNode;
+        }
+    }
 
     //>>excludeStart("requireExcludePlugin", pragmas.requireExcludePlugin);
     /**
@@ -1176,7 +1185,7 @@ var require;
             }
             node.src = url;
 
-            return s.head.appendChild(node);
+            return baseElement ? s.head.insertBefore(node, baseElement) : s.head.appendChild(node);
         } else if (isWebWorker) {
             //In a web worker, use importScripts. This is not a very
             //efficient use of importScripts, importScripts will block until

@@ -1,5 +1,7 @@
 - Best practices/architecture guide
 - FAQ entry on loading CSS, how to do it, issues with knowing when loaded.
+- Allow plugins to only implement methods it needs to use, but only if there is minimal/no impact on require.js
+- Mention FF 2 and Safari 3 support
 
 - include i18n and text plugins in node integration. Make sure text plugin works?
 - Look at jquery ui adapter
