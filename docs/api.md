@@ -8,6 +8,7 @@
     * [Define an I18N Bundle](#i18n)
     * [Specify a Text File Dependency](#text)
     * [Specify a JSONP Service Dependency](#jsonp)
+    * [Load Scripts in a Specific Order](#order)
 * [Mechanics](#mechanics)
 * [Configuration Options](#config)
 * [Page Load Event Support](#pageload)
@@ -261,6 +262,18 @@ Errors in loading a JSONP service are normally surfaced via timeouts for the ser
 
 * **requireType**: value will be "timeout"
 * **requireModules**: an array of module names/URLs that timed out. You can find the JSONP service URL in here.
+
+## <a name="order">Load Scripts in a Specific Order</a>
+
+Normally RequireJS loads and evaluates scripts in an undetermined order. However, there are some traditional scripts that depend on being loaded in a specific order. For those cases you can use the **order** plugin:
+
+    require(["order!one.js", "order!two.js", "order!three.js"], function () {
+        //This callback is called after the three scripts finish loading.
+    });
+
+Scripts loaded by the **order** plugin will be fetched asynchronously, but evaluated in the order they are passed to require, so it should still perform better with using script tags in the head of an HTML document.
+
+The **order** plugin is best used with traditional scripts, it is not needed for scripts that use require.def() to define modules. It is possible to mix and match "order!" dependencies with regular dependencies, but only the "order!" ones will be evaluated in relative order to each other. 
 
 # <a name="mechanics">Mechanics</a>
 

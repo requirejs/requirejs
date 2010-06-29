@@ -20,6 +20,7 @@ doh.registerUrl("pause/resume", "../pauseresume/pauseresume.html", 10000);
 doh.registerUrl("afterload", "../afterload.html", 10000);
 doh.registerUrl("text", "../text/text.html");
 doh.registerUrl("jsonp", "../jsonp/jsonp.html");
+doh.registerUrl("order", "../order/order.html");
 doh.registerUrl("relative", "../relative/relative.html");
 doh.registerUrl("transportD", "../transportD/transportD.html");
 doh.registerUrl("priority", "../priority/priority.html");

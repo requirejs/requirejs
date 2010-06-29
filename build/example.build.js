@@ -87,7 +87,7 @@
         jquery: true,
         //Remove require.modify() code
         requireExcludeModify: true,
-        //Remove plugin support from require. The i18n! jsonp! and
+        //Remove plugin support from require. The i18n! jsonp! order! and
         //text! extensions will not work.
         requireExcludePlugin: true,
         //Remove the page loaded detection.

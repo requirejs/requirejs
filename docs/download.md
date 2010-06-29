@@ -10,28 +10,28 @@
 
 #### <a name="requirejs">require.js</a> [Minified](http://requirejs.org/docs/release/0.11.0/minified/require.js) | [With Comments](http://requirejs.org/docs/release/0.11.0/comments/require.js)
 
-All you need to start using require.js in the browser. Does not include i18n, text, JSONP plugins or Node/Rhino support.
+All you need to start using require.js in the browser. Does not include i18n, text, order, JSONP plugins or Node/Rhino support.
 
 #### <a name="requirejsplugins">require.js with plugins</a> [Minified](http://requirejs.org/docs/release/0.11.0/minified/allplugins-require.js) | [With Comments](http://requirejs.org/docs/release/0.11.0/comments/allplugins-require.js)
 
-require.js for use in the browser with the i18n, text and JSONP plugins included. 
+require.js for use in the browser with the i18n, text, order and JSONP plugins included. 
 
 #### <a name="requirejstransportD">require.js with Transport D and plugins</a> [Minified](http://requirejs.org/docs/release/0.11.0/minified/transportD-require.js) | [With Comments](http://requirejs.org/docs/release/0.11.0/comments/transportD-require.js)
 
-require.js for use in the browser with require.define support for [Transport D from CommonJS](http://wiki.commonjs.org/wiki/Modules/Transport/D), and i18n, text and JSONP plugins included. 
+require.js for use in the browser with require.define support for [Transport D from CommonJS](http://wiki.commonjs.org/wiki/Modules/Transport/D), and i18n, text, order and JSONP plugins included. 
 
 #### <a name="jqueryrequirejs">jQuery 1.4.2 with require()</a> [Minified](http://requirejs.org/docs/release/0.11.0/minified/require-jquery-1.4.2.js) | [With Comments](http://requirejs.org/docs/release/0.11.0/comments/require-jquery-1.4.2.js)
 
 A build of jQuery with integrated require() support. Just includes the basic RequireJS, does not have the following features:
 
-* i18n, text, JSONP plugins
+* i18n, text, order, JSONP plugins
 * multiversion support
 * page load support (it is assumed you will use jQuery's methods)
 * require.modify() support
 
 #### <a name="jqueryrequirejsplugins">jQuery 1.4.2 with require() and plugins</a> [Minified](http://requirejs.org/docs/release/0.11.0/minified/requireplugins-jquery-1.4.2.js) | [With Comments](http://requirejs.org/docs/release/0.11.0/comments/requireplugins-jquery-1.4.2.js)
 
-A build of jQuery with integrated require() support and the i18n, text and JSONP plugins. Does not include these other RequireJS features:
+A build of jQuery with integrated require() support and the i18n, text, order and JSONP plugins. Does not include these other RequireJS features:
 
 * multiversion support
 * page load support (it is assumed you will use jQuery's methods)
@@ -45,7 +45,7 @@ The integrated builds with jQuery contain the changes in [this jQuery fork](http
 
 A zip file containing a build of jQuery with integrated require() support, with an sample project included to show how it can be used when using jQuery. Does not include these features in RequireJS:
 
-* i18n, text, JSONP plugins
+* i18n, text, order, JSONP plugins
 * multiversion support
 * page load support (it is assumed you will use jQuery's methods)
 * require.modify() support
