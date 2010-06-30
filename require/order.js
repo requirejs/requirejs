@@ -14,7 +14,7 @@
     //Sadly necessary browser inference due to differences in the way
     //that browsers load and execute dynamically inserted javascript
     //and whether the script/cache method works.
-    //Currently, Gecko and Opera do not fire onload for scripts with
+    //Currently, Gecko and Opera do not load/fire onload for scripts with
     //type="script/cache" but they execute injected scripts in order
     //unless the 'async' flag is present.
     var supportsInOrderExecution = ((window.opera && Object.prototype.toString.call(window.opera) === "[object Opera]") ||
