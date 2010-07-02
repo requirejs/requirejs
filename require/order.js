@@ -93,9 +93,9 @@
                 //on the script.
                 require([name], contextName);
             } else {
-                //Credits to Steve Souders (in EFWS) and Kyle Simpson (in LABJS)
-                //for finding that scripts with type="script/cache" allow scripts
-                //to be downloaded into browser cache but not executed. Use that
+                //Credit to LABjs author Kyle Simpson for finding that scripts
+                //with type="script/cache" allow scripts to be downloaded into
+                //browser cache but not executed. Use that
                 //so that subsequent addition of a real type="text/javascript"
                 //tag will cause the scripts to be executed immediately in the
                 //correct order.
