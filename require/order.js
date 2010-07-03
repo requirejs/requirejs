@@ -27,24 +27,29 @@
     //Callback used by the type="script/cache" callback that indicates a script
     //has finished downloading.
     function scriptCacheCallback(evt) {
-        var node = evt.currentTarget || evt.srcElement,
-            context, contextName, moduleName, waiting;
+        var node = evt.currentTarget || evt.srcElement, i,
+            context, contextName, moduleName, waiting, cached;
 
         if (evt.type === "load" || readyRegExp.test(node.readyState)) {
             //Pull out the name of the module and the context.
             contextName = node.getAttribute("data-requirecontext");
             moduleName = node.getAttribute("data-requiremodule");
             context = require.s.contexts[contextName];
+            waiting = context.orderWaiting;
+            cached = context.orderCached;
 
             //Mark this cache request as loaded
-            context.orderCount -= 1;
+            cached[moduleName] = true;
 
-            //If no other order cache items are in the queue, evaluate them
-            //all now as normal required modules, and reset waiting state.
-            if (!context.orderCount) {
-                waiting = context.orderWaiting;
-                context.orderWaiting = [];
-                require(waiting, contextName);
+            //Find out how many ordered modules have loaded
+            for (i = 0; cached[waiting[i]]; i++) {}
+            if (i > 0) {
+                require(waiting.splice(0, i), contextName);
+            }
+
+            //If no other order cache items are in the queue, do some cleanup.
+            if (!waiting.length) {
+                context.orderCached = {};
             }
 
             //Remove this script tag from the DOM
@@ -74,7 +79,7 @@
         newContext: function (context) {
             require.mixin(context, {
                 orderWaiting: [],
-                orderCount: 0
+                orderCached: {}
             });
         },
 
@@ -100,7 +105,6 @@
                 //tag will cause the scripts to be executed immediately in the
                 //correct order.
                 context.orderWaiting.push(name);
-                context.orderCount += 1;
                 context.loaded[name] = false;
                 require.attach(url, contextName, name, scriptCacheCallback, "script/cache");
             }
