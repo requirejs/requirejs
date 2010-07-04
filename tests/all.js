@@ -9,6 +9,7 @@ if (location.href.indexOf('http://127.0.0.1/requirejs/') === 0) {
 
 doh.registerUrl("circular", "../circular.html");
 doh.registerUrl("depoverlap", "../depoverlap.html");
+doh.registerUrl("urlfetch", "../urlfetch/urlfetch.html");
 doh.registerUrl("multiversion", "../multiversion.html", 10000);
 doh.registerUrl("jquery", "../jquery/jquery.html");
 doh.registerUrl("i18nlocaleunknown", "../i18n/i18n.html?bundle=i18n!nls/fr-fr/colors");
