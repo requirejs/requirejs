@@ -10,9 +10,9 @@ If the JavaScript file defines a JavaScript module via [require.def()](requirejs
 
 RequireJS does not have any dependencies on a JavaScript framework. It is tri-licensed -- BSD, MIT, and GPL.
 
-The standard require.js file is around 3.8KB when minified via Closure Compiler and gzipped. require.js can be built without some features, with the smallest option (just dependency tracking and simple module loading) weighing in at 2.8KB minified, gzipped.
+The standard require.js file is around 4KB when minified via Closure Compiler and gzipped. require.js can be built without some features, with the smallest option (just dependency tracking and simple module loading) weighing in at 2.9KB minified, gzipped.
 
-The unit tests work in IE 6+, Firefox 3.0+, Safari 4+, Chrome 3+, and Opera 10+.
+RequireJS works in IE 6+, Firefox 2+, Safari 3.2+, Chrome 3+, and Opera 10+.
 
 Latest Release: [0.11.0](http://requirejs.org/docs/download.html)
 
