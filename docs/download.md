@@ -2,7 +2,7 @@
 
 ### Latest Release: 0.12.0
 
-* A new plugin: [order](#api.md#order) -- it ensures that scripts are fetched asynchronously and in parallel, but executed in the order specified in the call to require(). Ideal for traditional browser scripts that do not participate in modules defined via calls to require.def().
+* A new plugin: [order](api.md#order) -- it ensures that scripts are fetched asynchronously and in parallel, but executed in the order specified in the call to require(). Ideal for traditional browser scripts that do not participate in modules defined via calls to require.def().
 * [Web Worker support](api.md#webworker). RequireJS can be used in a web worker.
 * Multiple module names can now be mapped via the **paths** config option to the same URL, and that URL will only be fetched once.
 * Added Firefox 2 to supported browsers. Safari 3.2 also works with require().
