@@ -38,4 +38,7 @@ To generate a build
 
 * ./dist-build.sh 0.0.0
 
-When done, reset versions to X.X.git in the files listed at the top of these instructions.
+When done, reset versions to:
+
+* 0.0.0+ in require.js
+* X.X.X in pre.html

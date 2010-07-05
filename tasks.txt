@@ -1,6 +1,4 @@
 - Best practices/architecture guide
-- FAQ entry on loading CSS, how to do it, issues with knowing when loaded.
-- Allow plugins to only implement methods it needs to use, but only if there is minimal/no impact on require.js
 
 - consider removing require.isBrowser and require.s.isBrowser, check the tests, and send email to list first.
 - include i18n and text plugins in node integration. Make sure text plugin works?
@@ -24,6 +22,8 @@
   to work. Not sure I have a concrete case, but thinking of things like extensions to chainable APIs...
   Feels like there is something there important to consider. Right now I think
   that behavior for waiting for all the modules to "load" then get executed is good.
+
+- Allow plugins to only implement methods it needs to use, but only if there is minimal/no impact on require.js
 
 - de-dupe plugins in a build, make sure they are only included once? Or does that work already now with
   the latest changes?
