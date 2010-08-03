@@ -562,6 +562,9 @@ var require;
                 if (!context.specified[dep.fullName]) {
                     context.specified[dep.fullName] = true;
 
+                    //Reset the start time to use for timeouts
+                    context.startTime = (new Date()).getTime();
+
                     //If a plugin, call its load method.
                     if (dep.prefix) {
                         //>>excludeStart("requireExcludePlugin", pragmas.requireExcludePlugin);
@@ -709,7 +712,6 @@ var require;
                 require.attach(url, contextName, moduleName);
                 urlFetched[url] = true;
             }
-            context.startTime = (new Date()).getTime();
         //>>excludeStart("requireExcludeContext", pragmas.requireExcludeContext);
         }
         //>>excludeEnd("requireExcludeContext");
@@ -913,6 +915,7 @@ var require;
             err = new Error("require.js load timeout for modules: " + noLoads);
             err.requireType = "timeout";
             err.requireModules = noLoads;
+            throw err;
         }
         if (stillLoading) {
             //Something is still waiting to load. Wait for it.
