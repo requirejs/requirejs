@@ -6251,7 +6251,13 @@ jQuery.each([ "Height", "Width" ], function( i, name ) {
 window.jQuery = window.$ = jQuery;
 
 if (useRequire) {
-    require.callReady = jQuery.callReady;
+    var oldReqCallReady = require.callReady;
+    require.callReady = function () {
+        if (oldReqCallReady) {
+            oldReqCallReady();
+        }
+        jQuery.callReady();
+    };
     require.def("jquery", function() { return jQuery; });
     require.def("jQuery", function() { return jQuery; });
 }

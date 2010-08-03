@@ -10,7 +10,6 @@
         jquery: true,
         requireExcludeModify: true,
         requireExcludePlugin: true,
-        requireExcludePageLoad: true,
         requireExcludeContext: true
     }
 }

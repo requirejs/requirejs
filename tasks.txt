@@ -14,6 +14,7 @@
 - Deliver distribution of Dojo based on require
   - manual fix for requireIf in dojo.gfx, like what is done for dojo._base
 
+- Option to remove the script tag after the script loads. Does that help memory? Does it work in all browsers?
 
 - Possibly change dependency stuff to call module as soon as just its dependencies
   are ready instead of waiting for all the modules to "load", then are executed.
