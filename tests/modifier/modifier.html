@@ -23,6 +23,18 @@
                         require.modify({
                             "target": "size"
                         });
+
+                        //Test modifier definition registered before target is
+                        //loaded.
+                        require.modify(
+                            "target",
+                            "level",
+                            ["target"],
+                            function (target) {
+                                target.level = 2;
+                            }
+                        );
+
                         require({
                                 baseUrl: "./"
                             },
@@ -33,6 +45,7 @@
                                     doh.is("green", target.color);
                                     doh.is("target", target.design);
                                     doh.is("target", target.name);
+                                    doh.is(2, target.level);
     
                                     setTimeout(function() {
                                         require.modify({
@@ -44,6 +57,7 @@
                                             doh.is("green", target.color);
                                             doh.is("funky", target.design);
                                             doh.is("target", target.name);
+                                            doh.is(2, target.level);
                                             d.callback(true);
                                         }, 1000);
                                     }, 500);
