@@ -2,8 +2,7 @@
 <html>
 <head>
     <title>Script Load Test</title>
-    <script type="text/javascript" src="../../../require.js"></script>
-    <script type="text/javascript" src="../../common.js"></script>
+    <script type="text/javascript" src="../common.js"></script>
     <script type="text/javascript">
     //cache bust?
     var noCache = location.href.indexOf("nocache") != -1;
@@ -80,12 +79,10 @@ console.log("noCache: " + noCache);
     
     //Do appendChilds
     loadUrls(false);
-    
+
     //Try script appends after page load.
-    require.ready(function() {
-      log("----------------------");
-      setTimeout(loadUrls, 2000); 
-    });
+    log("----------------------");
+    setTimeout(loadUrls, 2000);
     </script>
 </head>
 <body>
