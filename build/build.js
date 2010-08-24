@@ -21,7 +21,7 @@
 /*jslint regexp: false, nomen: false, plusplus: false */
 /*global load: false, print: false, quit: false, logger: false,
   fileUtil: false, lang: false, pragma: false, optimize: false, build: false,
-  java: false, Packages: false, readFile: false */
+  java: false, Packages: false */
 
 "use strict";
 var require;
