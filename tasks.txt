@@ -1,3 +1,4 @@
+- data-main="main" support
 - Pass all errors through a require.onError, which by default throws.
 - Explain better what require(['foo', 'bar'], function(foo, bar)){} means, and when asking for "require" means,
   for multiversion support.  Also explain what you mean by "module".

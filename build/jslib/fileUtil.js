@@ -78,12 +78,14 @@ fileUtil.getFilteredFileList = function (/*String*/startDir, /*RegExp*/regExpFil
 };
 
 
-fileUtil.copyDir = function (/*String*/srcDir, /*String*/destDir, /*RegExp*/regExpFilter, /*boolean?*/onlyCopyNew) {
+fileUtil.copyDir = function (/*String*/srcDir, /*String*/destDir, /*RegExp?*/regExpFilter, /*boolean?*/onlyCopyNew) {
 	//summary: copies files from srcDir to destDir using the regExpFilter to determine if the
 	//file should be copied. Returns a list file name strings of the destinations that were copied.
+        regExpFilter |= /\w/;
+
 	var fileNames = fileUtil.getFilteredFileList(srcDir, regExpFilter, true),
             copiedFiles = [], i, srcFileName, destFileName;
-	
+
 	for (i = 0; i < fileNames.length; i++) {
 		srcFileName = fileNames[i];
 		destFileName = srcFileName.replace(srcDir, destDir);
