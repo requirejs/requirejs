@@ -42,7 +42,7 @@
     global.__requireIsDebug = isDebug;
     global.__requireLog = sys.puts;
     global.__requireReadFile = function (path) {
-        return fs.readFileSync(path);
+        return fs.readFileSync(path) + '';
     };
 
     //dist.sh will inject the modified requireAdapter content as a string.

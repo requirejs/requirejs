@@ -184,7 +184,7 @@ var commonJs = {
             fileContents = 'require.def("' + moduleName + '", ["require", "exports", "module"' +
                    (deps.length ? ', ' + deps.join(",") : '') + '], ' +
                    'function(require, exports, module) {\n' +
-                   (commonJs.logConverted ? 'global._requirejs_logger.trace("Evaluatind module: ' + moduleName + '");\n' : "") +
+                   (commonJs.logConverted ? 'global._requirejs_logger.trace("Evaluating module: ' + moduleName + '");\n' : "") +
                    fileContents +
                    '\n});\n';
         } catch (e) {
