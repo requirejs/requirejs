@@ -1206,7 +1206,7 @@ var require;
             //Allow some URLs to not be fetched async. Mostly helps the order!
             //plugin
             if (!s.skipAsync[url]) {
-                node.setAttribute("async", "async");
+                node.async = true;
             }
             node.setAttribute("data-requirecontext", contextName);
             node.setAttribute("data-requiremodule", moduleName);
