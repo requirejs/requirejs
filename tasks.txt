@@ -1,10 +1,40 @@
 - data-main="main" support
 - Pass all errors through a require.onError, which by default throws.
-- Explain better what require(['foo', 'bar'], function(foo, bar)){} means, and when asking for "require" means,
-  for multiversion support.  Also explain what you mean by "module".
-- Support node-style setting of the export value.
-- Allow r.js to work on Rhino
+- Support node-style setting of the export value. Allow setExports too.
+- Converted Dojo release.
+- Look at refactoring require and require.def, from Bryan Forbes:
+
+require(array deps, function callback)
+
+require.context(object config, array deps, function callback)
+
+require.def(string moduleName, array deps, function callback)
+require.def(string moduleName, function callback)
+
+This would keep the code from having to differentiate between an array and an object and would make it easier to remember the call signatures.  It would probably also simplify the logic.  Then you could have a function that would do all the work:
+
+require._doAllTheWork(config, moduleName, deps, callback, contextName){
+       var contextName = contextName ? contextName : config ? config.context : s.ctxName;
+       var context = s.contexts[contextName];
+       var deps = typeof deps == 'string' ? [deps] : deps;
+       ...
+}
+
+require(deps, callback){
+       return require._doAllTheWork(null, null, deps, callback);
+}
+
+require.context(config, deps, callback){
+       return require._doAllTheWork(config, null, deps, callback);
+}
+
+require.def(moduleName, deps, callback){
+       var deps = !isFunction(deps) ? deps : null;
+       return require._doAllTheWork(null, moduleName, deps, callback);
+}
+
 - Best practices/architecture guide
+- Allow r.js to work on Rhino
 
 - consider removing require.isBrowser and require.s.isBrowser, check the tests, and send email to list first.
 - include i18n and text plugins in node integration. Make sure text plugin works?

@@ -1032,7 +1032,7 @@ var require;
         //Some modules are just plain script files, abddo not have a formal
         //module definition, 
         if (!module) {
-            return undefined;
+            return;
         }
 
         var name = module.name, cb = module.callback, deps = module.deps, j, dep,

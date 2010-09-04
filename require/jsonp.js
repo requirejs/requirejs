@@ -90,7 +90,7 @@
             //after it. But telling Gecko we expect async gets us the behavior
             //we want -- execute it whenever it is finished downloading. Only
             //Helps Firefox 3.6+
-            node.setAttribute("async", "async");
+            node.async = true;
 
             head.appendChild(node);
         },

@@ -52,7 +52,7 @@ To take full advantage of the optimization tool, it is suggested that you keep a
 
 Inside of project.js, you can use require() to load any other scripts you need to run:
 
-    require(["require", "helper/util"], function(require) {
+    require(["helper/util"], function() {
         //This function is called when scripts/helper/util.js is loaded.
 
         require.ready(function() {

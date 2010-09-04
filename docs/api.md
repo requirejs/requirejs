@@ -59,6 +59,10 @@ See the **Configuration Options** section for information on changing the lookup
 
 ## <a name="define">Defining a Module</a>
 
+A module is different from a traditional script file in that it defines a well-scoped object that does not try to pollute the global namespace. It can explicitly list its dependencies and get a handle on those dependencies without needing to refer to global objects, but instead receive the dependencies as arguments to the function that defines the module. Modules in RequireJS are an extension of the [Module Pattern](http://www.adequatelygood.com/2010/3/JavaScript-Module-Pattern-In-Depth), with the benefit of not needing globals to refer to other modules.
+
+The RequireJS syntax for modules allows them to be loaded as fast as possible, even out of order, but evaluated in the correct dependency order, and since global variables are not created, it makes it possible to [load multiple versions of a module in a page](#multiversion).
+
 If the module does not have any dependencies, then just specify the name of the module as the first argument to require.def() and and the second argument is just an object literal that defines the module's properties. For example:
 
     require.def("my/simpleshirt",
@@ -117,6 +121,12 @@ If the modules do not have to return objects. Any valid return value from a func
 ### <a name="modulenotes">Other Module Notes</a>
 
 Only one module should be defined per JavaScript file, given the nature of the module name-to-path lookup algorithm.
+
+If you need to work with a module you already loaded via a require(["module/name"], function(){}) call in the JavaScript console, then you can use  the require() form that just uses the string name of the module to fetch it:
+
+    require("module/name").callSomeFunction()
+
+Note this only works if "module/name" was previously loaded via the async version of require: require(["module/name"]).
 
 ### <a name="circular">Circular Dependencies</a>
 
@@ -430,9 +440,11 @@ As mentioned in **Configuration Options**, multiple versions of a module can be 
     );
     </script>
 
+Note that "require" is specified as a dependency for the module. This allows the require method that is passed to the function callback to use the right context to load the modules correctly for multiversion support, and it is required in multiversion situations where you want to user require inside the module's factory function.
+
 ## <a name="afterload">Loading Code After Page Load</a>
 
-The example above in the **Multiversion Support** section shows how code can later be loaded by nested require() calls. Note that "require" is specified as a dependency for the module. This allows the require method that is passed to the function callback to use the right context to load the modules correctly for multiversion support.
+The example above in the **Multiversion Support** section shows how code can later be loaded by nested require() calls. 
 
 ## <a name="pauseresume">require.pause()/require.resume() for Build Layers</a>
 
