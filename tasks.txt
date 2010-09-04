@@ -1,5 +1,3 @@
-- data-main="main" support
-- Pass all errors through a require.onError, which by default throws.
 - Support node-style setting of the export value. Allow setExports too.
 - Converted Dojo release.
 - Look at refactoring require and require.def, from Bryan Forbes:

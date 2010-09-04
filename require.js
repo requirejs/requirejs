@@ -19,7 +19,7 @@ var require;
     var version = "0.12.0+",
             empty = {}, s,
             i, defContextName = "_", contextLoads = [],
-            scripts, script, rePkg, src, m, cfg, setReadyState,
+            scripts, script, rePkg, src, m, dataMain, cfg = {}, setReadyState,
             readyRegExp = /^(complete|loaded)$/,
             isBrowser = !!(typeof window !== "undefined" && navigator && document),
             isWebWorker = !isBrowser && typeof importScripts !== "undefined",
@@ -1250,11 +1250,11 @@ var require;
     };
 
     //Determine what baseUrl should be if not already defined via a require config object
-    s.baseUrl = cfg && cfg.baseUrl;
+    s.baseUrl = cfg.baseUrl;
     if (isBrowser && (!s.baseUrl || !s.head)) {
         //Figure out baseUrl. Get it from the script tag with require.js in it.
         scripts = document.getElementsByTagName("script");
-        if (cfg && cfg.baseUrlMatch) {
+        if (cfg.baseUrlMatch) {
             rePkg = cfg.baseUrlMatch;
         } else {
             //>>includeStart("jquery", pragmas.jquery);
@@ -1280,12 +1280,22 @@ var require;
             if (!s.head) {
                 s.head = script.parentNode;
             }
+
+            //Look for a data-main attribute to set main script for the page
+            //to load.
+            if (!cfg.deps) {
+                dataMain = script.getAttribute('data-main');
+                if (dataMain) {
+                    cfg.deps = [dataMain];
+                }
+            }
+
             //Using .src instead of getAttribute to get an absolute URL.
             //While using a relative URL will be fine for script tags, other
             //URLs used for text! resources that use XHR calls might benefit
             //from an absolute URL.
             src = script.src;
-            if (src) {
+            if (src && !s.baseUrl) {
                 m = src.match(rePkg);
                 if (m) {
                     s.baseUrl = src.substring(0, m.index);
@@ -1396,7 +1406,5 @@ var require;
     //>>excludeEnd("requireExcludePageLoad");
 
     //Set up default context. If require was a configuration object, use that as base config.
-    if (cfg) {
-        req(cfg);
-    }
+    req(cfg);
 }());
