@@ -1035,6 +1035,17 @@ var require;
     };
 
     /**
+     * Helper function that creates a setExports function for a "module"
+     * CommonJS dependency. Do this here to avoid creating a closure that
+     * is part of a loop in require.exec.
+     */
+    function makeSetExports(moduleObj) {
+        return function (exports) {
+            moduleObj.exports = exports;
+        };
+    }
+
+    /**
      * Executes the modules in the correct order.
      * 
      * @private
@@ -1047,7 +1058,7 @@ var require;
         }
 
         var name = module.name, cb = module.callback, deps = module.deps, j, dep,
-            defined = context.defined, ret, args = [], depModule,
+            defined = context.defined, ret, args = [], depModule, cjsModule,
             usingExports = false, depName;
 
         //If already traced or defined, do not bother a second time.
@@ -1070,10 +1081,11 @@ var require;
                     usingExports = true;
                 } else if (depName === "module") {
                     //CommonJS module spec 1.1
-                    depModule = {
+                    cjsModule = depModule = {
                         id: name,
                         uri: name ? req.nameToUrl(name, null, context.contextName) : undefined
                     };
+                    cjsModule.setExports = makeSetExports(cjsModule);
                 } else {
                     //Get dependent module. It could not exist, for a circular
                     //dependency or if the loaded dependency does not actually call
@@ -1094,12 +1106,15 @@ var require;
         if (cb && req.isFunction(cb)) {
             ret = req.execCb(name, cb, args);
             if (name) {
-                if (usingExports) {
+                if (usingExports && (!cjsModule || !("exports" in cjsModule))) {
                     ret = defined[name];
                 } else {
-                    if (name in defined) {
-                        return req.onError(new Error(name + " has already been defined"));
+                    if (cjsModule && "exports" in cjsModule) {
+                        ret = defined[name] = depModule.exports;
                     } else {
+                        if (name in defined) {
+                            return req.onError(new Error(name + " has already been defined"));
+                        }
                         defined[name] = ret;
                     }
                 }

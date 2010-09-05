@@ -1,5 +1,5 @@
-- Support node-style setting of the export value. Allow setExports too.
-- Converted Dojo release.
+- revisit options used to build in with jquery, redo jquery integration if changed. Try keeping in the require.ready
+- Converted Dojo release: gfx dojo.requireIf
 - Look at refactoring require and require.def, from Bryan Forbes:
 
 require(array deps, function callback)
