@@ -1,5 +1,6 @@
-- revisit options used to build in with jquery, redo jquery integration if changed. Try keeping in the require.ready
+- bug with text! and nameToUrl
 - Converted Dojo release: gfx dojo.requireIf
+- order! plugin bug report.
 - Look at refactoring require and require.def, from Bryan Forbes:
 
 require(array deps, function callback)
