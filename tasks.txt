@@ -1,4 +1,4 @@
-- bug with text! and nameToUrl
+- option to strip use strict calls?
 - Converted Dojo release: gfx dojo.requireIf
 - order! plugin bug report.
 - Look at refactoring require and require.def, from Bryan Forbes:
