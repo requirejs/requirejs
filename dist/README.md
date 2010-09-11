@@ -11,7 +11,7 @@ When doing a release, do the following:
     * pre.html
 * Update integrated jQuery versioned-builds:
     * Save a built jQuery to build/jquery
-    * Make sure to apply changes in this changeset: http://github.com/jrburke/jquery/commit/cab11462962517c1a61cab947aa4e8f4f6292e61
+    * Make sure to apply changes from previous converted jQuery to new one via examining diffs.
     * Be sure to add /** * @license to the jQuery license block so that it survives google closure compiler.
     * Update build/jquery/require-jquery.build.js and requireplugins-jquery.build.js to reference the new version of jQuery.
     * Update dist/dist-build.sh to reference the right jQuery file.

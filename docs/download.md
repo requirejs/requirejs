@@ -1,26 +1,23 @@
 # Download RequireJS
 
-### Latest Release: 0.12.0
+### Latest Release: 0.13.0
 
-* A new plugin: [order](api.md#order) -- it ensures that scripts are fetched asynchronously and in parallel, but executed in the order specified in the call to require(). Ideal for traditional browser scripts that do not participate in modules defined via calls to require.def().
-* [Web Worker support](api.md#webworker). RequireJS can be used in a web worker.
-* Multiple module names can now be mapped via the **paths** config option to the same URL, and that URL will only be fetched once.
-* Added Firefox 2 to supported browsers. Safari 3.2 also works with require().
-* [Bug fixes](http://github.com/jrburke/requirejs/commits/master) (see commits starting from 2010-05-25 through 2010-07-04), in particular [a fix for the priority config](http://github.com/jrburke/requirejs/commit/c3ae5e96f0aadd549f30a4019fe021c057e76f50), and [improved support in IE with a bad base tag](http://github.com/jrburke/requirejs/commit/98d418fe4e4503575cca18b73260c0ab74f365fc).
+* module.setExports and module.exports are now supported for converted CommonJS modules.
+* [Bug fixes](http://github.com/jrburke/requirejs/commits/master) (see commits starting from 2010-07-05 through 2010-09-10), in particular [a fix to throw when a timeout for a script occurrs](http://github.com/jrburke/requirejs/commit/d12935bac803bcd5981652584102282b69fdd7b1). That fix should make debugging issues much easier.
 
-#### <a name="requirejs">require.js</a> [Minified](http://requirejs.org/docs/release/0.12.0/minified/require.js) | [With Comments](http://requirejs.org/docs/release/0.12.0/comments/require.js)
+#### <a name="requirejs">require.js</a> [Minified](http://requirejs.org/docs/release/0.13.0/minified/require.js) | [With Comments](http://requirejs.org/docs/release/0.13.0/comments/require.js)
 
 All you need to start using require.js in the browser. Does not include i18n, text, order, JSONP plugins or Node/Rhino support.
 
-#### <a name="requirejsplugins">require.js with plugins</a> [Minified](http://requirejs.org/docs/release/0.12.0/minified/allplugins-require.js) | [With Comments](http://requirejs.org/docs/release/0.12.0/comments/allplugins-require.js)
+#### <a name="requirejsplugins">require.js with plugins</a> [Minified](http://requirejs.org/docs/release/0.13.0/minified/allplugins-require.js) | [With Comments](http://requirejs.org/docs/release/0.13.0/comments/allplugins-require.js)
 
 require.js for use in the browser with the i18n, text, order and JSONP plugins included. 
 
-#### <a name="requirejstransportD">require.js with Transport D and plugins</a> [Minified](http://requirejs.org/docs/release/0.12.0/minified/transportD-require.js) | [With Comments](http://requirejs.org/docs/release/0.12.0/comments/transportD-require.js)
+#### <a name="requirejstransportD">require.js with Transport D and plugins</a> [Minified](http://requirejs.org/docs/release/0.13.0/minified/transportD-require.js) | [With Comments](http://requirejs.org/docs/release/0.13.0/comments/transportD-require.js)
 
 require.js for use in the browser with require.define support for [Transport D from CommonJS](http://wiki.commonjs.org/wiki/Modules/Transport/D), and i18n, text, order and JSONP plugins included. 
 
-#### <a name="jqueryrequirejs">jQuery 1.4.2 with require()</a> [Minified](http://requirejs.org/docs/release/0.12.0/minified/require-jquery-1.4.2.js) | [With Comments](http://requirejs.org/docs/release/0.12.0/comments/require-jquery-1.4.2.js)
+#### <a name="jqueryrequirejs">jQuery 1.4.2 with require()</a> [Minified](http://requirejs.org/docs/release/0.13.0/minified/require-jquery-1.4.2.js) | [With Comments](http://requirejs.org/docs/release/0.13.0/comments/require-jquery-1.4.2.js)
 
 A build of jQuery with integrated require() support. Just includes the basic RequireJS, does not have the following features:
 
@@ -29,7 +26,7 @@ A build of jQuery with integrated require() support. Just includes the basic Req
 * page load support (it is assumed you will use jQuery's methods)
 * require.modify() support
 
-#### <a name="jqueryrequirejsplugins">jQuery 1.4.2 with require() and plugins</a> [Minified](http://requirejs.org/docs/release/0.12.0/minified/requireplugins-jquery-1.4.2.js) | [With Comments](http://requirejs.org/docs/release/0.12.0/comments/requireplugins-jquery-1.4.2.js)
+#### <a name="jqueryrequirejsplugins">jQuery 1.4.2 with require() and plugins</a> [Minified](http://requirejs.org/docs/release/0.13.0/minified/requireplugins-jquery-1.4.2.js) | [With Comments](http://requirejs.org/docs/release/0.13.0/comments/requireplugins-jquery-1.4.2.js)
 
 A build of jQuery with integrated require() support and the i18n, text, order and JSONP plugins. Does not include these other RequireJS features:
 
@@ -41,7 +38,7 @@ The integrated builds with jQuery contain the changes in [this jQuery fork](http
 
 <hr>
 
-#### <a name="samplejquery">Sample jQuery 1.4.2 project with require()</a> [Download](http://requirejs.org/docs/release/0.12.0/jquery-require-sample.zip)
+#### <a name="samplejquery">Sample jQuery 1.4.2 project with require()</a> [Download](http://requirejs.org/docs/release/0.13.0/jquery-require-sample.zip)
 
 A zip file containing a build of jQuery with integrated require() support, with an sample project included to show how it can be used when using jQuery. Does not include these features in RequireJS:
 
@@ -54,9 +51,9 @@ A zip file containing a build of jQuery with integrated require() support, with 
 
 #### <a name="node">RequireJS adapter for Node</a> 
 
-**[r.js](http://requirejs.org/docs/release/0.12.0/node/r.js)**: use this file if you want to code to the RequireJS module format in Node. The [Node instructions](node.md) explain how to use it. It includes all the code needed for RequireJS to function with Node.
+**[r.js](http://requirejs.org/docs/release/0.13.0/node/r.js)**: use this file if you want to code to the RequireJS module format in Node. The [Node instructions](node.md) explain how to use it. It includes all the code needed for RequireJS to function with Node.
 
-**[index.js](http://requirejs.org/docs/release/0.12.0/node/index.js)**: the standard HTTP server-based Hello World app for Node, but coded to work with the r.js adapter. Download it in the same directory as r.js and then run this command:
+**[index.js](http://requirejs.org/docs/release/0.13.0/node/index.js)**: the standard HTTP server-based Hello World app for Node, but coded to work with the r.js adapter. Download it in the same directory as r.js and then run this command:
 
     node r.js index.js
 
@@ -64,7 +61,7 @@ Then you can go to http://127.0.0.1:8000/ and see "Hello World" printed after ab
 
 <hr>
 
-#### <a name="optimizationtool">Optimization Tool / Full Source</a> [Download](http://requirejs.org/docs/release/0.12.0/requirejs-0.12.0.zip)
+#### <a name="optimizationtool">Optimization Tool / Full Source</a> [Download](http://requirejs.org/docs/release/0.13.0/requirejs-0.13.0.zip)
 
 A zip file that is the optimization tool for RequireJS. It also includes the full source for require.js and its plugins.
 
@@ -76,7 +73,15 @@ If you want to use RequireJS in Rhino, you should use this download.
 
 ### Previous releases
 
-### Latest Release: 0.11.0
+### 0.12.0
+
+* A new plugin: [order](api.md#order) -- it ensures that scripts are fetched asynchronously and in parallel, but executed in the order specified in the call to require(). Ideal for traditional browser scripts that do not participate in modules defined via calls to require.def().
+* [Web Worker support](api.md#webworker). RequireJS can be used in a web worker.
+* Multiple module names can now be mapped via the **paths** config option to the same URL, and that URL will only be fetched once.
+* Added Firefox 2 to supported browsers. Safari 3.2 also works with require().
+* [Bug fixes](http://github.com/jrburke/requirejs/commits/master) (see commits starting from 2010-05-25 through 2010-07-04), in particular [a fix for the priority config](http://github.com/jrburke/requirejs/commit/c3ae5e96f0aadd549f30a4019fe021c057e76f50), and [improved support in IE with a bad base tag](http://github.com/jrburke/requirejs/commit/98d418fe4e4503575cca18b73260c0ab74f365fc).
+
+### 0.11.0
 
 * There is a new [priority config option](faq-optimization.md#priority) to indicate priority, parallel download of build layers.
 * A new [JSONP plugin](api.md#jsonp) allows you to treat any JSONP service as dependency.
