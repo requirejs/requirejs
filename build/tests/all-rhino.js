@@ -21,6 +21,7 @@ load("../../tests/doh/_rhinoRunner.js");
 //Load the tests.
 load("parse.js");
 load("builds.js");
+load("convert.js");
 
 //Hmm, this is an odd requirement, call doh.run() for each test listed above?
 //May be because the tests above call doh.run() in a callback sometimes?
