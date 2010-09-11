@@ -1,4 +1,3 @@
-- option to strip use strict calls?
 - Converted Dojo release: gfx dojo.requireIf
 
 - Best practices/architecture guide

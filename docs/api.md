@@ -343,13 +343,13 @@ Supported configuration options:
 
 **baseUrl**: the root path to use for all module lookups. So in the above example, "my/module"'s script tag will have a src="/another/path/my/module.js". baseUrl is **not** used when loading plain .js files, those strings are used as-is, so a.js and b.js will be loaded from the same directory as the HTML page that contains the above snippet.
 
-If no baseUrl is passed in, the path to require.js is used as the baseUrl path.
+If no baseUrl is passed in, the path to require.js is used as the baseUrl path. The baseUrl can be an URL on a different domain as the page that will load require.js. RequireJS script loading works across domains. The only restriction is on text content loaded by text! plugins: those paths should be on the same domain as the page, at least during development. The optimization tool will inline text! plugin resources so after using the optimization tool, you can use resources that reference text! plugin resources from another domain.
 
 **baseUrlMatch**: If no baseUrl is specified, normally the path to require.js is used. However, if you build RequireJS into another file with a name that does not have "require.js" in it, then the autodetection of the baseUrl will fail. In that case you can set baseUrlMatch to match the name of the file you built. The value should be a Regular expression. For example:
 
     baseUrlMatch: /mycustomlib\.js/i
 
-**paths**: allows configuration of some modules paths. Assumed to be relative to baseUrl. So for "some/module"'s script tag will have a src="/another/path/some/v1.0/module.js"
+**paths**: allows configuration of some modules paths. Assumed to be relative to baseUrl. So for "some/module"'s script tag will have a src="/another/path/some/v1.0/module.js". The path that is used for a module name should **not** include the .js extension, since the path mapping could be for a directory. The path mapping code will automatically add the .js extension when mapping the module name to a path.
 
 **waitSeconds**: The number of seconds to wait before giving up on loading a script. The default is 7 seconds.
 
