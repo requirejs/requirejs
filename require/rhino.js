@@ -11,10 +11,7 @@ CommonJS modules, by overriding require.get().
 */
 
 /*globals load: false */
-
-//>>includeStart("useStrict", pragmas.useStrict);
 "use strict";
-//>>includeEnd("useStrict");
 
 require.load = function (moduleName, contextName) {
     var url = require.nameToUrl(moduleName, null, contextName),

@@ -5,10 +5,7 @@
  */
 /*jslint nomen: false, plusplus: false */
 /*global require: false, setTimeout: false */
-
-//>>includeStart("useStrict", pragmas.useStrict);
 "use strict";
-//>>includeEnd("useStrict");
 
 (function () {
     var countId = 0;

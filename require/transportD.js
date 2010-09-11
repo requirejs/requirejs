@@ -5,10 +5,7 @@
  */
 /*jslint  */
 /*global require: false */
-
-//>>includeStart("useStrict", pragmas.useStrict);
 "use strict";
-//>>includeEnd("useStrict");
 
 /**
  * An adapter for the CommonJS Transport/D proposal:

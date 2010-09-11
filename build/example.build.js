@@ -68,6 +68,12 @@
     //async XMLHttpRequest calls to load those dependencies.
     inlineText: true,
 
+    //Allow "use strict"; be included in the RequireJS files.
+    //Default is false because there are not many browsers that can properly
+    //process and give errors on code for ES5 strict mode,
+    //and there is a lot of legacy code that will not work in strict mode.
+    useStrict: false,
+
     //Specify build pragmas. If the source files contain comments like so:
     //>>excludeStart("requireExcludeModify", pragmas.requireExcludeModify);
     //>>excludeEnd("requireExcludeModify");
@@ -77,12 +83,6 @@
     //is evaluated to see if the code between the Start and End pragma
     //lines should be included or excluded.
     pragmas: {
-        //Should "use strict"; be included in the RequireJS files.
-        //You may want to turn this off for legacy code. This is to
-        //kick the JS interpreter in to ES5 strict mode which does not like
-        //some constructs, like "with". Default is true.
-        useStrict: true,
-
         //Indicates require will be included with jquery.
         jquery: true,
         //Remove require.modify() code

@@ -5,10 +5,7 @@
  */
 /*jslint nomen: false, plusplus: false */
 /*global require: false, window: false, document: false, setTimeout: false */
-
-//>>includeStart("useStrict", pragmas.useStrict);
 "use strict";
-//>>includeEnd("useStrict");
 
 (function () {
     //Sadly necessary browser inference due to differences in the way

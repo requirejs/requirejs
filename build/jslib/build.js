@@ -16,9 +16,7 @@ var build, buildBaseConfig;
     buildBaseConfig = {
             requireBuildPath: "../",
             appDir: "",
-            pragmas: {
-                useStrict: true
-            },
+            pragmas: {},
             paths: {},
             optimize: "closure",
             optimizeCss: "standard.keepLines",

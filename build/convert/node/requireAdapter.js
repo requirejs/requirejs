@@ -6,9 +6,7 @@
 /*jslint nomen: false */
 /*global require: false, process: false */
 
-//>>includeStart("useStrict", pragmas.useStrict);
 "use strict";
-//>>includeEnd("useStrict");
 
 /*INSERT REQUIREJS HERE*/
 

@@ -5,7 +5,6 @@
     locale: "en-us",
     dir: "dojo-build",
     pragmas: {
-        useStrict: false,
         dojoConvert: true
     },
 

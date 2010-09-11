@@ -11,6 +11,11 @@
 
 var pragma = {
     conditionalRegExp: /(exclude|include)Start\s*\(\s*["'](\w+)["']\s*,(.*)\)/,
+    useStrictRegExp: /['"]use strict['"];/g,
+
+    removeStrict: function (contents, config) {
+        return config.useStrict ? contents : contents.replace(pragma.useStrictRegExp, '');
+    },
 
     /**
      * processes the fileContents for some //>> conditional statements
@@ -30,7 +35,7 @@ var pragma = {
 
         //If pragma work is not desired, skip it.
         if (config.skipPragmas) {
-            return fileContents;
+            return pragma.removeStrict(fileContents, config);
         }
 
         while ((foundIndex = fileContents.indexOf("//>>", startIndex)) !== -1) {
@@ -97,6 +102,6 @@ var pragma = {
             }
         }
 
-        return fileContents;
+        return pragma.removeStrict(fileContents, config);
     }
 };
