@@ -285,6 +285,8 @@ Scripts loaded by the **order** plugin will be fetched asynchronously, but evalu
 
 The **order** plugin is best used with traditional scripts, it is not needed for scripts that use require.def() to define modules. It is possible to mix and match "order!" dependencies with regular dependencies, but only the "order!" ones will be evaluated in relative order to each other. 
 
+**Note**: the order! plugin only works with JavaScript files that are cacheable by the browser. If the JS file has headers that do not allow the browser to cache the file, then the order of scripts will not be maintained.
+
 # <a name="mechanics">Mechanics</a>
 
 require.js loads each dependency as a script tag, using head.appendChild().

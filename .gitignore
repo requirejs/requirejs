@@ -2,7 +2,7 @@
 build/convert/build/
 build/convert/node/r.js
 build/convert/dojorequire/
-build/convert/dojo/
+build/convert/dojo-build/
 build/tests/builds/
 build/tests/priority/webapp-build
 build/jquery/dist/

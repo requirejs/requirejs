@@ -15,7 +15,7 @@
  * With Debugger:
  * java -classpath ../lib/rhino/js.jar org.mozilla.javascript.tools.debugger.Main convertDojo.js path/to/dojo dojorequire
  */
-/*jslint plusplus: false */
+/*jslint plusplus: false, regexp: false */
 /*global load: false, fileUtil: false, logger: false, Packages: false, convert: true */
 
 "use strict";
@@ -36,7 +36,7 @@ var startTime = (new Date()).getTime(),
     rootBundleRegExp = /(^.*\/nls\/)([^\/]+)/,
     dojoJsRegExp = /\/dojo\.js(\.uncompressed\.js)?$/,
     fileName, convertedFileName, fileContents,
-    i;
+    i, originalContents;
 
 //Normalize on front slashes and make sure the paths do not end in a slash.
 dojoPath = dojoPath.replace(/\\/g, "/");
@@ -109,7 +109,7 @@ function writeRequireEnd(prefixProps, contents) {
 
 
         //Convert dojo.requireLocalization calls to be i18n! dependencies.
-        contents = contents.replace(/dojo\s*\.\s*requireLocalization\s*\(['"]([^'"]+)['"]\s*\,\s*['"]([^'"]+)['"]\s*\)/g, function(match, prefix, baseName) {
+        contents = contents.replace(/dojo\s*\.\s*requireLocalization\s*\(['"]([^'"]+)['"]\s*\,\s*['"]([^'"]+)['"]\s*\)/g, function (match, prefix, baseName) {
             var i18nName = "i18n!" + prefix.replace(/\./g, "/") + "/nls/" + baseName, varName = '_R';
             prefixProps.reqs.push(i18nName);
             varName += (prefixProps.reqs.length - 1);
@@ -123,7 +123,7 @@ function writeRequireEnd(prefixProps, contents) {
         if (getLocs.length) {
             for (i = 0; (loc = getLocs[i]); i++) {
                 contents = contents.replace(new RegExp('dojo\\.i18n\\.getLocalization\\s*\\(\\s*([^,\\)]+)\\s*,\\s*([^,\\)]+)([^\\)]+)?\\)', 'g'),
-                                            function(match, prefix, baseName, thirdArg) {
+                                            function (match, prefix, baseName, thirdArg) {
                                                 var name = prefix + ' + "/nls/" + ' + baseName,
                                                     getCall = 'require((' + name + ').replace(/\\./g, "/"))';
                                                 if (thirdArg) {
@@ -168,9 +168,9 @@ function writeRequireEnd(prefixProps, contents) {
 function convert(fileName, fileContents) {
     //Strip out comments.
     logger.trace("fileName: " + fileName);
+    originalContents = fileContents;
     try {
-        var originalContents = fileContents,
-            context = Packages.org.mozilla.javascript.Context.enter(), match,
+        var context = Packages.org.mozilla.javascript.Context.enter(), match,
             //deps will be an array of objects like {provide: "", requires:[]}
             deps = [],
             currentDep, depName, provideRegExp,
@@ -264,7 +264,39 @@ function convert(fileName, fileContents) {
         if (deps.length > 1) {
             tempContents += 'require.resume();\n';
         }
+/*
+        if (tempContents.indexOf("dojo.loadInit(function") !== -1) {
+            //Special processing for dojox.gfx. The loadInit call needs to be
+            //pulled out as well as the requireIf calls.
+            var loadInitBlock = '', modifyBlocks = '';
 
+            //Convert contents to not have line returns to do matching easier, but also need to remove
+            //single line comments.
+            tempContents = tempContents.replace(/\/\/.*$/mg, "").replace(/[\r\n]/g, "");
+
+            tempContents = tempContents.replace(/dojo\.loadInit\(function\(\)\{.*\}\)\;\s*REMOVEMEWHENCOMMENTREMOVED/, function (match) {
+                logger.trace("FOUND MATCH");
+                //logger.trace(match);
+                loadInitBlock = match.replace(/dojo\.loadInit/, "").replace(/\}\)\;\s*$/, "}());");
+                return "";
+            });
+
+            //Find dojox.gfx requireIf calls and convert them.
+            tempContents = tempContents.replace(/dojo\.requireIf\(dojox\.gfx.*\);/g, function (match) {
+                match = match.replace(/dojo\.requireIf\(/, "").replace(/\)\;/, "");
+                match = match.split(',');
+                modifyBlocks += "\nif(" + match[0] + "){require.modify({'dojox/gfx': " + match[1].replace(/\./g, '/') + "});}\n";
+                return "";
+            });
+
+            if (modifyBlocks) {
+                tempContents = modifyBlocks + tempContents;
+            }
+            if (loadInitBlock) {
+                tempContents = loadInitBlock + tempContents;
+            }
+        }
+*/
         return tempContents;
     } catch (e) {
         logger.error("COULD NOT CONVERT: " + fileName + ", so skipping it. Error was: " + e);
