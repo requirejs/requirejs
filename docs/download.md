@@ -3,7 +3,7 @@
 ### Latest Release: 0.13.0
 
 * module.setExports and module.exports are now supported for converted CommonJS modules.
-* [Bug fixes](http://github.com/jrburke/requirejs/commits/master) (see commits starting from 2010-07-05 through 2010-09-10), in particular [a fix to throw when a timeout for a script occurrs](http://github.com/jrburke/requirejs/commit/d12935bac803bcd5981652584102282b69fdd7b1). That fix should make debugging issues much easier.
+* [Bug fixes](http://github.com/jrburke/requirejs/commits/master) (see commits starting from 2010-07-05 through 2010-09-10), in particular [a fix to throw when a timeout for a script occurs](http://github.com/jrburke/requirejs/commit/d12935bac803bcd5981652584102282b69fdd7b1). That fix should make debugging issues much easier.
 
 #### <a name="requirejs">require.js</a> [Minified](http://requirejs.org/docs/release/0.13.0/minified/require.js) | [With Comments](http://requirejs.org/docs/release/0.13.0/comments/require.js)
 

@@ -1,4 +1,14 @@
 - Converted Dojo release: gfx dojo.requireIf
+- anonymous modules:
+  - check rhino, node, webworkers, make sure they do the assignment in the right places.
+  - check parse.js code to make sure we find anon require.def calls.
+  - Make sure to inject the name of the module in a built layer.
+  - get rid of pause/resume
+  - require.modify does not allow anonymous?
+- loading packages:
+  - plug in package config options
+  - use package config in nameToUrl
+  - Restructure code to use contexts for conflicting module versions.
 
 - Best practices/architecture guide
 - Allow r.js to work on Rhino

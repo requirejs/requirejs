@@ -51,6 +51,9 @@
         }
         process.compile(content, url);
 
+        //Support anonymous modules.
+        require.completeAnon(moduleName);
+
         //Mark the module loaded.
         context.loaded[moduleName] = true;
     };

@@ -13,14 +13,16 @@ setInterval: false, importScripts: false */
 var require;
 (function () {
     //Change this version number for each release.
-    var version = "0.13.0",
+    var version = "0.13.0+",
             empty = {}, s,
             i, defContextName = "_", contextLoads = [],
             scripts, script, rePkg, src, m, dataMain, cfg = {}, setReadyState,
             readyRegExp = /^(complete|loaded)$/, main,
             isBrowser = !!(typeof window !== "undefined" && navigator && document),
             isWebWorker = !isBrowser && typeof importScripts !== "undefined",
-            ostring = Object.prototype.toString, scrollIntervalId, req, baseElement;
+            ostring = Object.prototype.toString,
+            aps = Array.prototype.slice, scrollIntervalId, req, baseElement,
+            defQueue = [];
 
     function isFunction(it) {
         return ostring.call(it) === "[object Function]";
@@ -44,7 +46,7 @@ var require;
             //A version of a require function that uses the current context.
             //If last arg is a string, then it is a context.
             //If last arg is not a string, then add context to it.
-            var args = [].concat(Array.prototype.slice.call(arguments, 0));
+            var args = [].concat(aps.call(arguments, 0));
             if (force || typeof arguments[arguments.length - 1] !== "string") {
                 args.push(contextName);
             }
@@ -134,18 +136,35 @@ var require;
      * name.
      */
     req.def = function (name, deps, callback, contextName) {
+        var context = s.contexts[(contextName || s.ctxName)];
+
+        //Allow for anonymous functions
+        if (typeof name !== 'string') {
+            if (context.config.anon) {
+                defQueue.push(aps.call(arguments, 0));
+            } else {
+                return req.onError(new Error("require.def calls without a name " +
+                                             "are not allowed unless you set " +
+                                             "the config option \"anon\" to " +
+                                             "true. However, if anon is set " +
+                                             "to true, then only scripts that " +
+                                             "use require.def can be loaded."));
+            }
+        }
+
+        //This module may not have dependencies
         if (!req.isArray(deps)) {
-            // No dependencies
             contextName = callback;
             callback = deps;
             deps = [];
         }
+
         return main(name, deps, callback, null, contextName);
     };
 
     main = function (name, deps, callback, config, contextName) {
         //Grab the context, or create a new one for the given context name.
-        var context = s.contexts[contextName], newContext, contextRequire, loaded, pluginPrefix,
+        var context, newContext, contextRequire, loaded, pluginPrefix,
             canSetContext, prop, newLength, outDeps, mods, paths, index, i, deferMods;
 
         contextName = contextName ? contextName : (config && config.context ? config.context : s.ctxName);
@@ -496,6 +515,23 @@ var require;
         return req;
     };
     //>>excludeEnd("requireExcludePlugin");
+
+    /**
+     * Internal method used by environment adapters to complete an anonymous
+     * module load. Never call this method when just defining or loading modules.
+     * @param {String} moduleName the name of the module to potentially complete.
+     */
+    req.completeAnon = function (moduleName) {
+        //At this point, if the module is defined, it means it was a
+        if (defQueue.length) {
+            var args = defQueue.shift();
+            if (!args) {
+                return req.onError(new Error('Mismatched anonymous require.def modules'));
+            }
+            args.unshift(moduleName);
+            req.def.apply(req, args);
+        }
+    };
 
     /**
      * Pauses the tracing of dependencies. Useful in a build scenario when
@@ -1164,16 +1200,24 @@ var require;
         //Using currentTarget instead of target for Firefox 2.0's sake. Not
         //all old browsers will be supported, but this one was easy enough
         //to support and still makes sense.
-        var node = evt.currentTarget || evt.srcElement, contextName, moduleName;
+        var node = evt.currentTarget || evt.srcElement, contextName, moduleName,
+            context;
         if (evt.type === "load" || readyRegExp.test(node.readyState)) {
             //Pull out the name of the module and the context.
             contextName = node.getAttribute("data-requirecontext");
             moduleName = node.getAttribute("data-requiremodule");
+            context = s.contexts[contextName];
+
+            //If module not marked as loaded via main, then it is an anonymous
+            //module, set up the name now.
+            if (!context.loaded[moduleName]) {
+                req.completeAnon(moduleName);
+            }
 
             //Mark the module loaded. Must do it here in addition
             //to doing it in require.def in case a script does
             //not call require.def
-            s.contexts[contextName].loaded[moduleName] = true;
+            context.loaded[moduleName] = true;
 
             req.checkLoaded(contextName);
 

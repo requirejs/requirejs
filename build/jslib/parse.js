@@ -207,10 +207,12 @@ var parse;
                     name = call.getChildAtIndex(1);
                     deps = call.getChildAtIndex(2);
     
-                    //Validate def name as a string
-                    if (name.getType() !== STRING) {
-                        return null;
+                    //If name is an array, it means it is an anonymous module,
+                    //so adjust args appropriately.
+                    if (name.getType() === ARRAYLIT) {
+                        deps = name;
                     }
+
                     if (!validateDeps(deps)) {
                         return null;
                     }

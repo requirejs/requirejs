@@ -126,7 +126,10 @@
                 require.pause();
     
                 eval(contents);
-    
+
+                //Support anonymous modules.
+                require.completeAnon(moduleName);
+
                 //At this point, if the module is defined, it means it was a
                 //simple module with no dependencies, defined by an object literal,
                 //like an i18n bundle. Do this before require.resume() is called
