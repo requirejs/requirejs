@@ -95,7 +95,30 @@ var pkg;
                 fileUtil.copyFile(request.pkgHome + '../require.js', request.target + '/lib/require.js');
                 fileUtil.copyDir(request.pkgHome + '../require', request.target + '/lib/require');
             }
+        },
+
+        'add': {
+            doc: 'Add a third party package to your project.',
+            validate: function (request) {
+                if (!request.target) {
+                    return new Error('Please specify a package name.');
+                }
+                return undefined;
+            },
+            run: function (request) {
+                var packageName = request.target,
+                    version = request.option,
+                    url;
+
+                //Package may just be an URL
+                if (packageName.indexOf(':')) {
+                    url = packageName;
+                    packageName = null;
+                }
+            }
         }
+pkg.js add packageName version
+
     };
 
 }());

@@ -26,8 +26,5 @@ require.load = function (moduleName, contextName) {
     load(url);
 
     //Support anonymous modules.
-    require.completeAnon(moduleName);
-
-    //Mark the module loaded.
-    context.loaded[moduleName] = true;
+    require.completeLoad(moduleName, context);
 };

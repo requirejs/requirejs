@@ -5,6 +5,14 @@
   - Make sure to inject the name of the module in a built layer.
   - get rid of pause/resume
   - require.modify does not allow anonymous?
+  - Tests
+    - Test doing a require() call that does not load any new modules, does the callback
+      still fire?
+    - Does building an i18n bundle into a layer still work?
+
+- browser test for loading css?
+- config option, noCache: true, to enable cache busting for misbehaved servers?
+
 - loading packages:
   - plug in package config options
   - use package config in nameToUrl

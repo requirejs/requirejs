@@ -57,6 +57,8 @@ Files that end in ".js" are assumed to just be plain JS files that do not use re
 
 See the **Configuration Options** section for information on changing the lookup paths used for dependencies.
 
+**Note**: If the **anon** configuration option is used, only use require() to kick off loading of JavaScript files as part of an inlined HTML script tag, or as part of an event handler. It should not be used as the top-level function call in a script that is loaded with RequireJS. Otherwise, anonymous require.def() call support will not work correctly. It will be a hard-to-track loading error.
+
 ## <a name="define">Defining a Module</a>
 
 A module is different from a traditional script file in that it defines a well-scoped object that does not try to pollute the global namespace. It can explicitly list its dependencies and get a handle on those dependencies without needing to refer to global objects, but instead receive the dependencies as arguments to the function that defines the module. Modules in RequireJS are an extension of the [Module Pattern](http://www.adequatelygood.com/2010/3/JavaScript-Module-Pattern-In-Depth), with the benefit of not needing globals to refer to other modules.

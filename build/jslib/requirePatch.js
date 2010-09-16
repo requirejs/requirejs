@@ -85,8 +85,7 @@
         /*jslint evil: true */
         var url = require.nameToUrl(moduleName, null, contextName), map,
             contents,
-            context = require.s.contexts[contextName],
-            previouslyDefined = context.defined[moduleName];
+            context = require.s.contexts[contextName];
         context.loaded[moduleName] = false;
 
         //Only handle urls that can be inlined, so that means avoiding some
@@ -122,27 +121,10 @@
             }
     
             if (contents) {
-                //Pause require, since the file might have many modules defined in it
-                require.pause();
-    
                 eval(contents);
 
                 //Support anonymous modules.
-                require.completeAnon(moduleName);
-
-                //At this point, if the module is defined, it means it was a
-                //simple module with no dependencies, defined by an object literal,
-                //like an i18n bundle. Do this before require.resume() is called
-                //to guarantee this is just an object literal.
-                if (!previouslyDefined && context.defined[moduleName]) {
-                    //Call the overridden require.execCb here, defined
-                    //below, to get the module tracked as module with a real
-                    //name.
-                    require.execCb(moduleName);
-                }
-    
-                //Resume require now that processing of the file has finished.
-                require.resume();
+                require.completeLoad(moduleName, context);
             }
         }
 
