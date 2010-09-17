@@ -7,7 +7,7 @@
     //cache bust?
     var noCache = location.href.indexOf("nocache") != -1;
 
-console.log("noCache: " + noCache);
+    log("noCache: " + noCache);
 
     var readyRegExp = /complete|loaded/;
   
@@ -67,7 +67,7 @@ console.log("noCache: " + noCache);
         "eight.js",
         "nine.js"
     ]
-    
+
     var loadUrls = function(useDocWrite) {
         for (var i = 0, url; url = urls[i]; i++) {
             attachScript(url, url, useDocWrite);
@@ -87,7 +87,6 @@ console.log("noCache: " + noCache);
 </head>
 <body>
     <h1>Script Load Test</h1>
-    <p><b>This test requires PHP.</b></p>
 
     <p>This test checks the order in which script onloads are called. Hopefully
     only one script onload is fired at a time and it matches the just-evaluated
