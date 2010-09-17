@@ -72,7 +72,6 @@
             } else {
                 //Probably IE.
                 node.detachEvent("onreadystatechange", onTestScriptLoad);
-                useInteractive = true;
             }
         }
     }
@@ -92,6 +91,7 @@
             node.addEventListener("load", onTestScriptLoad, false);
         } else {
             //Probably IE.
+            useInteractive = true;
             node.attachEvent("onreadystatechange", onTestScriptLoad);
         }
     
