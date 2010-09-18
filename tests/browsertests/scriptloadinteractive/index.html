@@ -16,6 +16,7 @@
         useInteractive = false,
         loadedScripts = [],
         callCount = 0,
+        currentlyAddingScript,
         waitingFunc, loadUrls,
         urls = [
             "one.js",
@@ -75,7 +76,6 @@
             }
         }
     }
-
     function attachScript(url, name, useDocWrite) {
         if (noCache) {
             url += "?stamp=" + (new Date()).getTime();
@@ -94,8 +94,10 @@
             useInteractive = true;
             node.attachEvent("onreadystatechange", onTestScriptLoad);
         }
+        currentlyAddingScript = node;
     
         document.getElementsByTagName("head")[0].appendChild(node);
+        currentlyAddingScript = null;
     }
 
     loadUrls = function () {
@@ -105,10 +107,12 @@
     };
 
     function def(func) {
-        var scripts, script, i;
+        var scripts, i, script = currentlyAddingScript;
         if (useInteractive) {
             scripts = document.getElementsByTagName('script');
+            var states = [];
             for (i = scripts.length - 1; i > -1; i--) {
+                states.push(i + scripts[i].readyState + scripts[i].src);
                 //log('script with name ' + scripts[i].getAttribute('data-name') + ' has readyState = ' + scripts[i].readyState + ' for func: ' + func);
                 if (scripts[i].readyState === 'interactive') {
                     script = scripts[i];
@@ -117,6 +121,7 @@
             }
             if (!script) {
                 log("ERROR: No matching script interactive for " + func);
+                log("script readyStates are: " + states);
             }
             //log('calling finishScript for interactive dat-name: ' + script.getAttribute('data-name'));
             finishScript(script, func);
