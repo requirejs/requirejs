@@ -24,6 +24,7 @@ load("circular-tests.js");
 load("relative/relative-tests.js");
 load("transportD/transportD-tests.js");
 load("exports/exports-tests.js");
+load("anon/anon-tests.js");
 
 //Hmm, this is an odd requirement, call doh.run() for each test listed above?
 //May be because the tests above call doh.run() in a callback sometimes?

@@ -22,7 +22,7 @@ var require;
             isWebWorker = !isBrowser && typeof importScripts !== "undefined",
             ostring = Object.prototype.toString,
             aps = Array.prototype.slice, scrollIntervalId, req, baseElement,
-            defQueue = [];
+            defQueue = [], useInteractive = false, currentlyAddingScript;
 
     function isFunction(it) {
         return ostring.call(it) === "[object Function]";
@@ -197,24 +197,16 @@ var require;
      * name.
      */
     req.def = function (name, deps, callback, contextName) {
-        var context = s.contexts[(contextName || s.ctxName)];
+        var context = s.contexts[(contextName || s.ctxName)],
+            i, scripts, script, node = currentlyAddingScript;
 
         //Allow for anonymous functions
         if (typeof name !== 'string') {
-            if (!context.config.anon) {
-                req.onError(new Error("require.def calls without a name " +
-                                            "are not allowed unless you set " +
-                                            "the config option \"anon\" to " +
-                                            "true. However, if anon is set " +
-                                            "to true, then only scripts that " +
-                                            "use require.def can be loaded."));
-            } else {
-                //Adjust args appropriately
-                contextName = callback;
-                callback = deps;
-                deps = name;
-                name = null;
-            }
+            //Adjust args appropriately
+            contextName = callback;
+            callback = deps;
+            deps = name;
+            name = null;
         }
 
         //This module may not have dependencies
@@ -222,6 +214,23 @@ var require;
             contextName = callback;
             callback = deps;
             deps = [];
+        }
+
+        //If in IE 6-8 and hit an anonymous require.def call, do the interactive/
+        //currentlyAddingScript scripts stuff.
+        if (!name && useInteractive) {
+            scripts = document.getElementsByTagName('script');
+            for (i = scripts.length - 1; i > -1 && (script = scripts[i]); i--) {
+                if (script.readyState === 'interactive') {
+                    node = script;
+                    break;
+                }
+            }
+            if (!node) {
+                req.onError(new Error("ERROR: No matching script interactive for " + callback));
+            }
+
+            name = node.getAttribute("data-requiremodule");
         }
 
         //Always save off evaluating the def call until the script onload handler.
@@ -1319,12 +1328,28 @@ var require;
             if (node.addEventListener) {
                 node.addEventListener("load", callback, false);
             } else {
-                //Probably IE.
+                //Probably IE. IE (at least 6-8) do not fire
+                //script onload right after executing the script, so
+                //we cannot tie the anonymous require.def call to a name.
+                //However, IE reports the script as being in "interactive"
+                //readyState at the time of the require.def call.
+                useInteractive = true;
                 node.attachEvent("onreadystatechange", callback);
             }
             node.src = url;
 
-            return baseElement ? s.head.insertBefore(node, baseElement) : s.head.appendChild(node);
+            //For some cache cases in IE 6-8, the script executes before the end
+            //of the appendChild execution, so to tie an anonymous require.def
+            //call to the module name (which is stored on the node), hold on
+            //to a reference to this node, but clear after the DOM insertion.
+            currentlyAddingScript = node;
+            if (baseElement) {
+                s.head.insertBefore(node, baseElement);
+            } else {
+                s.head.appendChild(node);
+            }
+            currentlyAddingScript = null;
+            return node;
         } else if (isWebWorker) {
             //In a web worker, use importScripts. This is not a very
             //efficient use of importScripts, importScripts will block until

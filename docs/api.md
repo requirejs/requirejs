@@ -57,8 +57,6 @@ Files that end in ".js" are assumed to just be plain JS files that do not use re
 
 See the **Configuration Options** section for information on changing the lookup paths used for dependencies.
 
-**Note**: If the **anon** configuration option is used, only use require() to kick off loading of JavaScript files as part of an inlined HTML script tag, or as part of an event handler. It should not be used as the top-level function call in a script that is loaded with RequireJS. Otherwise, anonymous require.def() call support will not work correctly. It will be a hard-to-track loading error.
-
 ## <a name="define">Defining a Module</a>
 
 A module is different from a traditional script file in that it defines a well-scoped object that does not try to pollute the global namespace. It can explicitly list its dependencies and get a handle on those dependencies without needing to refer to global objects, but instead receive the dependencies as arguments to the function that defines the module. Modules in RequireJS are an extension of the [Module Pattern](http://www.adequatelygood.com/2010/3/JavaScript-Module-Pattern-In-Depth), with the benefit of not needing globals to refer to other modules.
@@ -368,8 +366,6 @@ If no baseUrl is passed in, the path to require.js is used as the baseUrl path. 
 **ready**: An function to pass to require.ready(). Useful when require is defined as a config object before require.js is loaded, and you want to specify a require.ready callback to set as soon as require() is defined.
 
 **priority**: An array of module/file names to load immediately, before tracing down any other dependencies. This allows you to set up a small set of files that are downloaded in parallel that contain most of the modules and their dependencies already built in. More information is in the [Optimization FAQ, Priority Downloads](faq-optimization#priority).
-
-**anon**: As of version 0.14. Allows loading files that use require.def without using a module name. By default it is false, to allow easy loading of traditional browser scripts. However, if it is set to true, only scripts that use require.def can be loaded -- things will break if you use anon: true and load a script that does not use require.def to define a module. It may not break right away, but an insidious runtime error is waiting to happen.
 
 # <a name="pageload">Page Load Event Support</a>
 

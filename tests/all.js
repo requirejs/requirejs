@@ -1,6 +1,7 @@
 doh.registerUrl("simple", "../simple.html");
 doh.registerUrl("config", "../config.html");
 doh.registerUrl("dataMain", "../dataMain.html");
+doh.registerUrl("anonSimple", "../anon/anonSimple.html");
 doh.registerUrl("simple-nohead", "../simple-nohead.html");
 
 //Only do the base test if the urls work out.
@@ -28,6 +29,7 @@ doh.registerUrl("exports", "../exports/exports.html");
 doh.registerUrl("transportD", "../transportD/transportD.html");
 doh.registerUrl("priority", "../priority/priority.html");
 doh.registerUrl("prioritySingleCall", "../priority/prioritySingleCall.html");
+
 if (typeof Worker !== "undefined") {
     doh.registerUrl("workers", "../workers.html");
 }
