@@ -1,12 +1,13 @@
 importScripts('../require.js');
 
 require({
-        baseUrl: "./"    
+        baseUrl: "./",
     },
-    ["require", "simple", "dimple", "func"],
-    function(require, simple, dimple, func) {
+    ["require", "simple", "anon/blue", "func", "anon/green"],
+    function(require, simple, blue, func, green) {
         postMessage(simple.color);
-        postMessage(dimple.color);
+        postMessage(green.name);
         postMessage(func());
+        postMessage(blue.name);
     }
 );
