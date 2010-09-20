@@ -4,6 +4,9 @@
   - Does building an anonymous i18n bundle into a layer work?
   - Verify transportD adapter works without the pause/resume calls.
   - Support the require.def(function(require, exports, module){}) variant
+    - AMD *must* order function args as require, exports, module.
+    - Document this in API.md, along with normal anonymous modules
+    - Need to support ./ and ../ in the require calls inside the function.
 
 - FF2: priority test on empty cache fails?
 - IE9 preview: the order plugin seems to be failing.

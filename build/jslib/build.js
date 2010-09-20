@@ -524,7 +524,7 @@ var build, buildBaseConfig;
             pluginContents = "", pluginBuildFileContents = "", includeRequire,
             anonDefRegExp = /require\s*\.\s*def\s*\(\s*(\[|f|\{)/,
             prop, path, reqIndex, fileContents, currContents,
-            i, moduleName, specified;
+            i, moduleName, specified, deps;
 
         //Use override settings, particularly for pragmas
         if (module.override) {
@@ -589,7 +589,24 @@ var build, buildBaseConfig;
             //If anonymous module, insert the module name.
             currContents = currContents.replace(anonDefRegExp, function (match, suffix) {
                 layer.modulesWithNames[moduleName] = true;
-                return "require.def('" + moduleName + "'," + suffix;
+
+                //Look for CommonJS require calls inside the function if this is
+                //an anonymous require.def call that just has a function registered.
+                deps = null;
+                if (suffix.indexOf('f') !== -1) {
+                    deps = parse.getAnonDeps(path, currContents);
+                    if (deps.length) {
+                        deps = deps.map(function (dep) {
+                            return "'" + dep + "'";
+                        });
+                    } else {
+                        deps = null;
+                    }
+                }
+
+                return "require.def('" + moduleName + "'," +
+                       (deps ? ('[' + deps.toString() + '],') : '') +
+                       suffix;
             });
 
             fileContents += currContents;

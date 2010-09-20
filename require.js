@@ -17,7 +17,10 @@ var require;
             empty = {}, s,
             i, defContextName = "_", contextLoads = [],
             scripts, script, rePkg, src, m, dataMain, cfg = {}, setReadyState,
-            readyRegExp = /^(complete|loaded)$/, main,
+            readyRegExp = /^(complete|loaded)$/,
+            commentRegExp = /(\/\*([\s\S]*?)\*\/|\/\/(.*)$)/mg,
+            cjsRequireRegExp = /require\(["']([^"']+)["']\)/g,
+            main,
             isBrowser = !!(typeof window !== "undefined" && navigator && document),
             isWebWorker = !isBrowser && typeof importScripts !== "undefined",
             ostring = Object.prototype.toString,
@@ -214,6 +217,29 @@ var require;
             contextName = callback;
             callback = deps;
             deps = [];
+        }
+
+        //If no name, and callback is a function, then figure out if it a
+        //CommonJS thing with dependencies.
+        if (!name && !deps.length && req.isFunction(callback)) {
+            //Remove comments from the callback string,
+            //look for require calls, and pull them into the dependencies.
+            callback
+                .toString()
+                .replace(commentRegExp, "")
+                .replace(cjsRequireRegExp, function (match, dep) {
+                    deps.push(dep);
+                });
+
+            //May be a CommonJS thing even without require calls, but still
+            //could use exports, and such, so always add those as dependencies.
+            //This is a bit wasteful for RequireJS modules that do not need
+            //an exports or module object, but erring on side of safety.
+            //REQUIRES the function to expect the CommonJS variables in the
+            //order listed below.
+            if (deps.length) {
+                deps = ["require", "exports", "module"].concat(deps);
+            }
         }
 
         //If in IE 6-8 and hit an anonymous require.def call, do the interactive/
