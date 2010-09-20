@@ -3,8 +3,6 @@
 "use strict";
 /*global require: false */
 
-require.pause();
-
 require.def("alpha",
     ["beta", "gamma"],
     function (beta, gamma) {
@@ -25,15 +23,11 @@ require.def("beta",
     }
 );
 
-require.resume();
-
 
 //Example layer file.
 
 "use strict";
 /*global require: false */
-
-require.pause();
 
 require.def("gamma",
     ["theta", "epsilon"],
@@ -53,8 +47,6 @@ require.def("theta",
         };
     }
 );
-
-require.resume();
 
 "use strict";
 /*global require: false */

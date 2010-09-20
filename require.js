@@ -1528,4 +1528,14 @@ var require;
 
     //Set up default context. If require was a configuration object, use that as base config.
     req(cfg);
+
+    //If modules are built into require.js, then need to make sure dependencies are
+    //traced. Use a setTimeout in the browser world, to allow all the modules to register
+    //themselves. In a non-browser env, assume that modules are not built into require.js,
+    //which seems odd to do on the server.
+    if (typeof setTimeout !== "undefined") {
+        setTimeout(function () {
+            resume(s.contexts[(cfg.context || defContextName)]);
+        }, 0);
+    }
 }());

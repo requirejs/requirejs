@@ -32,11 +32,9 @@ fileUtil.deleteFile("builds");
     var requirejs = c("builds/require.js"),
         oneResult = [
                     requirejs,
-                    "require.pause();\n",
                     c("../../tests/two.js"),
                     c("../../tests/one.js"),
-                    c("../../tests/dimple.js"),
-                    "\nrequire.resume();\n"
+                    c("../../tests/dimple.js")
                 ].join("");
 
     doh.register(
@@ -77,19 +75,15 @@ fileUtil.deleteFile("builds");
             function excludeShallow(t) {
                 build(["..", "name=uno", "excludeShallow=dos", "out=builds/unoExcludeShallow.js",
                        "baseUrl=../../tests", "optimize=none"]);
-                t.is(nol("require.pause();\n" +
-                     c("../../tests/tres.js") +
-                     c("../../tests/uno.js") +
-                     "\nrequire.resume();\n"), nol(c("builds/unoExcludeShallow.js")));
+                t.is(nol(c("../../tests/tres.js") +
+                     c("../../tests/uno.js")), nol(c("builds/unoExcludeShallow.js")));
             },
 
             function exclude(t) {
                 build(["..", "name=uno", "exclude=dos", "out=builds/unoExclude.js",
                        "baseUrl=../../tests", "optimize=none"]);
 
-                t.is(nol("require.pause();\n" +
-                         c("../../tests/uno.js") +
-                         "\nrequire.resume();\n"), nol(c("builds/unoExclude.js")));
+                t.is(nol(c("../../tests/uno.js")), nol(c("builds/unoExclude.js")));
             },
 
             function textPluginIncluded(t) {
@@ -97,10 +91,8 @@ fileUtil.deleteFile("builds");
                        "baseUrl=../../tests", "optimize=none"]);
 
                 t.is(nol(cPragma("../../require/text.js") +
-                         "require.pause();\n" +
                          c("../../tests/two.js") +
-                         c("../../tests/one.js") +
-                         "\nrequire.resume();\n"), nol(c("builds/oneText.js")));
+                         c("../../tests/one.js")), nol(c("builds/oneText.js")));
             }
         ]
     );

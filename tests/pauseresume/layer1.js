@@ -3,8 +3,6 @@
 "use strict";
 /*global require: false */
 
-require.pause();
-
 require.def("alpha",
     ["beta", "gamma"],
     function (beta, gamma) {
@@ -35,4 +33,3 @@ require.def("gamma",
     }
 );
 
-require.resume();

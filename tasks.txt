@@ -1,14 +1,12 @@
 - Converted Dojo release: gfx dojo.requireIf
 - anonymous modules:
-  - check node, make sure they do the assignment in the right places.
-  - check parse.js code to make sure we find anon require.def calls.
-  - Make sure to inject the name of the module in a built layer.
-  - get rid of pause/resume
   - require.modify does not allow anonymous?
-  - Tests
-    - Does building an i18n bundle into a layer still work?
-- Need a way to trigger defQueue completion for things built into require.js,
-  so may need it generically for any built layer.
+  - Does building an anonymous i18n bundle into a layer work?
+  - Verify transportD adapter works without the pause/resume calls.
+  - Support the require.def(function(require, exports, module){}) variant
+
+- FF2: priority test on empty cache fails?
+- IE9 preview: the order plugin seems to be failing.
 
 - Allow module names that match Object.prototype method names?
 - browser test for loading css?

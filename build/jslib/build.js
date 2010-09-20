@@ -397,8 +397,6 @@ var build, buildBaseConfig;
         return config;
     };
 
-    build.resumeRegExp = /require\s*\.\s*resume\s*\(\s*\)(;)?/g;
-
     /**
      * finds the module being built/optimized with the given moduleName,
      * or returns null.
@@ -526,7 +524,7 @@ var build, buildBaseConfig;
             pluginContents = "", pluginBuildFileContents = "", includeRequire,
             anonDefRegExp = /require\s*\.\s*def\s*\(\s*(\[|f|\{)/,
             prop, path, reqIndex, fileContents, currContents,
-            i, needPause, moduleName, specified;
+            i, moduleName, specified;
 
         //Use override settings, particularly for pragmas
         if (module.override) {
@@ -549,9 +547,6 @@ var build, buildBaseConfig;
         }
         if (includeRequire) {
             requireContents = pragma.process(config.requireUrl, fileUtil.readFile(config.requireUrl), config);
-            if (layer.buildFilePaths.length && !config.skipModuleInsertion) {
-                requireContents += "require.pause();\n";
-            }
             buildFileContents += "require.js\n";
         }
 
@@ -588,20 +583,14 @@ var build, buildBaseConfig;
         for (i = 0; (path = layer.buildFilePaths[i]); i++) {
             moduleName = layer.buildFileToModule[path];
 
-            //Add the contents but remove any pragmas and require.pause/resume calls.
+            //Add the contents but remove any pragmas.
             currContents = pragma.process(path, fileUtil.readFile(path), config);
 
             //If anonymous module, insert the module name.
-            currContents = currContents.replace(anonDefRegExp, "require.def('" + moduleName + "',$1");
-
-            needPause = build.resumeRegExp.test(currContents);
-
-            //If this is the first file, and require() is not part of the file
-            //and require() is not added later at the end to the top of the file,
-            //need to start off with a require.pause() call.
-            if (i === 0 && layer.existingRequireUrl !== path && !includeRequire && !config.skipModuleInsertion) {
-                fileContents += "require.pause();\n";
-            }
+            currContents = currContents.replace(anonDefRegExp, function (match, suffix) {
+                layer.modulesWithNames[moduleName] = true;
+                return "require.def('" + moduleName + "'," + suffix;
+            });
 
             fileContents += currContents;
 
@@ -621,22 +610,7 @@ var build, buildBaseConfig;
                 fileContents += pluginContents;
                 buildFileContents += pluginBuildFileContents;
                 pluginContents = "";
-                if (!config.skipModuleInsertion) {
-                    fileContents += "require.pause();\n";
-                }
             }
-
-            //If the file contents had a require.resume() we need to now pause
-            //dependency resolution for the rest of the files. Multiple require.pause()
-            //calls are OK.
-            if (needPause && !config.skipModuleInsertion) {
-                fileContents += "require.pause();\n";
-            }
-        }
-
-        //Resume dependency resolution
-        if (layer.buildFilePaths.length && !config.skipModuleInsertion) {
-            fileContents += "\nrequire.resume();\n";
         }
 
         //Add the require file contents to the head of the file.

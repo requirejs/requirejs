@@ -3,8 +3,6 @@
 "use strict";
 /*global require: false */
 
-require.pause();
-
 require.def("gamma",
     ["theta", "epsilon"],
     function (theta, epsilon) {
@@ -23,5 +21,3 @@ require.def("theta",
         };
     }
 );
-
-require.resume();

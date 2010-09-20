@@ -206,17 +206,21 @@ var parse;
                     //A require.def() call
                     name = call.getChildAtIndex(1);
                     deps = call.getChildAtIndex(2);
-    
+
                     //If name is an array, it means it is an anonymous module,
-                    //so adjust args appropriately.
+                    //so adjust args appropriately. An anonymous module could
+                    //have a FUNCTION as the name type, but just ignore those
+                    //since we just want to find dependencies.
+                    //TODO: CHANGE THIS if/when support using a tostring
+                    //on function to find CommonJS dependencies.
                     if (name.getType() === ARRAYLIT) {
                         deps = name;
                     }
 
-                    if (!validateDeps(deps)) {
+                    if (deps && !validateDeps(deps)) {
                         return null;
                     }
-    
+
                     return parse.nodeToString(call);
                 } else if (methodName === "modify") {
 

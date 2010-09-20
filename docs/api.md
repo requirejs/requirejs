@@ -15,7 +15,6 @@
 * [Advanced Usage](#advanced)
     * [Multiversion Support](#multiversion)
     * [Loading Code After Page Load](#afterload)
-    * [require.pause()/require.resume() for Build Layers](#pauseresume)
     * [Module Modifiers](#modifiers)
         * [Modifier Registration](#modregister)
         * [Modifier Definition](#moddef)
@@ -393,7 +392,6 @@ Some advanced features:
 
 * Multiversion support
 * Loading code after page load
-* require.pause()/require.resume() for build layers/bundles
 * Module Modifiers
 * Rhino support
 
@@ -447,36 +445,6 @@ Note that "require" is specified as a dependency for the module. This allows the
 ## <a name="afterload">Loading Code After Page Load</a>
 
 The example above in the **Multiversion Support** section shows how code can later be loaded by nested require() calls. 
-
-## <a name="pauseresume">require.pause()/require.resume() for Build Layers</a>
-
-If you want to include many modules that use require.def() in one script, and those modules may depend on each other, then use require.pause() before the set of require calls to prevent require.js from tracing dependencies on each require call. When all the require calls have finished in the file, call require.resume() to have the dependencies properly traced.
-
-Only use require.pause() and require.resume() on a file-by-file basis. Do not use require.pause() in one file and require.resume() in another file. Multiple files can call require.pause()/resume() combinations though.
-
-Example:
-
-    require.pause();
-    
-    require.def("alpha",
-        ["beta"],
-        function (beta) {
-            return {
-                name: "alpha",
-                betaName: beta.name
-            };
-        }
-    );
-    
-    require.def("beta",
-        {
-            name: "beta"
-        }
-    );
-
-    require.resume();
-
-If require.pause() and require.resume() were not used, then the require.def() call to define "alpha" would have tried to load "beta" via another network/file IO call.
 
 ## <a name="modifiers">Module Modifiers</a>
 

@@ -17,7 +17,6 @@
  */
 require.define = function (modules, dependencies) {
     var moduleName, descriptor;
-    require.pause();
     for (moduleName in modules) {
         if (modules.hasOwnProperty(moduleName)) {
             descriptor = modules[moduleName];
@@ -28,5 +27,4 @@ require.define = function (modules, dependencies) {
             );
         }
     }
-    require.resume();
 };

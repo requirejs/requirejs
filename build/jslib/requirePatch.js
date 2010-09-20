@@ -14,7 +14,8 @@
 
 (function () {
     var layer,
-        lineSeparator = java.lang.System.getProperty("line.separator");
+        lineSeparator = java.lang.System.getProperty("line.separator"),
+        oldDef;
 
     //A file read function that can deal with BOMs
     function _readFile(path, encoding) {
@@ -78,6 +79,21 @@
         //Ignore URLs with protocols or question marks, means either network
         //access is needed to fetch it or it is too dynamic.
         return url.indexOf(":") === -1 && url.indexOf("?") === -1;
+    };
+
+    //Override require.def to catch modules that just define an object, so that
+    //a dummy require.def call is not put in the build file for them. They do
+    //not end up getting defined via require.execCb, so we need to catch them
+    //at the require.def call.
+    oldDef = require.def;
+
+    //This function signature does not have to be exact, just match what we
+    //are looking for.
+    require.def = function (name, obj) {
+        if (typeof name === "string" && !require.isArray(obj) && !require.isFunction(obj)) {
+            layer.modulesWithNames[name] = true;
+        }
+        return oldDef.apply(require, arguments);
     };
 
     //Override load so that the file paths can be collected.
