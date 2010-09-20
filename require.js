@@ -21,7 +21,8 @@ var require;
             isBrowser = !!(typeof window !== "undefined" && navigator && document),
             isWebWorker = !isBrowser && typeof importScripts !== "undefined",
             ostring = Object.prototype.toString,
-            aps = Array.prototype.slice, scrollIntervalId, req, baseElement,
+            ap = Array.prototype,
+            aps = ap.slice, scrollIntervalId, req, baseElement,
             defQueue = [], useInteractive = false, currentlyAddingScript;
 
     function isFunction(it) {
@@ -197,8 +198,7 @@ var require;
      * name.
      */
     req.def = function (name, deps, callback, contextName) {
-        var context = s.contexts[(contextName || s.ctxName)],
-            i, scripts, script, node = currentlyAddingScript;
+        var i, scripts, script, node = currentlyAddingScript;
 
         //Allow for anonymous functions
         if (typeof name !== 'string') {
@@ -244,7 +244,8 @@ var require;
     main = function (name, deps, callback, config, contextName) {
         //Grab the context, or create a new one for the given context name.
         var context, newContext, contextRequire, loaded, pluginPrefix,
-            canSetContext, prop, newLength, outDeps, mods, paths, index, i, deferMods;
+            canSetContext, prop, newLength, outDeps, mods, paths, index, i,
+            deferMods, waitingName;
 
         contextName = contextName ? contextName : (config && config.context ? config.context : s.ctxName);
         context = s.contexts[contextName];
@@ -261,7 +262,8 @@ var require;
 
             //If module already defined for context, or already waiting to be
             //evaluated, leave.
-            if (context && (context.defined[name] || context.waiting[name])) {
+            waitingName = context.waiting[name];
+            if (context && (context.defined[name] || (waitingName && waitingName !== ap[name]))) {
                 return;
             }
         }

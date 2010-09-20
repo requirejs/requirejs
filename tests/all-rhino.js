@@ -26,9 +26,8 @@ load("transportD/transportD-tests.js");
 load("exports/exports-tests.js");
 load("anon/anon-tests.js");
 
-//Hmm, this is an odd requirement, call doh.run() for each test listed above?
-//May be because the tests above call doh.run() in a callback sometimes?
-doh.run();
+//Hmm, odd, need to call doh.run 3 times to see the summary result, even though
+//each test runs doh.run()?
 doh.run();
 doh.run();
 doh.run();
