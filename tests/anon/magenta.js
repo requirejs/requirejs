@@ -2,7 +2,7 @@ require.def(function (require, exports, module) {
     //This is a fakeout require("fake1");
 
     var red = require("red"),
-        blue = require('blue');
+        blue = require('./blue');
 
     /*
      And another fakeoute require("fake2");
@@ -10,4 +10,5 @@ require.def(function (require, exports, module) {
 
     //Use ugly exports
     exports.name = red.name + blue.name;
+    exports.path = require.nameToUrl('./foo', '.html');
 });

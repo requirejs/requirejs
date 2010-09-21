@@ -91,10 +91,7 @@
         //text! extensions will not work.
         requireExcludePlugin: true,
         //Remove the page loaded detection.
-        requireExcludePageLoad: true,
-        //Remove context support: means loading multiple
-        //versions of a module are not supported.
-        requireExcludeContext: true
+        requireExcludePageLoad: true
     },
 
     //Skip processing for pragmas.

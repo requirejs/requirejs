@@ -7,8 +7,7 @@
     pragmas: {
         requireExcludeModify: true,
         requireExcludePlugin: true,
-        requireExcludePageLoad: true,
-        requireExcludeContext: true
+        requireExcludePageLoad: true
     },
 
     modules: [
@@ -33,8 +32,7 @@
             override: {
                 pragmas: {
                     requireExcludeModify: true,
-                    requireExcludePlugin: true,
-                    requireExcludeContext: true
+                    requireExcludePlugin: true
                 }
             }
         },

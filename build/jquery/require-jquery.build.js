@@ -9,7 +9,6 @@
     pragmas: {
         jquery: true,
         requireExcludeModify: true,
-        requireExcludePlugin: true,
-        requireExcludeContext: true
+        requireExcludePlugin: true
     }
 }

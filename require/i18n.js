@@ -120,7 +120,7 @@
 
         //Load any bundles that are still needed.
         if (toLoad.length) {
-            context.defined.require(toLoad);
+            require(toLoad, context.contextName);
         }
     }
 
@@ -148,7 +148,7 @@
                 bundle = context.nls[master];
                 if (!bundle) {
                     //No master bundle yet, ask for it.
-                    context.defined.require([master]);
+                    require([master], context.contextName);
                     bundle = context.nls[master] = {};
                 }
                 //For nls modules, the callback is just a regular object,
@@ -219,7 +219,7 @@
                 } else {
                     //Store this locale to figure out after masterName is loaded and load masterName.
                     (context.nlsToLoad[masterName] || (context.nlsToLoad[masterName] = [])).push(locale);
-                    context.defined.require([masterName]);
+                    require([masterName], contextName);
                 }
             } else {
                 //Top-level bundle. Just call regular load, if not already loaded

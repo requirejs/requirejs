@@ -4,7 +4,7 @@
  * see: http://github.com/jrburke/requirejs for details
  */
 //laxbreak is true to allow build pragmas to change some statements.
-/*jslint plusplus: false, nomen: false, laxbreak: true */
+/*jslint plusplus: false, nomen: false, laxbreak: true, regexp: false */
 /*global window: false, document: false, navigator: false,
 setTimeout: false, traceDeps: true, clearInterval: false, self: false,
 setInterval: false, importScripts: false */
@@ -19,7 +19,7 @@ var require;
             scripts, script, rePkg, src, m, dataMain, cfg = {}, setReadyState,
             readyRegExp = /^(complete|loaded)$/,
             commentRegExp = /(\/\*([\s\S]*?)\*\/|\/\/(.*)$)/mg,
-            cjsRequireRegExp = /require\(["']([^"']+)["']\)/g,
+            cjsRequireRegExp = /require\(["']([\w-_\.\/]+)["']\)/g,
             main,
             isBrowser = !!(typeof window !== "undefined" && navigator && document),
             isWebWorker = !isBrowser && typeof importScripts !== "undefined",
@@ -43,21 +43,6 @@ var require;
             cfg = require;
         }
     }
-
-    //>>excludeStart("requireExcludeContext", pragmas.requireExcludeContext);
-    function makeContextFunc(name, contextName, force) {
-        return function () {
-            //A version of a require function that uses the current context.
-            //If last arg is a string, then it is a context.
-            //If last arg is not a string, then add context to it.
-            var args = [].concat(aps.call(arguments, 0));
-            if (force || typeof arguments[arguments.length - 1] !== "string") {
-                args.push(contextName);
-            }
-            return (name ? require[name] : require).apply(null, args);
-        };
-    }
-    //>>excludeEnd("requireExcludeContext");
     
     //>>excludeStart("requireExcludePlugin", pragmas.requireExcludePlugin);
     /**
@@ -78,7 +63,7 @@ var require;
             waiting.push(obj);
 
             //Load the module
-            context.defined.require(["require/" + prefix]);
+            req(["require/" + prefix], context.contextName);
         }
     }
     //>>excludeEnd("requireExcludePlugin");
@@ -142,12 +127,12 @@ var require;
      * of dependency string names to fetch. An optional function callback can
      * be specified to execute when all of those dependencies are available.
      */
-    require = function (deps, callback, contextName) {
+    require = function (deps, callback, contextName, relModuleName) {
         var context, config;
         if (typeof deps === "string" && !isFunction(callback)) {
             //Just return the module wanted. In this scenario, the
             //second arg (if passed) is just the contextName.
-            return require.get(deps, callback);
+            return require.get(deps, callback, contextName, relModuleName);
         }
         // Dependencies first
         if (!require.isArray(deps)) {
@@ -269,9 +254,9 @@ var require;
 
     main = function (name, deps, callback, config, contextName) {
         //Grab the context, or create a new one for the given context name.
-        var context, newContext, contextRequire, loaded, pluginPrefix,
+        var context, newContext, loaded, pluginPrefix,
             canSetContext, prop, newLength, outDeps, mods, paths, index, i,
-            deferMods, waitingName;
+            deferMods, deferModArgs, lastModArg, waitingName;
 
         contextName = contextName ? contextName : (config && config.context ? config.context : s.ctxName);
         context = s.contexts[contextName];
@@ -294,7 +279,6 @@ var require;
             }
         }
 
-        //>>excludeStart("requireExcludeContext", pragmas.requireExcludeContext);
         if (contextName !== s.ctxName) {
             //If nothing is waiting on being loaded in the current context,
             //then switch s.ctxName to current contextName.
@@ -314,7 +298,6 @@ var require;
                 s.ctxName = contextName;
             }
         }
-        //>>excludeEnd("requireExcludeContext");
 
         if (!context) {
             newContext = {
@@ -330,35 +313,12 @@ var require;
                     "exports": true,
                     "module": true
                 },
-                loaded: {
-                    "require": true
-                },
+                loaded: {},
                 scriptCount: 0,
                 urlFetched: {},
                 defined: {},
                 modifiers: {}
             };
-
-            //Define require for this context.
-            //>>includeStart("requireExcludeContext", pragmas.requireExcludeContext);
-            //A placeholder for build pragmas.
-            newContext.defined.require = req;
-            //>>includeEnd("requireExcludeContext");
-            //>>excludeStart("requireExcludeContext", pragmas.requireExcludeContext);
-            newContext.defined.require = contextRequire = makeContextFunc(null, contextName);
-            req.mixin(contextRequire, {
-                //>>excludeStart("requireExcludeModify", pragmas.requireExcludeModify);
-                modify: makeContextFunc("modify", contextName),
-                def: makeContextFunc("def", contextName),
-                //>>excludeEnd("requireExcludeModify");
-                get: makeContextFunc("get", contextName, true),
-                nameToUrl: makeContextFunc("nameToUrl", contextName, true),
-                ready: req.ready,
-                context: newContext,
-                config: newContext.config,
-                isBrowser: s.isBrowser
-            });
-            //>>excludeEnd("requireExcludeContext");
 
             //>>excludeStart("requireExcludePlugin", pragmas.requireExcludePlugin);
             if (s.plugins.newContext) {
@@ -463,9 +423,18 @@ var require;
                 req(mods, contextName);
                 deferMods = mods.__deferMods;
                 if (deferMods) {
-                    contextRequire = context.defined.require;
                     for (i = 0; i < deferMods.length; i++) {
-                        contextRequire.def.apply(contextRequire, deferMods[i]);
+                        deferModArgs = deferMods[i];
+
+                        //Add the context name to the def call.
+                        lastModArg = deferModArgs[deferModArgs.length - 1];
+                        if (lastModArg === undefined) {
+                            deferModArgs[deferModArgs.length - 1] = contextName;
+                        } else if (typeof lastModArg === "string") {
+                            deferMods.push(contextName);
+                        }
+
+                        require.def.apply(require, deferModArgs);
                     }
                 }
             }
@@ -799,15 +768,23 @@ var require;
      *
      * @param {String} moduleName the name of the module.
      * @param {String} [contextName] the name of the context to use. Uses
-     * default context if no contextName is provided.
+     * default context if no contextName is provided. You should never
+     * pass the contextName explicitly -- it is handled by the require() code.
+     * @param {String} [relModuleName] a module name to use for relative
+     * module name lookups. You should never pass this argument explicitly --
+     * it is handled by the require() code.
      *
      * @returns {Object} the exported module value.
      */
-    req.get = function (moduleName, contextName) {
-        if (moduleName === "exports" || moduleName === "module") {
-            req.onError(new Error("require of " + moduleName + " is not allowed."));
+    req.get = function (moduleName, contextName, relModuleName) {
+        if (moduleName === "require" || moduleName === "exports" || moduleName === "module") {
+            req.onError(new Error("Explicit require of " + moduleName + " is not allowed."));
         }
         contextName = contextName || s.ctxName;
+
+        //Normalize module name, if it contains . or ..
+        moduleName = req.normalizeName(moduleName, relModuleName);
+
         var ret = s.contexts[contextName].defined[moduleName];
         if (ret === undefined) {
             req.onError(new Error("require: module name '" +
@@ -838,13 +815,11 @@ var require;
             loaded[moduleName] = false;
         }
 
-        //>>excludeStart("requireExcludeContext", pragmas.requireExcludeContext);
         if (contextName !== s.ctxName) {
             //Not in the right context now, hold on to it until
             //the current context finishes all its loading.
             contextLoads.push(arguments);
         } else {
-        //>>excludeEnd("requireExcludeContext");
             //First derive the path name for the module.
             url = req.nameToUrl(moduleName, null, contextName);
             if (!urlFetched[url]) {
@@ -852,9 +827,7 @@ var require;
                 req.attach(url, contextName, moduleName);
                 urlFetched[url] = true;
             }
-        //>>excludeStart("requireExcludeContext", pragmas.requireExcludeContext);
         }
-        //>>excludeEnd("requireExcludeContext");
     };
 
     req.jsExtRegExp = /\.js$/;
@@ -872,6 +845,11 @@ var require;
         //Adjust any relative paths.
         var part;
         if (name.charAt(0) === ".") {
+            if (!baseName) {
+                req.onError(new Error("Cannot normalize module name: " +
+                            name +
+                            ", no relative module name available."));
+            }
             //Convert baseName to array, and lop off the last part,
             //so that . matches that "directory" and not name of the baseName's
             //module. For instance, baseName of "one/two/three", maps to
@@ -916,9 +894,7 @@ var require;
         }
 
         //Account for relative paths if there is a base name.
-        if (baseName) {
-            name = req.normalizeName(name, baseName);
-        }
+        name = req.normalizeName(name, baseName);
 
         return {
             prefix: prefix,
@@ -930,9 +906,12 @@ var require;
     /**
      * Converts a module name to a file path.
      */
-    req.nameToUrl = function (moduleName, ext, contextName) {
+    req.nameToUrl = function (moduleName, ext, contextName, relModuleName) {
         var paths, syms, i, parentModule, url,
             config = s.contexts[contextName].config;
+
+        //Normalize module name if have a base relative module name to work from.
+        moduleName = req.normalizeName(moduleName, relModuleName);
 
         //If a colon is in the URL, it indicates a protocol is used and it is just
         //an URL to a file, or if it starts with a slash or ends with .js, it is just a plain file.
@@ -1114,7 +1093,6 @@ var require;
             //callbacks that triggered other require calls.
             req.checkLoaded(contextName);
         } else if (contextLoads.length) {
-            //>>excludeStart("requireExcludeContext", pragmas.requireExcludeContext);
             //Check for other contexts that need to load things.
             //First, make sure current context has no more things to
             //load. After defining the modules above, new require calls
@@ -1140,7 +1118,6 @@ var require;
                     req.load.apply(req, loadArgs);
                 }
             }
-            //>>excludeEnd("requireExcludeContext");
         } else {
             //Make sure we reset to default context.
             s.ctxName = defContextName;
@@ -1160,6 +1137,42 @@ var require;
         return function (exports) {
             moduleObj.exports = exports;
         };
+    }
+
+    function makeContextModuleFunc(name, contextName, moduleName) {
+        return function () {
+            //A version of a require function that forces a contextName value
+            //and also passes a moduleName value for items that may need to
+            //look up paths relative to the moduleName
+            var args = [].concat(aps.call(arguments, 0));
+            args.push(contextName, moduleName);
+            return (name ? require[name] : require).apply(null, args);
+        };
+    }
+
+    /**
+     * Helper function that creates a require function object to give to
+     * modules that ask for it as a dependency. It needs to be specific
+     * per module because of the implication of path mappings that may
+     * need to be relative to the module name.
+     */
+    function makeRequire(context, moduleName) {
+        var contextName = context.contextName,
+            modRequire = makeContextModuleFunc(null, contextName, moduleName);
+
+        req.mixin(modRequire, {
+            //>>excludeStart("requireExcludeModify", pragmas.requireExcludeModify);
+            modify: makeContextModuleFunc("modify", contextName, moduleName),
+            //>>excludeEnd("requireExcludeModify");
+            def: makeContextModuleFunc("def", contextName, moduleName),
+            get: makeContextModuleFunc("get", contextName, moduleName),
+            nameToUrl: makeContextModuleFunc("nameToUrl", contextName, moduleName),
+            ready: req.ready,
+            context: context,
+            config: context.config,
+            isBrowser: s.isBrowser
+        });
+        return modRequire;
     }
 
     /**
@@ -1193,7 +1206,9 @@ var require;
         if (deps) {
             for (j = 0; (dep = deps[j]); j++) {
                 depName = dep.name;
-                if (depName === "exports") {
+                if (depName === "require") {
+                    depModule = makeRequire(context, name);
+                } else if (depName === "exports") {
                     //CommonJS module spec 1.1
                     depModule = defined[name] = {};
                     usingExports = true;
