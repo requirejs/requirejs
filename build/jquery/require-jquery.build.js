@@ -8,7 +8,6 @@
     skipModuleInsertion: true,
     pragmas: {
         jquery: true,
-        requireExcludeModify: true,
         requireExcludePlugin: true
     }
 }

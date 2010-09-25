@@ -25,6 +25,7 @@ load("relative/relative-tests.js");
 load("transportD/transportD-tests.js");
 load("exports/exports-tests.js");
 load("anon/anon-tests.js");
+load("packages/packages-tests.js");
 
 //Hmm, odd, need to call doh.run 3 times to see the summary result, even though
 //each test runs doh.run()?

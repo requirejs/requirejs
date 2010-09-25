@@ -2,6 +2,7 @@ doh.registerUrl("simple", "../simple.html");
 doh.registerUrl("config", "../config.html");
 doh.registerUrl("dataMain", "../dataMain.html");
 doh.registerUrl("anonSimple", "../anon/anonSimple.html");
+doh.registerUrl("packages", "../packages/packages.html");
 doh.registerUrl("simple-nohead", "../simple-nohead.html");
 
 //Only do the base test if the urls work out.

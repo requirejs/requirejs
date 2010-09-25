@@ -256,7 +256,8 @@ var require;
         //Grab the context, or create a new one for the given context name.
         var context, newContext, loaded, pluginPrefix,
             canSetContext, prop, newLength, outDeps, mods, paths, index, i,
-            deferMods, deferModArgs, lastModArg, waitingName;
+            deferMods, deferModArgs, lastModArg, waitingName, packages,
+            packagePaths, pkgPath, pkgNames, pkgName, pkgObj;
 
         contextName = contextName ? contextName : (config && config.context ? config.context : s.ctxName);
         context = s.contexts[contextName];
@@ -305,7 +306,8 @@ var require;
                 config: {
                     waitSeconds: 7,
                     baseUrl: s.baseUrl || "./",
-                    paths: {}
+                    paths: {},
+                    packages: {}
                 },
                 waiting: [],
                 specified: {
@@ -339,9 +341,10 @@ var require;
                 }
             }
 
-            //Save off the paths since they require special processing,
+            //Save off the paths and packages since they require special processing,
             //they are additive.
             paths = context.config.paths;
+            packages = context.config.packages;
 
             //Mix in the config values, favoring the new values over
             //existing ones in context.config.
@@ -356,7 +359,56 @@ var require;
                 }
                 context.config.paths = paths;
             }
-            
+
+            packagePaths = config.packagePaths;
+            if (packagePaths || config.packages) {
+                //Convert packagePaths into a packages config.
+                if (packagePaths) {
+                    for (prop in packagePaths) {
+                        if (!(prop in empty)) {
+                            pkgPath = prop;
+                            pkgNames = packagePaths[pkgPath];
+                            for (i = 0; (pkgName = pkgNames[i]); i++) {
+                                if (typeof pkgName === "string") {
+                                    //Standard package mapping.
+                                    pkgObj = packages[pkgName] = {
+                                        name: pkgName,
+                                        location: pkgPath + "/" + pkgName
+                                    };
+                                } else {
+                                    //A custom setup.
+                                    pkgObj = context.config.packages[pkgName.name] = pkgName;
+                                    pkgObj.location = pkgPath + "/" + (pkgObj.location || pkgObj.name);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                //Adjust packages if necessary.
+                if (config.packages) {
+                    for (prop in config.packages) {
+                        if (!(prop in empty)) {
+                            pkgObj = packages[prop] = config.packages[prop];
+                            pkgObj.name = pkgObj.name || prop;
+                        }
+                    }
+                }
+
+                //Normalize package paths.
+                for (prop in packages) {
+                    if (!(prop in empty)) {
+                        pkgObj = packages[prop];
+                        pkgObj.location = pkgObj.location || pkgObj.name;
+                        pkgObj.lib = pkgObj.lib || "lib";
+                        pkgObj.main = pkgObj.main || "main";
+                    }
+                }
+
+                //Done with modifications, assing packages back to context config
+                context.config.packages = packages;
+            }
+
             //If priority loading is in effect, trigger the loads now
             if (config.priority) {
                 //Create a separate config property that can be
@@ -907,7 +959,7 @@ var require;
      * Converts a module name to a file path.
      */
     req.nameToUrl = function (moduleName, ext, contextName, relModuleName) {
-        var paths, syms, i, parentModule, url,
+        var paths, packages, pkg, pkgPath, syms, i, parentModule, url,
             config = s.contexts[contextName].config;
 
         //Normalize module name if have a base relative module name to work from.
@@ -926,6 +978,7 @@ var require;
         } else {
             //A module that needs to be converted to a path.
             paths = config.paths;
+            packages = config.packages;
 
             syms = moduleName.split("/");
             //For each module name segment, see if there is a path
@@ -935,6 +988,18 @@ var require;
                 parentModule = syms.slice(0, i).join("/");
                 if (paths[parentModule]) {
                     syms.splice(0, i, paths[parentModule]);
+                    break;
+                } else if ((pkg = packages[parentModule])) {
+                    //pkg can have just a string value to the path
+                    //or can be an object with props:
+                    //main, lib, name, location.
+                    pkgPath = pkg.location + '/' + pkg.lib;
+                    //If module name is just the package name, then looking
+                    //for the main module.
+                    if (moduleName === pkg.name) {
+                        pkgPath += '/' + pkg.main;
+                    }
+                    syms.splice(0, i, pkgPath);
                     break;
                 }
             }
@@ -1327,7 +1392,8 @@ var require;
             if (node.removeEventListener) {
                 node.removeEventListener("load", req.onScriptLoad, false);
             } else {
-                //Probably IE.
+                //Probably IE. If not it will throw an error, which will be
+                //useful to know.
                 node.detachEvent("onreadystatechange", req.onScriptLoad);
             }
         }
@@ -1371,7 +1437,8 @@ var require;
             if (node.addEventListener) {
                 node.addEventListener("load", callback, false);
             } else {
-                //Probably IE. IE (at least 6-8) do not fire
+                //Probably IE. If not it will throw an error, which will be
+                //useful to know. IE (at least 6-8) do not fire
                 //script onload right after executing the script, so
                 //we cannot tie the anonymous require.def call to a name.
                 //However, IE reports the script as being in "interactive"

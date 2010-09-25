@@ -7,7 +7,6 @@
     includeRequire: true,
     skipModuleInsertion: true,
     pragmas: {
-        jquery: true,
-        requireExcludeModify: true
+        jquery: true
     }
 }

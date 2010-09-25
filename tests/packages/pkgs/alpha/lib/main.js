@@ -1,0 +1,3 @@
+require.def({
+    name: 'alpha'
+});
