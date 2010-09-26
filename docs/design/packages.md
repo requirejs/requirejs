@@ -130,7 +130,7 @@ or
 
 In the first example, a package repository or index would be consulted to find the URL to the 0.4 bar package, and basically convert the call to something like the second one, where an URL would be used to fetch the module. The module could be in source form (like a Git repository URL) or in zip form (details still to be worked out).
 
-bar would be downloaded to foo/.packages/bar/0.4, and the following files would be changed by pkg.js to the following:
+bar would be downloaded to foo/.packages/bar, and the following files would be changed by pkg.js to the following:
 
 **package.json**:
 
@@ -139,9 +139,6 @@ bar would be downloaded to foo/.packages/bar/0.4, and the following files would 
         "version": "0.0.1",
         "requirejs": {
             "app" : ["main"]
-        },
-        dependencies: {
-            "bar", "0.4"
         },
         mappings: {
             "bar": {
@@ -158,7 +155,7 @@ The dependencies and mappings of those dependencies is stored in the package.jso
     //Start automatic config, do not alter by hand
     require({
         packagePaths: {
-            ".packages": ["bar/0.4"]
+            ".packages": ["bar"]
         }
     });
     //End automatic config
@@ -177,10 +174,10 @@ While it is unfortunate to have a tool modify a source file that will contain ot
 
 In the above example, it has:
     packagePaths: {
-        ".packages": ["bar/0.4"]
+        ".packages": ["bar]
     }
 
-This means, "the bar package is located in the .packages basePath, and 0.4 directory under bar is the root of the package", so require("bar") would be translated to ".packages/bar/0.4/lib/main.js". Only the first part of the "bar/0.4" identifier is used as the package name, the "/0.4" part is given as additional pathing information.
+This means, "the bar package is located in the .packages basePath", so require("bar") would be translated to ".packages/bar/lib/main.js".
 
 An example of a more complex packagePaths configuration that loads packages "four" and "five" from a remote host on the fly, in the browser. They could be packages hosted on a CDN:
 
@@ -205,7 +202,7 @@ This sort of representation is meant to minimize the size of the configuration o
                 lib: "scripts"
             },
             "bar": {
-                "location": ".packages/bar/0.4"
+                "location": ".packages/bar"
                 //If "main" or "lib" were different they could be listed here
             },
             ...

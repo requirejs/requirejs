@@ -5,11 +5,18 @@ require({
         },
         packagePaths: {
             'pkgs': [
-                'alpha', {
+                'alpha',
+                {
                     name: 'beta',
                     location: 'beta/0.2',
                     lib: 'scripts',
                     main: 'beta'
+                },
+                'dojox/chair',
+                {
+                    name: 'dojox/table',
+                    lib: '.',
+                    main: 'table'
                 }
             ]
         },
@@ -24,11 +31,20 @@ require({
             baz: {
                 location: 'baz',
                 main: 'index'
+            },
+            'dojox/window': {
+                location: 'dojox/window',
+                lib: '.',
+                main: 'window'
             }
         }
     },
-       ["require", "alpha", "alpha/replace", "beta", "beta/util", "bar", "baz", "foo", "foo/second"],
-function(require,   alpha,   replace,         beta,   util,        bar,   baz,   foo,   second) {
+       ["require", "alpha", "alpha/replace", "beta", "beta/util", "bar", "baz",
+        "foo", "foo/second", "dojox/chair", "dojox/table", "dojox/door", "dojox/window/pane",
+        "dojox/window", "dojox/table/legs"],
+function(require,   alpha,   replace,         beta,   util,        bar,   baz,
+         foo,   second,       chair,         table,         door,         pane,
+         window,         legs) {
     doh.register(
         "packages", 
         [
@@ -46,6 +62,14 @@ function(require,   alpha,   replace,         beta,   util,        bar,   baz,  
                 t.is("alpha", foo.alphaName);
                 t.is("foo/second", second.name);
                 t.is((require.isBrowser ? "./foo/lib/../data.html" : "./packages/foo/lib/../data.html"), require.nameToUrl('foo/../data', '.html'));
+                t.is('dojox/chair', chair.name);
+                t.is('dojox/table', table.name);
+                t.is('dojox/chair', table.chairName);
+                t.is('dojox/table/legs', legs.name);
+                t.is('dojox/door', door.name);
+                t.is('dojox/window/pane', pane.name);
+                t.is('dojox/window', window.name);
+                t.is('dojox/window/pane', window.paneName);
             }
         ]
     );

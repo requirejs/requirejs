@@ -1,7 +1,6 @@
 - anonymous modules:
   - require.modify does not allow anonymous?
   - Does building an anonymous i18n bundle into a layer work?
-  - Verify transportD adapter works without the pause/resume calls.
   - Support the require.def(function(require, exports, module){}) variant
     - AMD *must* order function args as require, exports, module.
     - Document this in API.md, along with normal anonymous modules:
@@ -10,20 +9,23 @@
   - document the configs.
     - Only support one version for each package. and do not allow nested package
       configs.
-    - Does not support "bar/0.4" as meaning the bar package, with an additional
-      0.4 path underneath. Rather, just config the location for the package as
-      a package object. QUESTION: how does a package named "dojox/foo" work?
-      It would not. so only single value names with no / slashes are usable?
-  - Normalize trailing slashes?
 
 - FF2: priority test on empty cache fails?
 - IE9 preview: the order plugin seems to be failing.
+- Document data-main prop, both in main docs and jquery sample doc.
 
 - Change jquery build options to include all the require functionality. Make
   sure all the builds still make sense and docs on download and jquery sample
   project are updated.
-- jQuery 1.4.3 tickets: multiple $() calls after load, require.def call?
-- Document data-main prop, both in main docs and jquery sample doc.
+- jQuery 1.4.3:
+  - Open ticket about just registering via require.def with something like:
+  if( typeof require !== "undefined" && require.def )
+    require.def(function() { return jQuery; });
+  }
+  then close out http://dev.jquery.com/ticket/5742
+  Do this after the 0.14 release so that anonymous modules will be officially released.
+  What about pages that use that new version but some 3rd party lib wants its own?
+  That is what contexts are for.
 
 - Converted Dojo release: gfx dojo.requireIf
 
