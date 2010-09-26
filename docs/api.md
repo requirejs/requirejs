@@ -17,6 +17,7 @@
 * [Configuration Options](#config)
 * [Page Load Event Support](#pageload)
 * [Advanced Usage](#advanced)
+    * [Loading Modules from Packages](#packages)
     * [Multiversion Support](#multiversion)
     * [Loading Code After Page Load](#afterload)
     * [Module Modifiers](#modifiers)
@@ -408,6 +409,10 @@ If no baseUrl is passed in, the path to require.js is used as the baseUrl path. 
 
 **paths**: allows configuration of some modules paths. Assumed to be relative to baseUrl. So for "some/module"'s script tag will have a src="/another/path/some/v1.0/module.js". The path that is used for a module name should **not** include the .js extension, since the path mapping could be for a directory. The path mapping code will automatically add the .js extension when mapping the module name to a path.
 
+**packagePaths**: configures module name prefixes to map to CommonJS packages. See the [packages topic](#packages) for more information. Related to **packages** config option.
+
+**packages**: configures loading modules from CommonJS packages. See the [packages topic](#packages) for more information. Related to **packagePaths** config option.
+
 **waitSeconds**: The number of seconds to wait before giving up on loading a script. The default is 7 seconds.
 
 **locale**: The locale to use for loading i18n bundles. By default navigator.language or navigator.userLanguage will be used. The proper syntax for specifying a locale is using lowercase and separating values by dashes, for instance: "fr-fr-paris" or "en-us".
@@ -444,12 +449,160 @@ To use it in conjunction with module loading:
 
 # <a name="advanced">Advanced Usage</a>
 
-Some advanced features:
+## <a name="packages">Loading Modules from Packages</a>
 
-* Multiversion support
-* Loading code after page load
-* Module Modifiers
-* Rhino support
+RequireJS supports loading modules that are in a [CommonJS Packages](http://wiki.commonjs.org/wiki/Packages/1.1) directory structure, but some additional configuration needs to be specified for it to work. Specifically, there is support for the following CommonJS Packages features:
+
+* A package can be associated with a module name/prefix.
+* The package config can specify the following properties for a specific package:
+    * **name**: The name of the package (used for the module name/prefix mapping)
+    * **location**: The location on disk. Locations are relative to the baseUrl configuration value, unless they contain a protocol or start with a front slash (/).
+    * **lib**: The name of the directory inside the package folder that contains modules. The default value is "lib", so no need to specify it unless it is different than the default.
+    * **main**: The name of the module inside the lib directory that should be used when someone does a require for "packageName". The default value is "main", so only specify it if it differs from the default.
+
+**IMPORTANT NOTES**
+
+    * While the packages can have the CommonJS directory layout, the modules themselves should be in a module format that RequireJS can understand. Exception to the rule: if you are using the r.js Node adapter, the modules can be in the traditional CommonJS module format. You can use the [CommonJS converter tool](commonjs.md#autoconversion) if you need to convert traditional CommonJS modules into an async module format that RequireJS uses.
+    * Only one version of a package can be used in a project context at a time. You can use RequireJS [multiversion support](#multiversion) to load two different module contexts, but if you want to use Package A and B in one context and they depend on different versions of Package C, then that will be a problem. This may change in the future.
+    
+If you use a similar project layout as specified in the [Start Guide](start.md), the start of your web project would look something like this (Node/Rhino-based projects are similar, just use the contents of the **scripts** directory as the top-level project directory):
+
+* project-directory/
+    * project.html
+    * scripts/
+        * require.js
+
+There are two types of packages you may use in your project -- packages made by other people (third-party packages), and packages that you make as part of your project (source packages). It is suggested that you use two different directories inside scripts to keep track of them. For third-party packages, a **.packages** is recommended, where source packages can just be directories that are siblings to require.js. The third-party packages likely do not need to be committed to your source control, so you can put .packages in your source control's ignore file (.gitignore, .hgignore, etc...).
+
+However, you will want to remember what third-party packages you are using, and where you got them. For that reason, it is suggested that you construct a **package.json** file in the **scripts** directory and use a [**mappings**](http://wiki.commonjs.org/wiki/Packages/Mappings) section in the package.json file to remember the locations.
+
+Here is how the example directory layout looks with two third-party packages, **alpha** and **omega**, and has two source packages, **cart** and **store**:
+
+* project-directory/
+    * project.html
+    * scripts/
+        * .gitignore (ignores .packages)
+        * .packages/
+            * alpha/
+                * lib/
+                    * main.js
+            * omega/
+                * lib/
+                    * main.js
+        * cart/
+            * lib/
+                * main.js
+        * store/
+            * lib/
+                * main.js
+                * util.js
+        * main.js
+        * package.json
+        * require.js
+
+The **package.json** for the project might be as simple as this, just to track where alpha and omega came from, since they are not committed to source control:
+
+    {
+        "mappings": {
+            "alpha": "http://example.com/packages/alpha/0.4.zip",
+            "omega": "http://example.com/pacakges/omega/1.0.zip"
+        }
+    }
+
+**project.html** will have a script tag like this:
+
+    <script data-main="main" src="scripts/require.js"></script>
+
+This will instruct require.js to load scripts/main.js. **main.js** uses the **packagePaths** config option to set up the location of the the third party packages, where "packages" is used to set up packages that are relative to require.js, which in this case are the source packages "cart" and "store":
+
+    //main.js contents
+    //Pass a config object to require
+    require({
+        packagePaths: {
+            ".packages": ["alpha", "omega"]
+        },
+        "packages": ["cart", "store"]
+    });
+
+    require(["alpha", "omega", "cart", "store", "store/util"],
+    function (alpha,   omega,   cart,   store,   util) {
+        //use the modules as usual.
+    });
+
+A require of "alpha" means that it will be loaded from **scripts/.packages/alpha/lib/main.js**, since "lib" and "main" are the default lib directory and main module settings supported by RequireJS. A require of "store/util" will be loaded from **scripts/store/lib/util.js**.
+
+If the "alpha" and "store" packages did not follow the "lib" and "main.js" conventions, and looked more like this:
+
+* project-directory/
+    * project.html
+    * scripts/
+        * .gitignore (ignores .packages)
+        * .packages/
+            * alpha/
+                * scripts/
+                    * index.js
+            * omega/
+                * lib/
+                    * main.js
+        * cart/
+            * lib/
+                * main.js
+        * store/
+            * store.js
+            * util.js
+        * main.js
+        * package.json
+        * require.js
+
+Then the RequireJS configuration would look like so:
+
+    require({
+        packagePaths: {
+            ".packages": [
+                {
+                    name: "alpha",
+                    lib: "scripts",
+                    main: "index"
+                },
+                "omega"
+            ]
+        },
+        "packages": [
+            "cart",
+            {
+                name: "store",
+                lib: ".",
+                main: "store"
+            }
+        ]
+    });
+
+**packagePaths** is just a convenience for listing several packages that are not direct siblings of require.js, but still have a common directory parent. The above configuration could be written like so with just the **packages** config option, by using the **location** property for each third-party package:
+
+    require({
+        "packages": [
+            {
+                name: "alpha",
+                location: ".packages/alpha",
+                lib: "scripts",
+                main: "index"
+            },
+            {
+                name: "omega",
+                location: ".packages/omega"
+            }
+            "cart",
+            {
+                name: "store",
+                lib: ".",
+                main: "store"
+            }
+        ]
+    });
+
+To avoid verbosity, it is strongly suggested to always use packages that use the "lib" and "main" conventions in their structure, and use packagePaths for third party packages.
+
+To make fetching and configuring packages easier, there are designs for [a command line package tool](http://github.com/jrburke/requirejs/blob/master/docs/design/packages.md) in the works.
 
 ## <a name="multiversion">Multiversion Support</a>
 
