@@ -462,8 +462,8 @@ RequireJS supports loading modules that are in a [CommonJS Packages](http://wiki
 
 **IMPORTANT NOTES**
 
-    * While the packages can have the CommonJS directory layout, the modules themselves should be in a module format that RequireJS can understand. Exception to the rule: if you are using the r.js Node adapter, the modules can be in the traditional CommonJS module format. You can use the [CommonJS converter tool](commonjs.md#autoconversion) if you need to convert traditional CommonJS modules into an async module format that RequireJS uses.
-    * Only one version of a package can be used in a project context at a time. You can use RequireJS [multiversion support](#multiversion) to load two different module contexts, but if you want to use Package A and B in one context and they depend on different versions of Package C, then that will be a problem. This may change in the future.
+* While the packages can have the CommonJS directory layout, the modules themselves should be in a module format that RequireJS can understand. Exception to the rule: if you are using the r.js Node adapter, the modules can be in the traditional CommonJS module format. You can use the [CommonJS converter tool](commonjs.md#autoconversion) if you need to convert traditional CommonJS modules into an async module format that RequireJS uses.
+* Only one version of a package can be used in a project context at a time. You can use RequireJS [multiversion support](#multiversion) to load two different module contexts, but if you want to use Package A and B in one context and they depend on different versions of Package C, then that will be a problem. This may change in the future.
     
 If you use a similar project layout as specified in the [Start Guide](start.md), the start of your web project would look something like this (Node/Rhino-based projects are similar, just use the contents of the **scripts** directory as the top-level project directory):
 
