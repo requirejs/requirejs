@@ -1,22 +1,10 @@
 - anonymous modules:
-  - require.modify does not allow anonymous?
-  - Does building an anonymous i18n bundle into a layer work?
-  - Support the require.def(function(require, exports, module){}) variant
-    - AMD *must* order function args as require, exports, module.
-    - Document this in API.md, along with normal anonymous modules:
-      Create API page for those using just CommonJS stuff.
+  - Hmm, node v2.2 is not working with latest code?
 - packages:
   - document the configs.
     - Only support one version for each package. and do not allow nested package
       configs.
 
-- FF2: priority test on empty cache fails?
-- IE9 preview: the order plugin seems to be failing.
-- Document data-main prop, both in main docs and jquery sample doc.
-
-- Change jquery build options to include all the require functionality. Make
-  sure all the builds still make sense and docs on download and jquery sample
-  project are updated.
 - jQuery 1.4.3:
   - Open ticket about just registering via require.def with something like:
   if( typeof require !== "undefined" && require.def )
@@ -27,16 +15,13 @@
   What about pages that use that new version but some 3rd party lib wants its own?
   That is what contexts are for.
 
-- Converted Dojo release: gfx dojo.requireIf
+- DOH updates
+  - get latest code
+  - fix rendering in IE 9 standards? How to get it to render in IE9 standard mode?
 
 - Allow module names that match Object.prototype method names?
 - browser test for loading css?
 - config option, noCache: true, to enable cache busting for misbehaved servers?
-
-- loading packages:
-  - plug in package config options
-  - use package config in nameToUrl
-  - Restructure code to use contexts for conflicting module versions.
 
 - Best practices/architecture guide
 - Allow r.js to work on Rhino
@@ -52,14 +37,6 @@
   - manual fix for requireIf in dojo.gfx, like what is done for dojo._base
 
 - Option to remove the script tag after the script loads. Does that help memory? Does it work in all browsers?
-
-- Possibly change dependency stuff to call module as soon as just its dependencies
-  are ready instead of waiting for all the modules to "load", then are executed.
-  Although could that cause problems with things that do implicit changes,
-  things where there is not an explicit dependency listed, but still some things are expected to be there
-  to work. Not sure I have a concrete case, but thinking of things like extensions to chainable APIs...
-  Feels like there is something there important to consider. Right now I think
-  that behavior for waiting for all the modules to "load" then get executed is good.
 
 - Allow plugins to only implement methods it needs to use, but only if there is minimal/no impact on require.js
 

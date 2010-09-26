@@ -20,21 +20,20 @@ A sample HTML page would look like this (assuming you put all your .js files in 
     <html>
         <head>
             <title>jQuery+RequireJS Sample Page</title>
-            <script src="scripts/require-jquery.js"></script>
-            <script>require(["app"]);</script>
+            <script data-main="main" src="scripts/require-jquery.js"></script>
         </head>
         <body>
             <h1>jQuery+RequireJS Sample Page</h1>
         </body>
     </html>
 
-The call to require(["app"]); tells RequireJS to load the scripts/app.js file. RequireJS will load any dependency that is passed to require() without a ".js" file from the same directory as require.js. If you feel more comfortable specifying the whole path, you can also do the following:
+The data-main attribute on the script tag for require.js tells RequireJS to load the scripts/main.js file. RequireJS will load any dependency that is passed to require() without a ".js" file from the same directory as require.js. If you feel more comfortable specifying the whole path, you can also do the following:
 
-    <script>require(["scripts/app.js"]);</script>
+    <script data-main="scripts/main.js" src="scripts/require-jquery.js"></script>
 
-What is in app.js? Another call to require.js to load all the scripts you need and any init work you want to do for the page. This example app.js script loads two plugins, jquery.alpha.js and jquery.beta.js (not the names of real plugins, just an example). The plugins should be in the same directory as require-jquery.js:
+What is in main.js? Another call to require.js to load all the scripts you need and any init work you want to do for the page. This example main.js script loads two plugins, jquery.alpha.js and jquery.beta.js (not the names of real plugins, just an example). The plugins should be in the same directory as require-jquery.js:
 
-app.js:
+main.js:
 
     require(["jquery.alpha", "jquery.beta"], function() {
         //the jquery.alpha.js and jquery.beta.js plugins have been loaded.
@@ -49,12 +48,12 @@ Now your page is set up to be optimized very easily. Download the RequireJS sour
 
 * requirejs/  (used for the build tools)
 * webapp/app.html
-* webapp/scripts/app.js
+* webapp/scripts/main.js
 * webapp/scripts/require-jquery.js
 * webapp/scripts/jquery.alpha.js
 * webapp/scripts/jquery.beta.js
 
-Then, in the scripts directory that has require-jquery.js and app.js, create a file called app.build.js with the following contents:
+Then, in the scripts directory that has require-jquery.js and main.js, create a file called app.build.js with the following contents:
 
     {
         appDir: "../",
@@ -67,7 +66,7 @@ Then, in the scripts directory that has require-jquery.js and app.js, create a f
     
         modules: [
             {
-                name: "app"
+                name: "main"
             }
         ]
     }
@@ -84,7 +83,7 @@ For windows operating systems:
 
     ..\..\requirejs\build\build.bat app.build.js
 
-Now, in the webapp-build directory, app.js will have the app.js contents, jquery.alpha.js and jquery.beta.js inlined. If you then load the app.html file in the webapp-build directory, you should not see any network requests for jquery.alpha.js and jquery.beta.js.
+Now, in the webapp-build directory, main.js will have the main.js contents, jquery.alpha.js and jquery.beta.js inlined. If you then load the app.html file in the webapp-build directory, you should not see any network requests for jquery.alpha.js and jquery.beta.js.
 
 ## See it in action
 

@@ -3,6 +3,10 @@
 * [Usage](#usage)
     * [Loading JavaScript Files](#jsfiles)
     * [Defining a Module](#define)
+        * [Simple Name/Value Pairs](#defsimple)
+        * [Definition Functions](#deffunc)
+        * [Definition Functions with Dependencies](#defdep)
+        * [Defining a Module as a Function](#funcmodule)
         * [Other Module Notes](#modulenotes)
         * [Circular Dependencies](#circular)
     * [Define an I18N Bundle](#i18n)
@@ -35,15 +39,13 @@ There are 5 basic ways to use require.js:
 
 If you just want to load some JavaScript files, do the following inside the HEAD tag in an HTML document:
 
-    <script type="text/javascript" src="scripts/require.js"></script>
-    <script type="text/javascript">
-      require(["a.js", "b.js", "some/module"],
-          function() {
-              //This function will be called when all the dependencies
-              //listed above are loaded. Note that this function could
-              //be called before the page is loaded. This callback is optional.
-          }
-      );
+    <script src="scripts/require.js"></script>
+    <script>
+        require(["a.js", "b.js", "some/module"], function() {
+            //This function will be called when all the dependencies
+            //listed above are loaded. Note that this function could
+            //be called before the page is loaded. This callback is optional.
+        });
     </script>
 
 The dependencies above, ["a.js", "b.js", "some/module"], will be loaded via scripts tags that have the following src values:
@@ -56,28 +58,59 @@ Files that end in ".js" are assumed to just be plain JS files that do not use re
 
 See the **Configuration Options** section for information on changing the lookup paths used for dependencies.
 
+While you can use require() inside a script tag in an HTML file, it is strongly encouraged to place the work in a file that is loaded by RequireJS. This allows for easier optimization via the optimization tool, and there is a shorthand that can be used in the HTML for this pattern. The above example would be structured like this:
+
+    <script data-main="main" src="scripts/require.js"></script>
+
+The data-main attribute tells RequireJS will take the value of the data-main attribute and treat it like a require([]) call. So, in this case, it would load scripts/main.js, and that file should have the top-level require call:
+
+    //Inside scripts/main.js
+    require(["a.js", "b.js", "some/module"], function() {
+        //...
+    });
+
 ## <a name="define">Defining a Module</a>
 
 A module is different from a traditional script file in that it defines a well-scoped object that does not try to pollute the global namespace. It can explicitly list its dependencies and get a handle on those dependencies without needing to refer to global objects, but instead receive the dependencies as arguments to the function that defines the module. Modules in RequireJS are an extension of the [Module Pattern](http://www.adequatelygood.com/2010/3/JavaScript-Module-Pattern-In-Depth), with the benefit of not needing globals to refer to other modules.
 
 The RequireJS syntax for modules allows them to be loaded as fast as possible, even out of order, but evaluated in the correct dependency order, and since global variables are not created, it makes it possible to [load multiple versions of a module in a page](#multiversion).
 
-If the module does not have any dependencies, then just specify the name of the module as the first argument to require.def() and and the second argument is just an object literal that defines the module's properties. For example:
+(If you are familiar with or are using CommonJS modules, then please also see [CommonJS Notes](commonjs.md) for information on how the RequirejS module format maps to CommonJS modules).
 
-    require.def("my/simpleshirt",
-        {
+There should only be **one** module definition per file on disk. The modules can be grouped into optimized bundles by the [optimization tool](optimization.md).
+
+### <a name="defsimple">Simple Name/Value Pairs</a>
+
+If the module does not have any dependencies, and it is just a collection of name/value pairs, then just pass an object literal to require.def:
+
+    //Inside file my/shirt.js:
+    require.def({
+        color: "black",
+        size: "unisize"
+    });
+
+### <a name="deffunc">Definition Functions</a>
+
+If the module does not have dependencies, but needs to use a function to do some setup work, then define itself, pass a function to require.def:
+
+    //my/shirt.js now does setup work
+    //before returning its module definition.
+    require.def(function () {
+        //Do setup work here
+        
+        return {
             color: "black",
             size: "unisize"
         }
     );
 
-This example would be stored in a my/simpleshirt.js file.
+### <a name="defdep">Definition Functions with Dependencies</a>
 
-If the module has dependencies, then specify the dependencies as the second argument (as an array) and then pass a function as the third argument. The function will be called to define the module once all dependencies have loaded. The function should return an object that defines the module:
+If the module has dependencies, then specify the dependencies as an array for the first argument and then pass a definition function as the second argument. The function will be called to define the module once all dependencies have loaded. The function should return an object that defines the module. The dependencies will be passed to the definition function as function arguments, listed in the same order as the order in the dependency array:
 
-    require.def("my/shirt",
-        ["my/cart", "my/inventory"],
-        function(cart, inventory) {
+    //my/shirt.js now has some dependencies, a cart and inventory
+    //module in the same directory as shirt.js
+    require.def(["./cart", "./inventory"], function(cart, inventory) {
             //return an object to define the "my/shirt" module.
             return {
                 color: "blue",
@@ -96,7 +129,7 @@ In this example, a my/shirt module is created. It depends on my/cart and my/inve
 * my/inventory.js
 * my/shirt.js
 
-The function call above specifies two arguments, "cart" and "inventory". These are the modules represented by the "my/cart" and "my/inventory" module names.
+The function call above specifies two arguments, "cart" and "inventory". These are the modules represented by the "./cart" and "./inventory" module names.
 
 The function is not called until the my/cart and my/inventory modules have been loaded, and the function receives the modules as the "cart" and "inventory" arguments.
 
@@ -104,22 +137,46 @@ Modules that define globals are explicitly discouraged, so that multiple version
 
 The return object from the function call defines the "my/shirt" module. Be defining modules in this way, "my/shirt" does not exist as a global object.
 
+### <a name="funcmodule">Defining a Module as a Function</a>
+
 If the modules do not have to return objects. Any valid return value from a function is allowed. Here is a module that returns a function as its module definition:
 
-    require.def("my/title",
-        ["my/dependency1", "my/dependency2"],
-        function(dep1, dep2) {
-            //return a function to define "my/title". It gets or sets
+    //A module definition inside foo/title.js. It uses
+    //my/cart and my/inventory modules from before,
+    //but since foo/bar.js is in a different directory than
+    //the "my" modules, it uses the "my" in the module dependency
+    //name to find them. The "my" part of the name can be mapped
+    //to any directory, but by default, it is assumed to be a sibling
+    //to the "foo" directory.
+    require.def(["my/cart", "my/inventory"],
+        function(cart, inventory) {
+            //return a function to define "foo/title". It gets or sets
             //the window title.
             return function(title) {
-                return title ? (window.title = title) : window.title;
+                return title ? (window.title = title) : inventory.storeName + ' ' + cart.name;
             }
         }
     );
 
+### <a name="modulename">Defining a Module with a Name</a>
+
+You may encounter some require.def calls that include a name for the module as the first argument to require.def:
+
+        //Excplicitly defines the "foo/title" module:
+        require.def("foo/title",
+            ["my/cart", "my/inventory"],
+            function(cart, inventory) {
+                //Define foo/title object in here.
+           }
+        );
+
+These are normally generated by the [optimization tool](optimization.md). You can explicitly name modules yourself, but it makes the modules less portable -- if you move the file to another directory you will need to change the name. It is normally best to avoid coding in a name for the module and just let the optimization tool burn in the module names. The optimization tool needs to add the names so that more than one module can be bundled in a file, to allow for faster loading in the browser.
+
+[I18N bundles](#i18n) are an exception to the "do not name modules" rule. They need an explicit name so that the i18n plugin can be invoked correctly.
+
 ### <a name="modulenotes">Other Module Notes</a>
 
-Only one module should be defined per JavaScript file, given the nature of the module name-to-path lookup algorithm.
+Only one module should be defined per JavaScript file, given the nature of the module name-to-file-path lookup algorithm. Multiple modules will be grouped into optimized files by the [optimization tool](optimization.md), but you should only use the optimization tool to place more than one module in a file.
 
 If you need to work with a module you already loaded via a require(["module/name"], function(){}) call in the JavaScript console, then you can use  the require() form that just uses the string name of the module to fetch it:
 
@@ -131,8 +188,8 @@ Note this only works if "module/name" was previously loaded via the async versio
 
 If you define a circular dependency (A needs B and B needs A), then in this case when B's module function is called, it will get an undefined value for A. B can fetch A later after modules have been defined by using the require() method (be sure to specify require as a dependency so the right context is used to look up A):
 
-    require.def("B",
-        ["require", "A"],
+    //Inside B.js:
+    require.def(["require", "A"],
         function(require, a) {
             //"a" in this case will be null if A also asked for B,
             //a circular dependency.
@@ -143,6 +200,8 @@ If you define a circular dependency (A needs B and B needs A), then in this case
     );
 
 Normally you should not need to use require() to fetch a module, but instead rely on the module being passed in to the function as an argument. Circular dependencies are rare, and usually a sign that you might want to rethink the design. However, sometimes they are needed, and in that case, use require() as specified above.
+
+If you are familiar with CommonJS modules, you could instead declare **exports** as a dependency to create an empty object for the module. By doing this on both sides of a circular dependency, you can then safely hold on to the the other module via a function argument.
 
 ## <a name="i18n">Define an I18N Bundle</a>
 
@@ -156,7 +215,7 @@ To define a bundle, put it in a directory called "nls" -- the i18n! plugin assum
 
 * my/nls/colors.js
 
-The contents of that file should look like so:
+The contents of that file should look like so. Note the string name as the first argument. This is different from a normal require.def call because the i18n plugin needs to be able to intercept the processing of the module.
 
     require.def("i18n!my/nls/colors", {
         "root": {
@@ -170,14 +229,11 @@ Notice that an object literal with a property of "root" as given as the only dep
 
 You can then use the above module in another module, say, in a my/lamps.js file:
 
-    require.def("my/lamps",
-        ["i18n!my/nls/colors"],
-        function(colors) {
-            return {
-                testMessage: "The name for red in this locale is: " + colors.red
-            }
+    require.def(["i18n!my/nls/colors"], function(colors) {
+        return {
+            testMessage: "The name for red in this locale is: " + colors.red
         }
-    );
+    });
 
 The my/lamps module has one property called "testMessage" that uses colors.red to show the localized value for the color red.
 

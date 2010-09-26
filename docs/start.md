@@ -21,7 +21,7 @@ This setup assumes you keep all your JavaScript files in a "scripts" directory i
 * project-directory/
     * project.html
     * scripts/
-        * project.js
+        * main.js
         * helper/
             * util.js
 
@@ -30,7 +30,7 @@ Add require.js to the scripts directory, so it looks like so:
 * project-directory/
     * project.html
     * scripts/
-        * project.js
+        * main.js
         * require.js
         * helper/
             * util.js
@@ -41,16 +41,16 @@ To take full advantage of the optimization tool, it is suggested that you keep a
     <html>
         <head>
             <title>My Sample Project</title>
-            <script src="scripts/require.js"></script>
-            <!-- This require() call will load project.js -->
-            <script>require(["project"]);</script>
+            <!-- data-main attribute tells require.js to load
+                 scripts/main.js after require.js loads. -->
+            <script data-main="main" src="scripts/require.js"></script>
         </head>
         <body>
             <h1>My Sample Project</h1>
         </body>
     </html>
 
-Inside of project.js, you can use require() to load any other scripts you need to run:
+Inside of main.js, you can use require() to load any other scripts you need to run:
 
     require(["helper/util"], function() {
         //This function is called when scripts/helper/util.js is loaded.
@@ -68,4 +68,4 @@ That is it! Check out the [API docs](api.md) to learn more about require().
 
 ## <a name="optimize">Optimize</a>
 
-Once you are finished doing development and want to deploy your code for your end users, you can use the [optimization tool](optimization.md) to combine the JavaScript files together and minify it. In the example above, it can combine project.js and helper/util.js into one file and minify it using Google's Closure Compiler.
+Once you are finished doing development and want to deploy your code for your end users, you can use the [optimization tool](optimization.md) to combine the JavaScript files together and minify it. In the example above, it can combine main.js and helper/util.js into one file and minify it using Google's Closure Compiler.

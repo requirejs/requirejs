@@ -19,33 +19,17 @@ require.js for use in the browser with require.define support for [Transport D f
 
 #### <a name="jqueryrequirejs">jQuery 1.4.2 with require()</a> [Minified](http://requirejs.org/docs/release/0.13.0/minified/require-jquery-1.4.2.js) | [With Comments](http://requirejs.org/docs/release/0.13.0/comments/require-jquery-1.4.2.js)
 
-A build of jQuery with integrated require() support. Just includes the basic RequireJS, does not have the following features:
-
-* i18n, text, order, JSONP plugins
-* multiversion support
-* page load support (it is assumed you will use jQuery's methods)
-* require.modify() support
+A build of jQuery with integrated require() support. **Does not include** RequireJS plugin support, so the i18n, text, order, JSONP plugins will not work with this build.
 
 #### <a name="jqueryrequirejsplugins">jQuery 1.4.2 with require() and plugins</a> [Minified](http://requirejs.org/docs/release/0.13.0/minified/requireplugins-jquery-1.4.2.js) | [With Comments](http://requirejs.org/docs/release/0.13.0/comments/requireplugins-jquery-1.4.2.js)
 
-A build of jQuery with integrated require() support and the i18n, text, order and JSONP plugins. Does not include these other RequireJS features:
-
-* multiversion support
-* page load support (it is assumed you will use jQuery's methods)
-* require.modify() support
-
-The integrated builds with jQuery contain the changes in [this jQuery fork](http://github.com/jrburke/jquery).
+A build of jQuery with integrated require() support that includes plugin support, including the i18n, text, order and JSONP plugins.
 
 <hr>
 
 #### <a name="samplejquery">Sample jQuery 1.4.2 project with require()</a> [Download](http://requirejs.org/docs/release/0.13.0/jquery-require-sample.zip)
 
-A zip file containing a build of jQuery with integrated require() support, with an sample project included to show how it can be used when using jQuery. Does not include these features in RequireJS:
-
-* i18n, text, order, JSONP plugins
-* multiversion support
-* page load support (it is assumed you will use jQuery's methods)
-* require.modify() support
+A zip file containing a build of jQuery with integrated require() support, with an sample project included to show how it can be used when using jQuery. **Does not include** RequireJS plugin support, so the i18n, text, order, JSONP plugins will not work with this build.
 
 <hr>
 

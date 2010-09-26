@@ -9,7 +9,7 @@
 
     modules: [
         {
-            name: "app"
+            name: "main"
         }
     ]
 }
