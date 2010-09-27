@@ -1149,7 +1149,7 @@ var require;
 
         //Define the modules, doing a depth first search.
         for (i = 0; (module = waiting[i]); i++) {
-            req.exec(module, traced, waiting, context);
+            req.exec(module, {}, waiting, context);
         }
 
         //Indicate checkLoaded is now done.
