@@ -1037,8 +1037,7 @@ var require;
                 pIsWaiting = s.plugins.isWaiting, pOrderDeps = s.plugins.orderDeps,
                 //>>excludeEnd("requireExcludePlugin");
 
-                i, module, allDone, loads, loadArgs, err,
-                traced = {};
+                i, module, allDone, loads, loadArgs, err;
 
         //If already doing a checkLoaded call,
         //then do not bother checking loaded state.
@@ -1141,7 +1140,7 @@ var require;
         for (prop in modifiers) {
             if (!(prop in empty)) {
                 if (defined[prop]) {
-                    req.execModifiers(prop, traced, waiting, context);
+                    req.execModifiers(prop, {}, waiting, context);
                 }
             }
         }
@@ -1149,7 +1148,7 @@ var require;
 
         //Define the modules, doing a depth first search.
         for (i = 0; (module = waiting[i]); i++) {
-            req.exec(module, traced, waiting, context);
+            req.exec(module, {}, waiting, context);
         }
 
         //Indicate checkLoaded is now done.
