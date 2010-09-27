@@ -269,7 +269,13 @@ var require;
             if (index !== -1) {
                 pluginPrefix = name.substring(0, index);
                 name = name.substring(index + 1, name.length);
+            } else {
+                //Could be that the plugin name should be auto-applied.
+                //Used by i18n plugin to enable anonymous i18n modules, but
+                //still associating the auto-generated name with the i18n plugin.
+                pluginPrefix = context.defPlugin[name];
             }
+
             //>>excludeEnd("requireExcludePlugin");
 
             //If module already defined for context, or already waiting to be
@@ -318,6 +324,7 @@ var require;
                 loaded: {},
                 scriptCount: 0,
                 urlFetched: {},
+                defPlugin: {},
                 defined: {},
                 modifiers: {}
             };

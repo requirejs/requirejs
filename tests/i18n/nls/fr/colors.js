@@ -1,6 +1,4 @@
-require.def("i18n!nls/fr/colors",
-  {
+require.def({
     red: "rouge",
     blue: "bleu"
-  }
-);
+});

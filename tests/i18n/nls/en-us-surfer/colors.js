@@ -1,5 +1,3 @@
-require.def("i18n!nls/en-us-surfer/colors",
-  {
+require.def({
     red: "red, dude"
-  }
-);
+});

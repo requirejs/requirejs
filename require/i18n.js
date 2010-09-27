@@ -101,6 +101,7 @@
                     val = val.join("/");
 
                     if (!context.specified[val] && !(val in context.loaded) && !context.defined[val]) {
+                        context.defPlugin[val] = 'i18n';
                         toLoad.push(val);
                     }
                 }
@@ -148,6 +149,7 @@
                 bundle = context.nls[master];
                 if (!bundle) {
                     //No master bundle yet, ask for it.
+                    context.defPlugin[master] = 'i18n';
                     require([master], context.contextName);
                     bundle = context.nls[master] = {};
                 }
@@ -219,11 +221,13 @@
                 } else {
                     //Store this locale to figure out after masterName is loaded and load masterName.
                     (context.nlsToLoad[masterName] || (context.nlsToLoad[masterName] = [])).push(locale);
+                    context.defPlugin[masterName] = 'i18n';
                     require([masterName], contextName);
                 }
             } else {
                 //Top-level bundle. Just call regular load, if not already loaded
                 if (!context.nlsRootLoaded[name]) {
+                    context.defPlugin[name] = 'i18n';
                     require.load(name, contextName);
                 }
             }
