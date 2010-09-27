@@ -44,7 +44,7 @@ var commonJs = {
         if (savePath.charAt(savePath.length - 1) === "/") {
             savePath = savePath.substring(0, savePath.length - 1);
         }
-        
+
         //Cycle through all the JS files and convert them.
         if (!fileList || !fileList.length) {
             if (commonJsPath === "convert") {
@@ -55,9 +55,10 @@ var commonJs = {
             }
         } else {
             for (i = 0; (fileName = fileList[i]); i++) {
+                convertedFileName = fileName.replace(commonJsPath, savePath);
+
                 //Handle JS files.
                 if (jsFileRegExp.test(fileName)) {
-                    convertedFileName = fileName.replace(commonJsPath, savePath);
                     moduleName = fileName.replace(commonJsPath + "/", "").replace(/\.js$/, "");
         
                     fileContents = fileUtil.readFile(fileName);
