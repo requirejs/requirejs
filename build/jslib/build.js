@@ -107,7 +107,7 @@ var build, buildBaseConfig;
             paths: paths
         });
         modules = config.modules;
-        
+
         if (modules) {
             modules.forEach(function (module) {
                 if (module.name) {
@@ -602,6 +602,14 @@ var build, buildBaseConfig;
                     } else {
                         deps = null;
                     }
+                }
+
+                //Adust module name if it is for a plugin
+                if (require.s.contexts._.defPlugin[moduleName]) {
+                    moduleName = require.s.contexts._.defPlugin[moduleName] + '!' + moduleName;
+                    //Mark that it is a module with a name so do not need
+                    //a stub name insertion for it later.
+                    layer.modulesWithNames[moduleName] = true;
                 }
 
                 return "require.def('" + moduleName + "'," +

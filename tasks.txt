@@ -1,6 +1,5 @@
 - anonymous modules:
   - Hmm, node v2.2 is not working with latest code?
-- i18n modules, fix to allow to be anonymous?
 
 - jQuery 1.4.3:
   - Open ticket about just registering via require.def with something like:

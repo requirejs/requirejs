@@ -8,7 +8,7 @@
     optimize: "none",
     modules: [
         {
-            name: "nls/colors"
+            name: "testModule"
         }
     ]
 }
