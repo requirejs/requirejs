@@ -1311,13 +1311,16 @@ var require;
         if (cb && req.isFunction(cb)) {
             ret = req.execCb(name, cb, args);
             if (name) {
-                if (usingExports && (!cjsModule || !("exports" in cjsModule))) {
+                //If using exports and the function did not return a value,
+                //and the "module" object for this definition function did not
+                //define an exported value, then use the exports object.
+                if (usingExports && ret === undefined && (!cjsModule || !("exports" in cjsModule))) {
                     ret = defined[name];
                 } else {
                     if (cjsModule && "exports" in cjsModule) {
                         ret = defined[name] = depModule.exports;
                     } else {
-                        if (name in defined) {
+                        if (name in defined && !usingExports) {
                             req.onError(new Error(name + " has already been defined"));
                         }
                         defined[name] = ret;

@@ -148,40 +148,12 @@ var commonJs = {
                     logger.trace("  " + depName);
                 }
                 if (depName) {
-                    //Adjust any relative paths.
-                    if (depName.charAt(0) === ".") {
-                        origDepName = depName;
-                        depName = baseName.concat(depName.split("/"));
-                        for (i = 0; (part = depName[i]); i++) {
-                            if (part === ".") {
-                                depName.splice(i, 1);
-                                i -= 1;
-                            } else if (part === "..") {
-                                depName.splice(i - 1, 2);
-                                i -= 2;
-                            }
-                        }
-                        depName = depName.join("/");
-                        pathConverted[origDepName] = depName;
-                    }
                     deps.push('"' + depName + '"');
-                }
-            }
-    
-            //Convert file content references that used a relative module name
-            //reference to be a more complete module name. Note that above we used
-            //content that had comments removed, now we are dealing with the original
-            //contents with comments, and that is why this is a separate, more expensive
-            //pass vs. uses a fileContents.replace() with a function.
-            for (prop in pathConverted) {
-                if (pathConverted.hasOwnProperty(prop)) {
-                    reqRegExp = new RegExp('require\\s*\\(\\s*[\'"]' + prop + '[\'"]\\s*\\)', 'g');
-                    fileContents = fileContents.replace(reqRegExp, 'require("' + pathConverted[prop] + '")');
                 }
             }
 
             //Construct the wrapper boilerplate.
-            fileContents = 'require.def("' + moduleName + '", ["require", "exports", "module"' +
+            fileContents = 'require.def(["require", "exports", "module"' +
                    (deps.length ? ', ' + deps.join(",") : '') + '], ' +
                    'function(require, exports, module) {\n' +
                    (commonJs.logConverted ? 'global._requirejs_logger.trace("Evaluating module: ' + moduleName + '");\n' : "") +

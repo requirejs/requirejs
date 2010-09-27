@@ -1,6 +1,3 @@
-- anonymous modules:
-  - Hmm, node v2.2 is not working with latest code?
-
 - jQuery 1.4.3:
   - Open ticket about just registering via require.def with something like:
   if( typeof require !== "undefined" && require.def )
@@ -10,6 +7,14 @@
   Do this after the 0.14 release so that anonymous modules will be officially released.
   What about pages that use that new version but some 3rd party lib wants its own?
   That is what contexts are for.
+
+- in commonJs.js convert, if take out dependency scanning, things break in the Node adapter.
+Need to figure out why. Function.toString() seems to work.
+
+- Move to using module.basePath instead of require.nameToUrl inside methods? basePath
+  would basically call nameToUrl but use no suffix. Hmm, nice thing about nameToUrl is it
+  works with any name, not just current module. require.nameToUrl(module.id, ".html")
+  but should a module reach outside of its directory?
 
 - DOH updates
   - get latest code
