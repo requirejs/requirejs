@@ -21,7 +21,7 @@ RequireJS does not use search paths for modules. It only does the following:
 
 You can always use the [Configuration Options](api.md#config) for RequireJS in your top level app file to configure paths and even a different baseUrl for your modules.
 
-RequireJS does not support require.main and the module free variable only contains an **id** property. It dose not define a require.async method, since require() in RequireJS can accept roughly equivalent arguments.
+RequireJS does not support require.main and the module free variable only contains an **id** property. It does not define a require.async method, since require() in RequireJS can accept roughly equivalent arguments.
 
 Even though RequireJS is an asynchronous loader in the browser, the RequireJS Node adapter loads modules synchronously in the Node environment. This was done to make the adapter easier to code. The adapter could be made asynchronous, but the primary benefit of RequireJS integration with Node is to allow you to write modules in the same format on the server and for the browser.
 

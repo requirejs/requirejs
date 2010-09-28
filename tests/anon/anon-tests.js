@@ -1,8 +1,8 @@
 require({
         baseUrl: require.isBrowser ? "./" : "./anon/"
     },
-    ["require", "magenta", "red", "blue", "green", "yellow"],
-    function(require, magenta, red, blue, green, yellow) {
+    ["require", "magenta", "red", "blue", "green", "yellow", "a", "c"],
+    function(require, magenta, red, blue, green, yellow, a, c) {
         doh.register(
             "anonSimple", 
             [
@@ -13,6 +13,10 @@ require({
                     t.is("blue", blue.name);
                     t.is("green", green.name);
                     t.is("yellow", yellow.name);
+                    t.is("a", a.name);
+                    t.is("sub/b", a.bName);
+                    t.is("c", c.name);
+                    t.is("a", c.aName);
                 }
             ]
         );

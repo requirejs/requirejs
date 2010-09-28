@@ -222,9 +222,7 @@ var require;
             //an exports or module object, but erring on side of safety.
             //REQUIRES the function to expect the CommonJS variables in the
             //order listed below.
-            if (deps.length) {
-                deps = ["require", "exports", "module"].concat(deps);
-            }
+            deps = ["require", "exports", "module"].concat(deps);
         }
 
         //If in IE 6-8 and hit an anonymous require.def call, do the interactive/
@@ -1268,7 +1266,7 @@ var require;
             if (traced[name] || name in defined) {
                 return defined[name];
             }
-    
+
             //Mark this module as being traced, so that it is not retraced (as in a circular
             //dependency)
             traced[name] = true;

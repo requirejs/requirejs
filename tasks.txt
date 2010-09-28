@@ -8,6 +8,11 @@
   What about pages that use that new version but some 3rd party lib wants its own?
   That is what contexts are for.
 
+- Figure out why priorityOrder test does not work, and if it should be supported.
+  Loading a plugin while waiting for a priority load may not be worth supporting,
+  it also means it will be slower. A priority module can include plugins but just
+  use a plugin to load the priorit module.
+
 - in commonJs.js convert, if take out dependency scanning, things break in the Node adapter.
 Need to figure out why. Function.toString() seems to work.
 
