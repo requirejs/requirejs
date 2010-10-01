@@ -1315,7 +1315,7 @@ var require;
                     ret = defined[name];
                 } else {
                     if (cjsModule && "exports" in cjsModule) {
-                        ret = defined[name] = depModule.exports;
+                        ret = defined[name] = cjsModule.exports;
                     } else {
                         if (name in defined && !usingExports) {
                             req.onError(new Error(name + " has already been defined"));
