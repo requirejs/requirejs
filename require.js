@@ -282,7 +282,7 @@ var require;
         var context, newContext, loaded, pluginPrefix,
             canSetContext, prop, newLength, outDeps, mods, paths, index, i,
             deferMods, deferModArgs, lastModArg, waitingName, packages,
-            packagePaths, pkgPath;
+            packagePaths;
 
         contextName = contextName ? contextName : (config && config.context ? config.context : s.ctxName);
         context = s.contexts[contextName];
@@ -451,7 +451,7 @@ var require;
             outDeps = deps;
             deps = [];
             for (i = 0; i < outDeps.length; i++) {
-                deps[i] = req.splitPrefix(outDeps[i], name);
+                deps[i] = req.splitPrefix(outDeps[i], name, context);
             }
         }
 
@@ -837,10 +837,12 @@ var require;
         }
         contextName = contextName || s.ctxName;
 
-        //Normalize module name, if it contains . or ..
-        moduleName = req.normalizeName(moduleName, relModuleName);
+        var ret, context = s.contexts[contextName];
 
-        var ret = s.contexts[contextName].defined[moduleName];
+        //Normalize module name, if it contains . or ..
+        moduleName = req.normalizeName(moduleName, relModuleName, context);
+
+        ret = context.defined[moduleName];
         if (ret === undefined) {
             req.onError(new Error("require: module name '" +
                         moduleName +
@@ -894,9 +896,10 @@ var require;
      * @param {String} name the relative name
      * @param {String} baseName a real name that the name arg is relative
      * to.
+     * @param {Object} context
      * @returns {String} normalized name
      */
-    req.normalizeName = function (name, baseName) {
+    req.normalizeName = function (name, baseName, context) {
         //Adjust any relative paths.
         var part;
         if (name.charAt(0) === ".") {
@@ -905,13 +908,20 @@ var require;
                             name +
                             ", no relative module name available."));
             }
-            //Convert baseName to array, and lop off the last part,
-            //so that . matches that "directory" and not name of the baseName's
-            //module. For instance, baseName of "one/two/three", maps to
-            //"one/two/three.js", but we want the directory, "one/two" for
-            //this normalization.
-            baseName = baseName.split("/");
-            baseName = baseName.slice(0, baseName.length - 1);
+
+            if (context.config.packages[baseName]) {
+                //If the baseName is a package name, then just treat it as one
+                //name to concat the name with.
+                baseName = [baseName];
+            } else {
+                //Convert baseName to array, and lop off the last part,
+                //so that . matches that "directory" and not name of the baseName's
+                //module. For instance, baseName of "one/two/three", maps to
+                //"one/two/three.js", but we want the directory, "one/two" for
+                //this normalization.
+                baseName = baseName.split("/");
+                baseName = baseName.slice(0, baseName.length - 1);
+            }
 
             name = baseName.concat(name.split("/"));
             for (i = 0; (part = name[i]); i++) {
@@ -936,12 +946,13 @@ var require;
      * @param {String} name the module name
      * @param {String} [baseName] base name that name is
      * relative to.
+     * @param {Object} context
      *
      * @returns {Object} with properties, 'prefix' (which
      * may be null), 'name' and 'fullName', which is a combination
      * of the prefix (if it exists) and the name.
      */
-    req.splitPrefix = function (name, baseName) {
+    req.splitPrefix = function (name, baseName, context) {
         var index = name.indexOf("!"), prefix = null;
         if (index !== -1) {
             prefix = name.substring(0, index);
@@ -949,7 +960,7 @@ var require;
         }
 
         //Account for relative paths if there is a base name.
-        name = req.normalizeName(name, baseName);
+        name = req.normalizeName(name, baseName, context);
 
         return {
             prefix: prefix,
@@ -963,10 +974,11 @@ var require;
      */
     req.nameToUrl = function (moduleName, ext, contextName, relModuleName) {
         var paths, packages, pkg, pkgPath, syms, i, parentModule, url,
-            config = s.contexts[contextName].config;
+            context = s.contexts[contextName],
+            config = context.config;
 
         //Normalize module name if have a base relative module name to work from.
-        moduleName = req.normalizeName(moduleName, relModuleName);
+        moduleName = req.normalizeName(moduleName, relModuleName, context);
 
         //If a colon is in the URL, it indicates a protocol is used and it is just
         //an URL to a file, or if it starts with a slash or ends with .js, it is just a plain file.

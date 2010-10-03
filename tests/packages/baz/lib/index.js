@@ -1,7 +1,8 @@
-require.def(['bar', 'foo'], function (bar, foo) {
+require.def(['bar', 'foo', './helper'], function (bar, foo, helper) {
     return {
         name: 'baz',
         barDepVersion: bar.version,
-        fooName: foo.name
+        fooName: foo.name,
+        helperName: helper.name
     };
 });

@@ -62,11 +62,13 @@ function(require,   alpha,   replace,         beta,   util,        bar,   baz,
                 t.is("baz", baz.name);
                 t.is("0.4", baz.barDepVersion);
                 t.is("foo", baz.fooName);
+                t.is("baz/helper", baz.helperName);
                 t.is("foo", foo.name);
                 t.is("alpha", foo.alphaName);
                 t.is("foo/second", second.name);
                 t.is((require.isBrowser ? "./foo/lib/../data.html" : "./packages/foo/lib/../data.html"), require.nameToUrl('foo/../data', '.html'));
                 t.is('dojox/chair', chair.name);
+                t.is('dojox/chair/legs', chair.legsName);
                 t.is('dojox/table', table.name);
                 t.is('dojox/chair', table.chairName);
                 t.is('dojox/table/legs', legs.name);

@@ -225,8 +225,8 @@ var optimize;
 
                     //Take the last match, the one closest to current text! string.
                     defName = defMatch[1];
-                    
-                    normalizedName = require.normalizeName(modName, defName);
+
+                    normalizedName = require.normalizeName(modName, defName, require.s.contexts._);
                 }
 
                 if (strip !== "strip") {

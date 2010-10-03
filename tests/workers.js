@@ -1,7 +1,7 @@
 importScripts('../require.js');
 
 require({
-        baseUrl: "./",
+        baseUrl: "./"
     },
     ["require", "simple", "anon/blue", "func", "anon/green"],
     function(require, simple, blue, func, green) {
