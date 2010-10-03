@@ -81,6 +81,33 @@ var require;
     }
 
     /**
+     * Used to set up package paths from a packagePaths or packages config object.
+     * @param {Object} packages the object to store the new package config
+     * @param {Array} currentPackages an array of packages to configure
+     * @param {String} [dir] a prefix dir to use.
+     */
+    function configurePackageDir(packages, currentPackages, dir) {
+        var i, location, pkgObj;
+        for (i = 0; (pkgObj = currentPackages[i]); i++) {
+            pkgObj = typeof pkgObj === "string" ? { name: pkgObj } : pkgObj;
+            location = pkgObj.location;
+
+            //Add dir to the path, but avoid paths that start with a slash
+            //or have a colon (indicates a protocol)
+            if (dir && (!location || (location.indexOf("/") !== 0 && location.indexOf(":") === -1))) {
+                pkgObj.location = dir + "/" + (pkgObj.location || pkgObj.name);
+            }
+
+            //Normalize package paths.
+            pkgObj.location = pkgObj.location || pkgObj.name;
+            pkgObj.lib = pkgObj.lib || "lib";
+            pkgObj.main = pkgObj.main || "main";
+
+            packages[pkgObj.name] = pkgObj;
+        }
+    }
+
+    /**
      * Resumes tracing of dependencies and then checks if everything is loaded.
      */
     function resume(context) {
@@ -255,7 +282,7 @@ var require;
         var context, newContext, loaded, pluginPrefix,
             canSetContext, prop, newLength, outDeps, mods, paths, index, i,
             deferMods, deferModArgs, lastModArg, waitingName, packages,
-            packagePaths, pkgPath, pkgNames, pkgName, pkgObj;
+            packagePaths, pkgPath;
 
         contextName = contextName ? contextName : (config && config.context ? config.context : s.ctxName);
         context = s.contexts[contextName];
@@ -371,43 +398,14 @@ var require;
                 if (packagePaths) {
                     for (prop in packagePaths) {
                         if (!(prop in empty)) {
-                            pkgPath = prop;
-                            pkgNames = packagePaths[pkgPath];
-                            for (i = 0; (pkgName = pkgNames[i]); i++) {
-                                if (typeof pkgName === "string") {
-                                    //Standard package mapping.
-                                    pkgObj = packages[pkgName] = {
-                                        name: pkgName,
-                                        location: pkgPath + "/" + pkgName
-                                    };
-                                } else {
-                                    //A custom setup.
-                                    pkgObj = context.config.packages[pkgName.name] = pkgName;
-                                    pkgObj.location = pkgPath + "/" + (pkgObj.location || pkgObj.name);
-                                }
-                            }
+                            configurePackageDir(packages, packagePaths[prop], prop);
                         }
                     }
                 }
 
                 //Adjust packages if necessary.
                 if (config.packages) {
-                    for (prop in config.packages) {
-                        if (!(prop in empty)) {
-                            pkgObj = packages[prop] = config.packages[prop];
-                            pkgObj.name = pkgObj.name || prop;
-                        }
-                    }
-                }
-
-                //Normalize package paths.
-                for (prop in packages) {
-                    if (!(prop in empty)) {
-                        pkgObj = packages[prop];
-                        pkgObj.location = pkgObj.location || pkgObj.name;
-                        pkgObj.lib = pkgObj.lib || "lib";
-                        pkgObj.main = pkgObj.main || "main";
-                    }
+                    configurePackageDir(packages, config.packages);
                 }
 
                 //Done with modifications, assing packages back to context config

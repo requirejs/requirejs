@@ -31,8 +31,15 @@
         //Load the content for the module. Be sure to first check the natives
         //modules that are burned into node first.
         if (natives[moduleName]) {
+            if (isDebug) {
+                logger.trace("RequireJS loading module: " + moduleName + " from Node cache");
+            }
+
             content = natives[moduleName];
         } else {
+            if (isDebug) {
+                logger.trace("RequireJS loading module: " + moduleName + " at path: " + url);
+            }
             content = require._nodeReadFile(url);
         }
 

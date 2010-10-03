@@ -20,24 +20,28 @@ require({
                 }
             ]
         },
-        packages: {
-            bar: {
+        packages: [
+            {
+                name: 'bar',
                 location: 'bar/0.4',
                 lib: 'scripts'
             },
-            foo: {
+            {
+                name: 'foo',
                 location: 'foo'
             },
-            baz: {
+            {
+                name: 'baz',
                 location: 'baz',
                 main: 'index'
             },
-            'dojox/window': {
+            {
+                name: 'dojox/window',
                 location: 'dojox/window',
                 lib: '.',
                 main: 'window'
             }
-        }
+        ]
     },
        ["require", "alpha", "alpha/replace", "beta", "beta/util", "bar", "baz",
         "foo", "foo/second", "dojox/chair", "dojox/table", "dojox/door", "dojox/window/pane",
