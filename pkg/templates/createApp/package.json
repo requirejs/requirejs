@@ -1,7 +1,0 @@
-{
-    "name": "%APPNAME%",
-    "version": "0.0.1",
-    "requirejs": {
-        "app" : ["main"]
-    }
-}

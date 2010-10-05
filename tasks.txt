@@ -1,5 +1,3 @@
-- get plugins to work in node?
-
 - jQuery 1.4.3:
   - Open ticket about just registering via require.def with something like:
   if( typeof require !== "undefined" && require.def )
@@ -19,6 +17,9 @@
 Need to figure out why. Function.toString() seems to work.
 
 - Build: do not require the user to be in the same directory as build file?
+- Build: if optimize the build profile file, Closure compiler complains. If put parens
+  around the object, then it is OK. Decide if want to go that route or pure JSON route,
+  (which still may fail?) or have build profile skip build files?
 
 - Move to using module.basePath instead of require.nameToUrl inside methods? basePath
   would basically call nameToUrl but use no suffix. Hmm, nice thing about nameToUrl is it
