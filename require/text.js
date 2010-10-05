@@ -159,7 +159,6 @@
                 require.fetchText(url, function (text) {
                     context.text[key] = text;
                     context.loaded[name] = true;
-                    require.checkLoaded(contextName);                    
                 });
             }
         },

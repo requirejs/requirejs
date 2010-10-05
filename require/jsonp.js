@@ -56,7 +56,6 @@
             require._jsonp[funcName] = function (value) {
                 data.value = value;
                 context.loaded[name] = true;
-                require.checkLoaded(contextName);
                 //Use a setTimeout for cleanup because some older IE versions vomit
                 //if removing a script node while it is being evaluated.
                 setTimeout(function () {
