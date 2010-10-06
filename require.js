@@ -169,12 +169,14 @@ var require;
                 // Adjust args if there are dependencies
                 deps = callback;
                 callback = contextName;
-                contextName = arguments[3];
+                contextName = relModuleName;
+                relModuleName = arguments[4];
             } else {
                 deps = [];
             }
         }
-        main(null, deps, callback, config, contextName);
+
+        main(null, deps, callback, config, contextName, relModuleName);
 
         //If the require call does not trigger anything new to load,
         //then resume the dependency processing. Context will be undefined
@@ -277,7 +279,7 @@ var require;
         defQueue.push([name, deps, callback, null, contextName]);
     };
 
-    main = function (name, deps, callback, config, contextName) {
+    main = function (name, deps, callback, config, contextName, relModuleName) {
         //Grab the context, or create a new one for the given context name.
         var context, newContext, loaded, pluginPrefix,
             canSetContext, prop, newLength, outDeps, mods, paths, index, i,
@@ -451,7 +453,7 @@ var require;
             outDeps = deps;
             deps = [];
             for (i = 0; i < outDeps.length; i++) {
-                deps[i] = req.splitPrefix(outDeps[i], name, context);
+                deps[i] = req.splitPrefix(outDeps[i], (name || relModuleName), context);
             }
         }
 
