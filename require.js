@@ -615,7 +615,7 @@ var require;
         //Set up plugin callbacks for methods that need to be generic to
         //require, for lifecycle cases where it does not care about a particular
         //plugin, but just that some plugin work needs to be done.
-        generics = ["newContext", "isWaiting", "orderDeps"];
+        generics = ["newContext", "isWaiting", "orderDeps", "beforeFinalCallback"];
         for (i = 0; (prop = generics[i]); i++) {
             if (!s.plugins[prop]) {
                 makePluginCallback(prop, prop === "isWaiting");
@@ -1249,18 +1249,18 @@ var require;
      * 
      * @private
      */
-    req.exec = function (module, traced, waiting, context) {
+    req.exec = function (module, traced, waiting, context, reenter) {
         //Some modules are just plain script files, abddo not have a formal
         //module definition, 
         if (!module) {
             //Returning undefined for Spidermonky strict checking in Komodo
             return undefined;
         }
-
+        
         var name = module.name, cb = module.callback, deps = module.deps, j, dep,
             defined = context.defined, ret, args = [], depModule, cjsModule,
             usingExports = false, depName;
-
+        
         //If already traced or defined, do not bother a second time.
         if (name) {
             if (traced[name] || name in defined) {
@@ -1271,7 +1271,20 @@ var require;
             //dependency)
             traced[name] = true;
         }
-
+        
+        var befCbs = this.s.plugins.callbacks.beforeFinalCallback;
+        if (!name && !reenter && befCbs) { //Finall callback
+            var i = -1, l = befCbs.length;
+            var f = function(){
+                while (!befCbs[++i] && i != l) {}
+                if (i == l)
+                    req.exec(module, traced, waiting, context, true);
+                else if (befCbs[i])
+                    befCbs[i].call(require, f, context);
+            };
+            return f();
+        }
+        
         if (deps) {
             for (j = 0; (dep = deps[j]); j++) {
                 depName = dep.name;
@@ -1453,6 +1466,7 @@ var require;
                 useInteractive = true;
                 node.attachEvent("onreadystatechange", callback);
             }
+            console.log(url);
             node.src = url;
 
             //For some cache cases in IE 6-8, the script executes before the end
