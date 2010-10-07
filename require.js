@@ -13,7 +13,7 @@ setInterval: false, importScripts: false */
 var require;
 (function () {
     //Change this version number for each release.
-    var version = "0.14.1",
+    var version = "0.14.2",
             empty = {}, s,
             i, defContextName = "_", contextLoads = [],
             scripts, script, rePkg, src, m, dataMain, cfg = {}, setReadyState,
@@ -81,6 +81,33 @@ var require;
     }
 
     /**
+     * Used to set up package paths from a packagePaths or packages config object.
+     * @param {Object} packages the object to store the new package config
+     * @param {Array} currentPackages an array of packages to configure
+     * @param {String} [dir] a prefix dir to use.
+     */
+    function configurePackageDir(packages, currentPackages, dir) {
+        var i, location, pkgObj;
+        for (i = 0; (pkgObj = currentPackages[i]); i++) {
+            pkgObj = typeof pkgObj === "string" ? { name: pkgObj } : pkgObj;
+            location = pkgObj.location;
+
+            //Add dir to the path, but avoid paths that start with a slash
+            //or have a colon (indicates a protocol)
+            if (dir && (!location || (location.indexOf("/") !== 0 && location.indexOf(":") === -1))) {
+                pkgObj.location = dir + "/" + (pkgObj.location || pkgObj.name);
+            }
+
+            //Normalize package paths.
+            pkgObj.location = pkgObj.location || pkgObj.name;
+            pkgObj.lib = pkgObj.lib || "lib";
+            pkgObj.main = pkgObj.main || "main";
+
+            packages[pkgObj.name] = pkgObj;
+        }
+    }
+
+    /**
      * Resumes tracing of dependencies and then checks if everything is loaded.
      */
     function resume(context) {
@@ -142,12 +169,14 @@ var require;
                 // Adjust args if there are dependencies
                 deps = callback;
                 callback = contextName;
-                contextName = arguments[3];
+                contextName = relModuleName;
+                relModuleName = arguments[4];
             } else {
                 deps = [];
             }
         }
-        main(null, deps, callback, config, contextName);
+
+        main(null, deps, callback, config, contextName, relModuleName);
 
         //If the require call does not trigger anything new to load,
         //then resume the dependency processing. Context will be undefined
@@ -250,12 +279,12 @@ var require;
         defQueue.push([name, deps, callback, null, contextName]);
     };
 
-    main = function (name, deps, callback, config, contextName) {
+    main = function (name, deps, callback, config, contextName, relModuleName) {
         //Grab the context, or create a new one for the given context name.
         var context, newContext, loaded, pluginPrefix,
             canSetContext, prop, newLength, outDeps, mods, paths, index, i,
             deferMods, deferModArgs, lastModArg, waitingName, packages,
-            packagePaths, pkgPath, pkgNames, pkgName, pkgObj;
+            packagePaths;
 
         contextName = contextName ? contextName : (config && config.context ? config.context : s.ctxName);
         context = s.contexts[contextName];
@@ -371,43 +400,14 @@ var require;
                 if (packagePaths) {
                     for (prop in packagePaths) {
                         if (!(prop in empty)) {
-                            pkgPath = prop;
-                            pkgNames = packagePaths[pkgPath];
-                            for (i = 0; (pkgName = pkgNames[i]); i++) {
-                                if (typeof pkgName === "string") {
-                                    //Standard package mapping.
-                                    pkgObj = packages[pkgName] = {
-                                        name: pkgName,
-                                        location: pkgPath + "/" + pkgName
-                                    };
-                                } else {
-                                    //A custom setup.
-                                    pkgObj = context.config.packages[pkgName.name] = pkgName;
-                                    pkgObj.location = pkgPath + "/" + (pkgObj.location || pkgObj.name);
-                                }
-                            }
+                            configurePackageDir(packages, packagePaths[prop], prop);
                         }
                     }
                 }
 
                 //Adjust packages if necessary.
                 if (config.packages) {
-                    for (prop in config.packages) {
-                        if (!(prop in empty)) {
-                            pkgObj = packages[prop] = config.packages[prop];
-                            pkgObj.name = pkgObj.name || prop;
-                        }
-                    }
-                }
-
-                //Normalize package paths.
-                for (prop in packages) {
-                    if (!(prop in empty)) {
-                        pkgObj = packages[prop];
-                        pkgObj.location = pkgObj.location || pkgObj.name;
-                        pkgObj.lib = pkgObj.lib || "lib";
-                        pkgObj.main = pkgObj.main || "main";
-                    }
+                    configurePackageDir(packages, config.packages);
                 }
 
                 //Done with modifications, assing packages back to context config
@@ -453,7 +453,7 @@ var require;
             outDeps = deps;
             deps = [];
             for (i = 0; i < outDeps.length; i++) {
-                deps[i] = req.splitPrefix(outDeps[i], name);
+                deps[i] = req.splitPrefix(outDeps[i], (name || relModuleName), context);
             }
         }
 
@@ -839,10 +839,12 @@ var require;
         }
         contextName = contextName || s.ctxName;
 
-        //Normalize module name, if it contains . or ..
-        moduleName = req.normalizeName(moduleName, relModuleName);
+        var ret, context = s.contexts[contextName];
 
-        var ret = s.contexts[contextName].defined[moduleName];
+        //Normalize module name, if it contains . or ..
+        moduleName = req.normalizeName(moduleName, relModuleName, context);
+
+        ret = context.defined[moduleName];
         if (ret === undefined) {
             req.onError(new Error("require: module name '" +
                         moduleName +
@@ -896,9 +898,10 @@ var require;
      * @param {String} name the relative name
      * @param {String} baseName a real name that the name arg is relative
      * to.
+     * @param {Object} context
      * @returns {String} normalized name
      */
-    req.normalizeName = function (name, baseName) {
+    req.normalizeName = function (name, baseName, context) {
         //Adjust any relative paths.
         var part;
         if (name.charAt(0) === ".") {
@@ -907,13 +910,20 @@ var require;
                             name +
                             ", no relative module name available."));
             }
-            //Convert baseName to array, and lop off the last part,
-            //so that . matches that "directory" and not name of the baseName's
-            //module. For instance, baseName of "one/two/three", maps to
-            //"one/two/three.js", but we want the directory, "one/two" for
-            //this normalization.
-            baseName = baseName.split("/");
-            baseName = baseName.slice(0, baseName.length - 1);
+
+            if (context.config.packages[baseName]) {
+                //If the baseName is a package name, then just treat it as one
+                //name to concat the name with.
+                baseName = [baseName];
+            } else {
+                //Convert baseName to array, and lop off the last part,
+                //so that . matches that "directory" and not name of the baseName's
+                //module. For instance, baseName of "one/two/three", maps to
+                //"one/two/three.js", but we want the directory, "one/two" for
+                //this normalization.
+                baseName = baseName.split("/");
+                baseName = baseName.slice(0, baseName.length - 1);
+            }
 
             name = baseName.concat(name.split("/"));
             for (i = 0; (part = name[i]); i++) {
@@ -938,12 +948,13 @@ var require;
      * @param {String} name the module name
      * @param {String} [baseName] base name that name is
      * relative to.
+     * @param {Object} context
      *
      * @returns {Object} with properties, 'prefix' (which
      * may be null), 'name' and 'fullName', which is a combination
      * of the prefix (if it exists) and the name.
      */
-    req.splitPrefix = function (name, baseName) {
+    req.splitPrefix = function (name, baseName, context) {
         var index = name.indexOf("!"), prefix = null;
         if (index !== -1) {
             prefix = name.substring(0, index);
@@ -951,7 +962,7 @@ var require;
         }
 
         //Account for relative paths if there is a base name.
-        name = req.normalizeName(name, baseName);
+        name = req.normalizeName(name, baseName, context);
 
         return {
             prefix: prefix,
@@ -965,10 +976,11 @@ var require;
      */
     req.nameToUrl = function (moduleName, ext, contextName, relModuleName) {
         var paths, packages, pkg, pkgPath, syms, i, parentModule, url,
-            config = s.contexts[contextName].config;
+            context = s.contexts[contextName],
+            config = context.config;
 
         //Normalize module name if have a base relative module name to work from.
-        moduleName = req.normalizeName(moduleName, relModuleName);
+        moduleName = req.normalizeName(moduleName, relModuleName, context);
 
         //If a colon is in the URL, it indicates a protocol is used and it is just
         //an URL to a file, or if it starts with a slash or ends with .js, it is just a plain file.
@@ -1328,7 +1340,7 @@ var require;
                     ret = defined[name];
                 } else {
                     if (cjsModule && "exports" in cjsModule) {
-                        ret = defined[name] = depModule.exports;
+                        ret = defined[name] = cjsModule.exports;
                     } else {
                         if (name in defined && !usingExports) {
                             req.onError(new Error(name + " has already been defined"));

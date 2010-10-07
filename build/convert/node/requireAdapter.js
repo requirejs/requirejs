@@ -4,7 +4,7 @@
  * see: http://github.com/jrburke/requirejs for details
  */
 /*jslint nomen: false */
-/*global require: false, process: false */
+/*global require: false, process: false, global: false, logger: false, commonJs: false */
 
 "use strict";
 
@@ -31,8 +31,15 @@
         //Load the content for the module. Be sure to first check the natives
         //modules that are burned into node first.
         if (natives[moduleName]) {
+            if (isDebug) {
+                logger.trace("RequireJS loading module: " + moduleName + " from Node cache");
+            }
+
             content = natives[moduleName];
         } else {
+            if (isDebug) {
+                logger.trace("RequireJS loading module: " + moduleName + " at path: " + url);
+            }
             content = require._nodeReadFile(url);
         }
 
@@ -55,6 +62,12 @@
         require.completeLoad(moduleName, context);
     };
 
+    //Adapter to get text plugin to work.
+    require.fetchText = function (url, callback) {
+        var content = require._nodeReadFile(url);
+        callback(content);
+    };
+
     //Do some patch-ups
     logger._sysPrint = global.__requireLog;
     commonJs.useRhino = false;
@@ -63,7 +76,9 @@
     commonJs.useLog = false;
     if (isDebug) {
         commonJs.useLog = true;
-        commonJs.logConverted = true;
+        //Uncomment to try to see converted module code, but seems to be
+        //not useful-- only prints a little bit, interferes with other output?
+        //commonJs.logConverted = true;
         global._requirejs_logger = logger;
     }
 

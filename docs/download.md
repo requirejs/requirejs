@@ -1,6 +1,13 @@
 # Download RequireJS
 
-### Latest Release: 0.14.1
+### Latest Release: 0.14.2
+
+* Bug fixes:
+    * [Fix issue with "module" dependency](http://github.com/jrburke/requirejs/commit/079e8b1e0abd4b77f0cd898c4bd77f24581942f5) not correctly assigning exported value if it is *not* listed as the last dependency.
+    * [Fix "packages" config option](http://github.com/jrburke/requirejs/commit/e89c6c1523ac59e7303407d506f8e2ce75cdeb31). Its behavior was fixed to match the docs.
+    * [Fix module-to-name resolution](http://github.com/jrburke/requirejs/commit/416f24a6f556c0d96f9fd9d4146a9ecfcd337668) to account for package mappings.
+
+0.14.1 Release Notes:
 
 * Bug fixes:
     * [Issue 13](http://github.com/jrburke/requirejs/issues#issue/13): convertCommonJs.sh failed copying non-JS files)
@@ -14,29 +21,29 @@
 *  [Bug fixes](http://github.com/jrburke/requirejs/commits/master) (see commits starting from (see commits starting from 2010-09-15 through 2010-09-26))
 
 
-#### <a name="requirejs">require.js</a> [Minified](http://requirejs.org/docs/release/0.14.1/minified/require.js) | [With Comments](http://requirejs.org/docs/release/0.14.1/comments/require.js)
+#### <a name="requirejs">require.js</a> [Minified](http://requirejs.org/docs/release/0.14.2/minified/require.js) | [With Comments](http://requirejs.org/docs/release/0.14.2/comments/require.js)
 
 All you need to start using require.js in the browser. Does not include i18n, text, order, JSONP plugins or Node/Rhino support.
 
-#### <a name="requirejsplugins">require.js with plugins</a> [Minified](http://requirejs.org/docs/release/0.14.1/minified/allplugins-require.js) | [With Comments](http://requirejs.org/docs/release/0.14.1/comments/allplugins-require.js)
+#### <a name="requirejsplugins">require.js with plugins</a> [Minified](http://requirejs.org/docs/release/0.14.2/minified/allplugins-require.js) | [With Comments](http://requirejs.org/docs/release/0.14.2/comments/allplugins-require.js)
 
 require.js for use in the browser with the i18n, text, order and JSONP plugins included. 
 
-#### <a name="requirejstransportD">require.js with Transport D and plugins</a> [Minified](http://requirejs.org/docs/release/0.14.1/minified/transportD-require.js) | [With Comments](http://requirejs.org/docs/release/0.14.1/comments/transportD-require.js)
+#### <a name="requirejstransportD">require.js with Transport D and plugins</a> [Minified](http://requirejs.org/docs/release/0.14.2/minified/transportD-require.js) | [With Comments](http://requirejs.org/docs/release/0.14.2/comments/transportD-require.js)
 
 require.js for use in the browser with require.define support for [Transport D from CommonJS](http://wiki.commonjs.org/wiki/Modules/Transport/D), and i18n, text, order and JSONP plugins included. 
 
-#### <a name="jqueryrequirejs">jQuery 1.4.2 with require()</a> [Minified](http://requirejs.org/docs/release/0.14.1/minified/require-jquery-1.4.2.js) | [With Comments](http://requirejs.org/docs/release/0.14.1/comments/require-jquery-1.4.2.js)
+#### <a name="jqueryrequirejs">jQuery 1.4.2 with require()</a> [Minified](http://requirejs.org/docs/release/0.14.2/minified/require-jquery-1.4.2.js) | [With Comments](http://requirejs.org/docs/release/0.14.2/comments/require-jquery-1.4.2.js)
 
 A build of jQuery with integrated require() support. **Does not include** RequireJS plugin support, so the i18n, text, order, JSONP plugins will not work with this build.
 
-#### <a name="jqueryrequirejsplugins">jQuery 1.4.2 with require() and plugins</a> [Minified](http://requirejs.org/docs/release/0.14.1/minified/requireplugins-jquery-1.4.2.js) | [With Comments](http://requirejs.org/docs/release/0.14.1/comments/requireplugins-jquery-1.4.2.js)
+#### <a name="jqueryrequirejsplugins">jQuery 1.4.2 with require() and plugins</a> [Minified](http://requirejs.org/docs/release/0.14.2/minified/requireplugins-jquery-1.4.2.js) | [With Comments](http://requirejs.org/docs/release/0.14.2/comments/requireplugins-jquery-1.4.2.js)
 
 A build of jQuery with integrated require() support that includes plugin support, including the i18n, text, order and JSONP plugins.
 
 <hr>
 
-#### <a name="samplejquery">Sample jQuery 1.4.2 project with require()</a> [Download](http://requirejs.org/docs/release/0.14.1/jquery-require-sample.zip)
+#### <a name="samplejquery">Sample jQuery 1.4.2 project with require()</a> [Download](http://requirejs.org/docs/release/0.14.2/jquery-require-sample.zip)
 
 A zip file containing a build of jQuery with integrated require() support, with an sample project included to show how it can be used when using jQuery. **Does not include** RequireJS plugin support, so the i18n, text, order, JSONP plugins will not work with this build.
 
@@ -44,9 +51,9 @@ A zip file containing a build of jQuery with integrated require() support, with 
 
 #### <a name="node">RequireJS adapter for Node</a> 
 
-**[r.js](http://requirejs.org/docs/release/0.14.1/node/r.js)**: use this file if you want to code to the RequireJS module format in Node. The [Node instructions](node.md) explain how to use it. It includes all the code needed for RequireJS to function with Node.
+**[r.js](http://requirejs.org/docs/release/0.14.2/node/r.js)**: use this file if you want to code to the RequireJS module format in Node. The [Node instructions](node.md) explain how to use it. It includes all the code needed for RequireJS to function with Node.
 
-**[index.js](http://requirejs.org/docs/release/0.14.1/node/index.js)**: the standard HTTP server-based Hello World app for Node, but coded to work with the r.js adapter. Download it in the same directory as r.js and then run this command:
+**[index.js](http://requirejs.org/docs/release/0.14.2/node/index.js)**: the standard HTTP server-based Hello World app for Node, but coded to work with the r.js adapter. Download it in the same directory as r.js and then run this command:
 
     node r.js index.js
 
@@ -54,7 +61,7 @@ Then you can go to http://127.0.0.1:8000/ and see "Hello World" printed after ab
 
 <hr>
 
-#### <a name="optimizationtool">Optimization Tool / Full Source</a> [Download](http://requirejs.org/docs/release/0.14.1/requirejs-0.14.1.zip)
+#### <a name="optimizationtool">Optimization Tool / Full Source</a> [Download](http://requirejs.org/docs/release/0.14.2/requirejs-0.14.2.zip)
 
 A zip file that is the optimization tool for RequireJS. It also includes the full source for require.js and its plugins.
 

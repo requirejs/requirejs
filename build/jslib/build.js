@@ -97,7 +97,7 @@ var build, buildBaseConfig;
                 }
             }
         }
-    
+
         //Figure out source file location for each module layer. Do this by seeding require
         //with source area configuration. This is needed so that later the module layers
         //can be manually copied over to the source area, since the build may be
@@ -116,7 +116,8 @@ var build, buildBaseConfig;
                     //as indicated by a true "create" property on the module, then throw an error.
                     if (!(new java.io.File(module._sourcePath)).exists() && !module.create) {
                         throw new Error("ERROR: module path does not exist: " +
-                                        module._searchPath + " for module named: " + module.name);
+                                        module._sourcePath + " for module named: " + module.name +
+                                        ". Path is relative to: " + (new java.io.File('.')).getAbsolutePath());
                     }
                 }
             });
