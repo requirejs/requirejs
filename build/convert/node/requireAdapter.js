@@ -20,7 +20,7 @@
     require.load = function (moduleName, contextName) {
         var url = require.nameToUrl(moduleName, null, contextName),
             context = require.s.contexts[contextName],
-            content;
+            content, dirName;
 
         //isDone is used by require.ready()
         require.s.isDone = false;
@@ -56,6 +56,19 @@
         if (isDebug) {
             logger.trace("RequireJS about to evaluate module: " + moduleName);
         }
+
+        //Attempt to support __dirname and __filename in node
+        dirName = url.split('/');
+        dirName.pop();
+        if (dirName.length) {
+            dirName = dirName.join('/');
+        } else {
+            dirName = '.';
+        }
+        content = '(function () { var __dirname = "' + dirName +
+                  '"; var __filename = "' + url +
+                  '";\n' + content + '\n}());';
+
         process.compile(content, url);
 
         //Support anonymous modules.

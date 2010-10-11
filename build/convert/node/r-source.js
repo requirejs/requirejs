@@ -21,7 +21,7 @@
         cwd = process.cwd(),
         appFilePath = process.argv[2],
         isDebug = false,
-        appDir;
+        appDir, content;
 
     if (appFilePath === "debug") {
         isDebug = true;
@@ -36,7 +36,11 @@
     //Now get app directory.
     appDir = appFilePath.split("/");
     appDir.pop();
-    appDir = appDir.join("/");
+    if (appDir.length) {
+        appDir = appDir.join("/");
+    } else {
+        appDir = '.';
+    }
 
     //Create some temporary globals that will be removed by the injected file.
     global.__requireIsDebug = isDebug;
@@ -52,5 +56,9 @@
     process.compile("require({baseUrl: '" + appDir + "'});", "baseUrl");
 
     //Showtime!
-    process.compile(fs.readFileSync(appFilePath), appFilePath);
+    //Try to support __dirname and __filename for node.
+    content = 'var __filename = "' + appFilePath +
+              '"; var __dirname = "' + appDir + '";\n' +
+              fs.readFileSync(appFilePath);
+    process.compile(content, appFilePath);
 }());

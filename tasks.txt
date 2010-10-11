@@ -8,6 +8,9 @@
   What about pages that use that new version but some 3rd party lib wants its own?
   That is what contexts are for.
 
+- For function(require, exports, module) form, do not pass exports if the function
+  does not ask  for it, to allow the function to set the exported value by returning.
+
 - Figure out why priorityOrder test does not work, and if it should be supported.
   Loading a plugin while waiting for a priority load may not be worth supporting,
   it also means it will be slower. A priority module can include plugins but just
