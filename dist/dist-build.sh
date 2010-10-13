@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#@license RequireJS Copyright (c) 2004-2010, The Dojo Foundation All Rights Reserved.
-#Available via the MIT, GPL or new BSD license.
+#@license RequireJS Copyright (c) 2010, The Dojo Foundation All Rights Reserved.
+#Available via the MIT or new BSD license.
 #see: http://github.com/jrburke/requirejs for details
 
 #version should be something like 0.9.0beta or 0.9.0

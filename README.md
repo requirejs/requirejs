@@ -8,7 +8,7 @@ RequireJS includes [an optimization tool](requirejs/tree/master/docs/optimizatio
 
 If the JavaScript file defines a JavaScript module via [require.def()](requirejs/tree/master/docs/api.md#define), then there are other benefits RequireJS can offer: [better CommonJS support](requirejs/tree/master/docs/commonjs.md) and [loading multiple versions](requirejs/tree/master/docs/api.md#multiversion) of a module in a page. RequireJS also allows for [module modifiers](requirejs/tree/master/docs/api.md#modifiers) and has a plugin system that supports features like [i18n string bundles](requirejs/tree/master/docs/api.md#i18n), [text file dependencies](requirejs/tree/master/docs/api.md#text), and [JSONP service dependencies](requirejs/tree/master/docs/api.md#jsonp).
 
-RequireJS does not have any dependencies on a JavaScript framework. It is tri-licensed -- BSD, MIT, and GPL.
+RequireJS does not have any dependencies on a JavaScript framework. It is dual-licensed -- new BSD or MIT.
 
 The standard require.js file is around 4.9KB when minified via Closure Compiler and gzipped. require.js can be built without some features, with the smallest option (just dependency tracking and simple module loading) weighing in at 3.9KB minified, gzipped.
 

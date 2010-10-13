@@ -19,6 +19,9 @@
 - in commonJs.js convert, if take out dependency scanning, things break in the Node adapter.
 Need to figure out why. Function.toString() seems to work.
 
+- Allow paths mapping inside modules? for things like jsdom/browser/index.js retrieved via
+  require("./jsdom/browser");
+
 - Build: do not require the user to be in the same directory as build file?
 - Build: if optimize the build profile file, Closure compiler complains. If put parens
   around the object, then it is OK. Decide if want to go that route or pure JSON route,
