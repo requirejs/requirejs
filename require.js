@@ -13,7 +13,7 @@ setInterval: false, importScripts: false */
 var require;
 (function () {
     //Change this version number for each release.
-    var version = "0.14.2",
+    var version = "0.14.2+",
             empty = {}, s,
             i, defContextName = "_", contextLoads = [],
             scripts, script, rePkg, src, m, dataMain, cfg = {}, setReadyState,
@@ -108,6 +108,27 @@ var require;
     }
 
     /**
+     * Determine if priority loading is done. If so clear the priorityWait
+     */
+    function isPriorityDone(context) {
+        var priorityDone = true,
+            priorityWait = context.config.priorityWait,
+            priorityName, i;
+        if (priorityWait) {
+            for (i = 0; (priorityName = priorityWait[i]); i++) {
+                if (!context.loaded[priorityName]) {
+                    priorityDone = false;
+                    break;
+                }
+            }
+            if (priorityDone) {
+                delete context.config.priorityWait;
+            }
+        }
+        return priorityDone;
+    }
+
+    /**
      * Resumes tracing of dependencies and then checks if everything is loaded.
      */
     function resume(context) {
@@ -130,7 +151,7 @@ var require;
             }
 
             //Skip the resume if current context is in priority wait.
-            if (s.contexts[s.ctxName].config.priorityWait) {
+            if (context.config.priorityWait && !isPriorityDone(context)) {
                 return;
             }
 
@@ -1040,8 +1061,7 @@ var require;
                 expired = waitInterval && (context.startTime + waitInterval) < new Date().getTime(),
                 loaded, defined = context.defined,
                 modifiers = context.modifiers, waiting, noLoads = "",
-                hasLoadedProp = false, stillLoading = false, prop, priorityDone,
-                priorityName,
+                hasLoadedProp = false, stillLoading = false, prop,
 
                 //>>excludeStart("requireExcludePlugin", pragmas.requireExcludePlugin);
                 pIsWaiting = s.plugins.isWaiting, pOrderDeps = s.plugins.orderDeps,
@@ -1058,17 +1078,9 @@ var require;
         //Determine if priority loading is done. If so clear the priority. If
         //not, then do not check
         if (context.config.priorityWait) {
-            priorityDone = true;
-            for (i = 0; (priorityName = context.config.priorityWait[i]); i++) {
-                if (!context.loaded[priorityName]) {
-                    priorityDone = false;
-                    break;
-                }
-            }
-            if (priorityDone) {
-                //Clean up priority and call resume, since it could have
+            if (isPriorityDone(context)) {
+                //Call resume, since it could have
                 //some waiting dependencies to trace.
-                delete context.config.priorityWait;
                 resume(context);
             } else {
                 return;

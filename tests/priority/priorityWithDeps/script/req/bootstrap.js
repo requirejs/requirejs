@@ -1,3 +1,13 @@
+require.def('req/bootstrap', [
+	'req/begin',
+	'req/config',
+	'req/utils/utils'
+	], function() {
+		ip.bootstrap = 'bootstrap';
+	});
+
+
+/*
 //begin module defines a global
 var begin = {};
 require.def('begin', function () {
@@ -13,3 +23,4 @@ require.def('appConfig', ['begin'], function () {
 require.def('bootstrap', ['begin', 'appConfig'], function () {
     appConfig.bootstrap = 'bootstrap';
 });
+*/
