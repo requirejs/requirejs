@@ -2,7 +2,7 @@
 
 ### Latest Release: 0.14.3
 
-* Support for **define()**. It works the same as **require.def()**. It is supported in order to conform with the [Asynchronous Module Proposal](http://wiki.commonjs.org/wiki/Modules/AsynchronousDefinition). require.def will continue to work, but you are encouraged to gradually migrate to define() for better compatiblity with other Async Module loaders.
+* Support for **define()**. It works the same as **require.def()**. It is supported in order to conform with the [Asynchronous Module Proposal](http://wiki.commonjs.org/wiki/Modules/AsynchronousDefinition). require.def will continue to work, but you are encouraged to gradually migrate to define() for better compatibly with other Async Module loaders.
 * text! plugin now works in Node.
 * __dirname and __filename support in the r.js Node adapter.
 * [Bug fix for priority option](http://github.com/jrburke/requirejs/commit/79188c726f90aefa34a16435e929a7bb98098358).
