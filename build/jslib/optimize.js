@@ -15,7 +15,7 @@ var optimize;
 (function () {
     var JSSourceFilefromCode,
         textDepRegExp = /["'](text)\!([^"']+)["']/g,
-        relativeDefRegExp = /require\s*\.\s*def\s*\(\s*['"]([^'"]+)['"]/g,
+        relativeDefRegExp = /(require\s*\.\s*def|define)\s*\(\s*['"]([^'"]+)['"]/g,
         cssImportRegExp = /\@import\s+(url\()?\s*([^);]+)\s*(\))?([\w, ]*)(;)?/g,
         cssUrlRegExp = /\url\(\s*([^\)]+)\s*\)?/g;
 
@@ -224,7 +224,7 @@ var optimize;
                     }
 
                     //Take the last match, the one closest to current text! string.
-                    defName = defMatch[1];
+                    defName = defMatch[2];
 
                     normalizedName = require.normalizeName(modName, defName, require.s.contexts._);
                 }

@@ -80,23 +80,25 @@ The RequireJS syntax for modules allows them to be loaded as fast as possible, e
 
 There should only be **one** module definition per file on disk. The modules can be grouped into optimized bundles by the [optimization tool](optimization.md).
 
+**NOTE**: As of RequireJS 0.14.3, the function **define()** is preferred to create modules. Previously it was **require.def()**. require.def is still available, but define() is encouraged in the interests of conforming to the [Asynchronous Module Proposal](http://wiki.commonjs.org/wiki/Modules/AsynchronousDefinition). You are free to continue require.def() if you only want RequireJS to load the modules, but if you want your code to be potentially interoperable with other Async Module script loaders, you should consider using define(). Any API examples that use define() will work the same if require.def() is used instead.
+
 ### <a name="defsimple">Simple Name/Value Pairs</a>
 
-If the module does not have any dependencies, and it is just a collection of name/value pairs, then just pass an object literal to require.def:
+If the module does not have any dependencies, and it is just a collection of name/value pairs, then just pass an object literal to define():
 
     //Inside file my/shirt.js:
-    require.def({
+    define({
         color: "black",
         size: "unisize"
     });
 
 ### <a name="deffunc">Definition Functions</a>
 
-If the module does not have dependencies, but needs to use a function to do some setup work, then define itself, pass a function to require.def:
+If the module does not have dependencies, but needs to use a function to do some setup work, then define itself, pass a function to define():
 
     //my/shirt.js now does setup work
     //before returning its module definition.
-    require.def(function () {
+    define(function () {
         //Do setup work here
         
         return {
@@ -111,7 +113,7 @@ If the module has dependencies, then specify the dependencies as an array for th
 
     //my/shirt.js now has some dependencies, a cart and inventory
     //module in the same directory as shirt.js
-    require.def(["./cart", "./inventory"], function(cart, inventory) {
+    define(["./cart", "./inventory"], function(cart, inventory) {
             //return an object to define the "my/shirt" module.
             return {
                 color: "blue",
@@ -149,7 +151,7 @@ If the modules do not have to return objects. Any valid return value from a func
     //name to find them. The "my" part of the name can be mapped
     //to any directory, but by default, it is assumed to be a sibling
     //to the "foo" directory.
-    require.def(["my/cart", "my/inventory"],
+    define(["my/cart", "my/inventory"],
         function(cart, inventory) {
             //return a function to define "foo/title". It gets or sets
             //the window title.
@@ -161,10 +163,10 @@ If the modules do not have to return objects. Any valid return value from a func
 
 ### <a name="modulename">Defining a Module with a Name</a>
 
-You may encounter some require.def calls that include a name for the module as the first argument to require.def:
+You may encounter some define() calls that include a name for the module as the first argument to define():
 
         //Excplicitly defines the "foo/title" module:
-        require.def("foo/title",
+        define("foo/title",
             ["my/cart", "my/inventory"],
             function(cart, inventory) {
                 //Define foo/title object in here.
@@ -188,7 +190,7 @@ Note this only works if "module/name" was previously loaded via the async versio
 If you define a circular dependency (A needs B and B needs A), then in this case when B's module function is called, it will get an undefined value for A. B can fetch A later after modules have been defined by using the require() method (be sure to specify require as a dependency so the right context is used to look up A):
 
     //Inside B.js:
-    require.def(["require", "A"],
+    define(["require", "A"],
         function(require, a) {
             //"a" in this case will be null if A also asked for B,
             //a circular dependency.
@@ -217,7 +219,7 @@ To define a bundle, put it in a directory called "nls" -- the i18n! plugin assum
 The contents of that file should look like so:
 
     //my/nls/colors.js contents:
-    require.def({
+    define({
         "root": {
             "red": "red",
             "blue": "blue",
@@ -230,7 +232,7 @@ Notice that an object literal with a property of "root" as given as the only dep
 You can then use the above module in another module, say, in a my/lamps.js file:
 
     //Contents of my/lamps.js
-    require.def(["i18n!my/nls/colors"], function(colors) {
+    define(["i18n!my/nls/colors"], function(colors) {
         return {
             testMessage: "The name for red in this locale is: " + colors.red
         }
@@ -241,7 +243,7 @@ The my/lamps module has one property called "testMessage" that uses colors.red t
 Later, when you want to add a specific translation to a file, say for the fr-fr locale, change my/nls/colors to look like so:
 
     //Contents of my/nls/colors.js
-    require.def({
+    define({
         "root": {
             "red": "red",
             "blue": "blue",
@@ -253,7 +255,7 @@ Later, when you want to add a specific translation to a file, say for the fr-fr 
 Then define a file at my/nls/fr-fr/colors.js that has the following contents:
 
     //Contents of my/nls/fr-fr/colors.js
-    require.def({
+    define({
         "red": "rouge",
         "blue": "bleu",
         "green": "vert"
@@ -266,7 +268,7 @@ require.js is also smart enough to pick the right locale bundle, the one that mo
 require.js also combines bundles together, so for instance, if the french bundle was defined like so (omitting a value for red):
 
     //Contents of my/nls/fr-fr/colors.js
-    require.def({
+    define({
         "blue": "bleu",
         "green": "vert"
     });
@@ -342,7 +344,7 @@ Normally RequireJS loads and evaluates scripts in an undetermined order. However
 
 Scripts loaded by the **order** plugin will be fetched asynchronously, but evaluated in the order they are passed to require, so it should still perform better with using script tags in the head of an HTML document.
 
-The **order** plugin is best used with traditional scripts, it is not needed for scripts that use require.def() to define modules. It is possible to mix and match "order!" dependencies with regular dependencies, but only the "order!" ones will be evaluated in relative order to each other. 
+The **order** plugin is best used with traditional scripts, it is not needed for scripts that use define() to define modules. It is possible to mix and match "order!" dependencies with regular dependencies, but only the "order!" ones will be evaluated in relative order to each other. 
 
 **Note**: the order! plugin only works with JavaScript files that are cacheable by the browser. If the JS file has headers that do not allow the browser to cache the file, then the order of scripts will not be maintained.
 
@@ -692,7 +694,7 @@ You are not required to register modifiers with require.js. Only do it if you wa
 
 ### <a name="moddef">Modifier Definition</a>
 
-A modifier definition looks like a normal require.def() module definition, but:
+A modifier definition looks like a normal define() module definition, but:
 
 * require.modify() is used.
 * the target module's name is listed first in the require.modify() call.

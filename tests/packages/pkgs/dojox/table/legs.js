@@ -1,3 +1,3 @@
-require.def({
+define({
     name: 'dojox/table/legs'
 });

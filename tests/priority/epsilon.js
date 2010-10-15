@@ -1,6 +1,6 @@
 "use strict";
 /*global require: false */
-require.def("epsilon",
+define("epsilon",
     {
         name: "epsilon"
     }

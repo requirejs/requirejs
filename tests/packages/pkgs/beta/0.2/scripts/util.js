@@ -1,3 +1,3 @@
-require.def({
+define({
     name: 'beta/util'
 });

@@ -98,7 +98,7 @@ var commonJs = {
      * Regexp for testing if there is already a require.def call in the file,
      * in which case do not try to convert it.
      */
-    defRegExp: /require\s*\.\s*def\s*\(/,
+    defRegExp: /(require\s*\.\s*def|define)\s*\(/,
 
     /**
      * Regexp for testing if there is a require([]) or require(function(){})
@@ -110,7 +110,7 @@ var commonJs = {
      * Does the actual file conversion.
      *
      * @param {String} moduleName the name of the module to use for the
-     * require.def call.
+     * define() call.
      * 
      * @param {String} fileName the name of the file.
      * 
@@ -154,7 +154,7 @@ var commonJs = {
             }
 
             //Construct the wrapper boilerplate.
-            fileContents = 'require.def(["require", "exports", "module"' +
+            fileContents = 'define(["require", "exports", "module"' +
                    (deps.length ? ', ' + deps.join(",") : '') + '], ' +
                    'function(require, exports, module) {\n' +
                    (commonJs.logConverted ? 'global._requirejs_logger.trace("Evaluating module: ' + moduleName + '");\n' : "") +

@@ -6,7 +6,7 @@ require.def("bark", function () {
 
 var globalLeafNameForTree = globalLeafName;
 
-require.def("tree", ["leaf", "bark"], function () {
+define("tree", ["leaf", "bark"], function () {
    return {
         name: "tree",
         leafName: globalLeafNameForTree,

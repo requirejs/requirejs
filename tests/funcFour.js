@@ -1,4 +1,4 @@
-require.def("funcFour",
+define("funcFour",
     ["require", "funcThree"],
     function (require) {
         var four = function (arg) {

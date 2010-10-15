@@ -523,7 +523,7 @@ var build, buildBaseConfig;
     build.flattenModule = function (module, layer, config) {
         var buildFileContents = "", requireContents = "",
             pluginContents = "", pluginBuildFileContents = "", includeRequire,
-            anonDefRegExp = /require\s*\.\s*def\s*\(\s*(\[|f|\{)/,
+            anonDefRegExp = /(require\s*\.\s*def|define)\s*\(\s*(\[|f|\{)/,
             prop, path, reqIndex, fileContents, currContents,
             i, moduleName, specified, deps;
 
@@ -588,11 +588,11 @@ var build, buildBaseConfig;
             currContents = pragma.process(path, fileUtil.readFile(path), config);
 
             //If anonymous module, insert the module name.
-            currContents = currContents.replace(anonDefRegExp, function (match, suffix) {
+            currContents = currContents.replace(anonDefRegExp, function (match, callName, suffix) {
                 layer.modulesWithNames[moduleName] = true;
 
                 //Look for CommonJS require calls inside the function if this is
-                //an anonymous require.def call that just has a function registered.
+                //an anonymous define/require.def call that just has a function registered.
                 deps = null;
                 if (suffix.indexOf('f') !== -1) {
                     deps = parse.getAnonDeps(path, currContents);
@@ -613,7 +613,7 @@ var build, buildBaseConfig;
                     layer.modulesWithNames[moduleName] = true;
                 }
 
-                return "require.def('" + moduleName + "'," +
+                return "define('" + moduleName + "'," +
                        (deps ? ('[' + deps.toString() + '],') : '') +
                        suffix;
             });
@@ -626,7 +626,7 @@ var build, buildBaseConfig;
             //after the module is processed.
             //If we have a name, but no defined module, then add in the placeholder.
             if (moduleName && !layer.modulesWithNames[moduleName] && !config.skipModuleInsertion) {
-                fileContents += 'require.def("' + moduleName + '", function(){});\n';
+                fileContents += 'define("' + moduleName + '", function(){});\n';
             }
 
             //If we have plugins but are not injecting require.js,

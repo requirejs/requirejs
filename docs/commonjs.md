@@ -20,7 +20,7 @@ If you have modules that are in the traditional CommonJS module format, then you
 
 If you just have a few modules to convert, then all you need to do is wrap the module in this code:
 
-    require.def(function(require, exports, module) { 
+    define(function(require, exports, module) { 
         //Put traditional CommonJS module content here
     });
 
@@ -34,9 +34,9 @@ If you have many modules to convert, RequireJS has a converter tool at **require
 
 ## <a name="exports">Setting Exported Value</a>
 
-There are some CommonJS systems that allow setting the exported value via module.setExports() or assigning the exported value as module.exports. Both of those idioms are supported by RequireJS, but there is another, easier one that is supported too -- just return the value from the function passed to **require.def**:
+There are some CommonJS systems that allow setting the exported value via module.setExports() or assigning the exported value as module.exports. Both of those idioms are supported by RequireJS, but there is another, easier one that is supported too -- just return the value from the function passed to **define**:
 
-    require.def(function (require) {
+    define(function (require) {
         var foo = require('foo');
 
         //Define this module as exporting a function
@@ -49,9 +49,9 @@ With this approach, then you normally do not need the exports and module functio
 
 ## <a name="altsyntax">Alternative Syntax</a>
 
-Instead of using require() to get dependencies inside the function passed to require.def, you can also specify them via a dependency array argument to require.def. The order of the names in the dependency array match the order of arguments passed to the definition function passed to require.def. So the above example that uses the module **foo**:
+Instead of using require() to get dependencies inside the function passed to define(), you can also specify them via a dependency array argument to define(). The order of the names in the dependency array match the order of arguments passed to the definition function passed to define(). So the above example that uses the module **foo**:
 
-require.def(['foo'], function (foo) {
+define(['foo'], function (foo) {
     return function () {
         foo.doSomething();
     };

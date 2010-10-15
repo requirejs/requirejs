@@ -82,9 +82,9 @@ fileContents = 'require.baseUrlRegExp = /dojo(\\.xd)?\\.js(\\W|$)/i;' +
                fileUtil.readFile(savePath + "/dojo/_base/_loader/hostenv_browser.js");
 
 //Do a require.modify call to get dojo/_base defined before other things that need dojo.
-fileContents += 'require.def("dojo", function() {return dojo;});' +
-                'require.def("dijit", function() {return dijit;});' +
-                'require.def("dojox", function() {return dojox;});' +
+fileContents += 'define("dojo", function() {return dojo;});' +
+                'define("dijit", function() {return dijit;});' +
+                'define("dojox", function() {return dojox;});' +
                 'require.modify("dojo", "dojo-base", ["dojo", "dojo/_base"], function(){});';
 
 fileUtil.saveUtf8File(savePath + "/dojo.js", fileContents);
@@ -149,7 +149,7 @@ function writeRequireEnd(prefixProps, contents) {
             argString += ', _R' + i;
         }
 
-        return 'require.def("' + provideName + '", ["require", "dojo", "dijit", "dojox"' +
+        return 'define("' + provideName + '", ["require", "dojo", "dijit", "dojox"' +
                 reqString +
                 '], function(require, dojo, dijit, dojox' + argString + ') {\n' +
                 prefixProps.match +
@@ -321,7 +321,7 @@ function i18nConvert(fileName, convertedFileName, srcDir) {
 
     if (localeRegExp.test(fileName)) {
         //A locale-specific bundle. Easier to handle.
-        text = 'require.def("i18n!' + modName + '",\n' + contents + ');';
+        text = 'define("i18n!' + modName + '",\n' + contents + ');';
     } else {
         //A root bundle. A bit more work. First, get the basic name
         matches = rootBundleRegExp.exec(modName);
@@ -338,7 +338,7 @@ function i18nConvert(fileName, convertedFileName, srcDir) {
             }
         }
 
-        text = 'require.def("i18n!' + prefixName + baseName + '",\n{ "root": ' + contents + locales + '\n});';
+        text = 'define("i18n!' + prefixName + baseName + '",\n{ "root": ' + contents + locales + '\n});';
     }
     
     fileUtil.saveUtf8File(convertedFileName, text);

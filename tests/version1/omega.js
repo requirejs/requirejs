@@ -1,4 +1,4 @@
-require.def("omega",
+define("omega",
   ["sigma"],
   function(epsilon) {
     return {

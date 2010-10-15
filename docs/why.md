@@ -101,7 +101,7 @@ However, it still has the [Async vs Sync example](#async) problem: ideally we co
 
 So we need to know the dependencies and make sure we load them before executing our script. The best way to do that is construct our module loading API with function wrappers. Like so:
 
-    require.def(
+    define(
         //The name of this module
         "types/Manager",
 

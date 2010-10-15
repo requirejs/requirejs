@@ -1,4 +1,4 @@
-require.def("one",
+define("one",
   ["require", "two"],
   function(require) {
     var one = {

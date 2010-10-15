@@ -1,4 +1,4 @@
-require.def("foo/bar/one",
+define("foo/bar/one",
             ["require", "./two", "../three"],
             function (require, two, three) {
     return {

@@ -1,4 +1,4 @@
-require.def(function (require, exports) {    
+define(function (require, exports) {    
     exports.name = 'foo';
     exports.alphaName = require('alpha').name;
 });

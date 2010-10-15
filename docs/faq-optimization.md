@@ -6,7 +6,7 @@ See the [general optimization page](optimization.md) for basic set-up. Also see 
 
 ### <a name="priority">How can I download all script dependencies in parallel?</a>
 
-Using [require()]() and [require.def()](api.md#define) to define script modules and dependencies is an efficient syntax for indicating related code. However, for deploying code in the browser, it may not lead to the best overall performance. To find nested dependencies, a script has to be fetched, then a require() or require.def() call in that script might trigger other script downloads.
+Using [require()]() and [define()](api.md#define) to define script modules and dependencies is an efficient syntax for indicating related code. However, for deploying code in the browser, it may not lead to the best overall performance. To find nested dependencies, a script has to be fetched, then a require() or define() call in that script might trigger other script downloads.
 
 The [Optimization Tool](optimization.md) allows a quick way to [build all your scripts into one file](optimization.md#onejs), so only one script download is needed for your page.
 
@@ -67,7 +67,7 @@ page1.html might look like this:
 
 with page1.js looking like this:
 
-    require.def("page1",
+    define("page1",
         ["jquery", "object", "event", "widget", "Dialog", "Tabs"],
         function ($, object, event, widget, Dialog, Tabs) {
             ...

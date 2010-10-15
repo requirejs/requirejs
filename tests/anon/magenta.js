@@ -1,4 +1,4 @@
-require.def(function (require, exports, module) {
+define(function (require, exports, module) {
     //This is a fakeout require("fake1");
 
     var red = require("red"),

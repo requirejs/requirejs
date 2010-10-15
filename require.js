@@ -10,7 +10,7 @@ setTimeout: false, traceDeps: true, clearInterval: false, self: false,
 setInterval: false, importScripts: false */
 "use strict";
 
-var require;
+var require, define;
 (function () {
     //Change this version number for each release.
     var version = "0.14.2+",
@@ -235,7 +235,7 @@ var require;
      * return a value to define the module corresponding to the first argument's
      * name.
      */
-    req.def = function (name, deps, callback, contextName) {
+    define = req.def = function (name, deps, callback, contextName) {
         var i, scripts, script, node = currentlyAddingScript;
 
         //Allow for anonymous functions

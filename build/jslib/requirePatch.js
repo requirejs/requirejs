@@ -89,7 +89,7 @@
 
     //This function signature does not have to be exact, just match what we
     //are looking for.
-    require.def = function (name, obj) {
+    define = require.def = function (name, obj) {
         if (typeof name === "string" && !require.isArray(obj) && !require.isFunction(obj)) {
             layer.modulesWithNames[name] = true;
         }

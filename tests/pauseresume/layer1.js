@@ -13,7 +13,7 @@ require.def("alpha",
     }
 );
 
-require.def("beta",
+define("beta",
     ["gamma"],
     function (gamma) {
         return {
@@ -23,7 +23,7 @@ require.def("beta",
     }
 );
 
-require.def("gamma",
+define("gamma",
     ["epsilon"],
     function (epsilon) {
         return {

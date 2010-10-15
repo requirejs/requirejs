@@ -1,4 +1,4 @@
-require.def("widget",
+define("widget",
   ["subwidget", "text!widget.html"],
   function(subwidget, template) {
     return {

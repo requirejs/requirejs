@@ -1,4 +1,4 @@
-require.def("beta",
+define("beta",
   function() {
     return {
       version: 1

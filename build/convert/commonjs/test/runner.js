@@ -4,7 +4,7 @@
 /*global window: false, require: false, console: false */
 "use strict";
 
-require.def("test/runner",
+define("test/runner",
 ["require", "assert", "util"], function (
   require,   assert,   util) {
     var runner = {

@@ -1,3 +1,3 @@
-require.def("lamp", {
+define("lamp", {
     color: "blue"
 });
