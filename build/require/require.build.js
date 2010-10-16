@@ -80,15 +80,6 @@
                 pragmas: {
                 }
             }
-        },
-        {
-            name: "transportD-require",
-            include: ["require/i18n", "require/text", "require/jsonp", "require/order", "require/transportD"],
-            includeRequire: true,
-            override: {
-                pragmas: {
-                }
-            }
         }
 
     ]

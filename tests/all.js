@@ -15,6 +15,8 @@ doh.registerUrl("depoverlap", "../depoverlap.html");
 doh.registerUrl("urlfetch", "../urlfetch/urlfetch.html");
 doh.registerUrl("multiversion", "../multiversion.html", 10000);
 doh.registerUrl("jquery", "../jquery/jquery.html");
+doh.registerUrl("jqueryDynamic", "../jquery/jqueryDynamic.html");
+doh.registerUrl("jqueryDynamic2", "../jquery/jqueryDynamic2.html");
 doh.registerUrl("i18nlocaleunknown", "../i18n/i18n.html?bundle=i18n!nls/fr-fr/colors");
 doh.registerUrl("i18n", "../i18n/i18n.html");
 doh.registerUrl("i18nlocale", "../i18n/i18n.html?locale=en-us-surfer");

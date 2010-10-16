@@ -16,10 +16,6 @@ All you need to start using require.js in the browser. Does not include i18n, te
 
 require.js for use in the browser with the i18n, text, order and JSONP plugins included. 
 
-#### <a name="requirejstransportD">require.js with Transport D and plugins</a> [Minified](http://requirejs.org/docs/release/0.14.3/minified/transportD-require.js) | [With Comments](http://requirejs.org/docs/release/0.14.3/comments/transportD-require.js)
-
-require.js for use in the browser with require.define support for [Transport D from CommonJS](http://wiki.commonjs.org/wiki/Modules/Transport/D), and i18n, text, order and JSONP plugins included. 
-
 #### <a name="jqueryrequirejs">jQuery 1.4.2 with require()</a> [Minified](http://requirejs.org/docs/release/0.14.3/minified/require-jquery-1.4.2.js) | [With Comments](http://requirejs.org/docs/release/0.14.3/comments/require-jquery-1.4.2.js)
 
 A build of jQuery with integrated require() support. **Does not include** RequireJS plugin support, so the i18n, text, order, JSONP plugins will not work with this build.

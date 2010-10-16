@@ -7,7 +7,7 @@
 /*jslint plusplus: false, nomen: false, laxbreak: true, regexp: false */
 /*global window: false, document: false, navigator: false,
 setTimeout: false, traceDeps: true, clearInterval: false, self: false,
-setInterval: false, importScripts: false */
+setInterval: false, importScripts: false, jQuery: false */
 "use strict";
 
 var require, define;
@@ -292,6 +292,13 @@ var require, define;
             name = node.getAttribute("data-requiremodule");
         }
 
+        if (typeof name === 'string') {
+            //Do not try to auto-register a jquery later.
+            //Do this work here and in main, since for IE/useInteractive, this function
+            //is the earliest touch-point.
+            s.contexts[s.ctxName].jQueryDef = (name === "jquery");
+        }
+
         //Always save off evaluating the def call until the script onload handler.
         //This allows multiple modules to be in a file without prematurely
         //tracing dependencies, and allows for anonymous module support,
@@ -545,8 +552,10 @@ var require, define;
         //as part of a layer, where onScriptLoad is not fired
         //for those cases. Do this after the inline define and
         //dependency tracing is done.
+        //Also check if auto-registry of jQuery needs to be skipped.
         if (name) {
             context.loaded[name] = true;
+            context.jQueryDef = (name === "jquery");
         }
     };
 
@@ -669,6 +678,36 @@ var require, define;
     //>>excludeEnd("requireExcludePlugin");
 
     /**
+     * As of jQuery 1.4.3, it supports a readyWait property that will hold off
+     * calling jQuery ready callbacks until all scripts are loaded. Be sure
+     * to track it if readyWait is available. Also, since jQuery 1.4.3 does
+     * not register as a module, need to do some global inference checking.
+     * Even if it does register as a module, not guaranteed to be the precise
+     * name of the global. If a jQuery is tracked for this context, then go
+     * ahead and register it as a module too, if not already in process.
+     */
+    function jQueryCheck(context, jqCandidate) {
+        if (!context.jQuery) {
+            var $ = jqCandidate || (typeof jQuery !== "undefined" ? jQuery : null);
+            if ($ && "readyWait" in $) {
+                context.jQuery = $;
+
+                //Manually create a "jquery" module entry if not one already
+                //or in process.
+                if (!context.defined.jquery && !context.jQueryDef) {
+                    context.defined.jquery = $;
+                }
+
+                //Make sure 
+                if (context.scriptCount) {
+                    $.readyWait += 1;
+                    context.jQueryIncremented = true;
+                }
+            }
+        }
+    }
+
+    /**
      * Internal method used by environment adapters to complete a load event.
      * A load event could be a script load or just a load pass from a synchronous
      * load call.
@@ -700,7 +739,12 @@ var require, define;
         //moduleName that maps to a require.def call. This line is important
         //for traditional browser scripts.
         context.loaded[moduleName] = true;
-        
+
+        //If a global jQuery is defined, check for it. Need to do it here
+        //instead of main() since stock jQuery does not register as
+        //a module via define.
+        jQueryCheck(context);
+
         context.scriptCount -= 1;
         resume(context);
     };
@@ -906,13 +950,20 @@ var require, define;
                 context.scriptCount += 1;
                 req.attach(url, contextName, moduleName);
                 urlFetched[url] = true;
+
+                //If tracking a jQuery, then make sure its readyWait
+                //is incremented to prevent its ready callbacks from
+                //triggering too soon.
+                if (context.jQuery && !context.jQueryIncremented) {
+                    context.jQuery.readyWait += 1;
+                    context.jQueryIncremented = true;
+                }
             }
         }
     };
 
     req.jsExtRegExp = /\.js$/;
 
-    
     /**
      * Given a relative module name, like ./something, normalize it to
      * a real name that can be mapped to a path.
@@ -1528,7 +1579,7 @@ var require, define;
             //>>excludeStart("dojoConvert", pragmas.dojoConvert);
 
             //>>excludeStart("jquery", pragmas.jquery);
-            rePkg = /(allplugins-|transportD-)?require\.js(\W|$)/i;
+            rePkg = /allplugins-?require\.js(\W|$)/i;
             //>>excludeEnd("jquery");
 
             //>>excludeEnd("dojoConvert");
@@ -1597,12 +1648,27 @@ var require, define;
      * you can define this method to call your page ready code instead.
      */
     req.callReady = function () {
-        var callbacks = s.readyCalls, i, callback;
+        var callbacks = s.readyCalls, i, callback, contexts, context, prop;
 
-        if (s.isPageLoaded && s.isDone && callbacks.length) {
-            s.readyCalls = [];
-            for (i = 0; (callback = callbacks[i]); i++) {
-                callback();
+        if (s.isPageLoaded && s.isDone) {
+            if (callbacks.length) {
+                s.readyCalls = [];
+                for (i = 0; (callback = callbacks[i]); i++) {
+                    callback();
+                }
+            }
+
+            //If jQuery with readyWait is being tracked, updated its
+            //readyWait count.
+            contexts = s.contexts;
+            for (prop in contexts) {
+                if (!(prop in empty)) {
+                    context = contexts[prop];
+                    if (context.jQueryIncremented) {
+                        context.jQuery.readyWait -= 1;
+                        context.jQueryIncremented = false;
+                    }
+                }
             }
         }
     };
@@ -1674,7 +1740,11 @@ var require, define;
     //which seems odd to do on the server.
     if (typeof setTimeout !== "undefined") {
         setTimeout(function () {
-            resume(s.contexts[(cfg.context || defContextName)]);
+            var ctx = s.contexts[(cfg.context || defContextName)];
+            //Allow for jQuery to be loaded/already in the page, and if jQuery 1.4.3,
+            //make sure to hold onto it for readyWait triggering.
+            jQueryCheck(ctx);
+            resume(ctx);
         }, 0);
     }
 }());

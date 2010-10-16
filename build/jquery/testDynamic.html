@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dynamic jQuery Load Test after Timeout</title>
+    <script src="../../require.js"></script>
+    <script>
+    setTimeout(function () {
+        require({
+                baseUrl: '.',
+                paths: {
+                    "jquery": "jquery-1.4.3"
+                },
+            },
+            ["jquery"],
+            function ($) {
+                $(function () {
+                    $('<p>Hello World</p>').appendTo('body');
+                });
+            }
+        );
+    }, 1000);
+    </script>
+</head>
+<body>
+    <h1>Dynamic jQuery Load Test after Timeout</h1>
+    <p>Tests loading jQuery with require(). If it works, you will see "Hello World" below.</p>
+</body>
+</html>

@@ -8,6 +8,15 @@
   What about pages that use that new version but some 3rd party lib wants its own?
   That is what contexts are for.
 
+- refactor considerations:
+  - Only execute module functions that have a specific dependency set for them?
+    Does this break some pure-web cases now? Probably not?
+  - Allow for module reload by tracing dependers. But is module reloading practical?
+    Need to have a "destroy" method on a module, to unregister event handlers?
+    Or a function callback that can be called for each module unload, and that can
+    do custom app unregistering, but should start from leaves and work to the trunk,
+    in case the unregister call
+
 - For function(require, exports, module) form, do not pass exports if the function
   does not ask  for it, to allow the function to set the exported value by returning.
 
