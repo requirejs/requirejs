@@ -11,7 +11,7 @@ if [ -z $version ]; then
     exit 1
 fi
 
-jqueryName=jquery-1.4.2.js
+jqueryName=jquery-1.4.3.js
 
 # Setup a build directory
 rm -rf ../../requirejs-build

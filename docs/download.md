@@ -13,17 +13,17 @@ All you need to start using require.js in the browser. Does not include i18n, te
 
 require.js for use in the browser with the i18n, text, order and JSONP plugins included. 
 
-#### <a name="jqueryrequirejs">jQuery 1.4.2 with require()</a> [Minified](http://requirejs.org/docs/release/0.14.4/minified/require-jquery-1.4.2.js) | [With Comments](http://requirejs.org/docs/release/0.14.4/comments/require-jquery-1.4.2.js)
+#### <a name="jqueryrequirejs">jQuery 1.4.3 with require()</a> [Minified](http://requirejs.org/docs/release/0.14.4/minified/require-jquery-1.4.3.js) | [With Comments](http://requirejs.org/docs/release/0.14.4/comments/require-jquery-1.4.3.js)
 
 A build of jQuery with integrated require() support. **Does not include** RequireJS plugin support, so the i18n, text, order, JSONP plugins will not work with this build.
 
-#### <a name="jqueryrequirejsplugins">jQuery 1.4.2 with require() and plugins</a> [Minified](http://requirejs.org/docs/release/0.14.4/minified/requireplugins-jquery-1.4.2.js) | [With Comments](http://requirejs.org/docs/release/0.14.4/comments/requireplugins-jquery-1.4.2.js)
+#### <a name="jqueryrequirejsplugins">jQuery 1.4.3 with require() and plugins</a> [Minified](http://requirejs.org/docs/release/0.14.4/minified/requireplugins-jquery-1.4.3.js) | [With Comments](http://requirejs.org/docs/release/0.14.4/comments/requireplugins-jquery-1.4.3.js)
 
 A build of jQuery with integrated require() support that includes plugin support, including the i18n, text, order and JSONP plugins.
 
 <hr>
 
-#### <a name="samplejquery">Sample jQuery 1.4.2 project with require()</a> [Download](http://requirejs.org/docs/release/0.14.4/jquery-require-sample.zip)
+#### <a name="samplejquery">Sample jQuery 1.4.3 project with require()</a> [Download](http://requirejs.org/docs/release/0.14.4/jquery-require-sample.zip)
 
 A zip file containing a build of jQuery with integrated require() support, with an sample project included to show how it can be used when using jQuery. **Does not include** RequireJS plugin support, so the i18n, text, order, JSONP plugins will not work with this build.
 
