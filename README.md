@@ -14,7 +14,7 @@ The standard require.js file is around 5KB when minified via Closure Compiler an
 
 RequireJS works in IE 6+, Firefox 2+, Safari 3.2+, Chrome 3+, and Opera 10+.
 
-Latest Release: [0.14.3](http://requirejs.org/docs/download.html)
+Latest Release: [0.14.4](http://requirejs.org/docs/download.html)
 
 * [Start](requirejs/tree/master/docs/start.md)
     * [Using it with jQuery](requirejs/tree/master/docs/jquery.md)
