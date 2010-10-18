@@ -432,6 +432,12 @@ If no baseUrl is passed in, the path to require.js is used as the baseUrl path. 
 
 **priority**: An array of module/file names to load immediately, before tracing down any other dependencies. This allows you to set up a small set of files that are downloaded in parallel that contain most of the modules and their dependencies already built in. More information is in the [Optimization FAQ, Priority Downloads](faq-optimization#priority).
 
+*** urlArgs**: Extra querystring arguments appended to URLs that RequireJS uses to fetch resources. Most useful to cache bust when the browser or server is not configured correctly. Example cache bust setting for urlArgs:
+
+    urlArgs: "bust=" +  (new Date()).getTime()
+
+During development it can be useful to use this, however **be sure** to remove it before deploying your code.
+
 # <a name="pageload">Page Load Event Support</a>
 
 require.js also has a method for notifying your code when the page has loaded. require.js uses the DOMContentLoaded event for browsers that support it, or window onload for browsers that do not.

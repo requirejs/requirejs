@@ -1,5 +1,5 @@
 require({
-        baseUrl: "./"    
+        baseUrl: "./"
     },
     ["require", "map", "simple", "dimple", "func"],
     function(require, map, simple, dimple, func) {
