@@ -1579,7 +1579,7 @@ var require, define;
             //>>excludeStart("dojoConvert", pragmas.dojoConvert);
 
             //>>excludeStart("jquery", pragmas.jquery);
-            rePkg = /allplugins-?require\.js(\W|$)/i;
+            rePkg = /(allplugins-)?require\.js(\W|$)/i;
             //>>excludeEnd("jquery");
 
             //>>excludeEnd("dojoConvert");
