@@ -1,3 +1,5 @@
+- Calculate baseUrl relative to data-main if it is available.
+
 - refactor considerations:
   - Only execute module functions that have a specific dependency set for them?
     Does this break some pure-web cases now? Probably not?

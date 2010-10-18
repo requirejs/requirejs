@@ -13,7 +13,7 @@ setInterval: false, importScripts: false, jQuery: false */
 var require, define;
 (function () {
     //Change this version number for each release.
-    var version = "0.14.5",
+    var version = "0.14.5+",
             empty = {}, s,
             i, defContextName = "_", contextLoads = [],
             scripts, script, rePkg, src, m, dataMain, cfg = {}, setReadyState,
