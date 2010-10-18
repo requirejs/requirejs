@@ -1,13 +1,3 @@
-- jQuery 1.4.3:
-  - Open ticket about just registering via require.def with something like:
-  if( typeof require !== "undefined" && require.def )
-    require.def(function() { return jQuery; });
-  }
-  then close out http://dev.jquery.com/ticket/5742
-  Do this after the 0.14 release so that anonymous modules will be officially released.
-  What about pages that use that new version but some 3rd party lib wants its own?
-  That is what contexts are for.
-
 - refactor considerations:
   - Only execute module functions that have a specific dependency set for them?
     Does this break some pure-web cases now? Probably not?
@@ -47,7 +37,6 @@ Need to figure out why. Function.toString() seems to work.
 
 - Allow module names that match Object.prototype method names?
 - browser test for loading css?
-- config option, noCache: true, to enable cache busting for misbehaved servers?
 
 - Best practices/architecture guide
 - Allow r.js to work on Rhino

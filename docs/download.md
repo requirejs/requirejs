@@ -1,29 +1,29 @@
 # Download RequireJS
 
-### Latest Release: 0.14.4
+### Latest Release: 0.14.5
 
-* Support jQuery 1.4.3. The bundled RequireJS+jQuery bundle now uses RequireJS 1.4.3, and it is now possible to load jQuery directly from a CDN.
-* Remove the Transport D pre-built option from the download page. The Transport D adapter is still in the source bundler though.
+* [Fix bug](http://github.com/jrburke/requirejs/commit/88847fe53ab2e97e7ba7ec8f2afc056fb29b0a70) where scripts were not loaded from the correct path. Did not affect RequireJS+jQuery builds, but affected other builds. If you do not use a RequireJS+jQuery build, then it is strongly recommended that you upgrade from 0.14.4 to 0.14.5.
+* Added an urlArgs [config option](http://requirejs.org/docs/api.html#config) to allow for cache busting when servers/browser misbehave during development.
 
-#### <a name="requirejs">require.js</a> [Minified](http://requirejs.org/docs/release/0.14.4/minified/require.js) | [With Comments](http://requirejs.org/docs/release/0.14.4/comments/require.js)
+#### <a name="requirejs">require.js</a> [Minified](http://requirejs.org/docs/release/0.14.5/minified/require.js) | [With Comments](http://requirejs.org/docs/release/0.14.5/comments/require.js)
 
 All you need to start using require.js in the browser. Does not include i18n, text, order, JSONP plugins or Node/Rhino support.
 
-#### <a name="requirejsplugins">require.js with plugins</a> [Minified](http://requirejs.org/docs/release/0.14.4/minified/allplugins-require.js) | [With Comments](http://requirejs.org/docs/release/0.14.4/comments/allplugins-require.js)
+#### <a name="requirejsplugins">require.js with plugins</a> [Minified](http://requirejs.org/docs/release/0.14.5/minified/allplugins-require.js) | [With Comments](http://requirejs.org/docs/release/0.14.5/comments/allplugins-require.js)
 
 require.js for use in the browser with the i18n, text, order and JSONP plugins included. 
 
-#### <a name="jqueryrequirejs">jQuery 1.4.3 with require()</a> [Minified](http://requirejs.org/docs/release/0.14.4/minified/require-jquery-1.4.3.js) | [With Comments](http://requirejs.org/docs/release/0.14.4/comments/require-jquery-1.4.3.js)
+#### <a name="jqueryrequirejs">jQuery 1.4.3 with require()</a> [Minified](http://requirejs.org/docs/release/0.14.5/minified/require-jquery-1.4.3.js) | [With Comments](http://requirejs.org/docs/release/0.14.5/comments/require-jquery-1.4.3.js)
 
 A build of jQuery with integrated require() support. **Does not include** RequireJS plugin support, so the i18n, text, order, JSONP plugins will not work with this build.
 
-#### <a name="jqueryrequirejsplugins">jQuery 1.4.3 with require() and plugins</a> [Minified](http://requirejs.org/docs/release/0.14.4/minified/requireplugins-jquery-1.4.3.js) | [With Comments](http://requirejs.org/docs/release/0.14.4/comments/requireplugins-jquery-1.4.3.js)
+#### <a name="jqueryrequirejsplugins">jQuery 1.4.3 with require() and plugins</a> [Minified](http://requirejs.org/docs/release/0.14.5/minified/requireplugins-jquery-1.4.3.js) | [With Comments](http://requirejs.org/docs/release/0.14.5/comments/requireplugins-jquery-1.4.3.js)
 
 A build of jQuery with integrated require() support that includes plugin support, including the i18n, text, order and JSONP plugins.
 
 <hr>
 
-#### <a name="samplejquery">Sample jQuery 1.4.3 project with require()</a> [Download](http://requirejs.org/docs/release/0.14.4/jquery-require-sample.zip)
+#### <a name="samplejquery">Sample jQuery 1.4.3 project with require()</a> [Download](http://requirejs.org/docs/release/0.14.5/jquery-require-sample.zip)
 
 A zip file containing a build of jQuery with integrated require() support, with an sample project included to show how it can be used when using jQuery. **Does not include** RequireJS plugin support, so the i18n, text, order, JSONP plugins will not work with this build.
 
@@ -31,9 +31,9 @@ A zip file containing a build of jQuery with integrated require() support, with 
 
 #### <a name="node">RequireJS adapter for Node</a> 
 
-**[r.js](http://requirejs.org/docs/release/0.14.4/node/r.js)**: use this file if you want to code to the RequireJS module format in Node. The [Node instructions](node.md) explain how to use it. It includes all the code needed for RequireJS to function with Node.
+**[r.js](http://requirejs.org/docs/release/0.14.5/node/r.js)**: use this file if you want to code to the RequireJS module format in Node. The [Node instructions](node.md) explain how to use it. It includes all the code needed for RequireJS to function with Node.
 
-**[index.js](http://requirejs.org/docs/release/0.14.4/node/index.js)**: the standard HTTP server-based Hello World app for Node, but coded to work with the r.js adapter. Download it in the same directory as r.js and then run this command:
+**[index.js](http://requirejs.org/docs/release/0.14.5/node/index.js)**: the standard HTTP server-based Hello World app for Node, but coded to work with the r.js adapter. Download it in the same directory as r.js and then run this command:
 
     node r.js index.js
 
@@ -41,7 +41,7 @@ Then you can go to http://127.0.0.1:8000/ and see "Hello World" printed after ab
 
 <hr>
 
-#### <a name="optimizationtool">Optimization Tool / Full Source</a> [Download](http://requirejs.org/docs/release/0.14.4/requirejs-0.14.4.zip)
+#### <a name="optimizationtool">Optimization Tool / Full Source</a> [Download](http://requirejs.org/docs/release/0.14.5/requirejs-0.14.5.zip)
 
 A zip file that is the optimization tool for RequireJS. It also includes the full source for require.js and its plugins.
 
@@ -52,6 +52,11 @@ If you want to use RequireJS in Rhino, you should use this download.
 <hr>
 
 ### Previous releases
+
+### Latest Release: 0.14.4
+
+* Support jQuery 1.4.3. The bundled RequireJS+jQuery bundle now uses RequireJS 1.4.3, and it is now possible to load jQuery directly from a CDN.
+* Remove the Transport D pre-built option from the download page. The Transport D adapter is still in the source bundler though.
 
 ### 0.14.3
 
