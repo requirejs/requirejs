@@ -1,5 +1,5 @@
 /** vim: et:ts=4:sw=4:sts=4
- * @license RequireJS Copyright (c) 2010, The Dojo Foundation All Rights Reserved.
+ * @license RequireJS 0.14.5 Copyright (c) 2010, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/requirejs for details
  */
@@ -977,37 +977,36 @@ var require, define;
         //Adjust any relative paths.
         var part;
         if (name.charAt(0) === ".") {
-            if (!baseName) {
-                req.onError(new Error("Cannot normalize module name: " +
-                            name +
-                            ", no relative module name available."));
-            }
-
-            if (context.config.packages[baseName]) {
-                //If the baseName is a package name, then just treat it as one
-                //name to concat the name with.
-                baseName = [baseName];
-            } else {
-                //Convert baseName to array, and lop off the last part,
-                //so that . matches that "directory" and not name of the baseName's
-                //module. For instance, baseName of "one/two/three", maps to
-                //"one/two/three.js", but we want the directory, "one/two" for
-                //this normalization.
-                baseName = baseName.split("/");
-                baseName = baseName.slice(0, baseName.length - 1);
-            }
-
-            name = baseName.concat(name.split("/"));
-            for (i = 0; (part = name[i]); i++) {
-                if (part === ".") {
-                    name.splice(i, 1);
-                    i -= 1;
-                } else if (part === "..") {
-                    name.splice(i - 1, 2);
-                    i -= 2;
+            //If have a base name, try to normalize against it,
+            //otherwise, assume it is a top-level require that will
+            //be relative to baseUrl in the end.
+            if (baseName) {
+                if (context.config.packages[baseName]) {
+                    //If the baseName is a package name, then just treat it as one
+                    //name to concat the name with.
+                    baseName = [baseName];
+                } else {
+                    //Convert baseName to array, and lop off the last part,
+                    //so that . matches that "directory" and not name of the baseName's
+                    //module. For instance, baseName of "one/two/three", maps to
+                    //"one/two/three.js", but we want the directory, "one/two" for
+                    //this normalization.
+                    baseName = baseName.split("/");
+                    baseName = baseName.slice(0, baseName.length - 1);
                 }
+
+                name = baseName.concat(name.split("/"));
+                for (i = 0; (part = name[i]); i++) {
+                    if (part === ".") {
+                        name.splice(i, 1);
+                        i -= 1;
+                    } else if (part === "..") {
+                        name.splice(i - 1, 2);
+                        i -= 2;
+                    }
+                }
+                name = name.join("/");
             }
-            name = name.join("/");
         }
         return name;
     };

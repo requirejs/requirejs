@@ -1,5 +1,9 @@
 - Calculate baseUrl relative to data-main if it is available.
 
+- Building a lib that has its own lookup paths, so it can be self-contained?
+  but what if want to share code? Maybe just make it an option, you can do it,
+  but lose out on shared common.
+
 - refactor considerations:
   - Only execute module functions that have a specific dependency set for them?
     Does this break some pure-web cases now? Probably not?
