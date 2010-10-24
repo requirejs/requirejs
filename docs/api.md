@@ -227,7 +227,7 @@ The contents of that file should look like so:
         }
     });
 
-Notice that an object literal with a property of "root" as given as the only dependency for this module. That is all you have to do to set the stage for later localization (l10n) work.
+An object literal with a property of "root" defines this module. That is all you have to do to set the stage for later localization (l10n) work.
 
 You can then use the above module in another module, say, in a my/lamps.js file:
 
@@ -279,6 +279,24 @@ Then the value for red in "root" will be used. This works for all locale pieces.
 * my/nls/fr-fr/colors.js
 * my/nls/fr/colors.js
 * my/nls/colors.js
+
+If you prefer to not include the root bundle in the top level module, you can define it like a normal locale bundle. In that case, the top level module would look like:
+
+    //my/nls/colors.js contents:
+    define({
+        "root": true,
+        "fr-fr": true,
+        "fr-fr-paris": true
+    });
+
+and the root bundle would look like:
+
+    //Contents of my/nls/root/colors.js
+    define({
+        "red": "red",
+        "blue": "blue",
+        "green": "green"
+    });
 
 ## <a name="text">Specify a Text File Dependency</a>
 

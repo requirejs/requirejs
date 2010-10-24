@@ -1,4 +1,9 @@
+- get rid of pragma for page load logic exclusion?
+
 - Calculate baseUrl relative to data-main if it is available.
+
+- Check out blackberry emulators at:
+https://www.blackberry.com/Downloads/entry.do?code=060AD92489947D410D897474079C1477
 
 - Building a lib that has its own lookup paths, so it can be self-contained?
   but what if want to share code? Maybe just make it an option, you can do it,
