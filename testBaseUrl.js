@@ -1,4 +1,4 @@
-define(function() {
+define([], function() {
     doh.register(
         "testBaseUrl", 
         [

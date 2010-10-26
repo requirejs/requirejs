@@ -17,12 +17,16 @@ var require, define;
             empty = {}, s,
             i, defContextName = "_", contextLoads = [],
             scripts, script, rePkg, src, m, dataMain, cfg = {}, setReadyState,
-            readyRegExp = /^(complete|loaded)$/,
             commentRegExp = /(\/\*([\s\S]*?)\*\/|\/\/(.*)$)/mg,
-            cjsRequireRegExp = /require\(["']([\w-_\.\/]+)["']\)/g,
+            cjsRequireRegExp = /require\(["']([\w\-_\.\/]+)["']\)/g,
             main,
             isBrowser = !!(typeof window !== "undefined" && navigator && document),
             isWebWorker = !isBrowser && typeof importScripts !== "undefined",
+            //PS3 indicates loaded and complete, but need to wait for complete
+            //specifically. Sequence is "loading", "loaded", execution,
+            // then "complete". The UA check is unfortunate, but not sure how
+            //to feature test w/o causing perf issues.
+            readyRegExp = isBrowser && navigator.platform === 'PLAYSTATION 3' ? /^complete$/ : /^(complete|loaded)$/,
             ostring = Object.prototype.toString,
             ap = Array.prototype,
             aps = ap.slice, scrollIntervalId, req, baseElement,
