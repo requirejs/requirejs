@@ -1,6 +1,8 @@
 - Allow factory function storage per-url, to reuse across contexts. Hmm, what
   to do with modules in an optimized layer.
 
+- Finish PS3 work, investigate test failures, document level of support.
+
 - get rid of pragma for page load logic exclusion?
 
 - Calculate baseUrl relative to data-main if it is available.
