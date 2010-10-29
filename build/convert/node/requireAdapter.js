@@ -14,13 +14,14 @@
     /*INSERT PROTECTED CONTENT HERE*/
 
     var natives = process.binding('natives'),
-        isDebug = global.__requireIsDebug;
+        isDebug = global.__requireIsDebug,
+        suffixRegExp = /\.js$/;
 
     //TODO: make this async. Using sync now to cheat to get to a bootstrap.
     require.load = function (moduleName, contextName) {
         var url = require.nameToUrl(moduleName, null, contextName),
             context = require.s.contexts[contextName],
-            content, dirName;
+            content, dirName, indexUrl;
 
         //isDone is used by require.ready()
         require.s.isDone = false;
@@ -40,7 +41,20 @@
             if (isDebug) {
                 logger.trace("RequireJS loading module: " + moduleName + " at path: " + url);
             }
-            content = require._nodeReadFile(url);
+            if (require._fileExists(url)) {
+                content = require._nodeReadFile(url);
+            } else {
+                //Maybe it is the goofy index.js thing Node supports.
+                indexUrl = url.replace(suffixRegExp, '/index.js');
+                if (require._fileExists(indexUrl)) {
+                    content = require._nodeReadFile(indexUrl);
+                    url = indexUrl;
+                } else {
+                    throw new Error("RequireJS cannot find file for module: " +
+                                    moduleName + " Tried paths: " + url +
+                                    ' and ' + indexUrl);
+                }
+            }
         }
 
         //If a CommonJS module, translate it on the fly.
@@ -97,10 +111,12 @@
 
     require._log = global.__requireLog;
     require._nodeReadFile = global.__requireReadFile;
+    require._fileExists = global.__requireFileExists;
 
     delete global.__requireReadFile;
     delete global.__requireLog;
     delete global.__requireIsDebug;
+    delete global.__requireFileExists;
 }());
 
 
