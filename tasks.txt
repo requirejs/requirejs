@@ -1,3 +1,10 @@
+Optimizer improvements:
+1) Make sure the optimizer can be run from any directory, and not force you to be in the same directory as the app.build.js file
+2) Investigate the issue with main.js baseUrl overriding the one in app.build.js
+3) Update examples/docs to allow an app.build.js that can be passed through the minifier.
+4) See if the pathing can be made simpler (abde's comment).
+
+
 - Allow factory function storage per-url, to reuse across contexts. Hmm, what
   to do with modules in an optimized layer.
 
