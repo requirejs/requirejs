@@ -4,7 +4,7 @@
  * see: http://github.com/jrburke/requirejs for details
  */
 /*jslint plusplus: false */
-/*global */
+/*global window: false, navigator: false, document: false, importScripts: false */
 "use strict";
 
 var require, define;
@@ -12,10 +12,14 @@ var require, define;
     //Change this version number for each release.
     var version = "0.14.5+",
         ostring = Object.prototype.toString,
+        isBrowser = !!(typeof window !== "undefined" && navigator && document),
+        isWebWorker = !isBrowser && typeof importScripts !== "undefined",
         defContextName = "_",
         empty = {},
         contexts = {},
-        req, cfg;
+        isDone = false,
+        useInteractive = false,
+        req, cfg, currentlyAddingScript;
 
     function isFunction(it) {
         return ostring.call(it) === "[object Function]";
@@ -75,7 +79,7 @@ var require, define;
      * with the standard context.
      */
     function newContext(contextName) {
-        var config = {}, context, defQueue = [], paused = [];
+        var config = {}, context, defQueue = [], paused = [], load;
 
         /**
          * Given a relative module name, like ./something, normalize it to
@@ -379,6 +383,8 @@ var require, define;
             }
         };
 
+        load = req.makeLoad(context);
+
         return context;
     }
 
@@ -425,10 +431,137 @@ var require, define;
         context.require(deps, callback);
 
 //TODO: Need to allow queuing calls if context is not right.
+//contextLoads was used before.
     };
 
     req.version = version;
     req.isArray = isArray;
     req.isFunction = isFunction;
-    
+    req.s = {
+        contexts: contexts,
+        //Stores a list of URLs that should not get async script tag treatment.
+        skipAsync: {}
+    };
+
+    /**
+     * Creates a function that does the loading of the file that maps
+     * to a module. Make this a separate function to allow other environments
+     * to override it.
+     * @param {Object} context the context to use for this load function.
+     */
+    req.makeLoad = function (context) {
+
+        /**
+         * Does the request to load a module for the browser case.
+         * 
+         * @param {String} moduleName the name of the module.
+         */
+        return function (moduleName) {
+            var contextName = context.contextName,
+                urlFetched = context.urlFetched,
+                loaded = context.loaded, url;
+            isDone = false;
+
+            //Only set loaded to false for tracking if it has not already been set.
+            if (!loaded[moduleName]) {
+                loaded[moduleName] = false;
+            }
+
+            //First derive the path name for the module.
+            url = context.nameToUrl(moduleName);
+            if (!urlFetched[url]) {
+                context.scriptCount += 1;
+                req.attach(url, contextName, moduleName);
+                urlFetched[url] = true;
+
+                //If tracking a jQuery, then make sure its readyWait
+                //is incremented to prevent its ready callbacks from
+                //triggering too soon.
+                if (context.jQuery && !context.jQueryIncremented) {
+                    context.jQuery.readyWait += 1;
+                    context.jQueryIncremented = true;
+                }
+            }
+        };
+    };
+
+    /**
+     * Attaches the script represented by the URL to the current
+     * environment. Right now only supports browser loading,
+     * but can be redefined in other environments to do the right thing.
+     * @param {String} url the url of the script to attach.
+     * @param {String} contextName the name of the context that wants the script.
+     * @param {moduleName} the name of the module that is associated with the script.
+     * @param {Function} [callback] optional callback, defaults to require.onScriptLoad
+     * @param {String} [type] optional type, defaults to text/javascript
+     */
+    req.attach = function (url, contextName, moduleName, callback, type) {
+        var node, loaded, context;
+        if (isBrowser) {
+            //In the browser so use a script tag
+            callback = callback || req.onScriptLoad;
+            node = document.createElement("script");
+            node.type = type || "text/javascript";
+            node.charset = "utf-8";
+            //Use async so Gecko does not block on executing the script if something
+            //like a long-polling comet tag is being run first. Gecko likes
+            //to evaluate scripts in DOM order, even for dynamic scripts.
+            //It will fetch them async, but only evaluate the contents in DOM
+            //order, so a long-polling script tag can delay execution of scripts
+            //after it. But telling Gecko we expect async gets us the behavior
+            //we want -- execute it whenever it is finished downloading. Only
+            //Helps Firefox 3.6+
+            //Allow some URLs to not be fetched async. Mostly helps the order!
+            //plugin
+            if (!req.s.skipAsync[url]) {
+                node.async = true;
+            }
+            node.setAttribute("data-requirecontext", contextName);
+            node.setAttribute("data-requiremodule", moduleName);
+
+            //Set up load listener.
+            if (node.addEventListener) {
+                node.addEventListener("load", callback, false);
+            } else {
+                //Probably IE. If not it will throw an error, which will be
+                //useful to know. IE (at least 6-8) do not fire
+                //script onload right after executing the script, so
+                //we cannot tie the anonymous require.def call to a name.
+                //However, IE reports the script as being in "interactive"
+                //readyState at the time of the require.def call.
+                useInteractive = true;
+                node.attachEvent("onreadystatechange", callback);
+            }
+            node.src = url;
+
+            //For some cache cases in IE 6-8, the script executes before the end
+            //of the appendChild execution, so to tie an anonymous require.def
+            //call to the module name (which is stored on the node), hold on
+            //to a reference to this node, but clear after the DOM insertion.
+            currentlyAddingScript = node;
+            if (baseElement) {
+                head.insertBefore(node, baseElement);
+            } else {
+                head.appendChild(node);
+            }
+            currentlyAddingScript = null;
+            return node;
+        } else if (isWebWorker) {
+            //In a web worker, use importScripts. This is not a very
+            //efficient use of importScripts, importScripts will block until
+            //its script is downloaded and evaluated. However, if web workers
+            //are in play, the expectation that a build has been done so that
+            //only one script needs to be loaded anyway. This may need to be
+            //reevaluated if other use cases become common.
+            context = contexts[contextName];
+            loaded = context.loaded;
+            loaded[moduleName] = false;
+            importScripts(url);
+
+            //Account for anonymous modules
+            req.completeLoad(moduleName, context);
+        }
+        return null;
+    };
+
 }());
