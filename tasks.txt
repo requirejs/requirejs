@@ -5,8 +5,15 @@ Optimizer improvements:
 4) See if the pathing can be made simpler (abde's comment).
 
 
+Node issues:
+* socket.io/support/socket.io-client/lib/io.js. uses "this" to attach properties to export?!?
+* connect/lib/connect/index.js and express/support/connect/lib/connect/index.js do a try/catch for "constants"
+xx* connect-redis/lib/redis/index.js, it tried to require('util') or 'sys' try/catch dependening on node version.
+* connect/lib/connect/index.js does dynamic/computed require calls
+
 - Allow factory function storage per-url, to reuse across contexts. Hmm, what
   to do with modules in an optimized layer.
+- Figure out if isCheckLoaded can be avoided. Not likely, but revisit.
 
 - Finish PS3 work, investigate test failures, document level of support.
 

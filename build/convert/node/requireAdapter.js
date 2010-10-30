@@ -17,6 +17,38 @@
         isDebug = global.__requireIsDebug,
         suffixRegExp = /\.js$/;
 
+    //Override require callback to use exports as the "this", to accomodate
+    //some modules that attach to "this". WTF? Specifically,
+    //socket.io/support/socket.io-client/lib/io.js.
+    require.execCb = function (name, cb, args) {
+        return cb.apply(require.s.contexts[require.s.ctxName].defined[name] || null, args);
+    };
+
+    require.get = function (moduleName, contextName, relModuleName) {
+        if (moduleName === "require" || moduleName === "exports" || moduleName === "module") {
+            require.onError(new Error("Explicit require of " + moduleName + " is not allowed."));
+        }
+        contextName = contextName || require.s.ctxName;
+
+        var ret, context = require.s.contexts[contextName];
+
+        //Normalize module name, if it contains . or ..
+        moduleName = require.normalizeName(moduleName, relModuleName, context);
+
+        ret = context.defined[moduleName];
+        if (ret === undefined) {
+            //Try to dynamically fetch it.
+            require([moduleName], function () {}, contextName, relModuleName);
+            //The above call is sync, so can do the next thing safely.
+            ret = context.defined[moduleName];
+        }
+        return ret;
+    };
+
+    //Sync environments can allow multiple nested checkLoaded calls since
+    //nested dependencies are satisfied immediately.
+    require.blockCheckLoaded = false;
+
     //TODO: make this async. Using sync now to cheat to get to a bootstrap.
     require.load = function (moduleName, contextName) {
         var url = require.nameToUrl(moduleName, null, contextName),
@@ -59,7 +91,7 @@
 
         //If a CommonJS module, translate it on the fly.
         //The commonJs module is from build/jslib/commonJs.js
-        content = commonJs.convert(moduleName, url, content);
+        content = commonJs.convert(moduleName, url, content, true);
 
         //TODO: remove when node code is updated:
         //sys has an obsolete circular ref to child_process. Remove it.

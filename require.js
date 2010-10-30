@@ -1005,8 +1005,16 @@ var require, define;
                         name.splice(i, 1);
                         i -= 1;
                     } else if (part === "..") {
-                        name.splice(i - 1, 2);
-                        i -= 2;
+                        if (i === 1) {
+                            //End of the line. Keep at least one non-dot
+                            //path segment at the front so it can be mapped
+                            //correctly to disk. Otherwise, there is likely
+                            //no path mapping for '..'.
+                            break;
+                        } else if (i > 1) {
+                            name.splice(i - 1, 2);
+                            i -= 2;
+                        }
                     }
                 }
                 name = name.join("/");
@@ -1103,6 +1111,11 @@ var require, define;
                                  config.urlArgs) : url;
     };
 
+    //In async environments, checkLoaded can get called a few times in the same
+    //call stack. Allow only one to do the finishing work. Set to false
+    //for sync environments.
+    req.blockCheckLoaded = true;
+
     /**
      * Checks if all modules for a context are loaded, and if so, evaluates the
      * new ones in right dependency order.
@@ -1146,7 +1159,7 @@ var require, define;
         //by calling a waiting callback that then calls require and then this function
         //should not proceed. At the end of this function, if there are still things
         //waiting, then checkLoaded will be called again.
-        context.isCheckLoaded = true;
+        context.isCheckLoaded = req.blockCheckLoaded;
 
         //Grab waiting and loaded lists here, since it could have changed since
         //this function was first called.
