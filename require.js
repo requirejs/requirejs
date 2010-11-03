@@ -1006,7 +1006,7 @@ var require, define;
         }
     };
 
-    req.jsExtRegExp = /\.js$/;
+    req.jsExtRegExp = /^\/|:|\?|\.js$/;
 
     /**
      * Given a relative module name, like ./something, normalize it to
@@ -1108,7 +1108,7 @@ var require, define;
         //If a colon is in the URL, it indicates a protocol is used and it is just
         //an URL to a file, or if it starts with a slash or ends with .js, it is just a plain file.
         //The slash is important for protocol-less URLs as well as full paths.
-        if (moduleName.indexOf(":") !== -1 || moduleName.charAt(0) === '/' || req.jsExtRegExp.test(moduleName)) {
+        if (req.jsExtRegExp.test(moduleName)) {
             //Just a plain path, not module name lookup, so just return it.
             //Add extension if it is included. This is a bit wonky, only non-.js things pass
             //an extension, this method probably needs to be reworked.
