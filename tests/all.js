@@ -24,11 +24,11 @@ if (location.href.indexOf('http://127.0.0.1/requirejs/') === 0) {
     doh.registerUrl("simple-badbase", "../simple-badbase.html");
 }
 
+ 
 doh.registerUrl("circular", "../circular.html");
 doh.registerUrl("depoverlap", "../depoverlap.html");
 doh.registerUrl("urlfetch", "../urlfetch/urlfetch.html");
-doh.registerUrl("multiversion", "../multiversion.html", 7000);
-doh.registerUrl("contextCache", "../contextCache/contextCache.html", 7000);
+doh.registerUrl("multiversion", "../multiversion.html", 10000);
 doh.registerUrl("jquery", "../jquery/jquery.html");
 
 //Next three tests fail in PS3

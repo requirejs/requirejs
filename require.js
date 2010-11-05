@@ -76,42 +76,12 @@ var require, define;
      * Convenience method to call main for a require.def call that was put on
      * hold in the defQueue.
      */
-    function callDefMain(args, context, skipDefCache) {
-        var moduleName = args[0],
-            contextName = context.contextName,
-            url = skipDefCache ? '' : req.nameToUrl(moduleName, null, contextName),
-            key = moduleName + '|' + url,
-            ctxName, contexts, tempContext, tempUrl, tempArgs;
-
-        //Cache the def arguments for reuse by multiple contexts.
-        if (!skipDefCache && !s.defineCache[key]) {
-            s.defineCache[key] = args;
-        }
-
+    function callDefMain(args, context) {
         main.apply(req, args);
         //Mark the module loaded. Must do it here in addition
         //to doing it in require.def in case a script does
         //not call require.def
         context.loaded[args[0]] = true;
-
-        //Inform any other contexts waiting for this def call.
-        if (!skipDefCache) {
-            contexts = s.contexts;
-            for (ctxName in contexts) {
-                if (!(ctxName in empty) && ctxName !== contextName) {
-                    tempContext = contexts[ctxName];
-                    if (moduleName in tempContext.loaded && !tempContext.loaded[moduleName]) {
-                        //Compute URL to make sure it is the same.
-                        tempUrl = req.nameToUrl(moduleName, null, tempContext.contextName);
-                        if (url === tempUrl) {
-                            tempArgs = args.slice(0);
-                            tempArgs.splice(4, 1, tempContext.contextName);
-                            callDefMain(tempArgs, tempContext, true);
-                        }
-                    }
-                }
-            }
-        }
     }
 
     /**
@@ -412,6 +382,7 @@ var require, define;
                 },
                 loaded: {},
                 scriptCount: 0,
+                urlFetched: {},
                 defPlugin: {},
                 defined: {},
                 modifiers: {}
@@ -621,8 +592,6 @@ var require, define;
         //>>excludeEnd("requireExcludePlugin");
         //Stores a list of URLs that should not get async script tag treatment.
         skipAsync: {},
-        urlFetched: {},
-        defineCache: {},
         isBrowser: isBrowser,
         isPageLoaded: !isBrowser,
         readyCalls: [],
@@ -965,8 +934,8 @@ var require, define;
      */
     req.load = function (moduleName, contextName) {
         var context = s.contexts[contextName],
-            urlFetched = s.urlFetched,
-            loaded = context.loaded, url, cacheKey, tempArgs;
+            urlFetched = context.urlFetched,
+            loaded = context.loaded, url;
         s.isDone = false;
 
         //Only set loaded to false for tracking if it has not already been set.
@@ -992,15 +961,6 @@ var require, define;
                 if (context.jQuery && !context.jQueryIncremented) {
                     context.jQuery.readyWait += 1;
                     context.jQueryIncremented = true;
-                }
-            } else {
-                //URL was fetched. Is there a cached def call for it?
-                cacheKey = moduleName + '|' + url;
-
-                if (s.defineCache[cacheKey]) {
-                    tempArgs = s.defineCache[cacheKey].slice(0);
-                    tempArgs.splice(4, 1, contextName);
-                    callDefMain(tempArgs, context, true);
                 }
             }
         }
