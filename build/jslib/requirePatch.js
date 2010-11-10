@@ -77,8 +77,11 @@
      */
     require._isSupportedBuildUrl = function (url) {
         //Ignore URLs with protocols or question marks, means either network
-        //access is needed to fetch it or it is too dynamic.
-        return url.indexOf(":") === -1 && url.indexOf("?") === -1;
+        //access is needed to fetch it or it is too dynamic. Note that
+        //on Windows, full paths are used for some urls, which include
+        //the drive, like c:/something, so need to test for something other
+        //than just a colon.
+        return url.indexOf("://") === -1 && url.indexOf("?") === -1;
     };
 
     //Override require.def to catch modules that just define an object, so that
