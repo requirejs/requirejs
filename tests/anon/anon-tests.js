@@ -1,5 +1,8 @@
 require({
-        baseUrl: require.isBrowser ? "./" : "./anon/"
+        baseUrl: require.isBrowser ? "./" : "./anon/",
+        paths: {
+            require: "../../require"
+        }
     },
     ["require", "magenta", "red", "blue", "green", "yellow", "a", "c"],
     function(require, magenta, red, blue, green, yellow, a, c) {
@@ -33,6 +36,7 @@ require({
                             t.is("red", red.name);
                             t.is("blue", blue.name);
                             t.is("redblue", magenta.name);
+                            t.is("hello world", magenta.message);
                        }
                     ]
                 );

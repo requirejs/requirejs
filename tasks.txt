@@ -1,15 +1,22 @@
+Update jquery sample to use main.js, make sure plugins would work with it.
+
 Optimizer improvements:
 1) Make sure the optimizer can be run from any directory, and not force you to be in the same directory as the app.build.js file
 2) Investigate the issue with main.js baseUrl overriding the one in app.build.js
 3) Update examples/docs to allow an app.build.js that can be passed through the minifier.
 4) See if the pathing can be made simpler (abde's comment).
 
+http://github.com/jrburke/requirejs/issues#issue/21
+- add white: false jslint thing to built files for require.js
+
+- Calculate baseUrl relative to data-main if it is available.
+
 https://github.com/jrburke/requirejs/issues/issue/9
 - Optimizer cannot include order! plugins in a build at the moment.
 - jQuery sample project should include jquery with plugin support.
 
-http://github.com/jrburke/requirejs/issues#issue/21
-- add white: false jslint thing to built files for require.js
+
+- Get rid of execModules build option?
 
 Node issues:
 * socket.io/support/socket.io-client/lib/io.js. uses "this" to attach properties to export?!?
@@ -17,15 +24,15 @@ Node issues:
 xx* connect-redis/lib/redis/index.js, it tried to require('util') or 'sys' try/catch dependening on node version.
 * connect/lib/connect/index.js does dynamic/computed require calls
 
-- Allow factory function storage per-url, to reuse across contexts. Hmm, what
-  to do with modules in an optimized layer.
+backbone.js patch to work with requirejs?
+
+-----------
+
 - Figure out if isCheckLoaded can be avoided. Not likely, but revisit.
 
 - Finish PS3 work, investigate test failures, document level of support.
 
 - get rid of pragma for page load logic exclusion?
-
-- Calculate baseUrl relative to data-main if it is available.
 
 - Check out blackberry emulators at:
 https://www.blackberry.com/Downloads/entry.do?code=060AD92489947D410D897474079C1477
@@ -53,14 +60,6 @@ https://www.blackberry.com/Downloads/entry.do?code=060AD92489947D410D897474079C1
 
 - in commonJs.js convert, if take out dependency scanning, things break in the Node adapter.
 Need to figure out why. Function.toString() seems to work.
-
-- Allow paths mapping inside modules? for things like jsdom/browser/index.js retrieved via
-  require("./jsdom/browser");
-
-- Build: do not require the user to be in the same directory as build file?
-- Build: if optimize the build profile file, Closure compiler complains. If put parens
-  around the object, then it is OK. Decide if want to go that route or pure JSON route,
-  (which still may fail?) or have build profile skip build files?
 
 - Move to using module.basePath instead of require.nameToUrl inside methods? basePath
   would basically call nameToUrl but use no suffix. Hmm, nice thing about nameToUrl is it

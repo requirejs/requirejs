@@ -18,7 +18,7 @@ var require, define;
             i, defContextName = "_", contextLoads = [],
             scripts, script, rePkg, src, m, dataMain, cfg = {}, setReadyState,
             commentRegExp = /(\/\*([\s\S]*?)\*\/|\/\/(.*)$)/mg,
-            cjsRequireRegExp = /require\(["']([\w\-_\.\/]+)["']\)/g,
+            cjsRequireRegExp = /require\(["']([\w\!\-_\.\/]+)["']\)/g,
             main,
             isBrowser = !!(typeof window !== "undefined" && navigator && document),
             isWebWorker = !isBrowser && typeof importScripts !== "undefined",
@@ -908,12 +908,12 @@ var require, define;
         }
         contextName = contextName || s.ctxName;
 
-        var ret, context = s.contexts[contextName];
+        var ret, context = s.contexts[contextName], nameProps;
 
         //Normalize module name, if it contains . or ..
-        moduleName = req.normalizeName(moduleName, relModuleName, context);
+        nameProps = req.splitPrefix(moduleName, relModuleName, context);
 
-        ret = context.defined[moduleName];
+        ret = context.defined[nameProps.name];
         if (ret === undefined) {
             req.onError(new Error("require: module name '" +
                         moduleName +
