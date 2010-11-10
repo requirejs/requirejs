@@ -9,12 +9,6 @@ Optimizer improvements:
 2) Investigate the issue with main.js baseUrl overriding the one in app.build.js
 4) See if the pathing can be made simpler (abde's comment).
 
-optimize.inlineText: trouble with it when running build/tests/simple.build.js,
-the define call does not have its name and dependencies. So that code should really
-just use the fileName and find text values relative to that, which will happen anyway.
-Hmm, what about in a module file that has a name but the fileName is weird? So
-only use fileName if there is no module name to use.
-
 http://github.com/jrburke/requirejs/issues#issue/21
 - add white: false jslint thing to built files for require.js
 

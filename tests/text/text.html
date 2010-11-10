@@ -12,8 +12,8 @@
                 require: "../../require"
             }
         },
-        ["require", "widget", "text!resources/sample.html!strip"],
-        function(require, widget, sampleText) {
+        ["require", "widget", "local", "text!resources/sample.html!strip"],
+        function(require, widget, local, sampleText) {
             doh.register(
                 "text", 
                 [
@@ -23,6 +23,7 @@
                         t.is('subwidget', widget.subWidgetName);
                         t.is('<div data-type="subwidget"><h1>This is a subwidget</h1></div>', widget.subWidgetTemplate);
                         t.is('<span>This! is template2</span>', widget.subWidgetTemplate2);
+                        t.is('<h1>Local</h1>', local.localHtml);
                     }
                 ]
             );
