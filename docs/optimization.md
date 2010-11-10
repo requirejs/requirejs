@@ -144,7 +144,7 @@ The optimization tool can take care of optimizing all the CSS and JS files in yo
 
 Create a build profile, call it app.build.js, and put it in the **scripts** directory. The app.build.js file can live anywhere, but just be sure to adjust the paths accordingly in the example below -- all paths will be relative to where the app.build.js is located. Example app.build.js:
 
-    {
+    ({
         appDir: "../",
         baseUrl: "scripts/",
         dir: "../../appdirectory-build",
@@ -153,7 +153,7 @@ Create a build profile, call it app.build.js, and put it in the **scripts** dire
                 name: "main"
             }
         ]
-    }
+    })
 
 This build profile tells RequireJS to copy all of **appdirectory** to a sibling directory called **appdirectory-build** and apply all the optimizations in the **appdirectory-build** directory. It is strongly suggested you use a different output directory than the source directory -- otherwise bad things will likely happen as the optimization tool overwrites your source.
 
