@@ -4,11 +4,6 @@ Update jquery sample to use main.js, make sure plugins would work with it.
 - nameToUrl API changes
 - Mention require.modify may go away?
 
-Optimizer improvements:
-1) Make sure the optimizer can be run from any directory, and not force you to be in the same directory as the app.build.js file
-2) Investigate the issue with main.js baseUrl overriding the one in app.build.js
-4) See if the pathing can be made simpler (abde's comment).
-
 http://github.com/jrburke/requirejs/issues#issue/21
 - add white: false jslint thing to built files for require.js
 
@@ -17,9 +12,6 @@ http://github.com/jrburke/requirejs/issues#issue/21
 https://github.com/jrburke/requirejs/issues/issue/9
 - Optimizer cannot include order! plugins in a build at the moment.
 - jQuery sample project should include jquery with plugin support.
-
-
-- Get rid of execModules build option?
 
 Node issues:
 * socket.io/support/socket.io-client/lib/io.js. uses "this" to attach properties to export?!?
@@ -30,6 +22,10 @@ xx* connect-redis/lib/redis/index.js, it tried to require('util') or 'sys' try/c
 backbone.js patch to work with requirejs?
 
 -----------
+
+Optimizer improvements:
+2) Investigate the issue with main.js baseUrl overriding the one in app.build.js
+4) See if the pathing can be made simpler (abde's comment).
 
 - Figure out if isCheckLoaded can be avoided. Not likely, but revisit.
 

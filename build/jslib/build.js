@@ -80,12 +80,9 @@ var build, buildBaseConfig;
             //Adjust baseUrl if config.appDir is in play, and set up build output paths.
             buildPaths = {};
             if (config.appDir) {
-                config.dirBaseUrl = config.dir + config.baseUrl;
-                config.baseUrl = config.appDir + config.baseUrl;
                 //All the paths should be inside the appDir
                 buildPaths = paths;
             } else {
-                config.dirBaseUrl = config.dir;
                 //If no appDir, then make sure to copy the other paths to this directory.
                 for (prop in paths) {
                     if (paths.hasOwnProperty(prop)) {
@@ -314,7 +311,7 @@ var build, buildBaseConfig;
     build.createConfig = function (cfg) {
         /*jslint evil: true */
         var config = {}, baseUrl, buildFileContents, buildFileConfig,
-            paths, props, i, prop, buildFile, absFilePath;
+            paths, props, i, prop, buildFile, absFilePath, originalBaseUrl;
 
         lang.mixin(config, buildBaseConfig);
         lang.mixin(config, cfg, true);
@@ -408,7 +405,24 @@ var build, buildBaseConfig;
                 }
 
                 //Add abspath if necessary.
-                config[prop] = build.makeAbsPath(config[prop], absFilePath);
+                if (prop === "baseUrl") {
+                    originalBaseUrl = config.baseUrl;
+                    if (config.appDir) {
+                        //If baseUrl with an appDir, the baseUrl is relative to
+                        //the appDir, *not* the absFilePath. appDir and dir are
+                        //made absolute before baseUrl, so this will work.
+                        config.baseUrl = build.makeAbsPath(originalBaseUrl, config.appDir);
+                        //Set up dir output baseUrl.
+                        config.dirBaseUrl = build.makeAbsPath(originalBaseUrl, config.dir);
+                    } else {
+                        //The dir output baseUrl is same as regular baseUrl, both
+                        //relative to the absFilePath.
+                        config.baseUrl = build.makeAbsPath(config[prop], absFilePath);
+                        config.dirBaseUrl = config.baseUrl;
+                    }
+                } else {
+                    config[prop] = build.makeAbsPath(config[prop], absFilePath);
+                }
             }
         }
 
