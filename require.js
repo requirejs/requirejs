@@ -1611,10 +1611,16 @@ var require, define;
 
             //Look for a data-main attribute to set main script for the page
             //to load.
-            if (!cfg.deps) {
-                dataMain = script.getAttribute('data-main');
-                if (dataMain) {
-                    cfg.deps = [dataMain];
+            if (!dataMain && (dataMain = script.getAttribute('data-main'))) {
+                cfg.deps = cfg.deps ? cfg.deps.concat(dataMain) : [dataMain];
+
+                //Favor using data-main tag as the base URL instead of
+                //trying to pattern-match src values.
+                if (!cfg.baseUrl && (src = script.src)) {
+                    src = src.split('/');
+                    src.pop();
+                    //Make sure current config gets the value.
+                    s.baseUrl = cfg.baseUrl = src.length ? src.join('/') : './';
                 }
             }
 
@@ -1622,8 +1628,7 @@ var require, define;
             //While using a relative URL will be fine for script tags, other
             //URLs used for text! resources that use XHR calls might benefit
             //from an absolute URL.
-            src = script.src;
-            if (src && !s.baseUrl) {
+            if (!s.baseUrl && (src = script.src)) {
                 m = src.match(rePkg);
                 if (m) {
                     s.baseUrl = src.substring(0, m.index);
