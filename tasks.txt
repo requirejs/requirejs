@@ -21,6 +21,12 @@ xx* connect-redis/lib/redis/index.js, it tried to require('util') or 'sys' try/c
 
 backbone.js patch to work with requirejs?
 
+- https://github.com/jrburke/requirejs/issues#issue/27
+  order plugin for FF4
+
+- https://github.com/jrburke/requirejs/issues#issue/26:
+  throw with isCheckLoaded
+
 -----------
 
 Optimizer improvements:

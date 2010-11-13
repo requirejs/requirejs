@@ -11,7 +11,7 @@
     modules: [
         {
             name: "dojo",
-            include: ["require/text", "require/i18n", "require/jsonp"],
+            include: ["require/text", "require/i18n"],
             includeRequire: true
         },
         {

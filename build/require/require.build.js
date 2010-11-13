@@ -74,7 +74,7 @@
         },
         {
             name: "allplugins-require",
-            include: ["require/i18n", "require/text", "require/jsonp", "require/order"],
+            include: ["require/i18n", "require/text", "require/order"],
             includeRequire: true,
             override: {
                 pragmas: {

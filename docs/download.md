@@ -7,19 +7,19 @@
 
 #### <a name="requirejs">require.js</a> [Minified](http://requirejs.org/docs/release/0.14.5/minified/require.js) | [With Comments](http://requirejs.org/docs/release/0.14.5/comments/require.js)
 
-All you need to start using require.js in the browser. Does not include i18n, text, order, JSONP plugins or Node/Rhino support.
+All you need to start using require.js in the browser. Does not include i18n, text, order plugins or Node/Rhino support.
 
 #### <a name="requirejsplugins">require.js with plugins</a> [Minified](http://requirejs.org/docs/release/0.14.5/minified/allplugins-require.js) | [With Comments](http://requirejs.org/docs/release/0.14.5/comments/allplugins-require.js)
 
-require.js for use in the browser with the i18n, text, order and JSONP plugins included. 
+require.js for use in the browser with the i18n, text, and order plugins included. 
 
 #### <a name="jqueryrequirejs">jQuery 1.4.3 with require()</a> [Minified](http://requirejs.org/docs/release/0.14.5/minified/require-jquery-1.4.3.js) | [With Comments](http://requirejs.org/docs/release/0.14.5/comments/require-jquery-1.4.3.js)
 
-A build of jQuery with integrated require() support. **Does not include** the i18n, text, order, JSONP plugins.
+A build of jQuery with integrated require() support. **Does not include** the i18n, text, and order plugins.
 
 #### <a name="jqueryrequirejsplugins">jQuery 1.4.3 with require() and plugins</a> [Minified](http://requirejs.org/docs/release/0.14.5/minified/requireplugins-jquery-1.4.3.js) | [With Comments](http://requirejs.org/docs/release/0.14.5/comments/requireplugins-jquery-1.4.3.js)
 
-A build of jQuery with integrated require() support that includes the i18n, text, order and JSONP plugins.
+A build of jQuery with integrated require() support that includes the i18n, text, and order plugins.
 
 <hr>
 
