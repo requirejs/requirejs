@@ -13,17 +13,17 @@ All you need to start using require.js in the browser. Does not include i18n, te
 
 require.js for use in the browser with the i18n, text, and order plugins included. 
 
-#### <a name="jqueryrequirejs">jQuery 1.4.3 with require()</a> [Minified](http://requirejs.org/docs/release/0.14.5/minified/require-jquery-1.4.3.js) | [With Comments](http://requirejs.org/docs/release/0.14.5/comments/require-jquery-1.4.3.js)
+#### <a name="jqueryrequirejs">jQuery 1.4.4 with require()</a> [Minified](http://requirejs.org/docs/release/0.14.5/minified/require-jquery-1.4.4.js) | [With Comments](http://requirejs.org/docs/release/0.14.5/comments/require-jquery-1.4.4.js)
 
 A build of jQuery with integrated require() support. **Does not include** the i18n, text, and order plugins.
 
-#### <a name="jqueryrequirejsplugins">jQuery 1.4.3 with require() and plugins</a> [Minified](http://requirejs.org/docs/release/0.14.5/minified/requireplugins-jquery-1.4.3.js) | [With Comments](http://requirejs.org/docs/release/0.14.5/comments/requireplugins-jquery-1.4.3.js)
+#### <a name="jqueryrequirejsplugins">jQuery 1.4.4 with require() and plugins</a> [Minified](http://requirejs.org/docs/release/0.14.5/minified/requireplugins-jquery-1.4.4.js) | [With Comments](http://requirejs.org/docs/release/0.14.5/comments/requireplugins-jquery-1.4.4.js)
 
 A build of jQuery with integrated require() support that includes the i18n, text, and order plugins.
 
 <hr>
 
-#### <a name="samplejquery">Sample jQuery 1.4.3 project with require()</a> [Download](http://requirejs.org/docs/release/0.14.5/jquery-require-sample.zip)
+#### <a name="samplejquery">Sample jQuery 1.4.4 project with require()</a> [Download](http://requirejs.org/docs/release/0.14.5/jquery-require-sample.zip)
 
 A zip file containing a build of jQuery with integrated require() support, with an sample project included to show how it can be used when using jQuery.
 

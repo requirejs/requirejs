@@ -1,6 +1,12 @@
 - nameToUrl API changes
 - Mention require.modify may go away?
 
+- https://github.com/jrburke/requirejs/issues#issue/27
+  order plugin for FF4
+
+- https://github.com/jrburke/requirejs/issues#issue/26:
+  throw with isCheckLoaded
+
 jQuery 1.4.4
 
 http://github.com/jrburke/requirejs/issues#issue/21
@@ -11,12 +17,6 @@ Node issues:
 * connect/lib/connect/index.js and express/support/connect/lib/connect/index.js do a try/catch for "constants"
 xx* connect-redis/lib/redis/index.js, it tried to require('util') or 'sys' try/catch dependening on node version.
 * connect/lib/connect/index.js does dynamic/computed require calls
-
-- https://github.com/jrburke/requirejs/issues#issue/27
-  order plugin for FF4
-
-- https://github.com/jrburke/requirejs/issues#issue/26:
-  throw with isCheckLoaded
 
 -----------
 backbone.js patch to work with requirejs?
