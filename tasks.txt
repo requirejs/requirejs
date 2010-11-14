@@ -5,9 +5,7 @@
   order plugin for FF4
 
 - https://github.com/jrburke/requirejs/issues#issue/26:
-  throw with isCheckLoaded
-
-jQuery 1.4.4
+  throw with isCheckLoaded: maybe pass for refactor branch?
 
 http://github.com/jrburke/requirejs/issues#issue/21
 - add white: false jslint thing to built files for require.js

@@ -418,7 +418,7 @@ var build, buildBaseConfig;
                         //The dir output baseUrl is same as regular baseUrl, both
                         //relative to the absFilePath.
                         config.baseUrl = build.makeAbsPath(config[prop], absFilePath);
-                        config.dirBaseUrl = config.baseUrl;
+                        config.dirBaseUrl = config.dir;
                     }
                 } else {
                     config[prop] = build.makeAbsPath(config[prop], absFilePath);
