@@ -1,12 +1,3 @@
-- nameToUrl API changes
-- Mention require.modify may go away?
-
-- https://github.com/jrburke/requirejs/issues#issue/27
-  order plugin for FF4
-
-- https://github.com/jrburke/requirejs/issues#issue/26:
-  throw with isCheckLoaded: maybe pass for refactor branch?
-
 Node issues:
 * socket.io/support/socket.io-client/lib/io.js. uses "this" to attach properties to export?!?
 * connect/lib/connect/index.js and express/support/connect/lib/connect/index.js do a try/catch for "constants"
@@ -14,6 +5,9 @@ xx* connect-redis/lib/redis/index.js, it tried to require('util') or 'sys' try/c
 * connect/lib/connect/index.js does dynamic/computed require calls
 
 -----------
+- https://github.com/jrburke/requirejs/issues#issue/26:
+  spider: throw with isCheckLoaded: maybe pass for refactor branch?
+
 backbone.js patch to work with requirejs?
 
 https://github.com/jrburke/requirejs/issues/issue/9

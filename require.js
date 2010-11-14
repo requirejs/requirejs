@@ -1055,6 +1055,26 @@ var require, define;
     };
 
     /**
+     * Start of a public API replacement for nameToUrl. For now, just leverage
+     * nameToUrl, but know that nameToUrl will go away in the future.
+     * moduleNamePlusExt is of format "some/module/thing.html". It only works
+     * for module-like names and will not work with any dependency name in the
+     * future (for instance, passing "http://a.com/some/thing.html" will not
+     * make any sense)
+     */
+    req.toUrl = function (moduleNamePlusExt, contextName, relModuleName) {
+        var index = moduleNamePlusExt.lastIndexOf('.'),
+            ext = null;
+
+        if (index !== -1) {
+            ext = moduleNamePlusExt.substring(index, moduleNamePlusExt.length);
+            moduleNamePlusExt = moduleNamePlusExt.substring(0, index);
+        }
+
+        return req.nameToUrl(moduleNamePlusExt, ext, contextName, relModuleName);
+    };
+
+    /**
      * Converts a module name to a file path.
      */
     req.nameToUrl = function (moduleName, ext, contextName, relModuleName) {
@@ -1328,6 +1348,7 @@ var require, define;
             def: makeContextModuleFunc("def", contextName, moduleName),
             get: makeContextModuleFunc("get", contextName, moduleName),
             nameToUrl: makeContextModuleFunc("nameToUrl", contextName, moduleName),
+            toUrl: makeContextModuleFunc("toUrl", contextName, moduleName),
             ready: req.ready,
             context: context,
             config: context.config,
