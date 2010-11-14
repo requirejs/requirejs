@@ -7,9 +7,6 @@
 - https://github.com/jrburke/requirejs/issues#issue/26:
   throw with isCheckLoaded: maybe pass for refactor branch?
 
-http://github.com/jrburke/requirejs/issues#issue/21
-- add white: false jslint thing to built files for require.js
-
 Node issues:
 * socket.io/support/socket.io-client/lib/io.js. uses "this" to attach properties to export?!?
 * connect/lib/connect/index.js and express/support/connect/lib/connect/index.js do a try/catch for "constants"

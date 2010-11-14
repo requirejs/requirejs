@@ -14,7 +14,13 @@
     //Currently, Gecko and Opera do not load/fire onload for scripts with
     //type="script/cache" but they execute injected scripts in order
     //unless the 'async' flag is present.
-    var supportsInOrderExecution = ((window.opera && Object.prototype.toString.call(window.opera) === "[object Opera]") ||
+    //However, this is all changing in latest browsers implementing HTML5
+    //spec. Firefox nightly supports using the .async true by default, and
+    //if false, then it will execute in order. Favor that test first for forward
+    //compatibility. However, it is unclear if webkit/IE will follow suit.
+    //Latest webkit breaks the script/cache trick.
+    var supportsInOrderExecution = (document.createElement("script").async ||
+                               (window.opera && Object.prototype.toString.call(window.opera) === "[object Opera]") ||
                                //If Firefox 2 does not have to be supported, then
                                //a better check may be:
                                //('mozIsLocallyAvailable' in window.navigator)
