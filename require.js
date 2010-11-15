@@ -1,5 +1,5 @@
 /** vim: et:ts=4:sw=4:sts=4
- * @license RequireJS 0.15.0 Copyright (c) 2010, The Dojo Foundation All Rights Reserved.
+ * @license RequireJS 0.15.0+ Copyright (c) 2010, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/requirejs for details
  */
@@ -13,7 +13,7 @@ setInterval: false, importScripts: false, jQuery: false */
 var require, define;
 (function () {
     //Change this version number for each release.
-    var version = "0.15.0",
+    var version = "0.15.0+",
             empty = {}, s,
             i, defContextName = "_", contextLoads = [],
             scripts, script, rePkg, src, m, dataMain, cfg = {}, setReadyState,
