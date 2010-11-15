@@ -82,6 +82,12 @@
                     content = require._nodeReadFile(indexUrl);
                     url = indexUrl;
                 } else {
+                    //Goofy part, there is at least one module, that does
+                    //a try{require('constants')} catch(){}, so need to mark
+                    //the module as "loaded" but just undefined, so requirejs
+                    //later does not trigger a timeout error.
+                    context.loaded[moduleName] = true;
+                    context.defined[moduleName] = undefined;
                     throw new Error("RequireJS cannot find file for module: " +
                                     moduleName + " Tried paths: " + url +
                                     ' and ' + indexUrl);

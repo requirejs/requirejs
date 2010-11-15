@@ -15,19 +15,22 @@
         };
 
         worker.onmessage = function(evt) {
-            count += 1;
-
-            if (count === 1) {
-                doh.is("blue", evt.data);
-            } else if (count === 2) {
-                doh.is("green", evt.data);
-            } else if (count === 3) {
-                doh.is("You called a function", evt.data);
-            } else if (count === 4) {
-                doh.is("blue", evt.data);
-                d.callback(true);
+            if (evt.data.debug) {
+                console.log(evt.data.debug);
+            } else {
+                count += 1;
+    
+                if (count === 1) {
+                    doh.is("blue", evt.data);
+                } else if (count === 2) {
+                    doh.is("green", evt.data);
+                } else if (count === 3) {
+                    doh.is("You called a function", evt.data);
+                } else if (count === 4) {
+                    doh.is("blue", evt.data);
+                    d.callback(true);
+                }
             }
-
         };
 
         doh.register(

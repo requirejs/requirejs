@@ -160,12 +160,26 @@ var require, define;
             }
 
             if (paused.length) {
+                //Reset paused since this loop will process current set.
+                s.paused = [];
+
                 for (i = 0; (args = paused[i]); i++) {
                     req.checkDeps.apply(req, args);
                 }
             }
 
-            req.checkLoaded(s.ctxName);
+            if (isWebWorker) {
+                //In a web worker, since importScripts is synchronous,
+                //it may think all dependencies are loaded, but still
+                //in the middle of a list of dependency fetches, so
+                //delay the checkLoaded in a timeout for the items to complete.
+                //This is really hacky though, time for a rewrite.
+                setTimeout(function () {
+                    req.checkLoaded(s.ctxName);
+                }, 30);
+            } else {
+                req.checkLoaded(s.ctxName);
+            }
         }
     }
 
@@ -1062,6 +1076,9 @@ var require, define;
      * future (for instance, passing "http://a.com/some/thing.html" will not
      * make any sense)
      */
+    //TODO: what does requ.toUrl("packageName") resolve to? base package
+    //dir or lib? Probably base package dir.
+    /*
     req.toUrl = function (moduleNamePlusExt, contextName, relModuleName) {
         var index = moduleNamePlusExt.lastIndexOf('.'),
             ext = null;
@@ -1073,6 +1090,7 @@ var require, define;
 
         return req.nameToUrl(moduleNamePlusExt, ext, contextName, relModuleName);
     };
+    */
 
     /**
      * Converts a module name to a file path.
@@ -1589,6 +1607,7 @@ var require, define;
             context = s.contexts[contextName];
             loaded = context.loaded;
             loaded[moduleName] = false;
+
             importScripts(url);
 
             //Account for anonymous modules
