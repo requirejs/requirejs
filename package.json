@@ -1,3 +1,6 @@
 {
-    "name": "requirejs"
+    "name": "requirejs",
+    "directories": {
+        "lib": ""
+    }
 }
