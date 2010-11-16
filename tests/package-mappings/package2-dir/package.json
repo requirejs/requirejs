@@ -1,0 +1,11 @@
+{
+    "name": "package2",
+    "mappings": {
+        "packageA": {
+            "location": "../package1-dir/"
+        },
+        "packageB": {
+            "location": "../package3-dir/"
+        }
+    }
+}

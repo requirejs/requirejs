@@ -58,7 +58,9 @@ var require, define;
         //Call the plugin, or load it.
         var plugin = s.plugins.defined[prefix], waiting;
         if (plugin) {
-            plugin[obj.name].apply(null, obj.args);
+            if(typeof plugin[obj.name] != "undefined") {
+                return plugin[obj.name].apply(null, obj.args);
+            }
         } else {
             //Put the call in the waiting call BEFORE requiring the module,
             //since the require could be synchronous in some environments,
@@ -258,15 +260,29 @@ var require, define;
             deps = [];
         }
 
-        //If no name, and callback is a function, then figure out if it a
-        //CommonJS thing with dependencies.
-        if (!name && !deps.length && req.isFunction(callback)) {
+        //It is a CommonJS module if
+        // * no name nor dependencies and callback is a function
+        // * name, minimal cjs dependencies and cjs function e.g. define("id", ["require", "exports", "module"], function(require, exports, module) {
+        //thus figure out dependencies
+        if (req.isFunction(callback) &&
+            ((!name && !deps.length) ||
+             (name && deps.length==3 && /^function\s*\(require,\s*exports,\s*module\)\s*\{/i.test(callback.toString())))) {
             //Remove comments from the callback string,
             //look for require calls, and pull them into the dependencies.
             callback
                 .toString()
                 .replace(commentRegExp, "")
                 .replace(cjsRequireRegExp, function (match, dep) {
+                    // NOTE: This assumes the 'package' plugin is loaded and can be called sync
+                    if(s.plugins.defined["package"]) {
+                        var ret;
+                        if(ret = callPlugin("package", null, {
+                            name: "normalizeName",
+                            args: [dep, name, s.contexts[s.ctxName]]
+                        })) {
+                            dep = ret;
+                        }
+                    }
                     deps.push(dep);
                 });
 
@@ -276,7 +292,9 @@ var require, define;
             //an exports or module object, but erring on side of safety.
             //REQUIRES the function to expect the CommonJS variables in the
             //order listed below.
-            deps = ["require", "exports", "module"].concat(deps);
+            if(!(deps.length>=3 && deps[0]=="require" && deps[1]=="exports" && deps[2]=="module")) {
+                deps = ["require", "exports", "module"].concat(deps);
+            }
         }
 
         //If in IE 6-8 and hit an anonymous require.def call, do the interactive/
@@ -978,6 +996,16 @@ var require, define;
      * @returns {String} normalized name
      */
     req.normalizeName = function (name, baseName, context) {
+        // NOTE: This assumes the 'package' plugin is loaded and can be called sync
+        if(s.plugins.defined["package"]) {
+            var ret;
+            if(ret = callPlugin("package", context, {
+                name: "normalizeName",
+                args: [name, baseName, context]
+            })) {
+                return ret;
+            }
+        }
         //Adjust any relative paths.
         var part;
         if (name.charAt(0) === ".") {
