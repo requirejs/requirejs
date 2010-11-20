@@ -1,5 +1,7 @@
 - email on jsonp removal, toUrl and package names.
 
+- Nested package config: https://github.com/jrburke/requirejs/pull/28
+
 Node issues:
 * socket.io/support/socket.io-client/lib/io.js. uses "this" to attach properties to export?!?
 * connect/lib/connect/index.js and express/support/connect/lib/connect/index.js do a try/catch for "constants"
