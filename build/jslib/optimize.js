@@ -4,7 +4,7 @@
  * see: http://github.com/jrburke/requirejs for details
  */
 
-/*jslint plusplus: false */
+/*jslint plusplus: false, nomen: false, regexp: false */
 /*global require: false, java: false, Packages: false, logger: false, fileUtil: false,
   readFile: false, lang: false */
 
@@ -17,6 +17,7 @@ var optimize;
         textDepRegExp = /["'](text)\!([^"']+)["']/g,
         relativeDefRegExp = /(require\s*\.\s*def|define)\s*\(\s*['"]([^'"]+)['"]/g,
         cssImportRegExp = /\@import\s+(url\()?\s*([^);]+)\s*(\))?([\w, ]*)(;)?/g,
+        cjsRequireRegExp = /require\s*\(\s*$/,
         cssUrlRegExp = /\url\(\s*([^\)]+)\s*\)?/g;
 
 
@@ -184,7 +185,21 @@ var optimize;
         inlineText: function (fileName, fileContents) {
             return fileContents.replace(textDepRegExp, function (match, prefix, dep, offset) {
                 var parts, modName, ext, strip, content, normalizedName, index,
-                    defSegment, defStart, defMatch, tempMatch, defName;
+                    defSegment, defStart, defMatch, tempMatch, defName, textPath;
+
+                //Ignore inlining of text plugin calls that are inside the
+                //CommonJS convenience wrapper define(function (require,..))
+                //In those cases it will be require("text!..."), so look to see
+                //if that text precedes the match.
+                defStart = offset - 20;
+                if (defStart < 0) {
+                    defStart = 0;
+                }
+
+                defSegment = fileContents.substring(defStart, offset);
+                if (cjsRequireRegExp.test(defSegment)) {
+                    return match;
+                }
 
                 parts = dep.split("!");
                 modName = parts[0];
@@ -219,14 +234,20 @@ var optimize;
                         defMatch = tempMatch;
                     }
 
-                    if (!defMatch) {
-                        throw new Error("Cannot resolve relative dependency: " + dep + " in file: " + fileName);
+                    if (defMatch) {
+                        //Take the last match, the one closest to current text! string.
+                        defName = defMatch[2];
+
+                        normalizedName = require.normalizeName(modName, defName, require.s.contexts._);
+                        textPath = require.nameToUrl(normalizedName, "." + ext, require.s.ctxName);
+                    } else {
+                        //An anonymous module, and not part of a built layer
+                        //that already has injected names. Use the fileName instead.
+                        textPath = fileName.split('/');
+                        //Pop off the file name, so that there are just directories.
+                        textPath.pop();
+                        textPath = textPath.join('/') + '/' + modName + "." + ext;
                     }
-
-                    //Take the last match, the one closest to current text! string.
-                    defName = defMatch[2];
-
-                    normalizedName = require.normalizeName(modName, defName, require.s.contexts._);
                 }
 
                 if (strip !== "strip") {
@@ -238,7 +259,7 @@ var optimize;
                     //Already an inlined resource, return.
                     return match;
                 } else {
-                    content = readFile(require.nameToUrl(normalizedName, "." + ext, require.s.ctxName));
+                    content = readFile(textPath);
                     if (strip) {
                         content = require.textStrip(content);
                     }

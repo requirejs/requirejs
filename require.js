@@ -1,5 +1,5 @@
 /** vim: et:ts=4:sw=4:sts=4
- * @license RequireJS 0.14.5+ Copyright (c) 2010, The Dojo Foundation All Rights Reserved.
+ * @license RequireJS 0.15.0+ Copyright (c) 2010, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/requirejs for details
  */
@@ -7,16 +7,26 @@
 /*global window: false, navigator: false, document: false, importScripts: false */
 "use strict";
 
+/*
+TODO: make sure 0.15 fixes are in this branch.
+*/
+
 var require, define;
 (function () {
     //Change this version number for each release.
-    var version = "0.14.5+",
+    var version = "0.15.0+",
+        commentRegExp = /(\/\*([\s\S]*?)\*\/|\/\/(.*)$)/mg,
+        cjsRequireRegExp = /require\(["']([\w\-_\.\/]+)["']\)/g,
         ostring = Object.prototype.toString,
+        ap = Array.prototype,
+        aps = ap.slice,
         isBrowser = !!(typeof window !== "undefined" && navigator && document),
         isWebWorker = !isBrowser && typeof importScripts !== "undefined",
         defContextName = "_",
         empty = {},
         contexts = {},
+        globalDefQueue = [],
+        interactiveScript = null,
         isDone = false,
         useInteractive = false,
         req, cfg, currentlyAddingScript;
@@ -28,7 +38,23 @@ var require, define;
     function isArray(it) {
         return ostring.call(it) === "[object Array]";
     }
-    
+
+    /**
+     * Simple function to mix in properties from source into target,
+     * but only if target does not already have a property of the same name.
+     * This is not robust in IE for transferring methods that match
+     * Object.prototype names, but the uses of mixin here seem unlikely to
+     * trigger a problem related to that.
+     */
+    function mixin(target, source, force) {
+        for (var prop in source) {
+            if (!(prop in empty) && (!(prop in target) || force)) {
+                target[prop] = source[prop];
+            }
+        }
+        return req;
+    };
+
     /**
      * Used to set up package paths from a packagePaths or packages config object.
      * @param {Object} packages the object to store the new package config
@@ -110,7 +136,7 @@ var require, define;
                         baseName = baseName.split("/");
                         baseName = baseName.slice(0, baseName.length - 1);
                     }
-    
+
                     name = baseName.concat(name.split("/"));
                     for (i = 0; (part = name[i]); i++) {
                         if (part === ".") {
@@ -146,6 +172,36 @@ var require, define;
                 }
             }
             return priorityDone;
+        }
+
+        /**
+         * As of jQuery 1.4.3, it supports a readyWait property that will hold off
+         * calling jQuery ready callbacks until all scripts are loaded. Be sure
+         * to track it if readyWait is available. Also, since jQuery 1.4.3 does
+         * not register as a module, need to do some global inference checking.
+         * Even if it does register as a module, not guaranteed to be the precise
+         * name of the global. If a jQuery is tracked for this context, then go
+         * ahead and register it as a module too, if not already in process.
+         */
+        function jQueryCheck(jqCandidate) {
+            if (!context.jQuery) {
+                var $ = jqCandidate || (typeof jQuery !== "undefined" ? jQuery : null);
+                if ($ && "readyWait" in $) {
+                    context.jQuery = $;
+    
+                    //Manually create a "jquery" module entry if not one already
+                    //or in process.
+                    if (!context.defined.jquery && !context.jQueryDef) {
+                        context.defined.jquery = $;
+                    }
+    
+                    //Increment jQuery readyWait if ncecessary.
+                    if (context.scriptCount) {
+                        $.readyWait += 1;
+                        context.jQueryIncremented = true;
+                    }
+                }
+            }
         }
 
         /**
@@ -245,6 +301,7 @@ var require, define;
         context = {
             contextName: contextName,
             config: config,
+            defQueue: defQueue,
             waiting: [],
             specified: {
                 "require": true,
@@ -285,7 +342,7 @@ var require, define;
     
                 //Mix in the config values, favoring the new values over
                 //existing ones in context.config.
-                req.mixin(config, cfg, true);
+                mixin(config, cfg, true);
     
                 //Adjust paths if necessary.
                 if (cfg.paths) {
@@ -374,13 +431,52 @@ var require, define;
                 if (!context.scriptCount) {
                     resume();
                 }
-
-//TODO: Need to allow queuing calls if current global context is not right.
-
             },
             define: function (name, deps, callback) {
                 
+            },
+
+            /**
+             * Internal method used by environment adapters to complete a load event.
+             * A load event could be a script load or just a load pass from a synchronous
+             * load call.
+             * @param {String} moduleName the name of the module to potentially complete.
+             */
+            completeLoad: function (moduleName) {
+                //If there is a waiting require.def call
+                var args;
+                while (defQueue.length) {
+                    args = defQueue.shift();
+                    if (args[0] === null) {
+                        args[0] = moduleName;
+                        break;
+                    } else if (args[0] === moduleName) {
+                        //Found matching require.def call for this script!
+                        break;
+                    } else {
+                        //Some other named require.def call, most likely the result
+                        //of a build layer that included many require.def calls.
+                        callDefMain(args);
+                    }
+                }
+                if (args) {
+                    callDefMain(args);
+                }
+        
+                //Mark the script as loaded. Note that this can be different from a
+                //moduleName that maps to a require.def call. This line is important
+                //for traditional browser scripts.
+                context.loaded[moduleName] = true;
+        
+                //If a global jQuery is defined, check for it. Need to do it here
+                //instead of main() since stock jQuery does not register as
+                //a module via define.
+                jQueryCheck();
+        
+                context.scriptCount -= 1;
+                resume();
             }
+
         };
 
         load = req.makeLoad(context);
@@ -429,14 +525,12 @@ var require, define;
         }
 
         context.require(deps, callback);
-
-//TODO: Need to allow queuing calls if context is not right.
-//contextLoads was used before.
     };
 
     req.version = version;
     req.isArray = isArray;
     req.isFunction = isFunction;
+    req.mixin = mixin;
     req.s = {
         contexts: contexts,
         //Stores a list of URLs that should not get async script tag treatment.
@@ -483,6 +577,134 @@ var require, define;
                 }
             }
         };
+    };
+
+    function getInteractiveScript() {
+        var scripts, i, script;
+        if (interactiveScript && interactiveScript.readyState === 'interactive') {
+            return interactiveScript;
+        }
+
+        scripts = document.getElementsByTagName('script');
+        for (i = scripts.length - 1; i > -1 && (script = scripts[i]); i--) {
+            if (script.readyState === 'interactive') {
+                return (interactiveScript = script);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * The function that handles definitions of modules. Differs from
+     * require() in that a string for the module should be the first argument,
+     * and the function to execute after dependencies are loaded should
+     * return a value to define the module corresponding to the first argument's
+     * name.
+     */
+    define = req.def = function (name, deps, callback) {
+        var i, scripts, script, node = currentlyAddingScript, args, context;
+
+        //Allow for anonymous functions
+        if (typeof name !== 'string') {
+            //Adjust args appropriately
+            callback = deps;
+            deps = name;
+            name = null;
+        }
+
+        //This module may not have dependencies
+        if (!req.isArray(deps)) {
+            callback = deps;
+            deps = [];
+        }
+
+        //If no name, and callback is a function, then figure out if it a
+        //CommonJS thing with dependencies.
+        if (!name && !deps.length && req.isFunction(callback)) {
+            //Remove comments from the callback string,
+            //look for require calls, and pull them into the dependencies.
+            callback
+                .toString()
+                .replace(commentRegExp, "")
+                .replace(cjsRequireRegExp, function (match, dep) {
+                    deps.push(dep);
+                });
+
+            //May be a CommonJS thing even without require calls, but still
+            //could use exports, and such, so always add those as dependencies.
+            //This is a bit wasteful for RequireJS modules that do not need
+            //an exports or module object, but erring on side of safety.
+            //REQUIRES the function to expect the CommonJS variables in the
+            //order listed below.
+            deps = ["require", "exports", "module"].concat(deps);
+        }
+
+        //If in IE 6-8 and hit an anonymous define() call, do the interactive
+        //work.
+        if (useInteractive) {
+            if (!name) {
+                node = getInteractiveScript();
+                if (!node) {
+                    req.onError(new Error("ERROR: No matching script interactive for " + callback));
+                }
+
+                name = node.getAttribute("data-requiremodule");
+            }
+            context = contexts[node.getAttribute("data-requirecontext")];
+        }
+
+        //Always save off evaluating the def call until the script onload handler.
+        //This allows multiple modules to be in a file without prematurely
+        //tracing dependencies, and allows for anonymous module support,
+        //where the module name is not known until the script onload event
+        //occurs. If no context, use the global queue, and get it processed
+        //in the onscript load callback.
+        (context ? context.defQueue : globalDefQueue).push([name, deps, callback]);
+    };
+
+    /**
+     * callback for script loads, used to check status of loading.
+     *
+     * @param {Event} evt the event from the browser for the script
+     * that was loaded.
+     *
+     * @private
+     */
+    req.onScriptLoad = function (evt) {
+        //Using currentTarget instead of target for Firefox 2.0's sake. Not
+        //all old browsers will be supported, but this one was easy enough
+        //to support and still makes sense.
+        var node = evt.currentTarget || evt.srcElement, contextName, moduleName,
+            context, args;
+
+        if (evt.type === "load" || readyRegExp.test(node.readyState)) {
+            //Reset interactive script so a script node is not held onto for
+            //to long.
+            interactiveScript = null;
+
+            //Pull out the name of the module and the context.
+            contextName = node.getAttribute("data-requirecontext");
+            moduleName = node.getAttribute("data-requiremodule");
+            context = contexts[moduleName];
+
+            //Push all the globalDefQueue items into the context's defQueue
+            if (globalDefQueue.length) {
+                args = [context.defQueue.length - 1, 0].concat(globalDefQueue);
+                aps.apply(context.defQueue, args);
+                globalDefQueue = [];
+            }
+
+            contexts[contextName].completeLoad(moduleName);
+
+            //Clean up script binding.
+            if (node.removeEventListener) {
+                node.removeEventListener("load", req.onScriptLoad, false);
+            } else {
+                //Probably IE. If not it will throw an error, which will be
+                //useful to know.
+                node.detachEvent("onreadystatechange", req.onScriptLoad);
+            }
+        }
     };
 
     /**
@@ -556,10 +778,11 @@ var require, define;
             context = contexts[contextName];
             loaded = context.loaded;
             loaded[moduleName] = false;
+
             importScripts(url);
 
             //Account for anonymous modules
-            req.completeLoad(moduleName, context);
+            context.completeLoad(moduleName);
         }
         return null;
     };

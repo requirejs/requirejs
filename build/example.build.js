@@ -8,7 +8,7 @@
  * 
  */
 
-{
+({
     //The top level directory that contains your app. If this option is used
     //then it assumed your scripts are in a subdirectory under this path.
     //This option is not required. If it is not specified, then baseUrl
@@ -87,7 +87,7 @@
         jquery: true,
         //Remove require.modify() code
         requireExcludeModify: true,
-        //Remove plugin support from require. The i18n! jsonp! order! and
+        //Remove plugin support from require. The i18n! order! and
         //text! extensions will not work.
         requireExcludePlugin: true,
         //Remove the page loaded detection.
@@ -174,5 +174,5 @@
             ]
         }
     ]
-}
+})
 

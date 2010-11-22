@@ -55,7 +55,7 @@ Now your page is set up to be optimized very easily. Download the RequireJS sour
 
 Then, in the scripts directory that has require-jquery.js and main.js, create a file called app.build.js with the following contents:
 
-    {
+    ({
         appDir: "../",
         baseUrl: "scripts/",
         dir: "../../webapp-build",
@@ -69,7 +69,7 @@ Then, in the scripts directory that has require-jquery.js and main.js, create a 
                 name: "main"
             }
         ]
-    }
+    })
 
 To use the build tool, you need Java 6 installed. Closure Compiler is used for the JavaScript minification step (if optimize: "none" is commented out), and it requires Java 6.
 

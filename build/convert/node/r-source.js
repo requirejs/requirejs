@@ -18,6 +18,7 @@
 (function () {
     var fs = require("fs"),
         sys = require("sys"),
+        path = require("path"),
         cwd = process.cwd(),
         appFilePath = process.argv[2],
         isDebug = false,
@@ -47,6 +48,9 @@
     global.__requireLog = sys.puts;
     global.__requireReadFile = function (path) {
         return fs.readFileSync(path) + '';
+    };
+    global.__requireFileExists = function (fileName) {
+        return path.existsSync(fileName);
     };
 
     //dist.sh will inject the modified requireAdapter content as a string.

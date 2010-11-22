@@ -11,7 +11,7 @@ if [ -z $version ]; then
     exit 1
 fi
 
-jqueryName=jquery-1.4.3.js
+jqueryName=jquery-1.4.4.js
 
 # Setup a build directory
 rm -rf ../../requirejs-build
@@ -32,14 +32,19 @@ mv requirejs-$version.zip $version
 cd requirejs-$version/build/require
 ./build.sh
 cd build
+sed -i '' 's/\/\*jslint/\/\*jslint white\: false\,/' require.js
+sed -i '' 's/\/\*jslint/\/\*jslint white\: false\,/' allplugins-require.js
 cp require.js ../../../../$version/comments/require.js
 cp allplugins-require.js ../../../../$version/comments/allplugins-require.js
+
 
 # Build jquery options
 cd ../../jquery
 ../build.sh require-jquery.build.js
 ../build.sh requireplugins-jquery.build.js
 
+sed -i '' 's/\/\*jslint/\/\*jslint white\: false\,/' dist/require-jquery.js
+sed -i '' 's/\/\*jslint/\/\*jslint white\: false\,/' dist/requireplugins-jquery.js
 mv dist/require-jquery.js ../../../$version/comments/require-$jqueryName
 mv dist/requireplugins-jquery.js ../../../$version/comments/requireplugins-$jqueryName
 

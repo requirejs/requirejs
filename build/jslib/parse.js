@@ -48,6 +48,26 @@ var parse;
     }
 
     /**
+     * Calls compiler.parse, and if any errors, throws.
+     */
+    function compilerParse(jsSourceFile, fileName) {
+        var result = compiler.parse(jsSourceFile),
+            errorManager = compiler.getErrorManager(),
+            errorMsg = '', errors, i;
+
+        if (errorManager.getErrorCount() > 0) {
+            errorMsg += 'ERROR(S) in file: ' + fileName + ':\n';
+            errors = errorManager.getErrors();
+            for (i = 0; i < errors.length; i++) {
+                errorMsg += errors[i].toString() + '\n';
+            }
+            throw new Error(errorMsg);
+        }
+
+        return result;
+    }
+
+    /**
      * Validates a node as being an object literal (like for i18n bundles)
      * or an array literal with just string members.
      * This function does not need to worry about comments, they are not
@@ -84,8 +104,8 @@ var parse;
     parse = function (fileName, fileContents) {
         //Set up source input
         var matches = [], result = null,
-        jsSourceFile = closurefromCode(String(fileName), String(fileContents)),
-        astRoot = compiler.parse(jsSourceFile);
+            jsSourceFile = closurefromCode(String(fileName), String(fileContents)),
+            astRoot = compilerParse(jsSourceFile, fileName);
 
         parse.recurse(astRoot, matches);
 
@@ -120,7 +140,7 @@ var parse;
      */
     parse.definesRequire = function (fileName, fileContents) {
         var jsSourceFile = closurefromCode(String(fileName), String(fileContents)),
-            astRoot = compiler.parse(jsSourceFile);
+            astRoot = compilerParse(jsSourceFile, fileName);
 
         return parse.nodeHasRequire(astRoot);
     };
@@ -137,7 +157,7 @@ var parse;
      */
     parse.getAnonDeps = function (fileName, fileContents) {
         var jsSourceFile = closurefromCode(String(fileName), String(fileContents)),
-            astRoot = compiler.parse(jsSourceFile),
+            astRoot = compilerParse(jsSourceFile, fileName),
             deps = [],
             defFunc = parse.findAnonRequireDefCallback(astRoot);
         

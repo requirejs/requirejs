@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>require.js: JSONP Plugin Test</title>
+    <title>require.js: JSONP Test</title>
     <script type="text/javascript" src="../../require.js"></script>
     <script type="text/javascript" src="../doh/runner.js"></script>
     <script type="text/javascript" src="../doh/_browserRunner.js"></script>
@@ -12,7 +12,7 @@
                 require: "../../require"
             }
         },
-        ["require", "lamp", "jsonp!http://www.google.com/jsapi?callback=?"],
+        ["require", "lamp", "http://www.google.com/jsapi?callback=define"],
         function (require, lamp, googleAjaxReady) {
             //JSAPI is now loaded, load the language API pack
             google.load("language", "1", {
@@ -37,8 +37,8 @@
     </script>
 </head>
 <body>
-    <h1>require.js: JSONP Plugin Test</h1>
-    <p>Test for usage of jsonp! require plugin.</p>
+    <h1>require.js: JSONP Test</h1>
+    <p>Test for usage of a JSONP URL as a dependency.</p>
     <strong>REQUIRES access to internet/Google to run the test. Otherwise it will fail.</strong>
     <p>Check console for messages</p>
 </body>

@@ -1,4 +1,4 @@
-{
+({
     appDir: "../",
     baseUrl: "scripts/",
     dir: "../../webapp-build",
@@ -12,4 +12,4 @@
             name: "main"
         }
     ]
-}
+})

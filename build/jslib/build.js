@@ -29,7 +29,7 @@ var build, buildBaseConfig;
             prop, props, paths, path, i, fileContents, buildFileContents = "",
             doClosure, requireContents, pluginContents, pluginBuildFileContents,
             baseConfig, override, builtRequirePath, cmdConfig, config,
-            modules, module, moduleName, builtModule;
+            modules, module, moduleName, builtModule, srcPath;
     
         if (!args || args.length < 2) {
             print("java -jar path/to/js.jar build.js directory/containing/build.js/ build.js\n" +
@@ -65,11 +65,11 @@ var build, buildBaseConfig;
     
         config = build.createConfig(cmdConfig);
         paths = config.paths;
-    
+
         //Load require.js with the build patches.
         load(config.requireUrl);
         load(requireBuildPath + "jslib/requirePatch.js");
-    
+
         if (!config.out && !config.cssIn) {
             //This is not just a one-off file build but a full build profile, with
             //lots of files to process.
@@ -80,19 +80,24 @@ var build, buildBaseConfig;
             //Adjust baseUrl if config.appDir is in play, and set up build output paths.
             buildPaths = {};
             if (config.appDir) {
-                config.dirBaseUrl = config.dir + config.baseUrl;
-                config.baseUrl = config.appDir + config.baseUrl;
                 //All the paths should be inside the appDir
                 buildPaths = paths;
             } else {
-                config.dirBaseUrl = config.dir;
                 //If no appDir, then make sure to copy the other paths to this directory.
                 for (prop in paths) {
                     if (paths.hasOwnProperty(prop)) {
                         //Set up build path for each path prefix.
                         buildPaths[prop] = prop.replace(/\./g, "/");
+
+                        //Make sure source path is fully formed with baseUrl,
+                        //if it is a relative URL.
+                        srcPath = paths[prop];
+                        if (srcPath.indexOf('/') !== 0 && srcPath.indexOf(':') === -1) {
+                            srcPath = config.baseUrl + srcPath;
+                        }
+
                         //Copy files to build area. Copy all files (the /\w/ regexp)
-                        fileUtil.copyDir(paths[prop], config.dirBaseUrl + buildPaths[prop], /\w/, true);
+                        fileUtil.copyDir(srcPath, config.dirBaseUrl + buildPaths[prop], /\w/, true);
                     }
                 }
             }
@@ -281,6 +286,17 @@ var build, buildBaseConfig;
         return result; //Object
     };
 
+    build.makeAbsPath = function (path, absFilePath) {
+        //Add abspath if necessary. If path starts with a slash or has a colon,
+        //then already is an abolute path.
+        if (path.indexOf('/') !== 0 && path.indexOf(':') === -1) {
+            path = absFilePath +
+                   (absFilePath.charAt(absFilePath.length - 1) === '/' ? '' : '/') +
+                   path;
+        }
+        return path;
+    };
+
     /**
      * Creates a config object for an optimization build.
      * It will also read the build profile if it is available, to create
@@ -295,7 +311,7 @@ var build, buildBaseConfig;
     build.createConfig = function (cfg) {
         /*jslint evil: true */
         var config = {}, baseUrl, buildFileContents, buildFileConfig,
-            paths, props, i, prop;
+            paths, props, i, prop, buildFile, absFilePath, originalBaseUrl;
 
         lang.mixin(config, buildBaseConfig);
         lang.mixin(config, cfg, true);
@@ -313,20 +329,19 @@ var build, buildBaseConfig;
 
         if (config.buildFile) {
             //A build file exists, load it to get more config.
-            config.buildFile = new java.io.File(config.buildFile).getAbsoluteFile();
+            buildFile = new java.io.File(config.buildFile).getAbsoluteFile();
 
             //Find the build file, and make sure it exists, if this is a build
             //that has a build profile, and not just command line args with an in=path
-            if (!config.buildFile.exists()) {
-                throw new Error("ERROR: build file does not exist: " + config.buildFile.getAbsolutePath());
+            if (!buildFile.exists()) {
+                throw new Error("ERROR: build file does not exist: " + buildFile.getAbsolutePath());
             }
 
-            config.baseUrl = fileUtil.absPath(config.buildFile.getParentFile());
-            config.buildFile = fileUtil.absPath(config.buildFile);
+            absFilePath = config.baseUrl = fileUtil.absPath(buildFile.getParentFile()).replace(lang.backSlashRegExp, '/');
             config.dir = config.baseUrl + "/build/";
 
             //Load build file options.
-            buildFileContents = fileUtil.readFile(config.buildFile);
+            buildFileContents = fileUtil.readFile(buildFile);
             buildFileConfig = eval("(" + buildFileContents + ")");
             lang.mixin(config, buildFileConfig, true);
 
@@ -334,7 +349,6 @@ var build, buildBaseConfig;
             //args should take precedence over build file values.
             lang.mixin(config, cfg, true);
         } else {
-            //Base URL is relative to the in file.
             if (!config.out && !config.cssIn) {
                 throw new Error("ERROR: 'out' or 'cssIn' option missing.");
             }
@@ -347,6 +361,9 @@ var build, buildBaseConfig;
             if (!config.cssIn && !cfg.baseUrl) {
                 throw new Error("ERROR: 'baseUrl' option missing.");
             }
+
+            //In this scenario, the absFile path is current directory
+            absFilePath = (String((new java.io.File('.')).getAbsolutePath())).replace(lang.backSlashRegExp, '/');
         }
 
         if (config.out && !config.cssIn) {
@@ -377,7 +394,8 @@ var build, buildBaseConfig;
         }
 
         //Adjust the path properties as appropriate.
-        //First make sure build paths use front slashes and end in a slash
+        //First make sure build paths use front slashes and end in a slash,
+        //and make sure they are aboslute paths.
         props = ["appDir", "dir", "baseUrl"];
         for (i = 0; (prop = props[i]); i++) {
             if (config[prop]) {
@@ -385,6 +403,34 @@ var build, buildBaseConfig;
                 if (config[prop].charAt(config[prop].length - 1) !== "/") {
                     config[prop] += "/";
                 }
+
+                //Add abspath if necessary.
+                if (prop === "baseUrl") {
+                    originalBaseUrl = config.baseUrl;
+                    if (config.appDir) {
+                        //If baseUrl with an appDir, the baseUrl is relative to
+                        //the appDir, *not* the absFilePath. appDir and dir are
+                        //made absolute before baseUrl, so this will work.
+                        config.baseUrl = build.makeAbsPath(originalBaseUrl, config.appDir);
+                        //Set up dir output baseUrl.
+                        config.dirBaseUrl = build.makeAbsPath(originalBaseUrl, config.dir);
+                    } else {
+                        //The dir output baseUrl is same as regular baseUrl, both
+                        //relative to the absFilePath.
+                        config.baseUrl = build.makeAbsPath(config[prop], absFilePath);
+                        config.dirBaseUrl = config.dir;
+                    }
+                } else {
+                    config[prop] = build.makeAbsPath(config[prop], absFilePath);
+                }
+            }
+        }
+
+        //Make sure some other paths are absolute.
+        props = ["out", "cssIn"];
+        for (i = 0; (prop = props[i]); i++) {
+            if (config[prop]) {
+                config[prop] = build.makeAbsPath(config[prop], absFilePath);
             }
         }
 

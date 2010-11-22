@@ -333,13 +333,11 @@ However, the build system for require.js will inline any text! references with t
 
 [JSONP](http://en.wikipedia.org/wiki/JSON#JSONP) is a way of calling some services in JavaScript. It works across domains and it is an established approach to calling services that just require an HTTP GET via a script tag.
 
-RequireJS has a plugin, require/jsonp.js, that allows you to use JSONP API services as dependencies. RequireJS will handle setting up the callback function with the service, and once the service returns a value to that callback, it will use that value as the value for that JSONP service URL.
+To use a JSONP service in RequireJS, specify "define" as the callback parameter's value. This means you can get the value of a JSONP URL as if it was a module definition.
 
-To use a JSONP service in RequireJS, specify the jsonp! plugin prefix, then the URL to the service. For the JSONP callback parameter, use a question mark for the value, similar to how it is done in jQuery.
+Here is an example that calls a twitter API endpoint. In this example, the JSONP callback parameter is called "callback", so "callback=define" tells the API to wrap the JSON response in a "define()" wrapper:
 
-Here is an example that calls a twitter API endpoint. In this example, the JSONP callback parameter is called "callback":
-
-    require(["jsonp!http://search.twitter.com/trends/current.json?callback=?"],
+    require(["http://search.twitter.com/trends/current.json?callback=define"],
         function (trends) {
             //The trends object will be the API response for the
             //Twitter trends/current API
@@ -347,10 +345,16 @@ Here is an example that calls a twitter API endpoint. In this example, the JSONP
         }
     );
 
-Errors in loading a JSONP service are normally surfaced via timeouts for the service, since script tag loading does not give much detail into network problems. To detect errors, attach an event listener for window.onerror. The error object passed to the onerror function will contain two properties if it is a timeout issue:
+This use of JSONP should be limited to JSONP services for initial application setup. If the JSONP service times out, it means other modules you define via define() may not get executed, so the error handling is not robust.
+
+This functionality should not be used for long-polling JSONP connections -- APIs that deal with real time streaming. Those kinds of APIs should do more script cleanup after receiving each response, and RequireJS will only fetch a JSONP URL once -- subsequent uses of the same URL as a dependency in a require() or define() call will get a cached value.
+
+Errors in loading a JSONP service are normally surfaced via timeouts for the service, since script tag loading does not give much detail into network problems. To detect errors, you can override require.onError() to get errors. The error object passed to the onerror function will contain two properties if it is a timeout issue:
 
 * **requireType**: value will be "timeout"
 * **requireModules**: an array of module names/URLs that timed out. You can find the JSONP service URL in here.
+
+Note however that if you get this type of error it probably means other modules you defined via define() did not get executed, and the scripts you want to use may not be available.
 
 ## <a name="order">Load Scripts in a Specific Order</a>
 
@@ -450,7 +454,7 @@ If no baseUrl is passed in, the path to require.js is used as the baseUrl path. 
 
 **priority**: An array of module/file names to load immediately, before tracing down any other dependencies. This allows you to set up a small set of files that are downloaded in parallel that contain most of the modules and their dependencies already built in. More information is in the [Optimization FAQ, Priority Downloads](faq-optimization#priority).
 
-** urlArgs**: Extra querystring arguments appended to URLs that RequireJS uses to fetch resources. Most useful to cache bust when the browser or server is not configured correctly. Example cache bust setting for urlArgs:
+**urlArgs**: Extra querystring arguments appended to URLs that RequireJS uses to fetch resources. Most useful to cache bust when the browser or server is not configured correctly. Example cache bust setting for urlArgs:
 
     urlArgs: "bust=" +  (new Date()).getTime()
 

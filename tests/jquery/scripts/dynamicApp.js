@@ -1,7 +1,8 @@
 require({
     "baseUrl": "./scripts/",
     "paths": {
-        "jquery": "http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min"
+        "jquery": "http://ajax.microsoft.com/ajax/jQuery/jquery-1.4.4.min"
+        //"jquery": "http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min"
     }
 });
 

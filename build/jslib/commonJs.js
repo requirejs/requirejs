@@ -116,16 +116,21 @@ var commonJs = {
      * 
      * @param {String} fileContents the contents of a file :)
      *
+     * @param {Boolean} skipDeps if true, require("") dependencies
+     * will not be searched, but the contents will just be wrapped in the
+     * standard require, exports, module dependencies. Only usable in sync
+     * environments like Node where the require("") calls can be resolved on
+     * the fly.
+     * 
      * @returns {String} the converted contents
      */
-    convert: function (moduleName, fileName, fileContents) {
+    convert: function (moduleName, fileName, fileContents, skipDeps) {
         //Strip out comments.
         if (commonJs.useLog) {
             logger.trace("fileName: " + fileName);
         }
         try {
-            var i, deps = [], depName, origDepName, part, pathConverted = {},
-                prop, reqRegExp, match,
+            var deps = [], depName, match,
                 //Remove comments
                 tempContents = commonJs.removeComments(fileContents, fileName),
                 baseName = moduleName.split("/");
@@ -142,14 +147,16 @@ var commonJs = {
             //since the regexp is reused across files.
             commonJs.depRegExp.lastIndex = 0;
 
-            //Find dependencies in the code that was not in comments.
-            while ((match = commonJs.depRegExp.exec(tempContents))) {
-                depName = match[1];
-                if (commonJs.useLog) {
-                    logger.trace("  " + depName);
-                }
-                if (depName) {
-                    deps.push('"' + depName + '"');
+            if (!skipDeps) {
+                //Find dependencies in the code that was not in comments.
+                while ((match = commonJs.depRegExp.exec(tempContents))) {
+                    depName = match[1];
+                    if (commonJs.useLog) {
+                        logger.trace("  " + depName);
+                    }
+                    if (depName) {
+                        deps.push('"' + depName + '"');
+                    }
                 }
             }
 

@@ -1,7 +1,7 @@
 {
     baseUrl: ".",
     paths: {
-        "jquery": "jquery-1.4.3"
+        "jquery": "jquery-1.4.4"
     },
     out: "dist/require-jquery.js",
     optimize: "none",
@@ -10,7 +10,6 @@
     includeRequire: true,
     skipModuleInsertion: true,
     pragmas: {
-        jquery: true,
-        requireExcludePlugin: true
+        jquery: true
     }
 }

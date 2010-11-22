@@ -78,7 +78,7 @@ page2.html and page2.js would look similar, except referencing "page2" instead o
 
 The build profile, **app.build.js** would look like this:
 
-    {
+    ({
         appDir: "webapp",
         baseUrl: "scripts",
         dir: "webapp-build",
@@ -104,7 +104,7 @@ The build profile, **app.build.js** would look like this:
                 exclude: ["jquery", "appcommon"]
             }
         ]
-    }
+    })
 
 Once the build is run, it will generate the contents of **webapp-build** that look similar to **webapp**, except that the contents are optimized and there is a scripts/appcommon.js file now.
 
