@@ -37,7 +37,7 @@ var require, define;
         interactiveScript = null,
         isDone = false,
         useInteractive = false,
-        req, cfg, currentlyAddingScript, s, head, baseElement, scripts, script,
+        req, cfg = {}, currentlyAddingScript, s, head, baseElement, scripts, script,
         rePkg, src, m, dataMain, i, scrollIntervalId, setReadyState;
 
     function isFunction(it) {
@@ -114,7 +114,24 @@ var require, define;
      * with the standard context.
      */
     function newContext(contextName) {
-        var config = {}, context, defQueue = [], paused = [], defined = {}, load;
+        var context, load, resume,
+            config = {
+                waitSeconds: 7,
+                baseUrl: s.baseUrl || "./",
+                paths: {},
+                packages: {}
+            },
+            defQueue = [],
+            paused = [],
+            specified = {
+                "require": true,
+                "exports": true,
+                "module": true
+            },
+            defined = {},
+            loaded = {},
+            waiting = [],
+            managerCallbacks = {};
 
         /**
          * Given a relative module name, like ./something, normalize it to
@@ -186,7 +203,10 @@ var require, define;
             if (name) {
                 name = normalizeName(name, baseName);
             }
-    
+            if (prefix) {
+                prefix = normalizeName(prefix, baseName);
+            }
+
             return {
                 prefix: prefix,
                 name: name,
@@ -203,7 +223,7 @@ var require, define;
                 priorityName, i;
             if (priorityWait) {
                 for (i = 0; (priorityName = priorityWait[i]); i++) {
-                    if (!context.loaded[priorityName]) {
+                    if (!loaded[priorityName]) {
                         priorityDone = false;
                         break;
                     }
@@ -288,21 +308,39 @@ var require, define;
             //TODO: do not load automatically, but put the
             //plugin in the paused list, in case it is already
             //in a built layer.
-            xxx
+            //xxx
         }
 
+        /*
+         * Queues a dependency for checking after the loader is out of a
+         * "paused" state, for example while a script file is being loaded
+         * in the browser, where it may have many modules defined in it.
+         *
+         * depName will be fully qualified, no relative . or .. path.
+         */
         function queueDependency(pluginName, depName) {
             //Make sure to load any plugin and associate the dependency
             //with that plugin.
+            
+            //Do not bother if the depName is already in transit
+            if (specified[depName]) {
+                return;
+            }
+
             if (pluginName) {
                 queuePlugin(pluginName, depName);
             } else {
-                xxx
+                paused.push({
+                    name: depName,
+                    action: load
+                });
             }
         }
 
         function execManager(manager) {
-            var i, cb = manager.callback, name = manager.name;
+            var i, ret, waitingCallbacks,
+                cb = manager.callback,
+                name = manager.name;
 
             //Call the callback to define the module, if necessary.
             if (cb && isFunction(cb)) {
@@ -326,10 +364,10 @@ var require, define;
 
                     //If anything was waiting for this module to be defined,
                     //notify them now.
-                    var waitingCallbacks = managerCallbacks[name];
+                    waitingCallbacks = managerCallbacks[name];
                     if (waitingCallbacks) {
                         for (i = 0; i < waitingCallbacks.length; i++) {
-                           waitingCallbacks[i].onDep(name, ret);
+                            waitingCallbacks[i].onDep(name, ret);
                         }
                         delete managerCallbacks[name];
                     }
@@ -341,7 +379,7 @@ var require, define;
             }
         }
 
-        function createManager(inName, depArray, callback, relModuleName) {
+        function main(inName, depArray, callback, relModuleName) {
             var nameArgs = splitPrefix(inName, relModuleName),
                 name = nameArgs.name,
                 manager = {
@@ -363,7 +401,23 @@ var require, define;
                         }
                     }
                 },
-                i, depArg, depName;
+                i, depArg, depName, cjsMod;
+
+            if (name) {
+                //If module already defined for context, or already loaded,
+                //then leave.
+                if (name in defined || loaded[name] === true) {
+                    return;
+                }
+
+                //Set loaded here for modules that are also loaded
+                //as part of a layer, where onScriptLoad is not fired
+                //for those cases. Do this after the inline define and
+                //dependency tracing is done.
+                //Also check if auto-registry of jQuery needs to be skipped.
+                loaded[name] = true;
+                context.jQueryDef = (name === "jquery");
+            }
 
             //Add the dependencies to the deps field, and register for callbacks
             //on the dependencies.
@@ -386,11 +440,11 @@ var require, define;
                         manager.usingExports = true;
                     } else if (depName === "module") {
                         //CommonJS module spec 1.1
-                        manager.cjsModule = manager.deps[depName] = {
+                        manager.cjsModule = cjsMod = manager.deps[depName] = {
                             id: name,
                             uri: name ? context.nameToUrl(name, null, relModuleName) : undefined
                         };
-                        manager.cjsModule.setExports = makeSetExports(cjsModule);
+                        cjsMod.setExports = makeSetExports(cjsMod);
                     } else if (depName in defined) {
                         //Module already defined, no need to wait for it.
                         manager.deps[depName] = defined[depName];
@@ -412,79 +466,8 @@ var require, define;
             if (manager.depCount === manager.depMax) {
                 //All done, execute!
                 execManager(manager);
-                return undefined;
             } else {
-                return manager;
-            }
-        }
-
-        function main(name, deps, callback, relModuleName) {
-            //Grab the context, or create a new one for the given context name.
-            var loaded, pluginPrefix,
-                canSetContext, prop, newLength, outDeps, mods, paths, index, i,
-                deferMods, deferModArgs, lastModArg, waitingName, packages,
-                packagePaths;
-
-            manager = createManager(name, deps, callback, relModuleName);
-            if (manager.name) {
-                //If module already defined for context, or already waiting to be
-                //evaluated, leave.
-                waitingName = context.waiting[name];
-                if (name in defined || (waitingName && waitingName !== ap[name])) {
-                    return;
-                }
-            }
-
-            //Store the module for later evaluation
-            newLength = context.waiting.push({
-                name: name,
-                deps: deps,
-                callback: callback
-            });
-
-            if (name) {
-                //Store index of insertion for quick lookup
-                context.waiting[name] = newLength - 1;
-    
-                //Mark the module as specified so no need to fetch it again.
-                //Important to set specified here for the
-                //pause/resume case where there are multiple modules in a file.
-                context.specified[name] = true;
-    
-                //TODO: some modifier work here?
-            }
-
-            //If the callback is not an actual function, it means it already
-            //has the definition of the module as a literal value.
-            if (name && callback && !isFunction(callback)) {
-                defined[name] = callback;
-            }
-    
-            //If a pluginPrefix is available, call the plugin, or load it.
-            //>>excludeStart("requireExcludePlugin", pragmas.requireExcludePlugin);
-            if (pluginPrefix) {
-                callPlugin(pluginPrefix, context, {
-                    name: "require",
-                    args: [name, deps, callback, context]
-                });
-            }
-            //>>excludeEnd("requireExcludePlugin");
-    
-            //Hold on to the module until a script load or other adapter has finished
-            //evaluating the whole file. This helps when a file has more than one
-            //module in it -- dependencies are not traced and fetched until the whole
-            //file is processed.
-            
-            paused.push([pluginPrefix, name, deps]);
-
-            //Set loaded here for modules that are also loaded
-            //as part of a layer, where onScriptLoad is not fired
-            //for those cases. Do this after the inline define and
-            //dependency tracing is done.
-            //Also check if auto-registry of jQuery needs to be skipped.
-            if (name) {
-                context.loaded[name] = true;
-                context.jQueryDef = (name === "jquery");
+                waiting.push(manager);
             }
         }
 
@@ -497,58 +480,102 @@ var require, define;
             //Mark the module loaded. Must do it here in addition
             //to doing it in require.def in case a script does
             //not call require.def
-            context.loaded[args[0]] = true;
+            loaded[args[0]] = true;
         }
 
         /**
-         * Trace down the dependencies to see if they are loaded. If not, trigger
-         * the load.
-         * @param {String} pluginPrefix the plugin prefix, if any associated with the name.
-         * @param {String} name: the name of the module that has the dependencies.
-         * @param {Array} deps array of dependencies.
+         * Checks if all modules for a context are loaded, and if so, evaluates the
+         * new ones in right dependency order.
+         *
+         * @private
          */
-        function checkDeps(pluginPrefix, name, deps) {
-            //Figure out if all the modules are loaded. If the module is not
-            //being loaded or already loaded, add it to the "to load" list,
-            //and request it to be loaded.
-            var i, dep;
+        function checkLoaded() {
+            var waitInterval = config.waitSeconds * 1000,
+                //It is possible to disable the wait interval by using waitSeconds of 0.
+                expired = waitInterval && (context.startTime + waitInterval) < new Date().getTime(),
+                noLoads = "", hasLoadedProp = false, stillLoading = false, prop,
+                err;
+    
+            //If already doing a checkLoaded call,
+            //then do not bother checking loaded state.
+            if (context.isCheckLoaded) {
+                return undefined;
+            }
 
-            if (pluginPrefix) {
-                //>>excludeStart("requireExcludePlugin", pragmas.requireExcludePlugin);
-                callPlugin(pluginPrefix, {
-                    name: "checkDeps",
-                    args: [name, deps]
-                });
-                //>>excludeEnd("requireExcludePlugin");
-            } else {
-                for (i = 0; (dep = deps[i]); i++) {
-                    if (!context.specified[dep.fullName]) {
-                        context.specified[dep.fullName] = true;
+            //Determine if priority loading is done. If so clear the priority. If
+            //not, then do not check
+            if (config.priorityWait) {
+                if (isPriorityDone()) {
+                    //Call resume, since it could have
+                    //some waiting dependencies to trace.
+                    resume();
+                } else {
+                    return undefined;
+                }
+            }
 
-                        //Reset the start time to use for timeouts
-                        context.startTime = (new Date()).getTime();
+            //Signal that checkLoaded is being require, so other calls that could be triggered
+            //by calling a waiting callback that then calls require and then this function
+            //should not proceed. At the end of this function, if there are still things
+            //waiting, then checkLoaded will be called again.
+            context.isCheckLoaded = true;
 
-                        //If a plugin, call its load method.
-                        if (dep.prefix) {
-                            //>>excludeStart("requireExcludePlugin", pragmas.requireExcludePlugin);
-                            callPlugin(dep.prefix, {
-                                name: "load",
-                                args: [dep.name]
-                            });
-                            //>>excludeEnd("requireExcludePlugin");
+            //See if anything is still in flight.
+            for (prop in loaded) {
+                if (!(prop in empty)) {
+                    hasLoadedProp = true;
+                    if (!loaded[prop]) {
+                        if (expired) {
+                            noLoads += prop + " ";
                         } else {
-                            load(dep.name);
+                            stillLoading = true;
+                            break;
                         }
                     }
                 }
             }
+
+            //Check for exit conditions.
+            if (!hasLoadedProp && !waiting.length) {
+                //If the loaded object had no items, then the rest of
+                //the work below does not need to be done.
+                context.isCheckLoaded = false;
+                return undefined;
+            }
+            if (expired && noLoads) {
+                //If wait time expired, throw error of unloaded modules.
+                err = new Error("require.js load timeout for modules: " + noLoads);
+                err.requireType = "timeout";
+                err.requireModules = noLoads;
+                return req.onError(err);
+            }
+            if (stillLoading) {
+                //Something is still waiting to load. Wait for it.
+                context.isCheckLoaded = false;
+                if (isBrowser || isWebWorker) {
+                    setTimeout(checkLoaded, 50);
+                }
+                return undefined;
+            }
+
+            //Indicate checkLoaded is now done.
+            context.isCheckLoaded = false;
+
+            //Check for DOM ready, and nothing is waiting across contexts.
+            req.checkReadyState();
+
+            return undefined;
         }
 
         /**
          * Resumes tracing of dependencies and then checks if everything is loaded.
          */
-        function resume() {
-            var args, i;
+        resume = function () {
+            var args, i, p = paused;
+
+            //Reset paused list
+            paused = [];
+
             if (context.scriptCount <= 0) {
                 //Synchronous envs will push the number below zero with the
                 //decrement above, be sure to set it back to zero for good measure.
@@ -571,40 +598,30 @@ var require, define;
                     return undefined;
                 }
 
-                if (paused.length) {
-                    for (i = 0; (args = paused[i]); i++) {
-                        checkDeps.apply(null, args);
+                if (p.length) {
+                    for (i = 0; (args = p[i]); i++) {
+                        args.action(args.name);
                     }
+                    //Move the start time for timeout forward.
+                    context.startTime = (new Date()).getTime();
                 }
 
                 checkLoaded();
             }
             return undefined;
-        }
+        };
 
         //Define the context object.
         context = {
             contextName: contextName,
             config: config,
             defQueue: defQueue,
-            waiting: [],
-            specified: {
-                "require": true,
-                "exports": true,
-                "module": true
-            },
-            loaded: {},
+            waiting: waiting,
+            specified: specified,
+            loaded: loaded,
             scriptCount: 0,
             urlFetched: {},
             defined: defined,
-            //>>excludeStart("requireExcludePlugin", pragmas.requireExcludePlugin);
-            plugins: {
-                defined: {},
-                callbacks: {},
-                waiting: {}
-            },
-            //>>excludeEnd("requireExcludePlugin");
-            modifiers: {},
             /**
              * Set a configuration for the context.
              * @param {Object} cfg config object to integrate.
@@ -747,7 +764,7 @@ var require, define;
                 //Mark the script as loaded. Note that this can be different from a
                 //moduleName that maps to a require.def call. This line is important
                 //for traditional browser scripts.
-                context.loaded[moduleName] = true;
+                loaded[moduleName] = true;
         
                 //If a global jQuery is defined, check for it. Need to do it here
                 //instead of main() since stock jQuery does not register as
@@ -974,7 +991,7 @@ var require, define;
      * name.
      */
     define = req.def = function (name, deps, callback) {
-        var i, scripts, script, node = currentlyAddingScript, args, context;
+        var node = currentlyAddingScript, context;
 
         //Allow for anonymous functions
         if (typeof name !== 'string') {
@@ -1261,6 +1278,21 @@ var require, define;
 
             req.callReady();
         }
+    };
+
+    //See if there is nothing waiting across contexts, and if not, trigger
+    //callReady.
+    req.checkReadyState = function () {
+        var contexts = s.contexts, prop;
+        for (prop in contexts) {
+            if (!(prop in empty)) {
+                if (contexts[prop].waiting.length) {
+                    return;
+                }
+            }
+        }
+        s.isDone = true;
+        req.callReady();
     };
 
     /**
