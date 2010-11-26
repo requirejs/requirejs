@@ -114,7 +114,7 @@ var require, define;
      * with the standard context.
      */
     function newContext(contextName) {
-        var config = {}, context, defQueue = [], paused = [], load;
+        var config = {}, context, defQueue = [], paused = [], defined = {}, load;
 
         /**
          * Given a relative module name, like ./something, normalize it to
@@ -176,14 +176,16 @@ var require, define;
          * of the prefix (if it exists) and the name.
          */
         function splitPrefix(name, baseName) {
-            var index = name.indexOf("!"), prefix = null;
+            var index = name ? name.indexOf("!") : -1, prefix = null;
             if (index !== -1) {
                 prefix = name.substring(0, index);
                 name = name.substring(index + 1, name.length);
             }
-    
+
             //Account for relative paths if there is a base name.
-            name = normalizeName(name, baseName);
+            if (name) {
+                name = normalizeName(name, baseName);
+            }
     
             return {
                 prefix: prefix,
@@ -230,8 +232,8 @@ var require, define;
     
                     //Manually create a "jquery" module entry if not one already
                     //or in process.
-                    if (!context.defined.jquery && !context.jQueryDef) {
-                        context.defined.jquery = $;
+                    if (!defined.jquery && !context.jQueryDef) {
+                        defined.jquery = $;
                     }
     
                     //Increment jQuery readyWait if ncecessary.
@@ -243,6 +245,179 @@ var require, define;
             }
         }
 
+        /**
+         * Helper function that creates a setExports function for a "module"
+         * CommonJS dependency. Do this here to avoid creating a closure that
+         * is part of a loop.
+         */
+        function makeSetExports(moduleObj) {
+            return function (exports) {
+                moduleObj.exports = exports;
+            };
+        }
+
+        function makeContextModuleFunc(func, moduleName) {
+            return function () {
+                //A version of a require function that passes a moduleName
+                //value for items that may need to
+                //look up paths relative to the moduleName
+                var args = [].concat(aps.call(arguments, 0));
+                args.push(moduleName);
+                return func.apply(null, args);
+            };
+        }
+
+        /**
+         * Helper function that creates a require function object to give to
+         * modules that ask for it as a dependency. It needs to be specific
+         * per module because of the implication of path mappings that may
+         * need to be relative to the module name.
+         */
+        function makeRequire(moduleName) {
+            var modRequire = makeContextModuleFunc(context.require, moduleName);
+
+            mixin(modRequire, {
+                nameToUrl: makeContextModuleFunc(context.nameToUrl, moduleName),
+                ready: req.ready,
+                isBrowser: s.isBrowser
+            });
+            return modRequire;
+        }
+
+        function queuePlugin(pluginName, depName) {
+            //TODO: do not load automatically, but put the
+            //plugin in the paused list, in case it is already
+            //in a built layer.
+            xxx
+        }
+
+        function queueDependency(pluginName, depName) {
+            //Make sure to load any plugin and associate the dependency
+            //with that plugin.
+            if (pluginName) {
+                queuePlugin(pluginName, depName);
+            } else {
+                xxx
+            }
+        }
+
+        function execManager(manager) {
+            var i, cb = manager.callback, name = manager.name;
+
+            //Call the callback to define the module, if necessary.
+            if (cb && isFunction(cb)) {
+                ret = req.execCb(manager);
+                if (name) {
+                    //If using exports and the function did not return a value,
+                    //and the "module" object for this definition function did not
+                    //define an exported value, then use the exports object.
+                    if (manager.usingExports && ret === undefined && (!manager.cjsModule || !("exports" in manager.cjsModule))) {
+                        ret = defined[name];
+                    } else {
+                        if (manager.cjsModule && "exports" in manager.cjsModule) {
+                            ret = defined[name] = manager.cjsModule.exports;
+                        } else {
+                            if (name in defined && !manager.usingExports) {
+                                req.onError(new Error(name + " has already been defined"));
+                            }
+                            defined[name] = ret;
+                        }
+                    }
+
+                    //If anything was waiting for this module to be defined,
+                    //notify them now.
+                    var waitingCallbacks = managerCallbacks[name];
+                    if (waitingCallbacks) {
+                        for (i = 0; i < waitingCallbacks.length; i++) {
+                           waitingCallbacks[i].onDep(name, ret);
+                        }
+                        delete managerCallbacks[name];
+                    }
+                }
+            } else if (name) {
+                //May just be an object definition for the module. Only
+                //worry about defining if have a module name.
+                ret = defined[name] = cb;
+            }
+        }
+
+        function createManager(inName, depArray, callback, relModuleName) {
+            var nameArgs = splitPrefix(inName, relModuleName),
+                name = nameArgs.name,
+                manager = {
+                    depCount: 0,
+                    depMax: 0,
+                    pluginName: nameArgs.prefix,
+                    name: name,
+                    deps: {},
+                    depArray: depArray,
+                    callback: callback,
+                    onDep: function (name, value) {
+                        if (name in manager.deps) {
+                            manager.deps[name] = value;
+                            manager.depCount += 1;
+                            if (manager.depCount === manager.depMax) {
+                                //All done, execute!
+                                execManager(manager);
+                            }
+                        }
+                    }
+                },
+                i, depArg, depName;
+
+            //Add the dependencies to the deps field, and register for callbacks
+            //on the dependencies.
+            for (i = 0; i < depArray.length; i++) {
+                depArg = depArray[i];
+                //There could be cases like in IE, where a trailing comma will
+                //introduce a null dependency, so only treat a real dependency
+                //value as a dependency.
+                if (depArg) {
+                    //Split the dependency name into plugin and name parts
+                    depArg = splitPrefix(depArg, name);
+                    depName = depArg.name;
+
+                    //Fast path CommonJS standard dependencies.
+                    if (depName === "require") {
+                        manager.deps[depName] = makeRequire(name);
+                    } else if (depName === "exports") {
+                        //CommonJS module spec 1.1
+                        manager.deps[depName] = defined[name] = {};
+                        manager.usingExports = true;
+                    } else if (depName === "module") {
+                        //CommonJS module spec 1.1
+                        manager.cjsModule = manager.deps[depName] = {
+                            id: name,
+                            uri: name ? context.nameToUrl(name, null, relModuleName) : undefined
+                        };
+                        manager.cjsModule.setExports = makeSetExports(cjsModule);
+                    } else if (depName in defined) {
+                        //Module already defined, no need to wait for it.
+                        manager.deps[depName] = defined[depName];
+                    } else {
+                        //A dynamic dependency.
+                        manager.depMax += 1;
+                        manager.deps[depName] = undefined;
+
+                        queueDependency(depArg.prefix, depName);
+
+                        //Register to get notification when dependency loads.
+                        (managerCallbacks[depName] ||
+                        (managerCallbacks[depName] = [])).push(manager);
+                    }
+                }
+            }
+
+            //Do not bother tracking the manager if it is all done.
+            if (manager.depCount === manager.depMax) {
+                //All done, execute!
+                execManager(manager);
+                return undefined;
+            } else {
+                return manager;
+            }
+        }
+
         function main(name, deps, callback, relModuleName) {
             //Grab the context, or create a new one for the given context name.
             var loaded, pluginPrefix,
@@ -250,37 +425,13 @@ var require, define;
                 deferMods, deferModArgs, lastModArg, waitingName, packages,
                 packagePaths;
 
-            if (name) {
-                //>>excludeStart("requireExcludePlugin", pragmas.requireExcludePlugin);
-                // Pull off any plugin prefix.
-                index = name.indexOf("!");
-                if (index !== -1) {
-                    pluginPrefix = name.substring(0, index);
-                    name = name.substring(index + 1, name.length);
-                } else {
-                    //Could be that the plugin name should be auto-applied.
-                    //Used by i18n plugin to enable anonymous i18n modules, but
-                    //still associating the auto-generated name with the i18n plugin.
-                    pluginPrefix = context.defPlugin[name];
-                }
-                //>>excludeEnd("requireExcludePlugin");
-    
+            manager = createManager(name, deps, callback, relModuleName);
+            if (manager.name) {
                 //If module already defined for context, or already waiting to be
                 //evaluated, leave.
                 waitingName = context.waiting[name];
-                if (context.defined[name] || (waitingName && waitingName !== ap[name])) {
+                if (name in defined || (waitingName && waitingName !== ap[name])) {
                     return;
-                }
-            }
-    
-            //Normalize dependency strings: need to determine if they have
-            //prefixes and to also normalize any relative paths. Replace the deps
-            //array of strings with an array of objects.
-            if (deps) {
-                outDeps = deps;
-                deps = [];
-                for (i = 0; i < outDeps.length; i++) {
-                    deps[i] = splitPrefix(outDeps[i], (name || relModuleName));
                 }
             }
 
@@ -306,7 +457,7 @@ var require, define;
             //If the callback is not an actual function, it means it already
             //has the definition of the module as a literal value.
             if (name && callback && !isFunction(callback)) {
-                context.defined[name] = callback;
+                defined[name] = callback;
             }
     
             //If a pluginPrefix is available, call the plugin, or load it.
@@ -323,8 +474,9 @@ var require, define;
             //evaluating the whole file. This helps when a file has more than one
             //module in it -- dependencies are not traced and fetched until the whole
             //file is processed.
-            paused.push([pluginPrefix, name, deps, context]);
-    
+            
+            paused.push([pluginPrefix, name, deps]);
+
             //Set loaded here for modules that are also loaded
             //as part of a layer, where onScriptLoad is not fired
             //for those cases. Do this after the inline define and
@@ -444,8 +596,7 @@ var require, define;
             loaded: {},
             scriptCount: 0,
             urlFetched: {},
-            defPlugin: {},
-            defined: {},
+            defined: defined,
             //>>excludeStart("requireExcludePlugin", pragmas.requireExcludePlugin);
             plugins: {
                 defined: {},
@@ -546,7 +697,7 @@ var require, define;
                     //Normalize module name, if it contains . or ..
                     moduleName = normalizeName(moduleName, relModuleName);
 
-                    ret = context.defined[moduleName];
+                    ret = defined[moduleName];
                     if (ret === undefined) {
                         return req.onError(new Error("require: module name '" +
                                     moduleName +
@@ -883,6 +1034,25 @@ var require, define;
         (context ? context.defQueue : globalDefQueue).push([name, deps, callback]);
 
         return undefined;
+    };
+
+    /**
+     * Executes a module callack function. Broken out as a separate function
+     * solely to allow the build system to sequence the files in the built
+     * layer in the right sequence.
+     *
+     * @private
+     */
+    req.execCb = function (manager) {
+        var args = [], ary = manager.depArray;
+        //Pull out the defined dependencies and pass the ordered
+        //values to the callback.
+        if (ary) {
+            for (i = 0; i < ary.length; i++) {
+                args.push(manager.deps[ary[i]]);
+            }
+        }
+        return manager.callback.apply(null, args);
     };
 
     /**
