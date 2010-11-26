@@ -22,6 +22,7 @@ var require, define;
         ostring = Object.prototype.toString,
         ap = Array.prototype,
         aps = ap.slice,
+        apsp = ap.splice,
         isBrowser = !!(typeof window !== "undefined" && navigator && document),
         isWebWorker = !isBrowser && typeof importScripts !== "undefined",
         //PS3 indicates loaded and complete, but need to wait for complete
@@ -122,7 +123,6 @@ var require, define;
                 packages: {}
             },
             defQueue = [],
-            paused = [],
             specified = {
                 "require": true,
                 "exports": true,
@@ -130,7 +130,6 @@ var require, define;
             },
             defined = {},
             loaded = {},
-            waiting = [],
             managerCallbacks = {};
 
         /**
@@ -325,12 +324,14 @@ var require, define;
             //Do not bother if the depName is already in transit
             if (specified[depName]) {
                 return;
+            } else {
+                specified[depName] = true;
             }
 
             if (pluginName) {
                 queuePlugin(pluginName, depName);
             } else {
-                paused.push({
+                context.paused.push({
                     name: depName,
                     action: load
                 });
@@ -361,21 +362,29 @@ var require, define;
                             defined[name] = ret;
                         }
                     }
-
-                    //If anything was waiting for this module to be defined,
-                    //notify them now.
-                    waitingCallbacks = managerCallbacks[name];
-                    if (waitingCallbacks) {
-                        for (i = 0; i < waitingCallbacks.length; i++) {
-                            waitingCallbacks[i].onDep(name, ret);
-                        }
-                        delete managerCallbacks[name];
-                    }
                 }
             } else if (name) {
                 //May just be an object definition for the module. Only
                 //worry about defining if have a module name.
                 ret = defined[name] = cb;
+            }
+
+            if (name) {
+                //If anything was waiting for this module to be defined,
+                //notify them now.
+                waitingCallbacks = managerCallbacks[name];
+                if (waitingCallbacks) {
+                    for (i = 0; i < waitingCallbacks.length; i++) {
+                        waitingCallbacks[i].onDep(name, ret);
+                    }
+                    delete managerCallbacks[name];
+                }
+            }
+
+            //Decrement the wait count.
+            context.waitCount -= 1;
+            if (context.waitCount < 0) {
+                context.waitCount = 0;
             }
         }
 
@@ -467,7 +476,7 @@ var require, define;
                 //All done, execute!
                 execManager(manager);
             } else {
-                waiting.push(manager);
+                context.waitCount += 1;
             }
         }
 
@@ -536,7 +545,7 @@ var require, define;
             }
 
             //Check for exit conditions.
-            if (!hasLoadedProp && !waiting.length) {
+            if (!hasLoadedProp && !context.waitCount) {
                 //If the loaded object had no items, then the rest of
                 //the work below does not need to be done.
                 context.isCheckLoaded = false;
@@ -571,10 +580,7 @@ var require, define;
          * Resumes tracing of dependencies and then checks if everything is loaded.
          */
         resume = function () {
-            var args, i, p = paused;
-
-            //Reset paused list
-            paused = [];
+            var args, i, p = context.paused;
 
             if (context.scriptCount <= 0) {
                 //Synchronous envs will push the number below zero with the
@@ -582,46 +588,53 @@ var require, define;
                 //require() calls that also do not end up loading scripts could
                 //push the number negative too.
                 context.scriptCount = 0;
-
-                //Make sure any remaining defQueue items get properly processed.
-                while (defQueue.length) {
-                    args = defQueue.shift();
-                    if (args[0] === null) {
-                        return req.onError(new Error('Mismatched anonymous require.def modules'));
-                    } else {
-                        callDefMain(args);
-                    }
-                }
-
-                //Skip the resume if current context is in priority wait.
-                if (config.priorityWait && !isPriorityDone()) {
-                    return undefined;
-                }
-
-                if (p.length) {
-                    for (i = 0; (args = p[i]); i++) {
-                        args.action(args.name);
-                    }
-                    //Move the start time for timeout forward.
-                    context.startTime = (new Date()).getTime();
-                }
-
-                checkLoaded();
             }
+
+            //Make sure any remaining defQueue items get properly processed.
+            while (defQueue.length) {
+                args = defQueue.shift();
+                if (args[0] === null) {
+                    return req.onError(new Error('Mismatched anonymous require.def modules'));
+                } else {
+                    callDefMain(args);
+                }
+            }
+
+            //Skip the resume if current context is in priority wait.
+            if (config.priorityWait && !isPriorityDone()) {
+                return undefined;
+            }
+
+            if (p.length) {
+                //Reset paused list
+                context.paused = [];
+
+                for (i = 0; (args = p[i]); i++) {
+                    args.action(args.name);
+                }
+                //Move the start time for timeout forward.
+                context.startTime = (new Date()).getTime();
+            }
+
+            checkLoaded();
+
             return undefined;
         };
 
-        //Define the context object.
+        //Define the context object. Many of these fields are on here
+        //just to make debugging easier.
         context = {
             contextName: contextName,
             config: config,
             defQueue: defQueue,
-            waiting: waiting,
+            waitCount: 0,
             specified: specified,
             loaded: loaded,
             scriptCount: 0,
             urlFetched: {},
             defined: defined,
+            paused: [],
+            managerCallbacks: managerCallbacks,
             /**
              * Set a configuration for the context.
              * @param {Object} cfg config object to integrate.
@@ -704,6 +717,7 @@ var require, define;
                 if (typeof deps === "string") {
                     //Just return the module wanted. In this scenario, the
                     //second arg (if passed) is just the relModuleName.
+                    moduleName = deps;
                     relModuleName = callback;
                     if (moduleName === "require" ||
                         moduleName === "exports" || moduleName === "module") {
@@ -759,8 +773,12 @@ var require, define;
                 }
                 if (args) {
                     callDefMain(args);
+                } else {
+                    //A script that does not call define(), so just simulate
+                    //the call for it.
+                    callDefMain([moduleName, [], null]);
                 }
-        
+
                 //Mark the script as loaded. Note that this can be different from a
                 //moduleName that maps to a require.def call. This line is important
                 //for traditional browser scripts.
@@ -1095,12 +1113,15 @@ var require, define;
             //Pull out the name of the module and the context.
             contextName = node.getAttribute("data-requirecontext");
             moduleName = node.getAttribute("data-requiremodule");
-            context = contexts[moduleName];
+            context = contexts[contextName];
 
             //Push all the globalDefQueue items into the context's defQueue
             if (globalDefQueue.length) {
+                //Array splice in the values since the context code has a
+                //local var ref to defQueue, so cannot just reassign the one
+                //on context.
                 args = [context.defQueue.length - 1, 0].concat(globalDefQueue);
-                aps.apply(context.defQueue, args);
+                apsp.apply(context.defQueue, args);
                 globalDefQueue = [];
             }
 
@@ -1286,7 +1307,7 @@ var require, define;
         var contexts = s.contexts, prop;
         for (prop in contexts) {
             if (!(prop in empty)) {
-                if (contexts[prop].waiting.length) {
+                if (contexts[prop].waitCount) {
                     return;
                 }
             }
@@ -1397,7 +1418,9 @@ var require, define;
             //Allow for jQuery to be loaded/already in the page, and if jQuery 1.4.3,
             //make sure to hold onto it for readyWait triggering.
             ctx.jQueryCheck();
-            ctx.resume();
+            if (!ctx.scriptCount) {
+                ctx.resume();
+            }
         }, 0);
     }
 }());
