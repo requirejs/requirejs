@@ -385,8 +385,10 @@ var require, define;
             }
 
             //Clean up waiting.
-            delete waiting[manager.waitId];
-            context.waitCount -= 1;
+            if (waiting[manager.waitId]) {
+                delete waiting[manager.waitId];
+                context.waitCount -= 1;
+            }
 
             return undefined;
         }
