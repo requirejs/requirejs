@@ -32,6 +32,7 @@ var require, define;
         readyRegExp = isBrowser && navigator.platform === 'PLAYSTATION 3' ?
                       /^complete$/ : /^(complete|loaded)$/,
         defContextName = "_",
+        reqWaitIdPrefix = "_r@@",
         empty = {},
         contexts = {},
         globalDefQueue = [],
@@ -130,6 +131,8 @@ var require, define;
             },
             defined = {},
             loaded = {},
+            waiting = {},
+            waitCounter = 0,
             managerCallbacks = {};
 
         /**
@@ -357,7 +360,7 @@ var require, define;
                             ret = defined[name] = manager.cjsModule.exports;
                         } else {
                             if (name in defined && !manager.usingExports) {
-                                req.onError(new Error(name + " has already been defined"));
+                                return req.onError(new Error(name + " has already been defined"));
                             }
                             defined[name] = ret;
                         }
@@ -381,17 +384,20 @@ var require, define;
                 }
             }
 
-            //Decrement the wait count.
+            //Clean up waiting.
+            delete waiting[manager.waitId];
             context.waitCount -= 1;
-            if (context.waitCount < 0) {
-                context.waitCount = 0;
-            }
+
+            return undefined;
         }
 
         function main(inName, depArray, callback, relModuleName) {
             var nameArgs = splitPrefix(inName, relModuleName),
                 name = nameArgs.name,
                 manager = {
+                    //Use a wait ID because some entries are anon
+                    //async require calls.
+                    waitId: name || reqWaitIdPrefix + (waitCounter++),
                     depCount: 0,
                     depMax: 0,
                     pluginName: nameArgs.prefix,
@@ -440,6 +446,10 @@ var require, define;
                     depArg = splitPrefix(depArg, name);
                     depName = depArg.name;
 
+                    //Fix the name in depArray to be just the name, since
+                    //that is how it will be called back later.
+                    depArray[i] = depName;
+
                     //Fast path CommonJS standard dependencies.
                     if (depName === "require") {
                         manager.deps[depName] = makeRequire(name);
@@ -476,6 +486,7 @@ var require, define;
                 //All done, execute!
                 execManager(manager);
             } else {
+                waiting[manager.waitId] = manager;
                 context.waitCount += 1;
             }
         }
@@ -492,6 +503,35 @@ var require, define;
             loaded[args[0]] = true;
         }
 
+        function findCycle(manager, traced) {
+            //Use explicit true test to avoid getting a true based on
+            //an object prototype method.
+            if (traced[manager.name] === true) {
+                return manager;
+            }
+
+            traced[manager.name] = true;
+
+            var depArray = manager.depArray,
+                depName, i;
+
+            for (i = 0; i < depArray.length; i++) {
+                //Some array members may be null, like if a trailing comma
+                // IE, so do the explicit [i] access and check if it has a value.
+                depName = depArray[i];
+                if (depName) {
+                    if (!manager.deps[depName] && waiting[depName]) {
+                        manager = findCycle(waiting[depName], traced);
+                        if (manager) {
+                            return manager;
+                        }
+                    }
+                }
+                
+            }
+            return undefined;
+        }
+
         /**
          * Checks if all modules for a context are loaded, and if so, evaluates the
          * new ones in right dependency order.
@@ -503,7 +543,7 @@ var require, define;
                 //It is possible to disable the wait interval by using waitSeconds of 0.
                 expired = waitInterval && (context.startTime + waitInterval) < new Date().getTime(),
                 noLoads = "", hasLoadedProp = false, stillLoading = false, prop,
-                err;
+                err, manager, depArray, depName;
     
             //If already doing a checkLoaded call,
             //then do not bother checking loaded state.
@@ -570,6 +610,43 @@ var require, define;
             //Indicate checkLoaded is now done.
             context.isCheckLoaded = false;
 
+            //If still have items in the waiting cue, but all modules have
+            //been loaded, then it means there are some circular dependencies
+            //that need to be broken.            
+            //However, as a waiting thing is fired, then it can add items to
+            //the waiting cue, and those items should not be fired yet, so
+            //make sure to redo the checkLoaded call after breaking a single
+            //cycle, if nothing else loaded then this logic will pick it up
+            //again.
+            if (context.waitCount) {
+                //Find somewhere to start. Skip anonymous require calls.
+                for (prop in waiting) {
+                    if (!(prop in empty) && prop.indexOf(reqWaitIdPrefix) !== 0) {
+                        manager = waiting[prop];
+                        break;
+                    }
+                }
+
+                if (manager && (manager = findCycle(manager, {}))) {
+                    depArray = manager.depArray;
+                    //Cycle through its dependencies, manually triggering
+                    //them. Recall that there could be null spaces in the
+                    //dependencies, particularly trailing ones in IE with a
+                    //dangling comma.
+                    for (i = 0; i < depArray.length; i++) {
+                        depName = depArray[i];
+                        if (depName && !manager.deps[depName]) {
+                            //Pass in the defined value, which will work
+                            //in the cases exports is in play.
+                            manager.onDep(depName, defined[depName]);
+                        }
+                    }
+
+                    checkLoaded();
+                    return undefined;
+                }
+            }
+
             //Check for DOM ready, and nothing is waiting across contexts.
             req.checkReadyState();
 
@@ -627,6 +704,7 @@ var require, define;
             contextName: contextName,
             config: config,
             defQueue: defQueue,
+            waiting: waiting,
             waitCount: 0,
             specified: specified,
             loaded: loaded,
@@ -881,7 +959,7 @@ var require, define;
             context, config;
 
         // Determine if have config object in the call.
-        if (!isArray(deps)) {
+        if (!isArray(deps) && typeof deps !== "string") {
             // deps is a config object
             config = deps;
             if (isArray(callback)) {
@@ -904,7 +982,7 @@ var require, define;
             context.configure(config);
         }
 
-        context.require(deps, callback);
+        return context.require(deps, callback);
     };
 
     req.version = version;
