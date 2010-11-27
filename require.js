@@ -411,9 +411,9 @@ var require, define;
                     deps: {},
                     depArray: depArray,
                     callback: callback,
-                    onDep: function (name, value) {
-                        if (name in manager.deps) {
-                            manager.deps[name] = value;
+                    onDep: function (depName, value) {
+                        if (depName in manager.deps) {
+                            manager.deps[depName] = value;
                             manager.depCount += 1;
                             if (manager.depCount === manager.depMax) {
                                 //All done, execute!
@@ -470,7 +470,7 @@ var require, define;
                             uri: name ? context.nameToUrl(name, null, relModuleName) : undefined
                         };
                         cjsMod.setExports = makeSetExports(cjsMod);
-                    } else if (depName in defined) {
+                    } else if (depName in defined && !(depName in waiting)) {
                         //Module already defined, no need to wait for it.
                         manager.deps[depName] = defined[depName];
                     } else {
@@ -679,6 +679,7 @@ var require, define;
                     name: name,
                     callback: ret
                 });
+                context.completeLoad(name);
             });
         }
 
@@ -861,7 +862,7 @@ var require, define;
                         return req.onError(new Error("Explicit require of " +
                                            moduleName + " is not allowed."));
                     }
-           
+
                     //Normalize module name, if it contains . or ..
                     nameProps = splitPrefix(moduleName, relModuleName);
 
