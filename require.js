@@ -18,7 +18,7 @@ var require, define;
     //Change this version number for each release.
     var version = "0.15.0+",
         commentRegExp = /(\/\*([\s\S]*?)\*\/|\/\/(.*)$)/mg,
-        cjsRequireRegExp = /require\(["']([\w\-_\.\/]+)["']\)/g,
+        cjsRequireRegExp = /require\(["']([\w\!\-_\.\/]+)["']\)/g,
         ostring = Object.prototype.toString,
         ap = Array.prototype,
         aps = ap.slice,
@@ -39,6 +39,13 @@ var require, define;
         interactiveScript = null,
         isDone = false,
         useInteractive = false,
+        //Default plugins that have remapped names, if no mapping
+        //already exists.
+        requirePlugins = {
+            "text": "require/text",
+            "i18n": "require/i18n",
+            "order": "require/order"
+        },
         req, cfg = {}, currentlyAddingScript, s, head, baseElement, scripts, script,
         rePkg, src, m, dataMain, i, scrollIntervalId, setReadyState;
 
@@ -133,7 +140,9 @@ var require, define;
             loaded = {},
             waiting = {},
             waitCounter = 0,
-            managerCallbacks = {};
+            managerCallbacks = {},
+            plugins = {},
+            pluginsQueue = {};
 
         /**
          * Given a relative module name, like ./something, normalize it to
@@ -306,13 +315,6 @@ var require, define;
             return modRequire;
         }
 
-        function queuePlugin(pluginName, depName) {
-            //TODO: do not load automatically, but put the
-            //plugin in the paused list, in case it is already
-            //in a built layer.
-            //xxx
-        }
-
         /*
          * Queues a dependency for checking after the loader is out of a
          * "paused" state, for example while a script file is being loaded
@@ -323,22 +325,24 @@ var require, define;
         function queueDependency(pluginName, depName) {
             //Make sure to load any plugin and associate the dependency
             //with that plugin.
-            
+
             //Do not bother if the depName is already in transit
-            if (specified[depName]) {
+            if (specified[depName] || depName in defined) {
                 return;
             } else {
                 specified[depName] = true;
             }
 
             if (pluginName) {
-                queuePlugin(pluginName, depName);
-            } else {
-                context.paused.push({
-                    name: depName,
-                    action: load
-                });
+                //If it needs to be remapped to default set, do that now.
+                pluginName = requirePlugins[pluginName] || pluginName;
+                queueDependency(null, pluginName);
             }
+
+            context.paused.push({
+                pluginName: pluginName,
+                name: depName
+            });
         }
 
         function execManager(manager) {
@@ -655,6 +659,59 @@ var require, define;
             return undefined;
         }
 
+        function callPlugin(pluginName, name) {
+            //Do not bother if plugin is already defined.
+            if (name in defined) {
+                return;
+            }
+
+            if (!plugins[pluginName]) {
+                plugins[pluginName] = defined[pluginName];
+            }
+
+            //Only set loaded to false for tracking if it has not already been set.
+            if (!loaded[name]) {
+                loaded[name] = false;
+            }
+
+            plugins[pluginName].load(name, makeRequire(name), function (ret) {
+                execManager({
+                    name: name,
+                    callback: ret
+                });
+            });
+        }
+
+        function loadPaused(pluginName, name) {
+            if (pluginName) {
+                //If plugin not loaded, wait for it.
+                //set up callback list. if no list, then register
+                //managerCallback for that plugin.
+                if (defined[pluginName]) {
+                    callPlugin(pluginName, name);
+                } else {
+                    if (!pluginsQueue[pluginName]) {
+                        pluginsQueue[pluginName] = [];
+                        (managerCallbacks[pluginName] ||
+                        (managerCallbacks[pluginName] = [])).push({
+                            onDep: function (name, value) {
+                                if (name === pluginName) {
+                                    var i, ary = pluginsQueue[pluginName];
+                                    for (i = 0; i < ary.length; i++) {
+                                        callPlugin(pluginName, ary[i]);
+                                    }
+                                    delete pluginsQueue[pluginName];
+                                }
+                            }
+                        });
+                    }
+                    pluginsQueue[pluginName].push(name);
+                }
+            } else {
+                load(name);
+            }
+        }
+
         /**
          * Resumes tracing of dependencies and then checks if everything is loaded.
          */
@@ -689,7 +746,7 @@ var require, define;
                 context.paused = [];
 
                 for (i = 0; (args = p[i]); i++) {
-                    args.action(args.name);
+                    loadPaused(args.pluginName, args.name);
                 }
                 //Move the start time for timeout forward.
                 context.startTime = (new Date()).getTime();
@@ -793,7 +850,7 @@ var require, define;
             },
 
             require: function (deps, callback, relModuleName) {
-                var moduleName, ret;
+                var moduleName, ret, nameProps;
                 if (typeof deps === "string") {
                     //Just return the module wanted. In this scenario, the
                     //second arg (if passed) is just the relModuleName.
@@ -806,12 +863,12 @@ var require, define;
                     }
            
                     //Normalize module name, if it contains . or ..
-                    moduleName = normalizeName(moduleName, relModuleName);
+                    nameProps = splitPrefix(moduleName, relModuleName);
 
-                    ret = defined[moduleName];
+                    ret = defined[nameProps.name];
                     if (ret === undefined) {
                         return req.onError(new Error("require: module name '" +
-                                    moduleName +
+                                    nameProps.fullName +
                                     "' has not been loaded yet for context: " +
                                     contextName));
                     }
@@ -863,7 +920,7 @@ var require, define;
                 //moduleName that maps to a require.def call. This line is important
                 //for traditional browser scripts.
                 loaded[moduleName] = true;
-        
+
                 //If a global jQuery is defined, check for it. Need to do it here
                 //instead of main() since stock jQuery does not register as
                 //a module via define.

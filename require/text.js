@@ -4,7 +4,8 @@
  * see: http://github.com/jrburke/requirejs for details
  */
 /*jslint regexp: false, nomen: false, plusplus: false */
-/*global require: false, XMLHttpRequest: false, ActiveXObject: false */
+/*global require: false, XMLHttpRequest: false, ActiveXObject: false,
+  define: false */
 "use strict";
 
 (function () {
@@ -76,32 +77,8 @@
         };
     }
 
-    require.plugin({
-        prefix: "text",
-
-        /**
-         * This callback is prefix-specific, only gets called for this prefix
-         */
-        require: function (name, deps, callback, context) {
-            //No-op, require never gets these text items, they are always
-            //a dependency, see load for the action.
-        },
-
-        /**
-         * Called when a new context is defined. Use this to store
-         * context-specific info on it.
-         */
-        newContext: function (context) {
-            require.mixin(context, {
-                text: {},
-                textWaiting: []
-            });
-        },
-
-        /**
-         * Called when a dependency needs to be loaded.
-         */
-        load: function (name, contextName) {
+    define({
+        load: function (name, req, onLoad) {
             //Name has format: some.module!filext!strip!text
             //The strip and text parts are optional.
             //if strip is present, then that means only get the string contents
@@ -111,9 +88,7 @@
             //If text is present, it is the actual text of the file.
             var strip = false, text = null, key, url, index = name.indexOf("."),
                 modName = name.substring(0, index), fullKey,
-                ext = name.substring(index + 1, name.length),
-                context = require.s.contexts[contextName],
-                tWaitAry = context.textWaiting;
+                ext = name.substring(index + 1, name.length);
 
             index = ext.indexOf("!");
             if (index !== -1) {
@@ -135,60 +110,14 @@
             fullKey = strip ? key + "!" + strip : key;
 
             //Store off text if it is available for the given key and be done.
-            if (text !== null && !context.text[key]) {
-                context.defined[name] = context.text[key] = text;
-                return;
-            }
-
-            //If text is not available, load it.
-            if (!context.text[key] && !context.textWaiting[key] && !context.textWaiting[fullKey]) {
-                //Keep track that the fullKey needs to be resolved, during the
-                //orderDeps stage.
-                if (!tWaitAry[fullKey]) {
-                    tWaitAry[fullKey] = tWaitAry[(tWaitAry.push({
-                        name: name,
-                        key: key,
-                        fullKey: fullKey,
-                        strip: !!strip
-                    }) - 1)];
-                }
-
+            if (text !== null) {
+                onLoad(text);
+            } else {
                 //Load the text.
-                url = require.nameToUrl(modName, "." + ext, contextName);
-                context.loaded[name] = false;
+                url = req.nameToUrl(modName, "." + ext);
                 require.fetchText(url, function (text) {
-                    context.text[key] = text;
-                    context.loaded[name] = true;
+                    onLoad(strip ? require.textStrip(text) : text);
                 });
-            }
-        },
-
-        /**
-         * Called when the dependencies of a module are checked.
-         */
-        checkDeps: function (name, deps, context) {
-            //No-op, checkDeps never gets these text items, they are always
-            //a dependency, see load for the action.
-        },
-
-        /**
-         * Called to determine if a module is waiting to load.
-         */
-        isWaiting: function (context) {
-            return !!context.textWaiting.length;
-        },
-
-        /**
-         * Called when all modules have been loaded.
-         */
-        orderDeps: function (context) {
-            //Clear up state since further processing could
-            //add more things to fetch.
-            var i, dep, text, tWaitAry = context.textWaiting;
-            context.textWaiting = [];
-            for (i = 0; (dep = tWaitAry[i]); i++) {
-                text = context.text[dep.key];
-                context.defined[dep.name] = dep.strip ? require.textStrip(text) : text;
             }
         }
     });
