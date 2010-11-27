@@ -1,0 +1,7 @@
+1) In HTML, doing a require(["app"], function () {}),
+
+the function will only be called if app.js uses define() to define itself vs. require.
+
+2) No require.modify?
+
+3) No more pause/resume calls.
