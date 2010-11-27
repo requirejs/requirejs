@@ -260,7 +260,7 @@ var require, define;
                 var $ = jqCandidate || (typeof jQuery !== "undefined" ? jQuery : null);
                 if ($ && "readyWait" in $) {
                     context.jQuery = $;
-    
+
                     //Manually create a "jquery" module entry if not one already
                     //or in process.
                     if (!defined.jquery && !context.jQueryDef) {
@@ -913,8 +913,12 @@ var require, define;
                     callDefMain(args);
                 } else {
                     //A script that does not call define(), so just simulate
-                    //the call for it.
-                    callDefMain([moduleName, [], null]);
+                    //the call for it. Special exception for jQuery dynamic load.
+                    callDefMain([moduleName, [],
+                                moduleName === "jquery" && typeof jQuery !== "undefined" ?
+                                function () {
+                                    return jQuery;
+                                } : null]);
                 }
 
                 //Mark the script as loaded. Note that this can be different from a
