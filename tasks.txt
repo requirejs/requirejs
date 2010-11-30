@@ -1,10 +1,105 @@
 - email on jsonp removal, toUrl and package names.
 
+- Nested package config: https://github.com/jrburke/requirejs/pull/28
+
 Node issues:
 * socket.io/support/socket.io-client/lib/io.js. uses "this" to attach properties to export?!?
 * connect/lib/connect/index.js and express/support/connect/lib/connect/index.js do a try/catch for "constants"
 xx* connect-redis/lib/redis/index.js, it tried to require('util') or 'sys' try/catch dependening on node version.
 * connect/lib/connect/index.js does dynamic/computed require calls
+
+- How to optimize a package? If ask for require('packageName'), what is the name of the module
+  included? define('packageName', ...) or define('packageName/lib/main') ? 
+
+
+require({
+    mappings: {
+        'alpha': 'package:',
+        'beta': 'package:' hmmm.
+    }
+    packages: [
+        'alpha',
+        {'beta': 'package:...'}
+    ]
+});
+
+//Don't use "mappings" so not confused with Mappings/C?
+require({
+    paths: {
+        //A regular single script mapping,
+        //or a traditional dojo-like mapping.
+        'foo': '../../common/foo',
+    
+        //alpha has specific mappings, so alpha's value
+        'alpha': {
+            //A package found relative to
+            //baseUrl, with the standard convention
+            //of lib=lib and main=main
+            path: 'package:',
+            paths: {
+                //A package found relative to
+                //baseUrl, but lib=. and main=index
+                theta: 'package:#./index',
+                
+            }
+        },
+        'beta': 'package:path#lib/main'
+    }
+});
+
+define.paths('alpha', {}, function (define) {
+
+    define('alpha', [], function () {});
+
+    define('theta', [], function (){});
+
+    define.paths('theta', {}, function (define) {
+        
+    });
+});
+
+
+//Fetches alpha/lib/main.js and beta/lib/main.js
+require(['alpha', 'beta'], function(alpha, beta){
+
+})
+
+alpha/lib/main.js
+-------------------
+require({
+    packages: [
+        name: 'alpha',
+        mappings: {
+        //A single, non-packaged module
+        'theta': 'theta',
+        
+        //HMM, HOW TO SPECIFY SIMPLE PACKAGE WITH CONVENTIONS?
+        'gamma': 'package:',
+        'epsilon': 'package:./lib/main',
+        'foo': 'package:http://a.com/some/path/to/foo/./index'
+        
+        //A beta package, but version 2,
+        //assumes the lib and main conventions.
+        {
+            name: 'beta',
+            location: 'betaV2'
+        }
+    }]
+});
+
+//Fetches theta/lib/main.js and betaV2/lib/main.js
+define('alpha', ['theta', 'beta'], function (){})
+
+
+
+
+
+
+
+
+
+
+
 
 -----------
 - toUrl: how to resolve relative to package names?

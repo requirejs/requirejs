@@ -248,6 +248,8 @@ var optimize;
                         textPath.pop();
                         textPath = textPath.join('/') + '/' + modName + "." + ext;
                     }
+                } else {
+                    textPath = require.nameToUrl(normalizedName, "." + ext, require.s.ctxName);
                 }
 
                 if (strip !== "strip") {
