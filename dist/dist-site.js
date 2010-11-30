@@ -24,7 +24,7 @@ debugging:
 load("../build/jslib/logger.js");
 load("../build/jslib/fileUtil.js");
 
-var files, i, mdFile, htmlFile, fileContents,
+var files, i, htmlFile, transFile, fileContents,
     runtime = Packages.java.lang.Runtime.getRuntime(),
     process, preContents, postContents, h1, homePath, cssPath,
     jsPath, length, j, isTopPage = false;
@@ -35,25 +35,25 @@ fileUtil.copyFile("main.css", "./dist-site/main.css");
 fileUtil.copyFile("init.js", "./dist-site/init.js");
 fileUtil.copyDir("i/", "./dist-site/i/", /\w/);
 fileUtil.copyDir("fonts", "./dist-site/fonts", /\w/);
-fileUtil.copyFile("../README.md", "./dist-site/index.md");
+fileUtil.copyFile("../README.md", "./dist-site/index.html");
 fileUtil.copyDir("../docs/", "./dist-site/docs/", /\w/);
 
 preContents = fileUtil.readFile("pre.html");
 postContents = fileUtil.readFile("post.html");
 
-//Convert each .md file to an HTML file
-files = fileUtil.getFilteredFileList("./dist-site", /\.md$/, true);
-for (i = 0; (mdFile = files[i]); i++) {
-    htmlFile = mdFile.replace(/\.md$/, ".html");
+//Convert each .html file to a full HTML file
+files = fileUtil.getFilteredFileList("./dist-site", /\.html$/, true);
+for (i = 0; (htmlFile = files[i]); i++) {
+    transFile = htmlFile + '.trans';
 
     logger.trace("Creating " + htmlFile);
 
     //Do Markdown
-    process = runtime.exec(["/bin/sh", "-c", "./Markdown.pl --html4tags " + mdFile + " > " + htmlFile]);
+    process = runtime.exec(["/bin/sh", "-c", "./Markdown.pl --html4tags " + htmlFile + " > " + transFile]);
     process.waitFor();
 
     //Build up a complete HTML file.
-    fileContents = fileUtil.readFile(htmlFile);
+    fileContents = fileUtil.readFile(transFile);
     fileContents = preContents + fileContents + postContents;
 
     //Set the title of the HTML page
@@ -101,6 +101,5 @@ for (i = 0; (mdFile = files[i]); i++) {
 
     fileUtil.saveFile(htmlFile, fileContents);
 
-    //Remove the .md file
-    fileUtil.deleteFile(mdFile);
+    fileUtil.deleteFile(transFile);
 }
