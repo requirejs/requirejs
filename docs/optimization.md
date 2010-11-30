@@ -1,178 +1,229 @@
-# RequireJS Optimization Tool
+<div id="directory" class="section">
+<h1>RequireJS Optimization Tool</h1>
 
-* [Requirements](#requirements)
-* [Download](#download)
-* [Example Setup](#setup)
-* [Optimizing one JavaScript file](#onejs)
-* [Shallow exclusions for fast development](#shallow)
-* [Optimizing one CSS file](#onecss)
-* [Optimizing a whole project](#wholeproject)
-* [All configuration options](#options)
+<ul class="index mono">
+<li class="hbox"><a href="#requirements">Requirements</a><span class="spacer boxFlex"></span><span>&sect;1</span></li>
+<li class="hbox"><a href="#download">Download</a><span class="spacer boxFlex"></span><span>&sect;2</span></li>
+<li class="hbox"><a href="#setup">Example Setup</a><span class="spacer boxFlex"></span><span>&sect;3</span></li>
+<li class="hbox"><a href="#onejs">Optimizing one JavaScript file</a><span class="spacer boxFlex"></span><span>&sect;4</span></li>
+<li class="hbox"><a href="#shallow">Shallow exclusions for fast development</a><span class="spacer boxFlex"></span><span>&sect;5</span></li>
+<li class="hbox"><a href="#onecss">Optimizing one CSS file</a><span class="spacer boxFlex"></span><span>&sect;6</span></li>
+<li class="hbox"><a href="#wholeproject">Optimizing a whole project</a><span class="spacer boxFlex"></span><span>&sect;7</span></li>
+<li class="hbox"><a href="#options">All configuration options</a><span class="spacer boxFlex"></span><span>&sect;8</span></li>
+</ul>
 
-RequireJS comes with an optimization tool that does the following:
+<span class="note">Note: RequireJS comes with an optimization tool that does the following</span>
 
-* Combines related scripts together into build layers and minifies them via Google Closure.
-* Optimizes CSS by inlining CSS files referenced by @import and removing comments.
-* Can add require.js and any of its plugins to any optimized build layer.
+<ul>
+<li>Combines related scripts together into build layers and minifies them via Google Closure.</li>
+<li>Optimizes CSS by inlining CSS files referenced by @import and removing comments.</li>
+<li>Can add require.js and any of its plugins to any optimized build layer.</li>
+</ul>
 
-The optimization tool is in the requirejs/build directory, and it is designed to be run as part of a build or packaging step after you are done with development and are ready to deploy the code for your users.
+<p>The optimization tool is in the requirejs/build directory, and it is designed to be run as part of a build or packaging step after you are done with development and are ready to deploy the code for your users.</p>
+</div>
 
-## <a name="requirements">Requirements</a>
+<div class="section">
+<h2>
+<a name="requirements">Requirements</a>
+<span class="sectionMark">&sect;1</span> 
+</h2>
 
-The optimization tool uses [Google Closure Compiler](http://code.google.com/closure/compiler/) to do the code minification, and therefore requires [Java 6](http://java.com/) to run.
+<p>The optimization tool uses <a href="http://code.google.com/closure/compiler/">Google Closure Compiler</a> to do the code minification, and therefore requires <a href="http://java.com/">Java 6</a> to run.</p>
+</div>
 
-## <a name="download">Download</a>
+<div class="section">
+<h2><a name="download">Download</a><span class="sectionMark">&sect;2</span></h2>
 
-You can download the tool on [the download page](download.md#optimizationtool).
+<p>You can download the tool on <a href="download.html#optimizationtool">the download page</a>.</p>
+</div>
 
-## <a name="setup">Example Setup</a>
+<div class="section">
+<h2><a name="setup">Example Setup</a><span class="sectionMark">&sect;3</span></h2>
 
-The examples in this page will assume you downloaded and unzipped the optimization tool in a directory that is a sibling to your project directory. The optimization tool can live anywhere you want, but you will likely need to adjust the paths accordingly in these examples.
+<p>The examples in this page will assume you downloaded and unzipped the optimization tool in a directory that is a sibling to your project directory. The optimization tool can live anywhere you want, but you will likely need to adjust the paths accordingly in these examples.</p>
 
-Example setup:
+<p>Example setup:</p>
 
-* appdirectory
-    * main.html
-    * css
-        * common.css
-        * main.css
-    * scripts
-        * require.js
-        * main.js
-        * one.js
-        * two.js
-        * three.js
-* requirejs (the unzipped optimization tool from the [download page](download.md))
-    * build
-        * build.sh
-    * require
-    * require.js
+<ul>
+<li>appdirectory
+<ul>
+<li>main.html</li>
+<li>css
+<ul>
+<li>common.css</li>
+<li>main.css</li>
+</ul></li>
+<li>scripts
+<ul>
+<li>require.js</li>
+<li>main.js</li>
+<li>one.js</li>
+<li>two.js</li>
+<li>three.js</li>
+</ul></li>
+</ul></li>
+<li>requirejs (the unzipped optimization tool from the <a href="download.html">download page</a>)
+<ul>
+<li>build
+<ul>
+<li>build.sh</li>
+</ul></li>
+<li>require</li>
+<li>require.js</li>
+</ul></li>
+</ul>
 
-main.html has script tags for require.js and loads main.js via a require call, like so:
+<p>main.html has script tags for require.js and loads main.js via a require call, like so:</p>
 
-    <!DOCTYPE html>
-    <html>
-        <head>
-            <title>My App</title>
-            <link rel="stylesheet" type="text/css" href="css/main.css">
-            <script data-main="main" src="scripts/require.js"></script>
-        </head>
-        <body>
-            <h1>My App</h1>
-        </body>
-    </html>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;title&gt;My App&lt;/title&gt;
+        &lt;link rel="stylesheet" type="text/css" href="css/main.css"&gt;
+        &lt;script data-main="main" src="scripts/require.js"&gt;&lt;/script&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;h1&gt;My App&lt;/h1&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
 
-main.js loads one.js, two.js and three.js via a require call:
+<p>main.js loads one.js, two.js and three.js via a require call:</p>
 
-    require(["one", "two", "three"], function (one, two, three) {
-    });
+<pre><code>require(["one", "two", "three"], function (one, two, three) {
+});
+</code></pre>
 
-main.css has content like the following:
+<p>main.css has content like the following:</p>
 
-    @import url("common.css");
+<pre><code>@import url("common.css");
 
-    .app {
-        background: transparent url(../../img/app.png);
-    }
+.app {
+    background: transparent url(../../img/app.png);
+}
+</code></pre>
+</div>
 
-## <a name="onejs">Optimizing one JavaScript file</a>
+<div class="section">
+<h2>
+<a name="onejs">Optimizing one JavaScript file</a>
+<span class="sectionMark">&sect;4</span> 
+</h2>
 
-Use the above example setup, if you just wanted to optimize main.js, you could use this command, from inside the **appdirectory/scripts** directory:
+<p>Use the above example setup, if you just wanted to optimize main.js, you could use this command, from inside the <strong>appdirectory/scripts</strong> directory:</p>
 
-    ../../requirejs/build/build.sh name=main out=main-built.js baseUrl=.
+<pre><code>../../requirejs/build/build.sh name=main out=main-built.js baseUrl=.
+</code></pre>
 
-This will create a file called **appdirectory/scripts/main-built.js** that will include the contents of main.js, one.js, two.js and three.js.
+<p>This will create a file called <strong>appdirectory/scripts/main-built.js</strong> that will include the contents of main.js, one.js, two.js and three.js.</p>
 
-Normally you should **not** save optimized files with your pristine project source. Normally you would save them to a copy of your project, but to make this example easier it is saved with the source. Change the **out=** option to any directory you like, that has a copy of your source. Then, you can change the main-built.js file name to just main.js so the HTML page will load the optimized version of the file.
+<p>Normally you should <strong>not</strong> save optimized files with your pristine project source. Normally you would save them to a copy of your project, but to make this example easier it is saved with the source. Change the <strong>out=</strong> option to any directory you like, that has a copy of your source. Then, you can change the main-built.js file name to just main.js so the HTML page will load the optimized version of the file.</p>
 
-If you wanted to include require.js with the main.js source, you can use this command:
+<p>If you wanted to include require.js with the main.js source, you can use this command:</p>
 
-    ../../requirejs/build/build.sh name=main out=main-built.js baseUrl=. includeRequire=true
+<pre><code>../../requirejs/build/build.sh name=main out=main-built.js baseUrl=. includeRequire=true
+</code></pre>
 
-Once that is done, you can then rename the main-built.js file to require.js and your optimized project will only need to make one script request!
+<p>Once that is done, you can then rename the main-built.js file to require.js and your optimized project will only need to make one script request!</p>
+</div>
 
-## <a name="shallow">Shallow exclusions for fast development</a>
+<div class="section">
+<h2><a name="shallow">Shallow exclusions for fast development</a><span class="sectionMark">&sect;5</span> </h2>
 
-You can use the [one JavaScript file optimization](#onejs) approach to make your development experience faster. By optimizing all the modules in your project into one file, except the one you are currently developing, you can reload your project quickly in the browser, but still give you the option of fine grained debugging in a module.
+<p>You can use the <a href="#onejs">one JavaScript file optimization</a> approach to make your development experience faster. By optimizing all the modules in your project into one file, except the one you are currently developing, you can reload your project quickly in the browser, but still give you the option of fine grained debugging in a module.</p>
 
-You can do this by using the **excludeShallow** option. Using the [example setup](#example) above, assume you are currently building out or debugging two.js. You could use thing optimization command:
+<p>You can do this by using the <strong>excludeShallow</strong> option. Using the <a href="#example">example setup</a> above, assume you are currently building out or debugging two.js. You could use thing optimization command:</p>
 
-    ../../requirejs/build/build.sh name=main excludeShallow=two out=main-built.js baseUrl=. includeRequire=true
+<pre><code>../../requirejs/build/build.sh name=main excludeShallow=two out=main-built.js baseUrl=. includeRequire=true
+</code></pre>
 
-If you do not want the main-build.js file minified, pass **optimize=none** in the command above.
+<p>If you do not want the main-build.js file minified, pass <strong>optimize=none</strong> in the command above.</p>
 
-Then configure the HTML page to load the main-built.js file instead of main.js by configuring the path used for "main" to be "main-built":
+<p>Then configure the HTML page to load the main-built.js file instead of main.js by configuring the path used for "main" to be "main-built":</p>
 
-    <!DOCTYPE html>
-    <html>
-        <head>
-            <title>My App</title>
-            <link rel="stylesheet" type="text/css" href="css/main.css">
-            <script src="scripts/require.js"></script>
-            <script>
-                require({
-                    paths: {
-                        //Comment out this line to go back to loading
-                        //the non-optimized main.js source file.
-                        "main": "main-built"
-                    }
-                }, ["main"]);
-            </script>
-        </head>
-        <body>
-            <h1>My App</h1>
-        </body>
-    </html>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;title&gt;My App&lt;/title&gt;
+        &lt;link rel="stylesheet" type="text/css" href="css/main.css"&gt;
+        &lt;script src="scripts/require.js"&gt;&lt;/script&gt;
+        &lt;script&gt;
+            require({
+                paths: {
+                    //Comment out this line to go back to loading
+                    //the non-optimized main.js source file.
+                    "main": "main-built"
+                }
+            }, ["main"]);
+        &lt;/script&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;h1&gt;My App&lt;/h1&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
 
-Now, when this page is loaded, the require() for "main" will load the main-built.js file. Since excludeShallow told it just to exclude two.js, two.js will still be loaded as a separate file, allowing you to see it as a separate file in the browser's debugger, so you can set breakpoints and better track its individual changes.
+<p>Now, when this page is loaded, the require() for "main" will load the main-built.js file. Since excludeShallow told it just to exclude two.js, two.js will still be loaded as a separate file, allowing you to see it as a separate file in the browser's debugger, so you can set breakpoints and better track its individual changes.</p>
+</div>
 
-## <a name="onecss">Optimizing one CSS file</a>
+<div class="section">
+<h2><a name="onecss">Optimizing one CSS file</a><span class="sectionMark">&sect;6</span></h2>
 
-Use the above example setup, if you just wanted to optimize main.css, you could use this command, from inside the **appdirectory/css** directory:
+<p>Use the above example setup, if you just wanted to optimize main.css, you could use this command, from inside the <strong>appdirectory/css</strong> directory:</p>
 
-    ../../requirejs/build/build.sh cssIn=main.css out=main-built.css
+<pre><code>../../requirejs/build/build.sh cssIn=main.css out=main-built.css
+</code></pre>
 
-This will create a file called **appdirectory/css/main-build.css** that will include the contents of common.js, have the url() paths properly adjusted, and have comments removed.
+<p>This will create a file called <strong>appdirectory/css/main-build.css</strong> that will include the contents of common.js, have the url() paths properly adjusted, and have comments removed.</p>
 
-See the notes for the [Optimizing one JavaScript file](#onejs) about avoiding saving optimized files in your pristine source tree. It is only done here to make the example simpler.
+<p>See the notes for the <a href="#onejs">Optimizing one JavaScript file</a> about avoiding saving optimized files in your pristine source tree. It is only done here to make the example simpler.</p>
 
-**NOTE**: The url() path fixing will always fix the paths relative to the **cssIn** build option path, not the **out** build option.
+<span class="note">Note: The url() path fixing will always fix the paths relative to the <strong>cssIn</strong> build option path, not the <strong>out</strong> build option.</span>
+</div>
 
-## <a name="wholeproject">Optimizing a whole project</a>
+<div class="section">
+<h2><a name="wholeproject">Optimizing a whole project</a><span class="sectionMark">&sect;7</span></h2>
 
-The optimization tool can take care of optimizing all the CSS and JS files in your project by using a build profile.
+<p>The optimization tool can take care of optimizing all the CSS and JS files in your project by using a build profile.</p>
 
-Create a build profile, call it app.build.js, and put it in the **scripts** directory. The app.build.js file can live anywhere, but just be sure to adjust the paths accordingly in the example below -- all paths will be relative to where the app.build.js is located. Example app.build.js:
+<p>Create a build profile, call it app.build.js, and put it in the <strong>scripts</strong> directory. The app.build.js file can live anywhere, but just be sure to adjust the paths accordingly in the example below -- all paths will be relative to where the app.build.js is located. Example app.build.js:</p>
 
-    ({
-        appDir: "../",
-        baseUrl: "scripts/",
-        dir: "../../appdirectory-build",
-        modules: [
-            {
-                name: "main"
-            }
-        ]
-    })
+<pre><code>({
+    appDir: "../",
+    baseUrl: "scripts/",
+    dir: "../../appdirectory-build",
+    modules: [
+        {
+            name: "main"
+        }
+    ]
+})
+</code></pre>
 
-This build profile tells RequireJS to copy all of **appdirectory** to a sibling directory called **appdirectory-build** and apply all the optimizations in the **appdirectory-build** directory. It is strongly suggested you use a different output directory than the source directory -- otherwise bad things will likely happen as the optimization tool overwrites your source.
+<p>This build profile tells RequireJS to copy all of <strong>appdirectory</strong> to a sibling directory called <strong>appdirectory-build</strong> and apply all the optimizations in the <strong>appdirectory-build</strong> directory. It is strongly suggested you use a different output directory than the source directory -- otherwise bad things will likely happen as the optimization tool overwrites your source.</p>
 
-RequireJS will use **baseUrl** to resolve the paths for any module names. The **baseUrl** should be relative to **appDir**.
+<p>RequireJS will use <strong>baseUrl</strong> to resolve the paths for any module names. The <strong>baseUrl</strong> should be relative to <strong>appDir</strong>.</p>
 
-In the **modules** array, specify the module names that you want to optimize, in the example, "main". "main" will be mapped to **appdirectory/scripts/main.js** in your project. The build system will then trace the dependencies for main.js and inject them into the **appdirectory-build/scripts/main.js** file.
+<p>In the <strong>modules</strong> array, specify the module names that you want to optimize, in the example, "main". "main" will be mapped to <strong>appdirectory/scripts/main.js</strong> in your project. The build system will then trace the dependencies for main.js and inject them into the <strong>appdirectory-build/scripts/main.js</strong> file.</p>
 
-It will also optimize any CSS files it finds inside **appdirectory-build**.
+<p>It will also optimize any CSS files it finds inside <strong>appdirectory-build</strong>.</p>
 
-To run the build on Unix/Linux systems, run this command from inside the **appdirectory/scripts** directory:
+<p>To run the build on Unix/Linux systems, run this command from inside the <strong>appdirectory/scripts</strong> directory:</p>
 
-    ../../requirejs/build/build.sh app.build.js
+<pre><code>../../requirejs/build/build.sh app.build.js
+</code></pre>
 
-For windows operating systems:
+<p>For windows operating systems:</p>
 
-    ..\..\requirejs\build\build.bat app.build.js
+<pre><code>..\..\requirejs\build\build.bat app.build.js
+</code></pre>
 
-Once the build is done, you can use **appdirectory-build** as your optimized project, ready for deployment.
+<p>Once the build is done, you can use <strong>appdirectory-build</strong> as your optimized project, ready for deployment.</p>
+</div>
 
-## <a name="options">All configuration options</a>
+<div class="section">
+<h2><a name="options">All configuration options</a><span class="sectionMark">&sect;8</span></h2>
 
-There is an [example.build.js](http://github.com/jrburke/requirejs/blob/master/build/example.build.js) file in the requirejs/build directory that details all of the allowed optimization tool configuration options.
+<p>There is an <a href="http://github.com/jrburke/requirejs/blob/master/build/example.build.js">example.build.js</a> file in the requirejs/build directory that details all of the allowed optimization tool configuration options.</p>
+</div>

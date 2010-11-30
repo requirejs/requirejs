@@ -1,71 +1,112 @@
-# RequireJS Start
+<div id="directory" class="section">
+    <h1>How to get started with RequireJS</h1>
+    
+    <ul class="index mono">
+        <li class="hbox">
+            <a href="#get">Get RequireJS</a><span class="spacer boxFlex"></span><span>&sect;1</span>
+        </li>
+        <li class="hbox">
+            <a href="#add">Add RequireJS</a><span class="spacer boxFlex"></span><span>&sect;2</span>
+        </li>
+        <li class="hbox">
+            <a href="#optimize">Optimize</a><span class="spacer boxFlex"></span><span>&sect;3</span>
+        </li>
+    </ul>
+    
+    <span class="note">Note: If you are using jQuery, there is a <a href="jquery.md">targeted jQuery tutorial</a></span>
+</div>
 
-How to get started with RequireJS:
+<div class="section">
+<h2>
+    <a name="get">Get RequireJS</a>
+    <span class="sectionMark">&sect;1</span>    
+</h2>
 
-* [Get RequireJS](#get)
-* [Add RequireJS to your project](#add)
-* Once you are ready to deploy your code, [use the Optimization Tool](#optimize) to make your code go fast.
+<p>Go to the <a href="download.md">download</a> page and get the file. There is a build of jQuery with integrated require() support too.</p>
+</div>
 
-If you are using jQuery, there is a [targeted jQuery tutorial](jquery.md).
+<div class="section">
+<h2>
+    <a name="add">Add RequireJS</a>
+    <span class="sectionMark">&sect;2</span>
+</h2>
 
-## <a name="get">Get RequireJS</a>
+<span class="note">Note: For jQuery-specific advice, see the <a href="jquery.html">jQuery integration page</a></span>
 
-Go to the [download](download.md) page and get the file. There is a build of jQuery with integrated require() support too.
+<p>This setup assumes you keep all your JavaScript files in a "scripts" directory in your project. For example, if you have a project that has an project.html page, with some scripts, the directory layout might look like so:</p>
 
-## <a name="add">Add RequireJS</a>
+<ul>
+    <li>project-directory/
+    <ul>
+        <li>project.html</li>
+        <li>scripts/
+        <ul>
+            <li>main.js</li>
+            <li>helper/
+            <ul>
+                <li>util.js</li>
+            </ul></li>
+        </ul></li>
+    </ul></li>
+</ul>
 
-For jQuery-specific advice, see the [jQuery integration page](jquery.md).
+<p>Add require.js to the scripts directory, so it looks like so:</p>
 
-This setup assumes you keep all your JavaScript files in a "scripts" directory in your project. For example, if you have a project that has an project.html page, with some scripts, the directory layout might look like so:
+<ul>
+    <li>project-directory/
+    <ul>
+        <li>project.html</li>
+        <li>scripts/
+        <ul>
+            <li>main.js</li>
+            <li>require.js</li>
+            <li>helper/
+            <ul>
+                <li>util.js</li>
+            </ul></li>
+        </ul></li>
+    </ul></li>
+</ul>
 
-* project-directory/
-    * project.html
-    * scripts/
-        * main.js
-        * helper/
-            * util.js
+<p>To take full advantage of the optimization tool, it is suggested that you keep all inline script out of the HTML, and only reference require.js with a require call like so to load your script:</p>
 
-Add require.js to the scripts directory, so it looks like so:
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;title&gt;My Sample Project&lt;/title&gt;
+        &lt;!-- data-main attribute tells require.js to load
+             scripts/main.js after require.js loads. --&gt;
+        &lt;script data-main="main" src="scripts/require.js"&gt;&lt;/script&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;h1&gt;My Sample Project&lt;/h1&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
 
-* project-directory/
-    * project.html
-    * scripts/
-        * main.js
-        * require.js
-        * helper/
-            * util.js
+<p>Inside of main.js, you can use require() to load any other scripts you need to run:</p>
 
-To take full advantage of the optimization tool, it is suggested that you keep all inline script out of the HTML, and only reference require.js with a require call like so to load your script:
+<pre><code>require(["helper/util"], function() {
+    //This function is called when scripts/helper/util.js is loaded.
 
-    <!DOCTYPE html>
-    <html>
-        <head>
-            <title>My Sample Project</title>
-            <!-- data-main attribute tells require.js to load
-                 scripts/main.js after require.js loads. -->
-            <script data-main="main" src="scripts/require.js"></script>
-        </head>
-        <body>
-            <h1>My Sample Project</h1>
-        </body>
-    </html>
+    require.ready(function() {
+        //This function is called when the page is loaded (the DOMContentLoaded
+        //event) and when all required scripts are loaded.
 
-Inside of main.js, you can use require() to load any other scripts you need to run:
-
-    require(["helper/util"], function() {
-        //This function is called when scripts/helper/util.js is loaded.
-
-        require.ready(function() {
-            //This function is called when the page is loaded (the DOMContentLoaded
-            //event) and when all required scripts are loaded.
-            
-            //Do nested require() calls in here if you want to load code
-            //after page load.
-        });
+        //Do nested require() calls in here if you want to load code
+        //after page load.
     });
+});
+</code></pre>
 
-That is it! Check out the [API docs](api.md) to learn more about require().
+<p>That is it! Check out the <a href="api.html">API docs</a> to learn more about require().</p>
+</div>
 
-## <a name="optimize">Optimize</a>
+<div class="section">
+<h2>
+    <a name="optimize">Optimize</a>
+    <span class="sectionMark">&sect;3</span>
+</h2>
 
-Once you are finished doing development and want to deploy your code for your end users, you can use the [optimization tool](optimization.md) to combine the JavaScript files together and minify it. In the example above, it can combine main.js and helper/util.js into one file and minify it using Google's Closure Compiler.
+<p>Once you are finished doing development and want to deploy your code for your end users, you can use the <a href="optimization.md">optimization</a>  to combine the JavaScript files together and minify it. In the example above, it can combine main.js and helper/util.js into one file and minify it using Google's Closure Compiler.</p>
+</div>

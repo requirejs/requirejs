@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>${title}</title>
+    <title>RequireJS</title>
     <link rel="stylesheet" type="text/css" href="main.css">
     <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/dojo/1.4/dojox/highlight/resources/highlight.css">
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+    <script type="text/javascript" src="init.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/dojo/1.4/dojo/dojo.xd.js"></script>
     <script type="text/javascript">
         dojo.require("dojox.highlight");
@@ -23,31 +25,123 @@
     </script>
 </head>
 <body>
-<ul id="nav">
-    <li class="first"><a href="HOMEPATH">Home</a></li>
+<div id="grid"></div>
+<div id="wrapper">
 
-    <li class="section"><a class="local" href="start.html">Start</a></li>
-    <li><a class="local" href="download.html">Download</a></li>
-    <li><a class="local" href="api.html">API</a></li>
-    <li><a class="local" href="optimization.html">Optimization</a></li>
-
-    <li class="section"><a class="local" href="jquery.html">Use with jQuery</a></li>
-    <li><a class="local" href="node.html">Use with Node</a></li>
-    <li><a class="local" href="commonjs.html">CommonJS Notes</a></li>
-
-    <li class="section"><a class="local" href="faq.html">FAQs</a></li>
-
-    <li class="section"><a class="local" href="why.html">Why</a></li>
-    <li><a class="local" href="requirements.html">Requirements</a></li>
-    <li><a class="local" href="history.html">History</a></li>
-
-    <li class="section"><a href="http://groups.google.com/group/requirejs">Get Help</a></li>
-    <li><a href="http://tagneto.blogspot.com">Blog</a></li>
-    <li><a href="http://twitter.com/jrburke">Twitter</a></li>
-
-    <li class="section"><a href="http://github.com/jrburke/requirejs">GitHub</a></li>
-    <li><a class="local" href="contributing.html">Contributing</a></li>
-
-    <li class="section">0.15.0 Docs</li>
-</ul>
-<div id="content">
+    <div id="navBg"></div>
+    <div id="nav" class="mono">
+        
+        <h1>a javascript module loader</h1>
+    
+        <ul>
+            <li class="hbox">
+                <a href="./">Home</a>
+                <span class="spacer boxFlex"></span>
+                <span class="icon home"></span>
+            </li>
+        </ul>
+        
+        <ul>
+            <li class="hbox">
+                <a class="local" href="start.html">Start</a>
+                <span class="spacer boxFlex"></span>
+                <span class="icon start"></span>
+            </li>
+            <li class="hbox">
+                <a class="local" href="download.html">Download</a>
+                <span class="spacer boxFlex"></span>
+                <span class="icon download"></span>
+            </li>
+            <li class="hbox">
+                <a class="local" href="api.html">API</a>
+                <span class="spacer boxFlex"></span>
+                <span class="icon api"></span>
+            </li>
+            <li class="hbox">
+                <a class="local" href="optimization.html">Optimization</a>
+                <span class="spacer boxFlex"></span>
+                <span class="icon optimize"></span>
+            </li>
+        </ul>
+        
+        <ul>
+            <li class="hbox">
+                <a class="local" href="jquery.html">Use with jQuery</a>
+                <span class="spacer boxFlex"></span>
+                <span class="icon script"></span>
+            </li>
+            <li class="hbox">
+                <a class="local" href="node.html">Use with Node</a>
+                <span class="spacer boxFlex"></span>
+                <span class="icon script"></span>
+            </li>
+            <li class="hbox">
+                <a class="local" href="commonjs.html">CommonJS Notes</a>
+                <span class="spacer boxFlex"></span>
+                <span class="icon script"></span>
+            </li>
+        </ul>
+        
+        <ul>
+            <li class="hbox">
+                <a class="local" href="faq.html">FAQs</a>
+                <span class="spacer boxFlex"></span>
+                <span class="icon question"></span>
+            </li>
+        </ul>
+        
+        <ul>
+            <li class="hbox">
+                <a class="local" href="why.html">Why</a>
+                <span class="spacer boxFlex"></span>
+                <span class="icon question"></span>    
+            </li>
+            <li class="hbox">
+                <a class="local" href="requirements.html">Requirements</a>
+                <span class="spacer boxFlex"></span>
+                <span class="icon requirement"></span>
+            </li>
+            <li class="hbox">
+                <a class="local" href="history.html">History</a>
+                <span class="spacer boxFlex"></span>
+                <span class="icon history"></span>
+            </li>
+        </ul>
+        
+        <ul>
+            <li class="hbox">
+                <a href="http://groups.google.com/group/requirejs">Get Help</a>
+                <span class="spacer boxFlex"></span>
+                <span class="icon help"></span>
+            </li>
+            <li class="hbox">
+                <a href="http://tagneto.blogspot.com">Blog</a>
+                <span class="spacer boxFlex"></span>
+                <span class="icon blog"></span>
+            </li>
+            <li class="hbox">
+                <a href="http://twitter.com/jrburke">Twitter</a>
+                <span class="spacer boxFlex"></span>
+                <span class="icon twitter"></span>    
+            </li>
+        </ul>
+        
+        <ul>
+            <li class="hbox">
+                <a href="http://github.com/jrburke/requirejs">GitHub</a>
+                <span class="spacer boxFlex"></span>
+                <span class="icon git"></span>   
+            </li>
+            <li class="hbox">
+                <a class="local" href="contributing.html">Contributing</a>
+                <span class="spacer boxFlex"></span>
+                <span class="icon fork"></span>    
+            </li>
+        </ul>
+        
+        <ul>
+            <li class="version">0.15.0 Docs</li>
+        </ul>
+    </div>
+    
+    <div id="content">

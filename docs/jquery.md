@@ -1,92 +1,135 @@
-# How to use RequireJS with jQuery
+<div id="directory" class="section">
+<h1>How to use RequireJS with jQuery</h1>
+<ul class="index mono">
+    <li class="hbox">
+        <a href="#1">Get Require.js</a><span class="spacer boxFlex"></span><span>&sect;1</span>
+    </li>
+    <li class="hbox">
+        <a href="#2">Set up your HTML page</a><span class="spacer boxFlex"></span><span>&sect;2</span>
+    </li>
+    <li class="hbox">
+        <a href="#3">Feel the need for speed</a><span class="spacer boxFlex"></span><span>&sect;3</span>
+    </li>
+    <li class="hbox">
+        <a href="#4">See it in action</a><span class="spacer boxFlex"></span><span>&sect;4</span>
+    </li>
+</ul>
+<p>When a project reaches a certain size, managing the script modules for a project starts to get tricky. You need to be sure to sequence the scripts in the right order, and you need to start seriously thinking about combining scripts together into a bundle for deployment, so that only one or a very small number of requests are made to load the scripts.</p>
 
-When a project reaches a certain size, managing the script modules for a project starts to get tricky. You need to be sure to sequence the scripts in the right order, and you need to start seriously thinking about combining scripts together into a bundle for deployment, so that only one or a very small number of requests are made to load the scripts.
+<p>You may also want to load code on the fly, after page load.</p>
 
-You may also want to load code on the fly, after page load.
+<p>RequireJS can help you manage the script modules, load them in the right order, and make it easy to combine the scripts later via the RequireJS <a href="optmization.md">optmization tool</a> without needing to change your markup. It also gives you an easy way to load scripts after the page has loaded, allowing you to spread out the download size over time.</p>
 
-RequireJS can help you manage the script modules, load them in the right order, and make it easy to combine the scripts later via the RequireJS [optimization tool](optimization.md) without needing to change your markup. It also gives you an easy way to load scripts after the page has loaded, allowing you to spread out the download size over time.
+<p>RequireJS has a module system that lets you define well-scoped modules, but you do not have to follow that system to get the benefits of dependency management and build-time optimizations. Over time, if you start to create more modular code that needs to be reused in a few places, the module format for RequireJS makes it easy to write encapsulated code that can be loaded on the fly. It can grow with you, particularly if you want to incorporate internationalization (i18n) string bundles, to localize your project for different languages, or load some HTML strings and make sure those strings are available before executing code, or even use JSONP services as dependencies.</p>
+</div>
 
-RequireJS has a module system that lets you define well-scoped modules, but you do not have to follow that system to get the benefits of dependency management and build-time optimizations. Over time, if you start to create more modular code that needs to be reused in a few places, the module format for RequireJS makes it easy to write encapsulated code that can be loaded on the fly. It can grow with you, particularly if you want to incorporate internationalization (i18n) string bundles, to localize your project for different languages, or load some HTML strings and make sure those strings are available before executing code, or even use JSONP services as dependencies.
+<div class="section">
+<h2>
+<a name="1">Get require.js</a>
+<span class="sectionMark">&sect;1</span>   
+</h2>
 
-## Get require.js
+<p>First step is to <a href="download.md">download a build of jQuery with RequireJS built in</a>.</p>
+</div>
 
-First step is to [download a build of jQuery with RequireJS built in](download.md).
+<div class="section">
+<h2>
+<a name="2">Set up your HTML page</a>
+<span class="sectionMark">&sect;2</span> 
+</h2>
 
-## Set up your HTML page.
+<p>A sample HTML page would look like this (assuming you put all your .js files in a "scripts" subdirectory):</p>
 
-A sample HTML page would look like this (assuming you put all your .js files in a "scripts" subdirectory):
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;title&gt;jQuery+RequireJS Sample Page&lt;/title&gt;
+        &lt;script data-main="main" src="scripts/require-jquery.js"&gt;&lt;/script&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;h1&gt;jQuery+RequireJS Sample Page&lt;/h1&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
 
-    <!DOCTYPE html>
-    <html>
-        <head>
-            <title>jQuery+RequireJS Sample Page</title>
-            <script data-main="main" src="scripts/require-jquery.js"></script>
-        </head>
-        <body>
-            <h1>jQuery+RequireJS Sample Page</h1>
-        </body>
-    </html>
+<p>The data-main attribute on the script tag for require.js tells RequireJS to load the scripts/main.js file. RequireJS will load any dependency that is passed to require() without a ".js" file from the same directory as require.js. If you feel more comfortable specifying the whole path, you can also do the following:</p>
 
-The data-main attribute on the script tag for require.js tells RequireJS to load the scripts/main.js file. RequireJS will load any dependency that is passed to require() without a ".js" file from the same directory as require.js. If you feel more comfortable specifying the whole path, you can also do the following:
+<pre><code>&lt;script data-main="scripts/main.js" src="scripts/require-jquery.js"&gt;&lt;/script&gt;
+</code></pre>
 
-    <script data-main="scripts/main.js" src="scripts/require-jquery.js"></script>
+<p>What is in main.js? Another call to require.js to load all the scripts you need and any init work you want to do for the page. This example main.js script loads two plugins, jquery.alpha.js and jquery.beta.js (not the names of real plugins, just an example). The plugins should be in the same directory as require-jquery.js:</p>
 
-What is in main.js? Another call to require.js to load all the scripts you need and any init work you want to do for the page. This example main.js script loads two plugins, jquery.alpha.js and jquery.beta.js (not the names of real plugins, just an example). The plugins should be in the same directory as require-jquery.js:
+<p>main.js:</p>
 
-main.js:
-
-    require(["jquery.alpha", "jquery.beta"], function() {
-        //the jquery.alpha.js and jquery.beta.js plugins have been loaded.
-        $(function() {
-            $('body').alpha().beta();
-        });
+<pre><code>require(["jquery.alpha", "jquery.beta"], function() {
+    //the jquery.alpha.js and jquery.beta.js plugins have been loaded.
+    $(function() {
+        $('body').alpha().beta();
     });
+});
+</code></pre>
+</div>
 
-## Feel the need for speed
+<div class="section">
+<h2>
+<a name="3">Feel the need for speed</a>
+<span class="sectionMark">&sect;3</span> 
+</h2>
 
-Now your page is set up to be optimized very easily. Download the RequireJS source and place it anywhere you like, preferrably somewhere outside your web development area. For the purposes of this example, the RequireJS source is placed as a sibling to the **webapp** directory, which contains the HTML page and the scripts directory with all the scripts. Complete directory structure:
+<p>Now your page is set up to be optimized very easily. Download the RequireJS source and place it anywhere you like, preferrably somewhere outside your web development area. For the purposes of this example, the RequireJS source is placed as a sibling to the <strong>webapp</strong> directory, which contains the HTML page and the scripts directory with all the scripts. Complete directory structure:</p>
 
-* requirejs/  (used for the build tools)
-* webapp/app.html
-* webapp/scripts/main.js
-* webapp/scripts/require-jquery.js
-* webapp/scripts/jquery.alpha.js
-* webapp/scripts/jquery.beta.js
+<ul>
+<li>requirejs/  (used for the build tools)</li>
+<li>webapp/app.html</li>
+<li>webapp/scripts/main.js</li>
+<li>webapp/scripts/require-jquery.js</li>
+<li>webapp/scripts/jquery.alpha.js</li>
+<li>webapp/scripts/jquery.beta.js</li>
+</ul>
 
-Then, in the scripts directory that has require-jquery.js and main.js, create a file called app.build.js with the following contents:
+<p>Then, in the scripts directory that has require-jquery.js and main.js, create a file called app.build.js with the following contents:</p>
 
-    ({
-        appDir: "../",
-        baseUrl: "scripts/",
-        dir: "../../webapp-build",
-        //Comment out the optimize line if you want
-        //the code minified by Closure Compiler using
-        //the "simple" optimizations mode
-        optimize: "none",
-    
-        modules: [
-            {
-                name: "main"
-            }
-        ]
-    })
+<pre><code>({
+    appDir: "../",
+    baseUrl: "scripts/",
+    dir: "../../webapp-build",
+    //Comment out the optimize line if you want
+    //the code minified by Closure Compiler using
+    //the "simple" optimizations mode
+    optimize: "none",
 
-To use the build tool, you need Java 6 installed. Closure Compiler is used for the JavaScript minification step (if optimize: "none" is commented out), and it requires Java 6.
+    modules: [
+        {
+            name: "main"
+        }
+    ]
+})
+</code></pre>
 
-To start the build, go to the **webapp/scripts** directory, execute the following command:
+<p>To use the build tool, you need Java 6 installed. Closure Compiler is used for the JavaScript minification step (if optimize: "none" is commented out), and it requires Java 6.</p>
 
-For non-windows operating systems:
+<p>To start the build, go to the <strong>webapp/scripts</strong> directory, execute the following command:</p>
 
-    ../../requirejs/build/build.sh app.build.js
+<p>For non-windows operating systems:</p>
 
-For windows operating systems:
+<pre><code>../../requirejs/build/build.sh app.build.js
+</code></pre>
 
-    ..\..\requirejs\build\build.bat app.build.js
+<p>For windows operating systems:</p>
 
-Now, in the webapp-build directory, main.js will have the main.js contents, jquery.alpha.js and jquery.beta.js inlined. If you then load the app.html file in the webapp-build directory, you should not see any network requests for jquery.alpha.js and jquery.beta.js.
+<pre><code>..\..\requirejs\build\build.bat app.build.js
+</code></pre>
 
-## See it in action
+<p>Now, in the webapp-build directory, main.js will have the main.js contents, jquery.alpha.js and jquery.beta.js inlined. If you then load the app.html file in the webapp-build directory, you should not see any network requests for jquery.alpha.js and jquery.beta.js.</p>
+</div>
 
-This example is really basic, but demonstrates how you can upgrade your code to use RequireJS, and get powerful build optimizations without needing to change your code.
+<div class="section">
+<h2>
+<a name="4">See it in action</a>
+<span class="sectionMark">&sect;4</span>
+</h2>
 
-Visit the [Download page](download.md) to get this jQuery sample project as a zip file.
+<p>This example is really basic, but demonstrates how you can upgrade your code to use RequireJS, and get powerful build optimizations without needing to change your code.</p>
+
+<p>Visit the <a href="download.html">Download page</a> to get this jQuery sample project as a zip file.</p>
+</div>

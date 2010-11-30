@@ -1,52 +1,84 @@
-# RequireJS in Node
+<div id="directory" class="section">
+<h1>RequireJS in Node</h1>
 
-You can use RequireJS in [Node](http://nodejs.org).
+    <ul class="index mono">
+        <li class="hbox">
+            <a href="#1">Doesn't Node already have a module loader?</a><span class="spacer boxFlex"></span><span>&sect;1</span>
+        </li>
+        <li class="hbox">
+            <a href="#2">Can I use server modules written in the CommonJS module format?</a><span class="spacer boxFlex"></span><span>&sect;2</span>
+        </li>
+        <li class="hbox">
+            <a href="#3">How do I use it?</a><span class="spacer boxFlex"></span><span>&sect;3</span>
+        </li>
+    </ul>
 
-## Doesn't Node already have a module loader?
+<span class="note">Note: You can use RequireJS in <a href="http://nodejs.org">Node</a></span>
+</div>
 
-Yes it does. That loader uses the CommonJS module format. The CommonJS module format is [non-optimal for the browser](why.md), and I do not prefer [some of the trade-offs made in the CommonJS module format](http://tagneto.blogspot.com/2010/03/commonjs-module-trade-offs.html). By using RequireJS on the server, you can use one format for all your modules, whether they are running server side or in the browser. That way you can preserve the speed benefits and easy debugging you get with RequireJS in the browser, and not have to worry about extra translation costs for moving between two formats.
+<div class="section">
+<h2>
+<a name="1">Doesn't Node already have a module loader?</a>
+<span class="sectionMark">&sect;1</span>
+</h2>
 
-## Can I use server modules already written in the CommonJS module format?
+<p>Yes it does. That loader uses the CommonJS module format. The CommonJS module format is <a href="why.html">non-optimal for the browser</a>, and I do not prefer <a href="http://tagneto.blogspot.com/2010/03/commonjs-module-trade-offs.html">some of the trade-offs made in the CommonJS module format</a>. By using RequireJS on the server, you can use one format for all your modules, whether they are running server side or in the browser. That way you can preserve the speed benefits and easy debugging you get with RequireJS in the browser, and not have to worry about extra translation costs for moving between two formats.</p>
+</div>
 
-Yes! The Node adapter for RequireJS, called r.js, automatically converts CommonJS modules to the RequireJS format on the fly, as they are loaded, so you can use your existing modules without having to hand-modify them.
+<div class="section">
+<h2>
+<a name="2">Can I use server modules already written in the CommonJS module format?</a>
+<span class="sectionMark">&sect;2</span></h2>
 
-However, the top most app file, the one you pass to Node on startup, needs to be coded to the RequireJS API. That file is evaluated as-is, no automatic format conversion.
+<p>Yes! The Node adapter for RequireJS, called r.js, automatically converts CommonJS modules to the RequireJS format on the fly, as they are loaded, so you can use your existing modules without having to hand-modify them.</p>
 
-Notes on the automatic format conversion:
+<p>However, the top most app file, the one you pass to Node on startup, needs to be coded to the RequireJS API. That file is evaluated as-is, no automatic format conversion.</p>
 
-RequireJS does not use search paths for modules. It only does the following:
+<p>Notes on the automatic format conversion:</p>
 
-* If the module ID is one of the modules that Node contains within itself (the ones in the Node's lib directory in its source distribution), it will be used.
-* Otherwise the module is assumed to be relative to the file that is given to Node to start your app.
+<p>RequireJS does not use search paths for modules. It only does the following:</p>
 
-You can always use the [Configuration Options](api.md#config) for RequireJS in your top level app file to configure paths and even a different baseUrl for your modules.
+<ul>
+<li>If the module ID is one of the modules that Node contains within itself (the ones in the Node's lib directory in its source distribution), it will be used.</li>
+<li>Otherwise the module is assumed to be relative to the file that is given to Node to start your app.</li>
+</ul>
 
-RequireJS does not support require.main and the module free variable only contains an **id** property. It does not define a require.async method, since require() in RequireJS can accept roughly equivalent arguments.
+<p>You can always use the <a href="api.html#config">Configuration Options</a> for RequireJS in your top level app file to configure paths and even a different baseUrl for your modules.</p>
 
-Even though RequireJS is an asynchronous loader in the browser, the RequireJS Node adapter loads modules synchronously in the Node environment. This was done to make the adapter easier to code. The adapter could be made asynchronous, but the primary benefit of RequireJS integration with Node is to allow you to write modules in the same format on the server and for the browser.
+<p>RequireJS does not support require.main and the module free variable only contains an <strong>id</strong> property. It does not define a require.async method, since require() in RequireJS can accept roughly equivalent arguments.</p>
 
-Finally, RequireJS in Node can only load modules that are on the local disk -- fetching modules across http, for instance, is not supported at this time.
+<p>Even though RequireJS is an asynchronous loader in the browser, the RequireJS Node adapter loads modules synchronously in the Node environment. This was done to make the adapter easier to code. The adapter could be made asynchronous, but the primary benefit of RequireJS integration with Node is to allow you to write modules in the same format on the server and for the browser.</p>
 
-For RequireJS features: the text plugin does not work in Node at the moment, but that should be fixed by the next RequireJS release.
+<p>Finally, RequireJS in Node can only load modules that are on the local disk -- fetching modules across http, for instance, is not supported at this time.</p>
 
-## How do I use it?
+<p>For RequireJS features: the text plugin does not work in Node at the moment, but that should be fixed by the next RequireJS release.</p>
+</div>
 
-Download r.js from the [the download page](download.md#node) and place it on your disk somewhere. Then run this command:
+<div class="section">
+<h2>
+<a name="3">How do I use it?</a>
+<span class="sectionMark">&sect;3</span>
+</h2>
 
-    node path/to/r.js myNodeApp.js
+<p>Download r.js from the <a href="download.html#node">the download page</a> and place it on your disk somewhere. Then run this command:</p>
 
-This assumes you are in the directory that contains myNodeApp.js, your top-level Node application file.
+<pre><code>node path/to/r.js myNodeApp.js
+</code></pre>
 
-That is it!
+<p>This assumes you are in the directory that contains myNodeApp.js, your top-level Node application file.</p>
 
-If you want to try a sample app that works with r.js, see the index.js Hello World app on [the download page](download.md#node).
+<p>That is it!</p>
 
-The on-the-fly CommonJS module conversion could hit edge cases where it may not work. If you need to get get some visibility into where it failed, you can pass **debug** after r.js to get some printout on the converstion process and any problems during module execution:
+<p>If you want to try a sample app that works with r.js, see the index.js Hello World app on <a href="download.html#node">the download page</a>.</p>
 
-    node path/to/r.js debug myNodeApp.js
+<p>The on-the-fly CommonJS module conversion could hit edge cases where it may not work. If you need to get get some visibility into where it failed, you can pass <strong>debug</strong> after r.js to get some printout on the converstion process and any problems during module execution:</p>
 
-Node integration is a relatively new feature, so I expect the conversion process may not work for all modules, and in particular, RequireJS has a different approach to circular dependencies than normal CommonJS modules.
+<pre><code>node path/to/r.js debug myNodeApp.js
+</code></pre>
 
-If you find you have a problem, and want to report it, use the [RequireJS GitHub Issues page](http://github.com/jrburke/requirejs/issues). If you can attach the output of the **debug** run, that would be helpful, **but be forewarned**, it is very verbose and prints out all the source code.
+<p>Node integration is a relatively new feature, so I expect the conversion process may not work for all modules, and in particular, RequireJS has a different approach to circular dependencies than normal CommonJS modules.</p>
 
-If you want to discuss the RequireJS-Node integration, you can use the [RequireJS Group](http://groups.google.com/group/requirejs).
+<p>If you find you have a problem, and want to report it, use the <a href="http://github.com/jrburke/requirejs/issues">RequireJS GitHub Issues page</a>. If you can attach the output of the <strong>debug</strong> run, that would be helpful, <strong>but be forewarned</strong>, it is very verbose and prints out all the source code.</p>
+
+<p>If you want to discuss the RequireJS-Node integration, you can use the <a href="http://groups.google.com/group/requirejs">RequireJS Group</a>.</p>
+</div>

@@ -1,69 +1,91 @@
-# CommonJS Notes
+<div id="directory" class="section">
+<h1>CommonJS Notes</h1>
 
-* [Introduction](#intro)
-* [Manual Conversion](#manualconversion)
-* [Conversion Tool](#autoconversion)
-* [Setting Exported Value](#exports)
-* [Alternative Syntax](#altsyntax)
-* [Loading Modules from CommonJS Packages](packages)
-* [Optimization Tool](#optimize)
+<ul class="index mono">
+<li class="hbox"><a href="#intro">Introduction</a><span class="spacer boxFlex"></span><span>&sect;1</span></li>
+<li class="hbox"><a href="#manualconversion">Manual Conversion</a><span class="spacer boxFlex"></span><span>&sect;2</span></li>
+<li class="hbox"><a href="#autoconversion">Conversion Tool</a><span class="spacer boxFlex"></span><span>&sect;3</span></li>
+<li class="hbox"><a href="#exports">Setting Exported Value</a><span class="spacer boxFlex"></span><span>&sect;4</span></li>
+<li class="hbox"><a href="#altsyntax">Alternative Syntax</a><span class="spacer boxFlex"></span><span>&sect;5</span></li>
+<li class="hbox"><a href="packages">Loading Modules from CommonJS Packages</a><span class="spacer boxFlex"></span><span>&sect;6</span></li>
+<li class="hbox"><a href="#optimize">Optimization Tool</a><span class="spacer boxFlex"></span><span>&sect;7</span></li>
+</ul>
 
-## <a name="intro">Introduction</a>
+</div>
 
-[CommonJS](http://www.commonjs.org/) defines [a module format](http://wiki.commonjs.org/wiki/Modules/1.1.1). Unfortunately, it was defined without giving browsers equal footing to other JavaScript environments. Because of that, there are CommonJS spec proposals for [Transport formats](http://wiki.commonjs.org/wiki/Modules/Transport) and an [asynchronous require](http://wiki.commonjs.org/wiki/Modules/Async/A).
+<div class="section">
+<h2><a name="intro">Introduction</a><span class="sectionMark">&sect;1</span></h2>
 
-RequireJS tries to keep with the spirit of CommonJS, with using string names to refer to dependencies, and to avoid modules defining global objects, but still allow coding a module format that works well natively in the browser. RequireJS implements the [Asynchronous Module Definition](http://wiki.commonjs.org/wiki/Modules/AsynchronousDefinition) (formerly Transport/C) proposal.
+<p><a href="http://www.commonjs.org/">CommonJS</a> defines <a href="http://wiki.commonjs.org/wiki/Modules/1.1.1">a module format</a>. Unfortunately, it was defined without giving browsers equal footing to other JavaScript environments. Because of that, there are CommonJS spec proposals for <a href="http://wiki.commonjs.org/wiki/Modules/Transport">Transport formats</a> and an <a href="http://wiki.commonjs.org/wiki/Modules/Async/A">asynchronous require</a>.</p>
 
-If you have modules that are in the traditional CommonJS module format, then you can easily convert them to work with RequireJS. Alternatively, if you are using the RequireJS r.js Node adapter, you do not need to convert third-party modules -- r.js will do that on the fly as modules are loaded.
+<p>RequireJS tries to keep with the spirit of CommonJS, with using string names to refer to dependencies, and to avoid modules defining global objects, but still allow coding a module format that works well natively in the browser. RequireJS implements the <a href="http://wiki.commonjs.org/wiki/Modules/AsynchronousDefinition">Asynchronous Module Definition</a> (formerly Transport/C) proposal.</p>
 
-## <a name="manualconversion">Manual Conversion</a>
+<p>If you have modules that are in the traditional CommonJS module format, then you can easily convert them to work with RequireJS. Alternatively, if you are using the RequireJS r.js Node adapter, you do not need to convert third-party modules -- r.js will do that on the fly as modules are loaded.</p>
+</div>
 
-If you just have a few modules to convert, then all you need to do is wrap the module in this code:
+<div class="section">
+<h2><a name="manualconversion">Manual Conversion</a><span class="sectionMark">&sect;2</span></h2>
 
-    define(function(require, exports, module) { 
-        //Put traditional CommonJS module content here
-    });
+<p>If you just have a few modules to convert, then all you need to do is wrap the module in this code:</p>
 
-**IMPORTANT**: The function arguments should always be listed as **require, exports, module**, with those exact names and in that exact order, otherwise chaos will ensue. You can leave off exports and module from the list, but if they are needed, they need to be specified in the exact order illustrated here.
+<pre><code>define(function(require, exports, module) { 
+    //Put traditional CommonJS module content here
+});
+</code></pre>
 
-## <a name="autoconversion">Conversion Tool</a>
+<p><strong>IMPORTANT</strong>: The function arguments should always be listed as <strong>require, exports, module</strong>, with those exact names and in that exact order, otherwise chaos will ensue. You can leave off exports and module from the list, but if they are needed, they need to be specified in the exact order illustrated here.</p>
+</div>
 
-If you have many modules to convert, RequireJS has a converter tool at **requirejs/convert/convertCommonJs.sh** (use .bat if you are on Windows). [Download the RequireJS source distribution](download.md#optimizationtool) to get the tool. Give it the path to the directory you want to convert and an output directory:
+<div class="section">
+<h2><a name="autoconversion">Conversion Tool</a><span class="sectionMark">&sect;3</span></h2>
 
-    convertCommonJs.sh path/to/commonjs/modules/ path/to/output
+<p>If you have many modules to convert, RequireJS has a converter tool at <strong>requirejs/convert/convertCommonJs.sh</strong> (use .bat if you are on Windows). <a href="download.html#optimizationtool">Download the RequireJS source distribution</a> to get the tool. Give it the path to the directory you want to convert and an output directory:</p>
 
-## <a name="exports">Setting Exported Value</a>
+<pre><code>convertCommonJs.sh path/to/commonjs/modules/ path/to/output
+</code></pre>
+</div>
 
-There are some CommonJS systems that allow setting the exported value via module.setExports() or assigning the exported value as module.exports. Both of those idioms are supported by RequireJS, but there is another, easier one that is supported too -- just return the value from the function passed to **define**:
+<div class="section">
+<h2><a name="exports">Setting Exported Value</a><span class="sectionMark">&sect;4</span></h2>
 
-    define(function (require) {
-        var foo = require('foo');
+<p>There are some CommonJS systems that allow setting the exported value via module.setExports() or assigning the exported value as module.exports. Both of those idioms are supported by RequireJS, but there is another, easier one that is supported too -- just return the value from the function passed to <strong>define</strong>:</p>
 
-        //Define this module as exporting a function
-        return function () {
-            foo.doSomething();
-        };
-    });
+<pre><code>define(function (require) {
+    var foo = require('foo');
 
-With this approach, then you normally do not need the exports and module function arguments, so you can leave them off the module definition.
-
-## <a name="altsyntax">Alternative Syntax</a>
-
-Instead of using require() to get dependencies inside the function passed to define(), you can also specify them via a dependency array argument to define(). The order of the names in the dependency array match the order of arguments passed to the definition function passed to define(). So the above example that uses the module **foo**:
-
-define(['foo'], function (foo) {
+    //Define this module as exporting a function
     return function () {
         foo.doSomething();
     };
 });
+</code></pre>
 
-See the [API docs](api.md) for more information on that syntax.
+<p>With this approach, then you normally do not need the exports and module function arguments, so you can leave them off the module definition.</p>
+</div>
 
-## <a name="packages">Loading Modules from CommonJS Packages</a>
+<div class="section">
+<h2><a name="altsyntax">Alternative Syntax</a><span class="sectionMark">&sect;5</span></h2>
 
-Modules in CommonJS packages can be loaded by RequireJS by setting up the RequireJS configuration to know about the location and package attributes. See the [packages API section](api.md#packages) for more information.
+<p>Instead of using require() to get dependencies inside the function passed to define(), you can also specify them via a dependency array argument to define(). The order of the names in the dependency array match the order of arguments passed to the definition function passed to define(). So the above example that uses the module <strong>foo</strong>:</p>
 
-## <a name="optimize">Optimization Tool</a>
+<p>define(['foo'], function (foo) {
+    return function () {
+        foo.doSomething();
+    };
+});</p>
 
-RequireJS has an optimization tool that can combine module definitions together into optimized bundles for browser delivery. It works as a command-line tool that you use as part of code deployment. See the [optimization docs](optimization.md) for more information.
+<p>See the <a href="api.html">API docs</a> for more information on that syntax.</p>
+</div>
+
+<div class="section">
+<h2><a name="packages">Loading Modules from CommonJS Packages</a><span class="sectionMark">&sect;6</span></h2>
+
+<p>Modules in CommonJS packages can be loaded by RequireJS by setting up the RequireJS configuration to know about the location and package attributes. See the <a href="api.html#packages">packages API section</a> for more information.</p>
+</div>
+
+<div class="section">
+<h2><a name="optimize">Optimization Tool</a><span class="sectionMark">&sect;7</span></h2>
+
+<p>RequireJS has an optimization tool that can combine module definitions together into optimized bundles for browser delivery. It works as a command-line tool that you use as part of code deployment. See the <a href="optimization.html">optimization docs</a> for more information.</p>
+</div>
 

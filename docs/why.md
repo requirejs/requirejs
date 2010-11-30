@@ -1,140 +1,209 @@
-# Why RequireJS?
+<div id="directory" class="section">
+<h1>Why RequireJS?</h1>
 
-## The Problem
+<ul class="index mono">
+    <li class="hbox">
+        <a href="#1">The Problem</a><span class="spacer boxFlex"></span><span>&sect;1</span>
+    </li>
+    <li class="hbox">
+        <a href="#2">Solution</a><span class="spacer boxFlex"></span><span>&sect;2</span>
+    </li>
+    <li class="hbox">
+        <a href="#3">Script loading APIs</a><span class="spacer boxFlex"></span><span>&sect;3</span>
+    </li>
+    <li class="hbox">
+        <a href="#4">Async vs Sync</a><span class="spacer boxFlex"></span><span>&sect;4</span>
+    </li>
+    <li class="hbox">
+        <a href="#5">Script loading: XHR</a><span class="spacer boxFlex"></span><span>&sect;5</span>
+    </li>
+    <li class="hbox">
+        <a href="#6">Script loading: Web Workers</a><span class="spacer boxFlex"></span><span>&sect;6</span>
+    </li>
+    <li class="hbox">
+        <a href="#7">Script loading: document.write()</a><span class="spacer boxFlex"></span><span>&sect;7</span>
+    </li>
+    <li class="hbox">
+        <a href="#8">Script loading: head.appendchild(script)</a><span class="spacer boxFlex"></span><span>&sect;8</span>
+    </li>
+    <li class="hbox">
+        <a href="#9">Function wrapping</a><span class="spacer boxFlex"></span><span>&sect;9</span>
+    </li>
+</ul>
+</div>
 
-* Web sites are turning into Web apps
-* Code complexity grows as the site gets bigger
-* Assembly gets harder
-* Developer wants discrete JS files/modules
-* Deployment wants optimized code in just one or a few HTTP calls
+<div class="section">
+<h2>
+<a name="1">The Problem</a>
+<span class="sectionMark">&sect;1</span>
+</h2>
+<ul>
+<li>Web sites are turning into Web apps</li>
+<li>Code complexity grows as the site gets bigger</li>
+<li>Assembly gets harder</li>
+<li>Developer wants discrete JS files/modules</li>
+<li>Deployment wants optimized code in just one or a few HTTP calls</li>
+</ul>
+</div>
 
-## Solution
+<div class="section">
+<h2><a name="2">Solution</a><span class="sectionMark">&sect;2</span></h2>
 
-Front-end developers need a solution with:
+<p>Front-end developers need a solution with:</p>
 
-* Some sort of #include/import/require
-* ability to load nested dependencies
-* ease of use for developer but then backed by an optimization tool that helps deployment
+<ul>
+<li>Some sort of #include/import/require</li>
+<li>ability to load nested dependencies</li>
+<li>ease of use for developer but then backed by an optimization tool that helps deployment</li>
+</ul>
+</div>
 
-## Script Loading APIs
+<div class="section">
+<h2><a name="3">Script Loading APIs</a><span class="sectionMark">&sect;3</span></h2>
 
-First thing to sort out is a script loading API. Here are some candidates:
+<p>First thing to sort out is a script loading API. Here are some candidates:</p>
 
-* Dojo: dojo.require("some.module")
-* LABjs: $LAB.script("some/module.js")
-* CommonJS: require("some/module")
+<ul>
+<li>Dojo: dojo.require("some.module")</li>
+<li>LABjs: $LAB.script("some/module.js")</li>
+<li>CommonJS: require("some/module")</li>
+</ul>
 
-All of them map to loading some/path/some/module.js. Ideally we could choose the CommonJS syntax, since it is likely to get more common over time, and we want to reuse code.
+<p>All of them map to loading some/path/some/module.js. Ideally we could choose the CommonJS syntax, since it is likely to get more common over time, and we want to reuse code.</p>
 
-We also want some sort of syntax that will allow loading plain JavaScript files that exist today -- a developer should not have to rewrite all of their JavaScript to get the benefits of script loading.
+<p>We also want some sort of syntax that will allow loading plain JavaScript files that exist today -- a developer should not have to rewrite all of their JavaScript to get the benefits of script loading.</p>
 
-However, we need something that works well in the browser. The CommonJS require() is a synchronous call, it is expected to return the module immediately. This does not work well in the browser.
+<p>However, we need something that works well in the browser. The CommonJS require() is a synchronous call, it is expected to return the module immediately. This does not work well in the browser.</p>
+</div>
 
-## Async vs Sync
+<div class="section">
+<h2><a name="4">Async vs Sync</a><span class="sectionMark">&sect;4</span></h2>
 
-This example should illustrate the basic problem for the browser. Suppose we have an Employee object and we want a Manager object to derive from the Employee object. [Taking this example](https://developer.mozilla.org/en/Core_JavaScript_1.5_Guide%3aThe_Employee_Example%3aCreating_the_Hierarchy), we might code it up like this using our script loading API:
+<p>This example should illustrate the basic problem for the browser. Suppose we have an Employee object and we want a Manager object to derive from the Employee object. <a href="https://developer.mozilla.org/en/Core_JavaScript_1.5_Guide%3aThe_Employee_Example%3aCreating_the_Hierarchy">Taking this example</a>, we might code it up like this using our script loading API:</p>
 
-    var Employee = require("types/Employee");
-    
-    function Manager () {
-        this.reports = [];
-    }
-    
-    //Error if require call is async
-    Manager.prototype = new Employee();
+<pre><code>var Employee = require("types/Employee");
 
-As the comment indicates above, if require() is async, this code will not work. However, loading scripts synchronously in the browser kills performance. So, what to do?
+function Manager () {
+    this.reports = [];
+}
 
-## Script Loading: XHR
+//Error if require call is async
+Manager.prototype = new Employee();
+</code></pre>
 
-It is tempting to use XMLHttpRequest (XHR) to load the scripts. If XHR is used, then we can massage the text above -- we can do a regexp to find require() calls, make sure we load those scripts, then use eval() or script elements that have their body text set to the text of the script loaded via XHR.
+<p>As the comment indicates above, if require() is async, this code will not work. However, loading scripts synchronously in the browser kills performance. So, what to do?</p>
+</div>
 
-Using eval() to evaluate the modules is bad:
+<div class="section">
+<h2><a name="5">Script Loading: XHR</a><span class="sectionMark">&sect;5</span></h2>
 
-* Developers have been taught that eval() is bad.
-* Some environments do not allow eval().
-* It is harder to debug. Firebug and WebKit's inspector have an //@ sourceURL= convention, which helps give a name to evaled text, but this support is not universal across browsers.
-* eval context is different across browsers. You might be able to use execScript in IE to help this, but it means more moving parts.
+<p>It is tempting to use XMLHttpRequest (XHR) to load the scripts. If XHR is used, then we can massage the text above -- we can do a regexp to find require() calls, make sure we load those scripts, then use eval() or script elements that have their body text set to the text of the script loaded via XHR.</p>
 
-Using script tags with body text set to file text is bad:
+<p>Using eval() to evaluate the modules is bad:</p>
 
-* While debugging, the line number you get for an error does not map to the original source file.
+<ul>
+<li>Developers have been taught that eval() is bad.</li>
+<li>Some environments do not allow eval().</li>
+<li>It is harder to debug. Firebug and WebKit's inspector have an //@ sourceURL= convention, which helps give a name to evaled text, but this support is not universal across browsers.</li>
+<li>eval context is different across browsers. You might be able to use execScript in IE to help this, but it means more moving parts.</li>
+</ul>
 
-XHR also has issues with cross-domain requests. Some browsers now have cross-domain XHR support, but it is not universal, and IE decided to create a different API object for cross-domain calls, XDomainRequest. More moving parts and more things to get wrong. In particular, you need to be sure to not send any non-standard HTTP headers or there may be another "preflight" request done to make sure the cross-domain access is allowed.
+<p>Using script tags with body text set to file text is bad:</p>
 
-Dojo has used and XHR-based loader with eval(), and while it works, it has been a source of frustration for developers. Dojo has an xdomain loader but it requires the modules to be modified via a build step to use a function wrapper, so that script src="" tags can be used to load the modules. There are many edge cases and moving parts that create a tax on the developer.
+<ul>
+<li>While debugging, the line number you get for an error does not map to the original source file.</li>
+</ul>
 
-If we are creating a new script loader, we can do better.
+<p>XHR also has issues with cross-domain requests. Some browsers now have cross-domain XHR support, but it is not universal, and IE decided to create a different API object for cross-domain calls, XDomainRequest. More moving parts and more things to get wrong. In particular, you need to be sure to not send any non-standard HTTP headers or there may be another "preflight" request done to make sure the cross-domain access is allowed.</p>
 
-## Script Loading: Web Workers
+<p>Dojo has used and XHR-based loader with eval(), and while it works, it has been a source of frustration for developers. Dojo has an xdomain loader but it requires the modules to be modified via a build step to use a function wrapper, so that script src="" tags can be used to load the modules. There are many edge cases and moving parts that create a tax on the developer.</p>
 
-Web Workers might be another way to load scripts, but:
+<p>If we are creating a new script loader, we can do better.</p>
+</div>
 
-* It does not have strong cross browser support
-* It is a message-passing API, and the scripts likely want to interact with the DOM, so it means just using the worker to fetch the script text, but pass the text back to the main window then use eval/script with text body to execute the script. This has all of the problems as XHR mentioned above.
+<div class="section">
+<h2><a name="6">Script Loading: Web Workers</a><span class="sectionMark">&sect;6</span></h2>
 
-## Script Loading: document.write()
+<p>Web Workers might be another way to load scripts, but:</p>
 
-document.write() can be used to load scripts -- it can load scripts from other domains and it maps to how browsers normally consume scripts, so it allows for easy debugging.
+<ul>
+<li>It does not have strong cross browser support</li>
+<li>It is a message-passing API, and the scripts likely want to interact with the DOM, so it means just using the worker to fetch the script text, but pass the text back to the main window then use eval/script with text body to execute the script. This has all of the problems as XHR mentioned above.</li>
+</ul>
+</div>
 
-However, in the [Async vs Sync example](#async) we cannot just execute that script directly. Ideally we could know the require() dependencies before we execute the script, and make sure those dependencies are loaded first. But we do not have access to the script before it is executed.
+<div class="section">
+<h2><a name="7">Script Loading: document.write()</a><span class="sectionMark">&sect;7</span></h2>
 
-Also, document.write() does not work after page load. A great way to get perceived performance for your site is loading code on demand, as the user needs it for their next action.
+<p>document.write() can be used to load scripts -- it can load scripts from other domains and it maps to how browsers normally consume scripts, so it allows for easy debugging.</p>
 
-Finally, scripts loaded via document.write() will block page rendering. When looking at reaching the very best performance for your site, this is undesirable.
+<p>However, in the <a href="#async">Async vs Sync example</a> we cannot just execute that script directly. Ideally we could know the require() dependencies before we execute the script, and make sure those dependencies are loaded first. But we do not have access to the script before it is executed.</p>
 
-## Script Loading: head.appendChild(script)
+<p>Also, document.write() does not work after page load. A great way to get perceived performance for your site is loading code on demand, as the user needs it for their next action.</p>
 
-We can create scripts on demand and add them to the head:
+<p>Finally, scripts loaded via document.write() will block page rendering. When looking at reaching the very best performance for your site, this is undesirable.</p>
+</div>
 
-    var head = document.getElementsByTagName('head')[0],
-        script = document.createElement('script');
-    
-    script.src = url;
-    head.appendChild(script);
+<div class="section">
+<h2><a name="8">Script Loading: head.appendChild(script)</a><span class="sectionMark">&sect;8</span></h2>
 
-There is a bit more involved than just the above snippet, but that is the basic idea. This approach has the advantage over document.write in that it will not block page rendering and it works after page load.
+<p>We can create scripts on demand and add them to the head:</p>
 
-However, it still has the [Async vs Sync example](#async) problem: ideally we could know the require() dependencies before we execute the script, and make sure those dependencies are loaded first.
+<pre><code>var head = document.getElementsByTagName('head')[0],
+    script = document.createElement('script');
 
-## Function Wrapping
+script.src = url;
+head.appendChild(script);
+</code></pre>
 
-So we need to know the dependencies and make sure we load them before executing our script. The best way to do that is construct our module loading API with function wrappers. Like so:
+<p>There is a bit more involved than just the above snippet, but that is the basic idea. This approach has the advantage over document.write in that it will not block page rendering and it works after page load.</p>
 
-    define(
-        //The name of this module
-        "types/Manager",
+<p>However, it still has the <a href="#async">Async vs Sync example</a> problem: ideally we could know the require() dependencies before we execute the script, and make sure those dependencies are loaded first.</p>
+</div>
 
-        //The array of dependencies
-        ["types/Employee"],
+<div class="section">
+<h2><a name="9">Function Wrapping</a><span class="sectionMark">&sect;9</span></h2>
 
-        //The function to execute when all dependencies have loaded. The arguments
-        //to this function are the array of dependencies mentioned above.
-        function (Employee) {
-            function Manager () {
-                this.reports = [];
-            }
-            
-            //This will now work
-            Manager.prototype = new Employee();
-    
-            //return the Manager constructor function so it can be used by other modules.
-            return Manager;
+<p>So we need to know the dependencies and make sure we load them before executing our script. The best way to do that is construct our module loading API with function wrappers. Like so:</p>
+
+<pre><code>define(
+    //The name of this module
+    "types/Manager",
+
+    //The array of dependencies
+    ["types/Employee"],
+
+    //The function to execute when all dependencies have loaded. The arguments
+    //to this function are the array of dependencies mentioned above.
+    function (Employee) {
+        function Manager () {
+            this.reports = [];
         }
-    );
 
-And this is the syntax used by RequireJS. There is also a simplified syntax if you just want to load some plain JavaScript files that do not define modules:
+        //This will now work
+        Manager.prototype = new Employee();
 
-    require(["some/script.js"], function() {
-        //This function is called after some/script.js has loaded.
-    });
+        //return the Manager constructor function so it can be used by other modules.
+        return Manager;
+    }
+);
+</code></pre>
 
+<p>And this is the syntax used by RequireJS. There is also a simplified syntax if you just want to load some plain JavaScript files that do not define modules:</p>
 
-This type of syntax was chosen because it is terse and allows the loader to use head.appendChild(script) type of loading.
+<pre><code>require(["some/script.js"], function() {
+    //This function is called after some/script.js has loaded.
+});
+</code></pre>
 
-It differs from the normal CommonJS syntax out of necessity to work well in the browser. There have been suggestions that the normal CommonJS syntax could be used with head.appendChild(script) type of loading if a server process transforms the modules to a transport format that has a function wrapper.
+<p>This type of syntax was chosen because it is terse and allows the loader to use head.appendChild(script) type of loading.</p>
 
-I believe it is important to not force the use of a runtime server process to transform code:
+<p>It differs from the normal CommonJS syntax out of necessity to work well in the browser. There have been suggestions that the normal CommonJS syntax could be used with head.appendChild(script) type of loading if a server process transforms the modules to a transport format that has a function wrapper.</p>
 
-* It makes debugging weird, line numbers will be off vs. the source file since the server is injecting a function wrapper.
-* It requires more gear. Front-end development should be possible with static files.
+<p>I believe it is important to not force the use of a runtime server process to transform code:</p>
+
+<ul>
+<li>It makes debugging weird, line numbers will be off vs. the source file since the server is injecting a function wrapper.</li>
+<li>It requires more gear. Front-end development should be possible with static files.</li>
+</ul>
+</div>

@@ -26,11 +26,14 @@ load("../build/jslib/fileUtil.js");
 
 var files, i, mdFile, htmlFile, fileContents,
     runtime = Packages.java.lang.Runtime.getRuntime(),
-    process, preContents, postContents, h1, homePath, cssPath, length, j, isTopPage = false;
+    process, preContents, postContents, h1, homePath, cssPath,
+    jsPath, length, j, isTopPage = false;
 
 //Copy all the text files to a dist directory
-fileUtil.deleteFile("./dist-site/");
+//fileUtil.deleteFile("./dist-site/");
 fileUtil.copyFile("main.css", "./dist-site/main.css");
+fileUtil.copyFile("init.js", "./dist-site/init.js");
+fileUtil.copyDir("i/", "./dist-site/i/", /\w/);
 fileUtil.copyDir("fonts", "./dist-site/fonts", /\w/);
 fileUtil.copyFile("../README.md", "./dist-site/index.md");
 fileUtil.copyDir("../docs/", "./dist-site/docs/", /\w/);
@@ -73,6 +76,7 @@ for (i = 0; (mdFile = files[i]); i++) {
         isTopPage = true;
         homePath = "./";
         cssPath = "main.css";
+        jsPath = "init.js";
     } else {
         isTopPage = false;
         length = homePath.split("/").length;
@@ -81,9 +85,11 @@ for (i = 0; (mdFile = files[i]); i++) {
             homePath += "../";
         }
         cssPath = homePath + "main.css";
+        jsPath = homePath + "init.js";
     }
     fileContents = fileContents.replace(/HOMEPATH/, homePath);
     fileContents = fileContents.replace(/\main\.css/, cssPath);
+    fileContents = fileContents.replace(/\init\.js/, jsPath);
 
 
     //If it is the top page, adjust the header links

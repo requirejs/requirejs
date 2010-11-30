@@ -1,30 +1,42 @@
-# RequireJS API
+<div id="directory" class="section">
+<h1>RequireJS API</h1>
 
-* [Usage](#usage)
-    * [Loading JavaScript Files](#jsfiles)
-    * [Defining a Module](#define)
-        * [Simple Name/Value Pairs](#defsimple)
-        * [Definition Functions](#deffunc)
-        * [Definition Functions with Dependencies](#defdep)
-        * [Defining a Module as a Function](#funcmodule)
-        * [Other Module Notes](#modulenotes)
-        * [Circular Dependencies](#circular)
-    * [Define an I18N Bundle](#i18n)
-    * [Specify a Text File Dependency](#text)
-    * [Specify a JSONP Service Dependency](#jsonp)
-    * [Load Scripts in a Specific Order](#order)
-* [Mechanics](#mechanics)
-* [Configuration Options](#config)
-* [Page Load Event Support](#pageload)
-* [Advanced Usage](#advanced)
-    * [Loading Modules from Packages](#packages)
-    * [Multiversion Support](#multiversion)
-    * [Loading Code After Page Load](#afterload)
-    * [Module Modifiers](#modifiers)
-        * [Modifier Registration](#modregister)
-        * [Modifier Definition](#moddef)
-    * [Web Worker Support](#webworker)
-    * [Rhino Support](#rhino)
+<ul class="index mono">
+    <li class="hbox"><a href="#usage">Usage</a><span class="spacer boxFlex"></span><span>&sect;&sect;1-1.6</span></li>
+        <ul>
+            <li><a href="#jsfiles">Loading JavaScript Files</a></li>
+            <li><a href="#define">Defining a Module</a>
+            <ul>
+                <li><a href="#defsimple">Simple Name/Value Pairs</a></li>
+                <li><a href="#deffunc">Definition Functions</a></li>
+                <li><a href="#defdep">Definition Functions with Dependencies</a></li>
+                <li><a href="#funcmodule">Defining a Module as a Function</a></li>
+                <li><a href="#modulenotes">Other Module Notes</a></li>
+                <li><a href="#circular">Circular Dependencies</a></li>
+            </ul></li>
+        <li><a href="#i18n">Define an I18N Bundle</a></li>
+        <li><a href="#text">Specify a Text File Dependency</a></li>
+        <li><a href="#jsonp">Specify a JSONP Service Dependency</a></li>
+        <li><a href="#order">Load Scripts in a Specific Order</a></li>
+        </ul></li>
+    <li><a href="#mechanics">Mechanics</a></li>
+    <li><a href="#config">Configuration Options</a></li>
+    <li><a href="#pageload">Page Load Event Support</a></li>
+    <li><a href="#advanced">Advanced Usage</a>
+    <ul>
+        <li><a href="#packages">Loading Modules from Packages</a></li>
+        <li><a href="#multiversion">Multiversion Support</a></li>
+        <li><a href="#afterload">Loading Code After Page Load</a></li>
+        <li><a href="#modifiers">Module Modifiers</a>
+            <ul>
+                <li><a href="#modregister">Modifier Registration</a></li>
+                <li><a href="#moddef">Modifier Definition</a></li>
+            </ul></li>
+        <li><a href="#webworker">Web Worker Support</a></li>
+        <li><a href="#rhino">Rhino Support</a></li>
+    </ul></li>
+</ul>
+</div>
 
 # <a name="usage">Usage</a>
 
