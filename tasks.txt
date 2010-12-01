@@ -1,6 +1,13 @@
+- simple node example does not work
+- need to document how to use the packages config with Node.
+- order! dependencies in builds?
+- Document new closure compiler options from neonstalwart
+
 - email on jsonp removal, toUrl and package names.
 
 - Nested package config: https://github.com/jrburke/requirejs/pull/28
+
+- IE, on errors, hits script onload, but need to make sure it is treated as a failure?
 
 Node issues:
 * socket.io/support/socket.io-client/lib/io.js. uses "this" to attach properties to export?!?
