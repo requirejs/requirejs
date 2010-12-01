@@ -9,7 +9,7 @@
 
 /*jslint nomen: false, plusplus: false, regexp: false */
 /*global load: false, require: false, logger: false, setTimeout: true,
- pragma: false, Packages: false, parse: false, java: true */
+ pragma: false, Packages: false, parse: false, java: true, define: true */
 "use strict";
 
 (function () {
@@ -26,10 +26,10 @@
         try {
             stringBuffer = new java.lang.StringBuffer();
             line = input.readLine();
-    
+
             // Byte Order Mark (BOM) - The Unicode Standard, version 3.0, page 324
             // http://www.unicode.org/faq/utf_bom.html
-            
+
             // Note that when we use utf-8, the BOM should appear as "EF BB BF", but it doesn't due to this bug in the JDK:
             // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4508058
             if (line && line.length() && line.charAt(0) === 0xfeff) {
@@ -102,7 +102,7 @@
     //Override load so that the file paths can be collected.
     require.load = function (moduleName, contextName) {
         /*jslint evil: true */
-        var url = require.nameToUrl(moduleName, null, contextName), map,
+        var url = require.nameToUrl(moduleName, null, contextName),
             contents,
             context = require.s.contexts[contextName];
         context.loaded[moduleName] = false;
@@ -111,14 +111,15 @@
         //URLs like ones that require network access or may be too dynamic,
         //like JSONP
         if (require._isSupportedBuildUrl(url)) {
-            //Save the module name to path mapping.
-            map = layer.buildPathMap[moduleName] = url;
-    
+            //Save the module name to path  and path to module name mappings.
+            layer.buildPathMap[moduleName] = url;
+            layer.buildFileToModule[url] = moduleName;
+
             //Load the file contents, process for conditionals, then
             //evaluate it.
             contents = _readFile(url);
             contents = pragma.process(url, contents, context.config);
-    
+
             //Find out if the file contains a require() definition. Need to know
             //this so we can inject plugins right after it, but before they are needed,
             //and to make sure this file is first, so that require.def calls work.
@@ -127,7 +128,7 @@
             if (!layer.existingRequireUrl && parse.definesRequire(url, contents)) {
                 layer.existingRequireUrl = url;
             }
-    
+
             //Only eval complete contents if asked, or if it is a require extension.
             //Otherwise, treat the module as not safe for execution and parse out
             //the require calls.
@@ -138,12 +139,17 @@
                 //code in a require callback.
                 contents = parse(url, contents);
             }
-    
+
             if (contents) {
                 eval(contents);
 
                 //Support anonymous modules.
                 require.completeLoad(moduleName, context);
+            }
+            
+            // remember the list of dependencies for this layer - don't remember plugins
+            if (moduleName.indexOf("require/") !== 0) {
+	            layer.buildFilePaths.push(url);
             }
         }
 
@@ -165,7 +171,6 @@
     require.execCb = function (name, cb, args) {
         var url = name && layer.buildPathMap[name];
         if (url && !layer.loadedFiles[url]) {
-            layer.buildFilePaths.push(url);
             layer.loadedFiles[url] = true;
             layer.modulesWithNames[name] = true;
         }
