@@ -86,9 +86,9 @@ var optimize;
             if (mediaTypes && ((mediaTypes.replace(/^\s\s*/, '').replace(/\s\s*$/, '')) !== "all")) {
                 return fullMatch;
             }
-    
+
             importFileName = cleanCssUrlQuotes(importFileName);
-            
+
             //Ignore the file import if it is part of an ignore list.
             if (cssImportIgnore && cssImportIgnore.indexOf(importFileName + ",") !== -1) {
                 return fullMatch;
@@ -96,7 +96,7 @@ var optimize;
 
             //Make sure we have a unix path for the rest of the operation.
             importFileName = importFileName.replace(lang.backSlashRegExp, "/");
-    
+
             try {
                 //if a relative path, then tack on the filePath.
                 //If it is not a relative path, then the readFile below will fail,
@@ -119,7 +119,7 @@ var optimize;
                 importContents = importContents.replace(cssUrlRegExp, function (fullMatch, urlMatch) {
                     fixedUrlMatch = cleanCssUrlQuotes(urlMatch);
                     fixedUrlMatch = fixedUrlMatch.replace(lang.backSlashRegExp, "/");
-    
+
                     //Only do the work for relative URLs. Skip things that start with / or have
                     //a protocol.
                     colonIndex = fixedUrlMatch.indexOf(":");
@@ -142,10 +142,10 @@ var optimize;
                             }
                         }
                     }
-    
+
                     return "url(" + parts.join("/") + ")";
                 });
-    
+
                 return importContents;
             } catch (e) {
                 logger.trace(fileName + "\n  Cannot inline css import, skipping: " + importFileName);
@@ -155,32 +155,40 @@ var optimize;
     }
 
     optimize = {
-        closure: function (fileName, fileContents, keepLines) {
+        closure: function (fileName, fileContents, keepLines, config) {
+            config = config || {};
             var jscomp = Packages.com.google.javascript.jscomp,
                 flags = Packages.com.google.common.flags,
                 //Fake extern
                 externSourceFile = closurefromCode("fakeextern.js", " "),
                 //Set up source input
                 jsSourceFile = closurefromCode(String(fileName), String(fileContents)),
-                options, FLAG_compilation_level, compiler,
+                options, option, FLAG_compilation_level, compiler,
                 Compiler = Packages.com.google.javascript.jscomp.Compiler;
 
             logger.trace("Minifying file: " + fileName);
 
             //Set up options
             options = new jscomp.CompilerOptions();
-            options.prettyPrint = keepLines;
+            for (option in config.CompilerOptions) {
+                // options are false by default and jslint wanted an if statement in this for loop
+                if (config.CompilerOptions[option]) {
+                    options[option] = config.CompilerOptions[option];
+                }
+                
+            }
+            options.prettyPrint = keepLines || options.prettyPrint;
 
-            FLAG_compilation_level = flags.Flag.value(jscomp.CompilationLevel.SIMPLE_OPTIMIZATIONS);
+            FLAG_compilation_level = flags.Flag.value(jscomp.CompilationLevel[config.CompilationLevel || 'SIMPLE_OPTIMIZATIONS']);
             FLAG_compilation_level.get().setOptionsForCompilationLevel(options);
 
             //Trigger the compiler
-            Compiler.setLoggingLevel(Packages.java.util.logging.Level.WARNING);
+            Compiler.setLoggingLevel(Packages.java.util.logging.Level[config.loggingLevel || 'WARNING']);
             compiler = new Compiler();
             compiler.compile(externSourceFile, jsSourceFile, options);
-            return compiler.toSource();  
+            return compiler.toSource();
         },
-    
+
         //Inlines text! dependencies.
         inlineText: function (fileName, fileContents) {
             return fileContents.replace(textDepRegExp, function (match, prefix, dep, offset) {
@@ -305,7 +313,8 @@ var optimize;
             if (doClosure) {
                 fileContents = optimize.closure(fileName,
                                                fileContents,
-                                               (config.optimize.indexOf(".keepLines") !== -1));
+                                               (config.optimize.indexOf(".keepLines") !== -1),
+                                               config.closure);
             }
 
             fileUtil.saveUtf8File(outFileName, fileContents);

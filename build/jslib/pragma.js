@@ -27,11 +27,7 @@ var pragma = {
             endMarkerIndex, shouldInclude, startLength, pragmas = config.pragmas,
             //Legacy arg defined to help in dojo conversion script. Remove later
             //when dojo no longer needs conversion:
-            kwArgs = {
-                profileProperties: {
-                    hostenvType: "browser"
-                }
-            };
+            kwArgs = pragmas;
 
         //If pragma work is not desired, skip it.
         if (config.skipPragmas) {
@@ -44,10 +40,10 @@ var pragma = {
             if (lineEndIndex === -1) {
                 lineEndIndex = fileContents.length - 1;
             }
-    
+
             //Increment startIndex past the line so the next conditional search can be done.
             startIndex = lineEndIndex + 1;
-    
+
             //Break apart the conditional.
             conditionLine = fileContents.substring(foundIndex, lineEndIndex + 1);
             matches = conditionLine.match(pragma.conditionalRegExp);
@@ -66,29 +62,29 @@ var pragma = {
                            conditionLine +
                            " failed with this error: " + e;
                 }
-            
+
                 //Find the endpoint marker.
                 endRegExp = new RegExp('\\/\\/\\>\\>\\s*' + type + 'End\\(\\s*[\'"]' + marker + '[\'"]\\s*\\)', "g");
                 endMatches = endRegExp.exec(fileContents.substring(startIndex, fileContents.length));
                 if (endMatches) {
                     endMarkerIndex = startIndex + endRegExp.lastIndex - endMatches[0].length;
-                    
+
                     //Find the next line return based on the match position.
                     lineEndIndex = fileContents.indexOf("\n", endMarkerIndex);
                     if (lineEndIndex === -1) {
                         lineEndIndex = fileContents.length - 1;
                     }
-    
+
                     //Should we include the segment?
                     shouldInclude = ((type === "exclude" && !isTrue) || (type === "include" && isTrue));
-                    
+
                     //Remove the conditional comments, and optionally remove the content inside
                     //the conditional comments.
                     startLength = startIndex - foundIndex;
                     fileContents = fileContents.substring(0, foundIndex) +
                         (shouldInclude ? fileContents.substring(startIndex, endMarkerIndex) : "") +
                         fileContents.substring(lineEndIndex + 1, fileContents.length);
-                    
+
                     //Move startIndex to foundIndex, since that is the new position in the file
                     //where we need to look for more conditionals in the next while loop pass.
                     startIndex = foundIndex;
@@ -97,7 +93,7 @@ var pragma = {
                           fileName +
                           ". Cannot find end marker for conditional comment: " +
                           conditionLine;
-                    
+
                 }
             }
         }
