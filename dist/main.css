@@ -237,7 +237,7 @@ span.icon.fork {
     padding: 0 0 18px 0;
     margin: 0 0 7px 0;
     font-weight: normal;
-    font-size: 17px;
+    font-size: 21px;
     line-height: 24px;
     text-align: center;
     color: #222;
@@ -254,23 +254,30 @@ span.icon.fork {
     color: #222;
 }
 
-#content h2 a:hover {
+#content h2 a:hover,
+#content h3 a:hover,
+#content h4 a:hover {
     text-decoration: none;
 }
 
-#content h2 span.sectionMark {
+span.sectionMark {
     display: block;
     color: #aaa;
     text-shadow: 1px 1px 0 #fff;
     font-size: 15px;
+    font-family: "Inconsolata", Andale Mono, Monaco, Monospace;
 }
 
 #content h3 {
-    font-size: 15px;
+    font-size: 17px;
 }
 
 #content h4 {
-    font-size: 12px;
+    padding-top: 0;
+    font-size: 15px;
+}
+
+#content h4 a {
 }
 
 #content h5 {
@@ -281,15 +288,10 @@ span.icon.fork {
     list-style-type: disc;
 }
 
-#content ol {
-    list-style-type: lower-roman;
-}
-
-
 #content ul,
 #content ol {
-    border-left: 1px solid #DD2200;
-    color: #DD2200;
+    border-left: 1px solid #ff5959;
+    color: #ff5959;
     font-size: 14px;
     list-style-position: outside;
     margin: 7px 0 21px 0;
@@ -297,9 +299,15 @@ span.icon.fork {
     font-family: "Inconsolata", Andale Mono, Monaco, Monospace;
 }
 
+#content ol {
+    border: none;
+    list-style-position: inside;
+    padding: 0;
+    font-family: "Georgia", Times New Roman, Times, serif;
+}
+
 #content ul ul,
 #content ol ol {
-    -moz-box-shadow: none;
     border: none;
     padding: 0;
     margin: 0 0 0 28px;
@@ -312,6 +320,13 @@ span.icon.fork {
     background-position: center bottom;
     width: 576px;
     margin: 0 auto;
+}
+
+#content .section .subSection {
+    padding: 0 0 0 48px;
+    margin: 28px 0 0 0;
+    display: block;
+    border-left: 2px solid #ddd;
 }
 
 #content .section:last-child {
@@ -333,6 +348,17 @@ span.icon.fork {
 #content #directory.section {
     background-color: #fff;
     width: 576px;
+}
+
+#content #directory.section ul ul ul {
+    margin: 0 0 0 48px;
+}
+
+#content #directory.section ul ul li {
+    background-image: url("i/sprite.png");
+    background-repeat: no-repeat;
+    background-position: left -437px;
+    padding-left: 18px;
 }
 
 #content #directory h1 {
@@ -422,9 +448,9 @@ span.icon.fork {
     Pygments manni style 
 */
 
-code {background-color: #fafafa}
+code {background-color: #fafafa; color: #333;}
 
-code .comment {color: #09f; font-style: italic}
+code .comment {color: green; font-style: italic}
 code .comment.preproc {color: #099; font-style: normal}
 code .comment.special {font-weight: bold}
 
@@ -514,6 +540,8 @@ pre::-webkit-scrollbar-thumb:horizontal {
 	display: box;
 	box-orient: horizontal;
 	box-align: stretch;
+	
+	width: 100%;
 }
  
 .hbox > * {
