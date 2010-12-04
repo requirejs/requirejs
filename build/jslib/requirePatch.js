@@ -93,7 +93,7 @@
     //This function signature does not have to be exact, just match what we
     //are looking for.
     define = require.def = function (name, obj) {
-        if (typeof name === "string" && !require.isArray(obj) && !require.isFunction(obj)) {
+        if (typeof name === "string") {
             layer.modulesWithNames[name] = true;
         }
         return oldDef.apply(require, arguments);
@@ -146,7 +146,7 @@
                 //Support anonymous modules.
                 require.completeLoad(moduleName, context);
             }
-            
+
             // remember the list of dependencies for this layer - don't remember plugins
             if (moduleName.indexOf("require/") !== 0) {
 	            layer.buildFilePaths.push(url);

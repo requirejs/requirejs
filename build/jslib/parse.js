@@ -286,26 +286,43 @@ var parse;
     /**
      * Convert a require/require.def/define call to a string if it is a valid
      * call via static analysis of dependencies.
-     * @param {Packages.com.google.javascript.rhino.Node} the call node
+     * @param {String} callName the name of call (require or define)
      * @param {Packages.com.google.javascript.rhino.Node} the name node inside the call
      * @param {Packages.com.google.javascript.rhino.Node} the deps node inside the call
      */
-    parse.callToString = function (call, name, deps) {
+    parse.callToString = function (callName, name, deps) {
         //If name is an array, it means it is an anonymous module,
         //so adjust args appropriately. An anonymous module could
         //have a FUNCTION as the name type, but just ignore those
         //since we just want to find dependencies.
         //TODO: CHANGE THIS if/when support using a tostring
         //on function to find CommonJS dependencies.
-        if (name.getType() === ARRAYLIT) {
-            deps = name;
+        var isFunction = false, nameString, depString;
+        if (name) {
+            if (name.getType() === ARRAYLIT) {
+                deps = name;
+            }
         }
 
         if (deps && !validateDeps(deps)) {
             return null;
         }
 
-        return parse.nodeToString(call);
+        //Only serialize the call name, the module name and dependencies,
+        //otherwise could get local variable names for module value.
+        //Need to trim off trailing ; that is added by nodeToString too.
+        if (name) {
+            nameString = parse.nodeToString(name);
+            nameString = nameString.slice(0, nameString.length - 1);
+        }
+        if (deps) {
+            depString = parse.nodeToString(deps);
+            depString = depString.slice(0, depString.length - 1);
+        }
+        return callName + "(" +
+            (name ? nameString : "") +
+            (deps ? (name ? "," : "") + depString : "") +
+            ");";
     };
 
     /**
@@ -329,7 +346,7 @@ var parse;
                 if (!validateDeps(deps)) {
                     return null;
                 }
-                return parse.nodeToString(call);
+                return parse.callToString("require", null, deps);
 
             } else if (call.getType() === CALL &&
                 call.getFirstChild().getType() === NAME &&
@@ -338,7 +355,7 @@ var parse;
                 //A define call
                 name = call.getChildAtIndex(1);
                 deps = call.getChildAtIndex(2);
-                return parse.callToString(call, name, deps);
+                return parse.callToString("define", name, deps);
 
             } else if (call.getFirstChild().getType() === GETPROP &&
                 call.getFirstChild().getFirstChild().getType() === NAME &&
@@ -353,7 +370,7 @@ var parse;
                     name = call.getChildAtIndex(1);
                     deps = call.getChildAtIndex(2);
 
-                    return parse.callToString(call, name, deps);
+                    return parse.callToString("define", name, deps);
                 } else if (methodName === "modify") {
 
                     //A require.modify() call
