@@ -548,7 +548,11 @@ var build, buildBaseConfig;
     build.flattenModule = function (module, layer, config) {
         var buildFileContents = "", requireContents = "",
             pluginContents = "", pluginBuildFileContents = "", includeRequire,
-            anonDefRegExp = /(require\s*\.\s*def|define)\s*\(\s*(\[|f|\{)/,
+            //This regexp is not bullet-proof, and it has one optional part to
+            //avoid issues with some Dojo transition modules that use a
+            //define(\n//begin v1.x content
+            //for a comment.
+            anonDefRegExp = /(require\s*\.\s*def|define)\s*\(\s*(\/\/[^\n\r]*[\r\n])?(\[|f|\{)/,
             prop, path, reqIndex, fileContents, currContents,
             i, moduleName, specified, deps;
 
@@ -613,7 +617,7 @@ var build, buildBaseConfig;
             currContents = pragma.process(path, fileUtil.readFile(path), config);
 
             //If anonymous module, insert the module name.
-            currContents = currContents.replace(anonDefRegExp, function (match, callName, suffix) {
+            currContents = currContents.replace(anonDefRegExp, function (match, callName, possibleComment, suffix) {
                 layer.modulesWithNames[moduleName] = true;
 
                 //Look for CommonJS require calls inside the function if this is
