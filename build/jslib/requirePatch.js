@@ -15,6 +15,7 @@
 (function () {
     var layer,
         lineSeparator = java.lang.System.getProperty("line.separator"),
+        orderRegExp = /order!/g,
         oldDef;
 
     //A file read function that can deal with BOMs
@@ -141,6 +142,15 @@
             }
 
             if (contents) {
+                //TODO: Change this to be more pluggable
+                //Convert order! dependencies to just regular dependencies,
+                //and make sure to require the order plugin.
+                orderRegExp.lastIndex = 0;
+                if (orderRegExp.test(contents)) {
+                    contents = contents.replace(orderRegExp, '');
+                    contents = "require(['require/order']);\n" + contents;
+                }
+
                 eval(contents);
 
                 //Support anonymous modules.
