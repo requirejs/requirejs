@@ -20,9 +20,6 @@
     * [Loading Modules from Packages](#packages)
     * [Multiversion Support](#multiversion)
     * [Loading Code After Page Load](#afterload)
-    * [Module Modifiers](#modifiers)
-        * [Modifier Registration](#modregister)
-        * [Modifier Definition](#moddef)
     * [Web Worker Support](#webworker)
     * [Rhino Support](#rhino)
 
@@ -100,7 +97,7 @@ If the module does not have dependencies, but needs to use a function to do some
     //before returning its module definition.
     define(function () {
         //Do setup work here
-        
+
         return {
             color: "black",
             size: "unisize"
@@ -309,7 +306,7 @@ You can specify a text file resource as a dependency like so:
     require(["some/module", "text!some/module.html", "text!some/module.css"],
         function(module, html, css) {
             //the html variable will be the text of the some/module.html file
-            //the css variable will be the text of the som/module.css file.    
+            //the css variable will be the text of the som/module.css file.
         }
     );
 
@@ -321,7 +318,7 @@ For HTML/XML/SVG files, there is another option you can pass !strip, which strip
     require(["text!some/module.html!strip"],
         function(html) {
             //the html variable will be the text of the some/module.html file,
-            //but only the part inside the body tag.   
+            //but only the part inside the body tag.
         }
     );
 
@@ -366,7 +363,7 @@ Normally RequireJS loads and evaluates scripts in an undetermined order. However
 
 Scripts loaded by the **order** plugin will be fetched asynchronously, but evaluated in the order they are passed to require, so it should still perform better with using script tags in the head of an HTML document.
 
-The **order** plugin is best used with traditional scripts, it is not needed for scripts that use define() to define modules. It is possible to mix and match "order!" dependencies with regular dependencies, but only the "order!" ones will be evaluated in relative order to each other. 
+The **order** plugin is best used with traditional scripts, it is not needed for scripts that use define() to define modules. It is possible to mix and match "order!" dependencies with regular dependencies, but only the "order!" ones will be evaluated in relative order to each other.
 
 **Note**: the order! plugin only works with JavaScript files that are cacheable by the browser. If the JS file has headers that do not allow the browser to cache the file, then the order of scripts will not be maintained.
 
@@ -497,7 +494,7 @@ RequireJS supports loading modules that are in a [CommonJS Packages](http://wiki
 
 * While the packages can have the CommonJS directory layout, the modules themselves should be in a module format that RequireJS can understand. Exception to the rule: if you are using the r.js Node adapter, the modules can be in the traditional CommonJS module format. You can use the [CommonJS converter tool](commonjs.md#autoconversion) if you need to convert traditional CommonJS modules into an async module format that RequireJS uses.
 * Only one version of a package can be used in a project context at a time. You can use RequireJS [multiversion support](#multiversion) to load two different module contexts, but if you want to use Package A and B in one context and they depend on different versions of Package C, then that will be a problem. This may change in the future.
-    
+
 If you use a similar project layout as specified in the [Start Guide](start.md), the start of your web project would look something like this (Node/Rhino-based projects are similar, just use the contents of the **scripts** directory as the top-level project directory):
 
 * project-directory/
@@ -686,61 +683,7 @@ Note that "require" is specified as a dependency for the module. This allows the
 
 ## <a name="afterload">Loading Code After Page Load</a>
 
-The example above in the **Multiversion Support** section shows how code can later be loaded by nested require() calls. 
-
-## <a name="modifiers">Module Modifiers</a>
-
-There are some cases where you want to be able to modify the behavior of a module. A common case is setting up a base module but modifying it only if some specific information or state is available.
-
-One example could be a module that calculates DOM node positions and sizes. In standards mode, the calculations are simpler, but in quirks mode it can be trickier. You may want to avoid loading the quirks mode code unless the browser page is really in quirks mode, but you still want the node dimension module to have the same interface to other modules.
-
-Enter Module Modifiers. They allow you to modify properties of a module. Some properties of module modifiers:
-
-* modifiers are executed before the target module is given to other modules as dependency.
-* modifiers can be specified before the target module is loaded.
-* modifiers can be lazy-loaded and lazy-evaluated: only executed if the target module is loaded.
-* modifiers can only modify **properties** of a module. They cannot completely redefine the whole module.
-
-require.modify() is used for modifiers, and require.modify() can be called in two ways:
-
-* Modifier registration.
-* Modifier definition.
-
-### <a name="modregister">Modifier Registration</a>
-
-If you want to tell require.js that there is a modifier, but not actually load the modifier or the target yet, then just register the modifiers with require.js:
-
-    require.modify({
-        "my/target1": "my/modifier1",
-        "my/target1": "my/modifier2",
-        "my/target2": "my/modifier3"
-    });
-
-This call tells require.js to load the "my/modifier1" and "my/modifier2" modules if the "my/target1" module is loaded and to load "my/modifier3" module if "my/target2" is loaded.
-
-You are not required to register modifiers with require.js. Only do it if you want to avoid loading the target modules and defining the modifiers right away. Otherwise, you can use Modifier Definition.
-
-### <a name="moddef">Modifier Definition</a>
-
-A modifier definition looks like a normal define() module definition, but:
-
-* require.modify() is used.
-* the target module's name is listed first in the require.modify() call.
-* modifiers do not need to return an object from the function definition, since they are just modifying another module.
-
-For the example given above in Modifier Registration, where "my/target1" is the target module and "my/modifier1" is the modifier, the "my/modifier1" module might look like this:
-
-    require.modify(
-        "my/target1",
-        "my/modifier1",
-        ["my/target1"],
-        function(target1) {
-            //Modify the properties on target1 as appropriate.
-            //No need to return a value from this function since it
-            //modifies another module.
-            target1.foo = function(){};
-        }
-    );
+The example above in the **Multiversion Support** section shows how code can later be loaded by nested require() calls.
 
 ## <a name="webworker">Web Worker Support</a>
 

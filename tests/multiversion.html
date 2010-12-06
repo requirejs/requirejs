@@ -35,13 +35,13 @@
 				doh.is("green", gamma.color);
 				doh.is(1, alpha.version);
 				doh.is(1, beta.version);
-    
+
 				setTimeout(function(){
 				    require(
 					["omega"],
 					function(omega) {
 					    doh.is(1, omega.version);
-					    doh.is("1.modified1", alpha.version);
+					    doh.is("1", alpha.version);
 					    done();
 					}
 				    );
@@ -67,7 +67,7 @@
 					["omega"],
 					function(omega) {
 					    doh.is(2, omega.version);
-					    doh.is("2.modified2", alpha.version);
+					    doh.is("2", alpha.version);
 					    done();
 					}
 				    );
@@ -85,12 +85,12 @@
 </head>
 <body>
     <h1>require.js: Multiversion Test</h1>
-    
+
     <p>Check console for messages.</p>
-    
+
     <p>This test loads two different versions of a module by using the
     "context" settings for require.</p>
-    
+
     <p>It also tests loading a plain js file.</p>
 </body>
 </html>

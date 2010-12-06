@@ -1,6 +1,5 @@
 define("omega",
-  ["sigma"],
-  function(epsilon) {
+  function() {
     return {
       version: 1
     };
