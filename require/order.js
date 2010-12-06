@@ -99,24 +99,27 @@
             var context = require.s.contexts[contextName],
                 url = require.nameToUrl(name, null, contextName);
 
-            //Make sure the async attribute is not set for any pathway involving
-            //this script.
-            require.s.skipAsync[url] = true;
-            if (supportsInOrderExecution) {
-                //Just a normal script tag append, but without async attribute
-                //on the script.
-                require([name], contextName);
-            } else {
-                //Credit to LABjs author Kyle Simpson for finding that scripts
-                //with type="script/cache" allow scripts to be downloaded into
-                //browser cache but not executed. Use that
-                //so that subsequent addition of a real type="text/javascript"
-                //tag will cause the scripts to be executed immediately in the
-                //correct order.
-                context.orderWaiting.push(name);
-                context.loaded[name] = false;
-                require.attach(url, contextName, name, scriptCacheCallback, "script/cache");
-            }
+            // do nothing if the module is already loaded
+            if (!context.loaded[name]){
+	            //Make sure the async attribute is not set for any pathway involving
+	            //this script.
+	            require.s.skipAsync[url] = true;
+	            if (supportsInOrderExecution) {
+	                //Just a normal script tag append, but without async attribute
+	                //on the script.
+	                require([name], contextName);
+	            } else {
+	                //Credit to LABjs author Kyle Simpson for finding that scripts
+	                //with type="script/cache" allow scripts to be downloaded into
+	                //browser cache but not executed. Use that
+	                //so that subsequent addition of a real type="text/javascript"
+	                //tag will cause the scripts to be executed immediately in the
+	                //correct order.
+	                context.orderWaiting.push(name);
+	                context.loaded[name] = false;
+	                require.attach(url, contextName, name, scriptCacheCallback, "script/cache");
+	            }
+           }
         },
 
         /**
@@ -136,7 +139,7 @@
 
         /**
          * Called when all modules have been loaded. Not needed for this plugin.
-         * State is reset as part of scriptCacheCallback. 
+         * State is reset as part of scriptCacheCallback.
          */
         orderDeps: function (context) {
         }
