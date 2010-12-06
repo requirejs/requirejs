@@ -38,7 +38,7 @@ fileUtil.deleteFile("builds");
                 ].join("");
 
     doh.register(
-        "builds", 
+        "builds",
         [
             function onCssFile(t) {
                 build(["..", "cssIn=css/sub/sub1.css", "out=builds/sub1.css"]);
@@ -94,6 +94,7 @@ fileUtil.deleteFile("builds");
                          c("../../tests/two.js") +
                          c("../../tests/one.js")), nol(c("builds/oneText.js")));
             }
+
         ]
     );
     doh.run();
