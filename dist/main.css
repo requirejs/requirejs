@@ -286,13 +286,16 @@ span.sectionMark {
 
 #content ul,
 #content ol {
-    border-left: 1px solid #ff5959;
-    color: #ff5959;
+    /* border-left: 1px solid #333; */
+    color: #333;
     font-size: 14px;
     list-style-position: outside;
     margin: 7px 0 21px 0;
-    padding: 0 0 0 28px;
-    font-family: "Inconsolata", Andale Mono, Monaco, Monospace;
+    /* padding: 0 0 0 28px; */
+}
+
+#content ul {
+    font-style: italic;
 }
 
 #content ol {
@@ -355,6 +358,7 @@ span.sectionMark {
     background-repeat: no-repeat;
     background-position: left -437px;
     padding-left: 18px;
+    font-style: normal;
 }
 
 #content #directory h1 {
@@ -378,6 +382,8 @@ span.sectionMark {
     background-color: transparent;
     border: none;
     -moz-box-shadow: none;
+    font-style: normal;
+    font-family: "Inconsolata", Andale Mono, Monaco, Monospace;
 }
 
 #content ul.index li {
@@ -422,9 +428,11 @@ span.sectionMark {
 */
 
 #content h4 a.download {
-    -moz-border-radius: 5px 5px 5px 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
     background-color: #F2F2F2;
     background-image: url("i/sprite.png"), -moz-linear-gradient(center top , #FAFAFA 0%, #F2F2F2 100%);
+    background-image: url("i/sprite.png"), -webkit-gradient(linear, left top, left bottom, color-stop(0%, #fafafa), color-stop(100%, #f2f2f2));
     background-position: 7px -58px, center center;
     background-repeat: no-repeat, no-repeat;
     border: 1px solid #CCCCCC;
