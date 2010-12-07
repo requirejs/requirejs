@@ -1,186 +1,287 @@
-# Download RequireJS
-
-### Latest Release: 0.15.0
-
-* The bundled jQuery options now use jQuery 1.4.4.
-* The jQuery sample project now includes the ability to use RequireJS plugins.
-* The jsonp! plugin has been removed, since, thanks to work by Kris Zyp, the core loader now supports loading JSONP dependencies by default. The [JSONP docs](http://requirejs.org/docs/api.html#jsonp) have been updated accordingly.
-* The optimizer can now be run from any directory, not just the directory with the build profile.
-* r.js Node adapter is more robust, and it can handle using more Node-written modules by default now. Thanks to Francois Laberge for a great test case application that lead to improving the robustness of r.js.
-* Initial support for PS3 Netfront browser. Thanks to Chris Warren for investigating the load behavior of the browser. Not all tests pass, but the basic ones do.
-* Miscellaneous fixes, some listed in [the issue tracker](https://github.com/jrburke/requirejs/issues/closed#sort=updated).
-
-#### <a name="requirejs">require.js</a> [Minified](http://requirejs.org/docs/release/0.15.0/minified/require.js) | [With Comments](http://requirejs.org/docs/release/0.15.0/comments/require.js)
-
-All you need to start using require.js in the browser. Does not include i18n, text, order plugins or Node/Rhino support.
-
-#### <a name="requirejsplugins">require.js with plugins</a> [Minified](http://requirejs.org/docs/release/0.15.0/minified/allplugins-require.js) | [With Comments](http://requirejs.org/docs/release/0.15.0/comments/allplugins-require.js)
-
-require.js for use in the browser with the i18n, text, and order plugins included. 
-
-#### <a name="jqueryrequirejs">jQuery 1.4.4 with require()</a> [Minified](http://requirejs.org/docs/release/0.15.0/minified/require-jquery-1.4.4.js) | [With Comments](http://requirejs.org/docs/release/0.15.0/comments/require-jquery-1.4.4.js)
-
-A build of jQuery with integrated require() support. **Does not include** the i18n, text, and order plugins.
-
-#### <a name="jqueryrequirejsplugins">jQuery 1.4.4 with require() and plugins</a> [Minified](http://requirejs.org/docs/release/0.15.0/minified/requireplugins-jquery-1.4.4.js) | [With Comments](http://requirejs.org/docs/release/0.15.0/comments/requireplugins-jquery-1.4.4.js)
-
-A build of jQuery with integrated require() support that includes the i18n, text, and order plugins.
-
-<hr>
-
-#### <a name="samplejquery">Sample jQuery 1.4.4 project with require()</a> [Download](http://requirejs.org/docs/release/0.15.0/jquery-require-sample.zip)
-
-A zip file containing a build of jQuery with integrated require() support, with an sample project included to show how it can be used when using jQuery.
-
-<hr>
-
-#### <a name="node">RequireJS adapter for Node</a> 
-
-**[r.js](http://requirejs.org/docs/release/0.15.0/node/r.js)**: use this file if you want to code to the RequireJS module format in Node. The [Node instructions](node.md) explain how to use it. It includes all the code needed for RequireJS to function with Node.
-
-**[index.js](http://requirejs.org/docs/release/0.15.0/node/index.js)**: the standard HTTP server-based Hello World app for Node, but coded to work with the r.js adapter. Download it in the same directory as r.js and then run this command:
-
-    node r.js index.js
-
-Then you can go to http://127.0.0.1:8000/ and see "Hello World" printed after about 2 seconds.
-
-<hr>
-
-#### <a name="optimizationtool">Optimization Tool / Full Source</a> [Download](http://requirejs.org/docs/release/0.15.0/requirejs-0.15.0.zip)
-
-A zip file that is the optimization tool for RequireJS. It also includes the full source for require.js and its plugins.
-
-If you want to use RequireJS in Rhino, you should use this download.
-
-<hr>
-<hr>
-<hr>
-
-### Previous releases
-
-### 0.14.5
-
-* [Fix bug](http://github.com/jrburke/requirejs/commit/88847fe53ab2e97e7ba7ec8f2afc056fb29b0a70) where scripts were not loaded from the correct path. Did not affect RequireJS+jQuery builds, but affected other builds. If you do not use a RequireJS+jQuery build, then it is strongly recommended that you upgrade from 0.14.4 to 0.14.5.
-* Added an urlArgs [config option](http://requirejs.org/docs/api.html#config) to allow for cache busting when servers/browser misbehave during development.
-
-### 0.14.4
-
-* Support jQuery 1.4.3. The bundled RequireJS+jQuery bundle now uses RequireJS 1.4.3, and it is now possible to load jQuery directly from a CDN.
-* Remove the Transport D pre-built option from the download page. The Transport D adapter is still in the source bundler though.
-
-### 0.14.3
-
-* Support for **define()**. It works the same as **require.def()**. It is supported in order to conform with the [Asynchronous Module Proposal](http://wiki.commonjs.org/wiki/Modules/AsynchronousDefinition). require.def will continue to work, but you are encouraged to gradually migrate to define() for better compatibly with other Async Module loaders.
-* text! plugin now works in Node.
-* __dirname and __filename support in the r.js Node adapter.
-* [Bug fix for priority option](http://github.com/jrburke/requirejs/commit/79188c726f90aefa34a16435e929a7bb98098358).
-* GPL license option removed: project is now just MIT and new BSD dual-licensed, since the new BSD license is compatible with the GPL.
-
-### 0.14.2
-
-* Bug fixes:
-    * [Fix issue with "module" dependency](http://github.com/jrburke/requirejs/commit/079e8b1e0abd4b77f0cd898c4bd77f24581942f5) not correctly assigning exported value if it is *not* listed as the last dependency.
-    * [Fix "packages" config option](http://github.com/jrburke/requirejs/commit/e89c6c1523ac59e7303407d506f8e2ce75cdeb31). Its behavior was fixed to match the docs.
-    * [Fix module-to-name resolution](http://github.com/jrburke/requirejs/commit/416f24a6f556c0d96f9fd9d4146a9ecfcd337668) to account for package mappings.
-
-### 0.14.1
-
-* Bug fixes:
-    * [Issue 13](http://github.com/jrburke/requirejs/issues#issue/13): convertCommonJs.sh failed copying non-JS files)
-    * [Issue 14](http://github.com/jrburke/requirejs/issues#issue/14): exports not available when no require calls)
-    * [Fix for deeply cyclic dependencies](http://github.com/jrburke/requirejs/commit/c5500f135bdb006cd963d245d9d30519a7cb3945).
-
-### 0.14.0
-
-* [Anonymous modules support](http://tagneto.blogspot.com/2010/09/anonymous-module-support-in-requirejs.html), [CommonJS Asynchronous Module proposal](http://wiki.commonjs.org/wiki/Modules/AsynchronousDefinition) supported.
-* [Loading modules from CommonJS packages](api.md#packages).
-*  [Bug fixes](http://github.com/jrburke/requirejs/commits/master) (see commits starting from (see commits starting from 2010-09-15 through 2010-09-26))
-
-### 0.13.0
-
-* module.setExports and module.exports are now supported for converted CommonJS modules.
-* [Bug fixes](http://github.com/jrburke/requirejs/commits/master) (see commits starting from 2010-07-05 through 2010-09-10), in particular [a fix to throw when a timeout for a script occurs](http://github.com/jrburke/requirejs/commit/d12935bac803bcd5981652584102282b69fdd7b1). That fix should make debugging issues much easier.
-
-### 0.12.0
-
-* A new plugin: [order](api.md#order) -- it ensures that scripts are fetched asynchronously and in parallel, but executed in the order specified in the call to require(). Ideal for traditional browser scripts that do not participate in modules defined via calls to require.def().
-* [Web Worker support](api.md#webworker). RequireJS can be used in a web worker.
-* Multiple module names can now be mapped via the **paths** config option to the same URL, and that URL will only be fetched once.
-* Added Firefox 2 to supported browsers. Safari 3.2 also works with require().
-* [Bug fixes](http://github.com/jrburke/requirejs/commits/master) (see commits starting from 2010-05-25 through 2010-07-04), in particular [a fix for the priority config](http://github.com/jrburke/requirejs/commit/c3ae5e96f0aadd549f30a4019fe021c057e76f50), and [improved support in IE with a bad base tag](http://github.com/jrburke/requirejs/commit/98d418fe4e4503575cca18b73260c0ab74f365fc).
-
-### 0.11.0
-
-* There is a new [priority config option](faq-optimization.md#priority) to indicate priority, parallel download of build layers.
-* A new [JSONP plugin](api.md#jsonp) allows you to treat any JSONP service as dependency.
-* require.js should be Caja-compliant. The plugins may not be, but the main require.js file passed cajoling on [http://caja.appspot.com/](http://caja.appspot.com/).
-* Instructions and optimization support for [renaming require()](faq-advanced.md#rename).
-* There is a [new RequireJS+Transport D download option](#requirejstransportD) that supports the [CommonJS Transport D](http://wiki.commonjs.org/wiki/Modules/Transport/D) proposal. This can be useful in conjunction with the server-side [Transporter project](http://github.com/kriszyp/transporter).
-
-### 0.10.0
-
-* [RequireJS works in Node](node.md).
-* [Optimization tool enhancements](optimization.md):
-    * For a given module, you can now use **exclude** to exclude some modules and their nested dependencies.
-    * Use **excludeShallow** to just exclude a specific module, but still include its nested dependencies. This is particularly useful during development. You can do an optimized build, but just excludeShallow the current module you are developing/debugging to get fast dev load times, but still allow easy debugging and development.
-
-### 0.9.0
-
-* **Optimization tool refactored and improved**
-    * Basic CSS optimizations are in! @import urls are inlined (with url() paths properly adjusted), and comments are removed.
-    * Robust nested dependency tracing by use of an AST. As a result, the build option execModules is false by default now. This is what most people need, so it is no long necessary to include execModules: false in your build profile.
-    * Now possible to build just one JS file or one CSS file at a time, no need for a build profile! See the [Optimization docs](optimization.md) for full details.
-    * **Backwards incompatible change**: the format of build profiles has changed. It no longer uses require() calls but it is a completely declarative format. This should be more robust for the future, and it allowed for a cleaner refactoring of the optimization tool.
-* **Support for relative module names in require.def dependencies**
-    * require.def("my/project/module", ["./dependency1"], function(){}); will now load my/project/dependency1.js. This should help cut down the amount of typing for larger projects.
-    * The first argument to require.def, which gives the name of the module being defined, still needs to be a full name. It cannot be a relative name (cannot start with a . or ..).
-    * require.nameToUrl() does not accept relative names.
-* **Backwards incompatible change**: text! plugin URLs now use . instead of ! for the file extension. So, instead of "text!some/module/sample!html" it is now "text!some/module/sample.html". Please update your code, the old !html will no longer work.
-* Bug fixes
-
-This release has a couple backwards incompatible changes. These kinds of changes will be generally avoided, and more notice via the RequireJS mailing list will be given if it needs to happen again. RequireJS has not reached 1.0, so these kinds of changes may still happen. However, there should be less of a need for a backwards incompatiable change now, and as of today, none are forecasted.
-
-### 0.8.0
-
-* Renamed from RunJS to RequireJS
-* Adds better support for existing JS files
-
-The previous releases were just different stages in the source tree. Here are the release notes for those versions.
-
-#### 0.0.7
-
-* Separate module definitions via a require.def() function.
-* Reworked module loading code based on Rawld Gill's algorithm.
-* Changed i18n bundles to just list locales with true, based on a suggestion
-  from Adam Peller.
-* Integrating feedback from Bryan Forbes/David Mark.
-
-#### 0.0.6
-
-* Removed the Function specifier. That was for circular dependencies, but due to concerns about identity, decided to not support that use case. Now, a module function can return any value it wants to define itself, can be Function, Object, String, Number, Boolean, whatever. And now, for circular dependency, the circular dependency will be null. I decided not to throw in that case because I wan require to be able to load existing code that does not call back to require to define a module. To support circular dependencies, the module function can use require() to fetch that circular dependency later, outside the circular dependency loop.
-
-#### 0.0.5
-
-* Introduce plugin concept for require.js. i18n code moved to a plugin.
-
-#### 0.0.4
-
-* pause/resume for build layers
-
-#### 0.0.3
-
-* Module modifiers
-* Better function module support
-* Allow require() calls that just have a config object.
-
-#### 0.0.2
-
-* Allow modules to be defined with a plain object instead of a callback.
-* i18n bundle support.
-
-#### 0.0.1
-
-* Basic module loading
-* Support non-requirejs module loading, if file ends in .js
-* Supports loading modules with different versions by using context names in
-  top-level require() calls.
+<div id="directory" class="section">
+<h1>Download RequireJS</h1>
+<ul class="index mono">
+    <li class="hbox"><a href="#latest">Latest Release</a><span class="spacer boxFlex"></span><span>&sect; 1</span></li>
+    <ul>
+        <li class="hbox"><a href="#requirejs">require.js</a><span class="spacer boxFlex"></span><span>&sect; 1.1</span></li>
+        <li class="hbox"><a href="#requirejsplugins">require.js with plugins</a><span class="spacer boxFlex"></span><span>&sect; 1.2</span></li>
+        <li class="hbox"><a href="#jqueryrequirejs">jQuery 1.4.4 with require()</a><span class="spacer boxFlex"></span><span>&sect; 1.3</span></li>
+        <li class="hbox"><a href="#jqueryrequirejsplugins">jQuery 1.4.4 with require() and plugins</a><span class="spacer boxFlex"></span><span>&sect; 1.4</span></li>
+        <li class="hbox"><a href="#samplejquery">Sample jQuery 1.4.4 project with require()</a><span class="spacer boxFlex"></span><span>&sect; 1.5</span></li>
+            <li class="hbox"><a href="#node">RequireJS adapter for Node</a><span class="spacer boxFlex"></span><span>&sect; 1.6</span></li>
+    </ul>
+    <li class="hbox"><a href="#previous">Previous Releases</a><span class="spacer boxFlex"></span><span>&sect; 2</span></li>
+</ul>
+
+</div>
+
+<div class="section">
+<h2><a name="latest">Latest Release: 0.15.0</a><span class="sectionMark">&sect; 1</span></h2>
+
+<ul>
+<li>The bundled jQuery options now use jQuery 1.4.4.</li>
+<li>The jQuery sample project now includes the ability to use RequireJS plugins.</li>
+<li>The jsonp! plugin has been removed, since, thanks to work by Kris Zyp, the core loader now supports loading JSONP dependencies by default. The <a href="http://requirejs.org/docs/api.html#jsonp">JSONP docs</a> have been updated accordingly.</li>
+<li>The optimizer can now be run from any directory, not just the directory with the build profile.</li>
+<li>r.js Node adapter is more robust, and it can handle using more Node-written modules by default now. Thanks to Francois Laberge for a great test case application that lead to improving the robustness of r.js.</li>
+<li>Initial support for PS3 Netfront browser. Thanks to Chris Warren for investigating the load behavior of the browser. Not all tests pass, but the basic ones do.</li>
+<li>Miscellaneous fixes, some listed in <a href="https://github.com/jrburke/requirejs/issues/closed#sort=updated">the issue tracker</a>.</li>
+</ul>
+
+<div class="subSection">
+<h4 class="hbox">
+<a name="requirejs">require.js</a>
+<span class="boxFlex"></span>
+<a class="download" href="http://requirejs.org/docs/release/0.15.0/minified/require.js">Minified</a>
+<a class="download" href="http://requirejs.org/docs/release/0.15.0/comments/require.js">With Comments</a>
+</h4>
+
+<p>All you need to start using require.js in the browser. Does not include i18n, text, order plugins or Node/Rhino support.</p>
+</div>
+
+<div class="subSection">
+<h4 class="hbox">
+<a name="requirejsplugins">require.js with plugins</a> 
+<span class="boxFlex"></span>
+<a class="download" href="http://requirejs.org/docs/release/0.15.0/minified/allplugins-require.js">Minified</a>
+<a class="download" href="http://requirejs.org/docs/release/0.15.0/comments/allplugins-require.js">With Comments</a>
+</h4>
+
+<p>require.js for use in the browser with the i18n, text, and order plugins included. </p>
+</div>
+
+<div class="subSection">
+<h4 class="hbox">
+<a name="jqueryrequirejs">jQuery 1.4.4 with require()</a> 
+<span class="boxFlex"></span>
+<a class="download" href="http://requirejs.org/docs/release/0.15.0/minified/require-jquery-1.4.4.js">Minified</a>
+<a class="download" href="http://requirejs.org/docs/release/0.15.0/comments/require-jquery-1.4.4.js">With Comments</a>
+</h4>
+
+<p>A build of jQuery with integrated require() support. <strong>Does not include</strong> the i18n, text, and order plugins.</p>
+</div>
+
+<div class="subSection">
+<h4 class="hbox">
+<a name="jqueryrequirejsplugins">jQuery 1.4.4 with require() and plugins</a>
+<span class="boxFlex"></span> 
+<a class="download" href="http://requirejs.org/docs/release/0.15.0/minified/requireplugins-jquery-1.4.4.js">Minified</a>
+<a class="download" href="http://requirejs.org/docs/release/0.15.0/comments/requireplugins-jquery-1.4.4.js">With Comments</a>
+</h4>
+
+<p>A build of jQuery with integrated require() support that includes the i18n, text, and order plugins.</p>
+</div>
+
+<div class="subSection">
+<h4 class="hbox">
+<a name="samplejquery">Sample jQuery 1.4.4 project with require()</a> 
+<span class="boxFlex"></span> 
+<a class="download" href="http://requirejs.org/docs/release/0.15.0/jquery-require-sample.zip">Download</a>
+</h4>
+
+<p>A zip file containing a build of jQuery with integrated require() support, with an sample project included to show how it can be used when using jQuery.</p>
+</div>
+
+<div class="subSection">
+<h4><a name="node">RequireJS adapter for Node</a></h4>
+
+<p><strong><a href="http://requirejs.org/docs/release/0.15.0/node/r.js">r.js</a></strong>: use this file if you want to code to the RequireJS module format in Node. The <a href="node.html">Node instructions</a> explain how to use it. It includes all the code needed for RequireJS to function with Node.</p>
+
+<p><strong><a href="http://requirejs.org/docs/release/0.15.0/node/index.js">index.js</a></strong>: the standard HTTP server-based Hello World app for Node, but coded to work with the r.js adapter. Download it in the same directory as r.js and then run this command:</p>
+
+<pre><code>node r.js index.js
+</code></pre>
+
+<p>Then you can go to http://127.0.0.1:8000/ and see "Hello World" printed after about 2 seconds.</p>
+</div>
+
+<div class="subSection">
+<h4 class="hbox">
+<a name="optimizationtool">Optimization Tool / Full Source</a> 
+<span class="boxFlex"></span> 
+<a class="download" href="http://requirejs.org/docs/release/0.15.0/requirejs-0.15.0.zip">Download</a></h4>
+
+<p>A zip file that is the optimization tool for RequireJS. It also includes the full source for require.js and its plugins.</p>
+
+<p>If you want to use RequireJS in Rhino, you should use this download.</p>
+</div>
+
+</div>
+<div class="section">
+<h2><a name="previous">Previous releases</a><span class="sectionMark">&sect; 2</span></h2>
+
+<h3>0.14.5</h3>
+
+<ul>
+<li><a href="http://github.com/jrburke/requirejs/commit/88847fe53ab2e97e7ba7ec8f2afc056fb29b0a70">Fix bug</a> where scripts were not loaded from the correct path. Did not affect RequireJS+jQuery builds, but affected other builds. If you do not use a RequireJS+jQuery build, then it is strongly recommended that you upgrade from 0.14.4 to 0.14.5.</li>
+<li>Added an urlArgs <a href="http://requirejs.org/docs/api.html#config">config option</a> to allow for cache busting when servers/browser misbehave during development.</li>
+</ul>
+
+<h3>0.14.4</h3>
+
+<ul>
+<li>Support jQuery 1.4.3. The bundled RequireJS+jQuery bundle now uses RequireJS 1.4.3, and it is now possible to load jQuery directly from a CDN.</li>
+<li>Remove the Transport D pre-built option from the download page. The Transport D adapter is still in the source bundler though.</li>
+</ul>
+
+<h3>0.14.3</h3>
+
+<ul>
+<li>Support for <strong>define()</strong>. It works the same as <strong>require.def()</strong>. It is supported in order to conform with the <a href="http://wiki.commonjs.org/wiki/Modules/AsynchronousDefinition">Asynchronous Module Proposal</a>. require.def will continue to work, but you are encouraged to gradually migrate to define() for better compatibly with other Async Module loaders.</li>
+<li>text! plugin now works in Node.</li>
+<li><em>_dirname and _</em>filename support in the r.js Node adapter.</li>
+<li><a href="http://github.com/jrburke/requirejs/commit/79188c726f90aefa34a16435e929a7bb98098358">Bug fix for priority option</a>.</li>
+<li>GPL license option removed: project is now just MIT and new BSD dual-licensed, since the new BSD license is compatible with the GPL.</li>
+</ul>
+
+<h3>0.14.2</h3>
+
+<ul>
+<li>Bug fixes:
+<ul>
+<li><a href="http://github.com/jrburke/requirejs/commit/079e8b1e0abd4b77f0cd898c4bd77f24581942f5">Fix issue with "module" dependency</a> not correctly assigning exported value if it is <em>not</em> listed as the last dependency.</li>
+<li><a href="http://github.com/jrburke/requirejs/commit/e89c6c1523ac59e7303407d506f8e2ce75cdeb31">Fix "packages" config option</a>. Its behavior was fixed to match the docs.</li>
+<li><a href="http://github.com/jrburke/requirejs/commit/416f24a6f556c0d96f9fd9d4146a9ecfcd337668">Fix module-to-name resolution</a> to account for package mappings.</li>
+</ul></li>
+</ul>
+
+<h3>0.14.1</h3>
+
+<ul>
+<li>Bug fixes:
+<ul>
+<li><a href="http://github.com/jrburke/requirejs/issues#issue/13">Issue 13</a>: convertCommonJs.sh failed copying non-JS files)</li>
+<li><a href="http://github.com/jrburke/requirejs/issues#issue/14">Issue 14</a>: exports not available when no require calls)</li>
+<li><a href="http://github.com/jrburke/requirejs/commit/c5500f135bdb006cd963d245d9d30519a7cb3945">Fix for deeply cyclic dependencies</a>.</li>
+</ul></li>
+</ul>
+
+<h3>0.14.0</h3>
+
+<ul>
+<li><a href="http://tagneto.blogspot.com/2010/09/anonymous-module-support-in-requirejs.html">Anonymous modules support</a>, <a href="http://wiki.commonjs.org/wiki/Modules/AsynchronousDefinition">CommonJS Asynchronous Module proposal</a> supported.</li>
+<li><a href="api.html#packages">Loading modules from CommonJS packages</a>.</li>
+<li><a href="http://github.com/jrburke/requirejs/commits/master">Bug fixes</a> (see commits starting from (see commits starting from 2010-09-15 through 2010-09-26))</li>
+</ul>
+
+<h3>0.13.0</h3>
+
+<ul>
+<li>module.setExports and module.exports are now supported for converted CommonJS modules.</li>
+<li><a href="http://github.com/jrburke/requirejs/commits/master">Bug fixes</a> (see commits starting from 2010-07-05 through 2010-09-10), in particular <a href="http://github.com/jrburke/requirejs/commit/d12935bac803bcd5981652584102282b69fdd7b1">a fix to throw when a timeout for a script occurs</a>. That fix should make debugging issues much easier.</li>
+</ul>
+
+<h3>0.12.0</h3>
+
+<ul>
+<li>A new plugin: <a href="api.html#order">order</a> -- it ensures that scripts are fetched asynchronously and in parallel, but executed in the order specified in the call to require(). Ideal for traditional browser scripts that do not participate in modules defined via calls to require.def().</li>
+<li><a href="api.html#webworker">Web Worker support</a>. RequireJS can be used in a web worker.</li>
+<li>Multiple module names can now be mapped via the <strong>paths</strong> config option to the same URL, and that URL will only be fetched once.</li>
+<li>Added Firefox 2 to supported browsers. Safari 3.2 also works with require().</li>
+<li><a href="http://github.com/jrburke/requirejs/commits/master">Bug fixes</a> (see commits starting from 2010-05-25 through 2010-07-04), in particular <a href="http://github.com/jrburke/requirejs/commit/c3ae5e96f0aadd549f30a4019fe021c057e76f50">a fix for the priority config</a>, and <a href="http://github.com/jrburke/requirejs/commit/98d418fe4e4503575cca18b73260c0ab74f365fc">improved support in IE with a bad base tag</a>.</li>
+</ul>
+
+<h3>0.11.0</h3>
+
+<ul>
+<li>There is a new <a href="faq-optimization.html#priority">priority config option</a> to indicate priority, parallel download of build layers.</li>
+<li>A new <a href="api.html#jsonp">JSONP plugin</a> allows you to treat any JSONP service as dependency.</li>
+<li>require.js should be Caja-compliant. The plugins may not be, but the main require.js file passed cajoling on <a href="http://caja.appspot.com/">http://caja.appspot.com/</a>.</li>
+<li>Instructions and optimization support for <a href="faq-advanced.html#rename">renaming require()</a>.</li>
+<li>There is a <a href="#requirejstransportD">new RequireJS+Transport D download option</a> that supports the <a href="http://wiki.commonjs.org/wiki/Modules/Transport/D">CommonJS Transport D</a> proposal. This can be useful in conjunction with the server-side <a href="http://github.com/kriszyp/transporter">Transporter project</a>.</li>
+</ul>
+
+<h3>0.10.0</h3>
+
+<ul>
+<li><a href="node.html">RequireJS works in Node</a>.</li>
+<li><a href="optimization.html">Optimization tool enhancements</a>:
+<ul>
+<li>For a given module, you can now use <strong>exclude</strong> to exclude some modules and their nested dependencies.</li>
+<li>Use <strong>excludeShallow</strong> to just exclude a specific module, but still include its nested dependencies. This is particularly useful during development. You can do an optimized build, but just excludeShallow the current module you are developing/debugging to get fast dev load times, but still allow easy debugging and development.</li>
+</ul></li>
+</ul>
+
+<h3>0.9.0</h3>
+
+<ul>
+<li><strong>Optimization tool refactored and improved</strong>
+<ul>
+<li>Basic CSS optimizations are in! @import urls are inlined (with url() paths properly adjusted), and comments are removed.</li>
+<li>Robust nested dependency tracing by use of an AST. As a result, the build option execModules is false by default now. This is what most people need, so it is no long necessary to include execModules: false in your build profile.</li>
+<li>Now possible to build just one JS file or one CSS file at a time, no need for a build profile! See the <a href="optimization.html">Optimization docs</a> for full details.</li>
+<li><strong>Backwards incompatible change</strong>: the format of build profiles has changed. It no longer uses require() calls but it is a completely declarative format. This should be more robust for the future, and it allowed for a cleaner refactoring of the optimization tool.</li>
+</ul></li>
+<li><strong>Support for relative module names in require.def dependencies</strong>
+<ul>
+<li>require.def("my/project/module", ["./dependency1"], function(){}); will now load my/project/dependency1.js. This should help cut down the amount of typing for larger projects.</li>
+<li>The first argument to require.def, which gives the name of the module being defined, still needs to be a full name. It cannot be a relative name (cannot start with a . or ..).</li>
+<li>require.nameToUrl() does not accept relative names.</li>
+</ul></li>
+<li><strong>Backwards incompatible change</strong>: text! plugin URLs now use . instead of ! for the file extension. So, instead of "text!some/module/sample!html" it is now "text!some/module/sample.html". Please update your code, the old !html will no longer work.</li>
+<li>Bug fixes</li>
+</ul>
+
+<p>This release has a couple backwards incompatible changes. These kinds of changes will be generally avoided, and more notice via the RequireJS mailing list will be given if it needs to happen again. RequireJS has not reached 1.0, so these kinds of changes may still happen. However, there should be less of a need for a backwards incompatiable change now, and as of today, none are forecasted.</p>
+
+<h3>0.8.0</h3>
+
+<ul>
+<li>Renamed from RunJS to RequireJS</li>
+<li>Adds better support for existing JS files</li>
+</ul>
+
+<p>The previous releases were just different stages in the source tree. Here are the release notes for those versions.</p>
+
+<h4>0.0.7</h4>
+
+<ul>
+<li>Separate module definitions via a require.def() function.</li>
+<li>Reworked module loading code based on Rawld Gill's algorithm.</li>
+<li>Changed i18n bundles to just list locales with true, based on a suggestion
+from Adam Peller.</li>
+<li>Integrating feedback from Bryan Forbes/David Mark.</li>
+</ul>
+
+<h4>0.0.6</h4>
+
+<ul>
+<li>Removed the Function specifier. That was for circular dependencies, but due to concerns about identity, decided to not support that use case. Now, a module function can return any value it wants to define itself, can be Function, Object, String, Number, Boolean, whatever. And now, for circular dependency, the circular dependency will be null. I decided not to throw in that case because I wan require to be able to load existing code that does not call back to require to define a module. To support circular dependencies, the module function can use require() to fetch that circular dependency later, outside the circular dependency loop.</li>
+</ul>
+
+<h4>0.0.5</h4>
+
+<ul>
+<li>Introduce plugin concept for require.js. i18n code moved to a plugin.</li>
+</ul>
+
+<h4>0.0.4</h4>
+
+<ul>
+<li>pause/resume for build layers</li>
+</ul>
+
+<h4>0.0.3</h4>
+
+<ul>
+<li>Module modifiers</li>
+<li>Better function module support</li>
+<li>Allow require() calls that just have a config object.</li>
+</ul>
+
+<h4>0.0.2</h4>
+
+<ul>
+<li>Allow modules to be defined with a plain object instead of a callback.</li>
+<li>i18n bundle support.</li>
+</ul>
+
+<h4>0.0.1</h4>
+
+<ul>
+<li>Basic module loading</li>
+<li>Support non-requirejs module loading, if file ends in .js</li>
+<li>Supports loading modules with different versions by using context names in
+top-level require() calls.</li>
+</ul>
+</div>

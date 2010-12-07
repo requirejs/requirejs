@@ -2,14 +2,14 @@
 <h1>RequireJS Optimization Tool</h1>
 
 <ul class="index mono">
-<li class="hbox"><a href="#requirements">Requirements</a><span class="spacer boxFlex"></span><span>&sect;1</span></li>
-<li class="hbox"><a href="#download">Download</a><span class="spacer boxFlex"></span><span>&sect;2</span></li>
-<li class="hbox"><a href="#setup">Example Setup</a><span class="spacer boxFlex"></span><span>&sect;3</span></li>
-<li class="hbox"><a href="#onejs">Optimizing one JavaScript file</a><span class="spacer boxFlex"></span><span>&sect;4</span></li>
-<li class="hbox"><a href="#shallow">Shallow exclusions for fast development</a><span class="spacer boxFlex"></span><span>&sect;5</span></li>
-<li class="hbox"><a href="#onecss">Optimizing one CSS file</a><span class="spacer boxFlex"></span><span>&sect;6</span></li>
-<li class="hbox"><a href="#wholeproject">Optimizing a whole project</a><span class="spacer boxFlex"></span><span>&sect;7</span></li>
-<li class="hbox"><a href="#options">All configuration options</a><span class="spacer boxFlex"></span><span>&sect;8</span></li>
+<li class="hbox"><a href="#requirements">Requirements</a><span class="spacer boxFlex"></span><span>&sect; 1</span></li>
+<li class="hbox"><a href="#download">Download</a><span class="spacer boxFlex"></span><span>&sect; 2</span></li>
+<li class="hbox"><a href="#setup">Example Setup</a><span class="spacer boxFlex"></span><span>&sect; 3</span></li>
+<li class="hbox"><a href="#onejs">Optimizing one JavaScript file</a><span class="spacer boxFlex"></span><span>&sect; 4</span></li>
+<li class="hbox"><a href="#shallow">Shallow exclusions for fast development</a><span class="spacer boxFlex"></span><span>&sect; 5</span></li>
+<li class="hbox"><a href="#onecss">Optimizing one CSS file</a><span class="spacer boxFlex"></span><span>&sect; 6</span></li>
+<li class="hbox"><a href="#wholeproject">Optimizing a whole project</a><span class="spacer boxFlex"></span><span>&sect; 7</span></li>
+<li class="hbox"><a href="#options">All configuration options</a><span class="spacer boxFlex"></span><span>&sect; 8</span></li>
 </ul>
 
 <span class="note">Note: RequireJS comes with an optimization tool that does the following</span>
@@ -26,20 +26,20 @@
 <div class="section">
 <h2>
 <a name="requirements">Requirements</a>
-<span class="sectionMark">&sect;1</span> 
+<span class="sectionMark">&sect; 1</span> 
 </h2>
 
 <p>The optimization tool uses <a href="http://code.google.com/closure/compiler/">Google Closure Compiler</a> to do the code minification, and therefore requires <a href="http://java.com/">Java 6</a> to run.</p>
 </div>
 
 <div class="section">
-<h2><a name="download">Download</a><span class="sectionMark">&sect;2</span></h2>
+<h2><a name="download">Download</a><span class="sectionMark">&sect; 2</span></h2>
 
 <p>You can download the tool on <a href="download.html#optimizationtool">the download page</a>.</p>
 </div>
 
 <div class="section">
-<h2><a name="setup">Example Setup</a><span class="sectionMark">&sect;3</span></h2>
+<h2><a name="setup">Example Setup</a><span class="sectionMark">&sect; 3</span></h2>
 
 <p>The examples in this page will assume you downloaded and unzipped the optimization tool in a directory that is a sibling to your project directory. The optimization tool can live anywhere you want, but you will likely need to adjust the paths accordingly in these examples.</p>
 
@@ -108,7 +108,7 @@
 <div class="section">
 <h2>
 <a name="onejs">Optimizing one JavaScript file</a>
-<span class="sectionMark">&sect;4</span> 
+<span class="sectionMark">&sect; 4</span> 
 </h2>
 
 <p>Use the above example setup, if you just wanted to optimize main.js, you could use this command, from inside the <strong>appdirectory/scripts</strong> directory:</p>
@@ -129,7 +129,7 @@
 </div>
 
 <div class="section">
-<h2><a name="shallow">Shallow exclusions for fast development</a><span class="sectionMark">&sect;5</span> </h2>
+<h2><a name="shallow">Shallow exclusions for fast development</a><span class="sectionMark">&sect; 5</span> </h2>
 
 <p>You can use the <a href="#onejs">one JavaScript file optimization</a> approach to make your development experience faster. By optimizing all the modules in your project into one file, except the one you are currently developing, you can reload your project quickly in the browser, but still give you the option of fine grained debugging in a module.</p>
 
@@ -168,7 +168,7 @@
 </div>
 
 <div class="section">
-<h2><a name="onecss">Optimizing one CSS file</a><span class="sectionMark">&sect;6</span></h2>
+<h2><a name="onecss">Optimizing one CSS file</a><span class="sectionMark">&sect; 6</span></h2>
 
 <p>Use the above example setup, if you just wanted to optimize main.css, you could use this command, from inside the <strong>appdirectory/css</strong> directory:</p>
 
@@ -183,7 +183,7 @@
 </div>
 
 <div class="section">
-<h2><a name="wholeproject">Optimizing a whole project</a><span class="sectionMark">&sect;7</span></h2>
+<h2><a name="wholeproject">Optimizing a whole project</a><span class="sectionMark">&sect; 7</span></h2>
 
 <p>The optimization tool can take care of optimizing all the CSS and JS files in your project by using a build profile.</p>
 
@@ -223,7 +223,7 @@
 </div>
 
 <div class="section">
-<h2><a name="options">All configuration options</a><span class="sectionMark">&sect;8</span></h2>
+<h2><a name="options">All configuration options</a><span class="sectionMark">&sect; 8</span></h2>
 
 <p>There is an <a href="http://github.com/jrburke/requirejs/blob/master/build/example.build.js">example.build.js</a> file in the requirejs/build directory that details all of the allowed optimization tool configuration options.</p>
 </div>

@@ -1,41 +1,56 @@
-# Contributing to RequireJS
+<div id="directory" class="section">
+<h1>Contributing to RequireJS</h1>
 
-[The source for RequireJS is available on GitHub](http://github.com/jrburke/requirejs).
+<ul class="index mono">
+<li class="hbox"><a href="#whycla">Why a CLA?</a><span class="spacer boxFlex"></span><span>&sect; 1</span></li>
+<li class="hbox"><a href="#codestyle">Code style</a><span class="spacer boxFlex"></span><span>&sect; 2</span></li>
+</ul>
 
-To contribute to the project:
+<span class="note">Note: <a href="http://github.com/jrburke/requirejs">The source for RequireJS is available on GitHub</a></span>
 
-For something that is bigger than a one or two line fix:
+<p>For something that is bigger than a one or two line fix:</p>
 
-* [Create your own fork of the code](http://help.github.com/forking/)
-* Do the changes in your fork
-* If you like the change and think the project could use it:
-    * Be sure you have followed [the code style for the project](#codestyle).
-    * Sign a [Contributor License Agreement, CLA, with the Dojo Foundation](http://www.dojofoundation.org/about/cla/) and send it to them.
-    * Send a pull request indicating that you have a CLA on file.
+<ol style="color:#222;">
+<li><a href="http://help.github.com/forking/">Create your own fork of the code</a></li>
+<li>Do the changes in your fork</li>
+<li>If you like the change and think the project could use it:
+<ol style="color:#222;list-style-type:disc;">
+<li>Be sure you have followed <a href="#codestyle">the code style for the project</a>.</li>
+<li>Sign a <a href="http://www.dojofoundation.org/about/cla/">Contributor License Agreement, CLA, with the Dojo Foundation</a> and send it to them.</li>
+<li>Send a pull request indicating that you have a CLA on file.</li>
+</ol></li>
+</ol>
 
-For one or two line fixes, you can use the [RequireJS GitHub Issues page](http://github.com/jrburke/requirejs/issues) to indicate the problem. You can also do the full fork/pull request as mentioned above, but a CLA is not needed for one or two line fixes.
+<p>For one or two line fixes, you can use the <a href="http://github.com/jrburke/requirejs/issues">RequireJS GitHub Issues page</a> to indicate the problem. You can also do the full fork/pull request as mentioned above, but a CLA is not needed for one or two line fixes.</p>
 
-For discussions on code changes/additions/requests use the [RequireJS Group](http://groups.google.com/group/requirejs).
+<p>For discussions on code changes/additions/requests use the <a href="http://groups.google.com/group/requirejs">RequireJS Group</a>.</p>
+</div>
 
-## <a name="#whycla">Why a CLA?</a>
+<div class="section">
+<h2><a name="#whycla">Why a CLA?</a><span class="sectionMark">&sect; 1</span></h2>
 
-CLAs are common with open source projects, with the Apache projects probably being the most well known. The goal is to allow RequireJS to be used in as many projects as possible, and for some companies, using only CLA-approved code is the best option.
+<p>CLAs are common with open source projects, with the Apache projects probably being the most well known. The goal is to allow RequireJS to be used in as many projects as possible, and for some companies, using only CLA-approved code is the best option.</p>
 
-You still own the copyright on your contribution, the CLA just gives the most flexibility for licensing, and assures the lineage of the intellectual property. You should only submit patches for your own intellectual property, and not the intellectual property of others.
+<p>You still own the copyright on your contribution, the CLA just gives the most flexibility for licensing, and assures the lineage of the intellectual property. You should only submit patches for your own intellectual property, and not the intellectual property of others.</p>
 
-Additional reading that may be helpful:
+<p>Additional reading that may be helpful:</p>
 
-* [Wikipedia on CLAs](http://en.wikipedia.org/wiki/Contributor_License_Agreement)
+<ul>
+<li><a href="http://en.wikipedia.org/wiki/Contributor_License_Agreement">Wikipedia on CLAs</a></li>
+</ul>
+</div>
 
-## <a name="codestyle">Code Style</a>
+<div class="section">
+<h2><a name="codestyle">Code Style</a><span class="sectionMark">&sect; 2</span></h2>
 
-[JSLint](http://jslint.com/) is used for checking code style. It is also useful for avoiding some errors. The default settings on JSLint should be fine to use, in particular, 4 spaces for indentation, do not use tabs.
+<p><a href="http://jslint.com/">JSLint</a> is used for checking code style. It is also useful for avoiding some errors. The default settings on JSLint should be fine to use, in particular, 4 spaces for indentation, do not use tabs.</p>
 
-camelCase should be used for all variables and file names. Avoid the use of underscores as word separators. This extends to things like CSS class names, IDs in test HTML documents, everything.
+<p>camelCase should be used for all variables and file names. Avoid the use of underscores as word separators. This extends to things like CSS class names, IDs in test HTML documents, everything.</p>
 
-Some exceptions to JSLint can be indicated at the top of each JS file, but they should be avoided when possible. Two common exceptions you may see in the source:
+<p>Some exceptions to JSLint can be indicated at the top of each JS file, but they should be avoided when possible. Two common exceptions you may see in the source:</p>
 
-* **nomen: false**, allow underscore at the beginning of some property/variable/function names.
-* **plusplus: false**, but only to allow for loops with an incrementing ++ value. Other uses of ++ should be avoided.
-
-It is possible a patch or pull request will be rejected if it does not follow the code style.
+<ul>
+<li><strong>nomen: false</strong>, allow underscore at the beginning of some property/variable/function names.</li>
+<li><strong>plusplus: false</strong>, but only to allow for loops with an incrementing ++ value. Other uses of ++ should be avoided.</li>
+</ul>
+</div>

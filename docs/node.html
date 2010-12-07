@@ -3,13 +3,13 @@
 
     <ul class="index mono">
         <li class="hbox">
-            <a href="#1">Doesn't Node already have a module loader?</a><span class="spacer boxFlex"></span><span>&sect;1</span>
+            <a href="#1">Doesn't Node already have a module loader?</a><span class="spacer boxFlex"></span><span>&sect; 1</span>
         </li>
         <li class="hbox">
-            <a href="#2">Can I use server modules written in the CommonJS module format?</a><span class="spacer boxFlex"></span><span>&sect;2</span>
+            <a href="#2">Can I use server modules written in the CommonJS module format?</a><span class="spacer boxFlex"></span><span>&sect; 2</span>
         </li>
         <li class="hbox">
-            <a href="#3">How do I use it?</a><span class="spacer boxFlex"></span><span>&sect;3</span>
+            <a href="#3">How do I use it?</a><span class="spacer boxFlex"></span><span>&sect; 3</span>
         </li>
     </ul>
 
@@ -19,7 +19,7 @@
 <div class="section">
 <h2>
 <a name="1">Doesn't Node already have a module loader?</a>
-<span class="sectionMark">&sect;1</span>
+<span class="sectionMark">&sect; 1</span>
 </h2>
 
 <p>Yes it does. That loader uses the CommonJS module format. The CommonJS module format is <a href="why.html">non-optimal for the browser</a>, and I do not prefer <a href="http://tagneto.blogspot.com/2010/03/commonjs-module-trade-offs.html">some of the trade-offs made in the CommonJS module format</a>. By using RequireJS on the server, you can use one format for all your modules, whether they are running server side or in the browser. That way you can preserve the speed benefits and easy debugging you get with RequireJS in the browser, and not have to worry about extra translation costs for moving between two formats.</p>
@@ -28,7 +28,7 @@
 <div class="section">
 <h2>
 <a name="2">Can I use server modules already written in the CommonJS module format?</a>
-<span class="sectionMark">&sect;2</span></h2>
+<span class="sectionMark">&sect; 2</span></h2>
 
 <p>Yes! The Node adapter for RequireJS, called r.js, automatically converts CommonJS modules to the RequireJS format on the fly, as they are loaded, so you can use your existing modules without having to hand-modify them.</p>
 
@@ -57,7 +57,7 @@
 <div class="section">
 <h2>
 <a name="3">How do I use it?</a>
-<span class="sectionMark">&sect;3</span>
+<span class="sectionMark">&sect; 3</span>
 </h2>
 
 <p>Download r.js from the <a href="download.html#node">the download page</a> and place it on your disk somewhere. Then run this command:</p>

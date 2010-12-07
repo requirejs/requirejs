@@ -78,7 +78,9 @@ a:hover {
 
 #navBg {
     background-color: #f2f2f2;
-    border-right: 1px solid #ddd;
+    background-image: url("i/shadow.png");
+    background-position: right top;
+    background-repeat: repeat-y;
     width: 220px;
     position: fixed;
     top: 0;
@@ -209,9 +211,6 @@ span.icon.fork {
     background-color: #fff;
     font-family: "Georgia", Times New Roman, Times, serif;
     position: relative;
-    -moz-box-shadow: -5px 0 10px -5px rgba(0, 0, 0, 0.15);
-    -webkit-box-shadow: -5px 0 10px -5px rgba(0, 0, 0, 0.15);
-    box-shadow: -5px 0 10px -5px rgba(0, 0, 0, 0.15);
 }
 
 #content p {
@@ -275,9 +274,6 @@ span.sectionMark {
 #content h4 {
     padding-top: 0;
     font-size: 15px;
-}
-
-#content h4 a {
 }
 
 #content h5 {
@@ -397,7 +393,9 @@ span.sectionMark {
 */
 
 #content #intro {
-    margin-top: 21px;
+    width: 576px;
+    margin: 0 auto;
+    padding: 21px 0;
 }
 
 #content #intro p,
@@ -420,12 +418,30 @@ span.sectionMark {
 }
 
 /*
+    download page
+*/
+
+#content h4 a.download {
+    -moz-border-radius: 5px 5px 5px 5px;
+    background-color: #F2F2F2;
+    background-image: url("i/sprite.png"), -moz-linear-gradient(center top , #FAFAFA 0%, #F2F2F2 100%);
+    background-position: 7px -58px, center center;
+    background-repeat: no-repeat, no-repeat;
+    border: 1px solid #CCCCCC;
+    color: #333333;
+    font-size: 12px;
+    margin: 0 0 0 5px;
+    padding: 0 10px 0 25px;
+    text-shadow: 1px 1px 0 #FFFFFF;
+}
+
+/*
     footer
 */
 #footer {
     color: #4d4d4d;
     padding: 65px 20px 20px;
-    margin: 20px auto 0;
+    margin: 20px 0 0 220px;
     text-align: center;
     display: block;
     font-size: 13px;

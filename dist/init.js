@@ -3,7 +3,8 @@ $(document).ready(function($) {
     // set panel min-height to full browser height   
     $(window).bind("load resize", function(){
         var h = $(window).height();
-        $("#wrapper, #grid, #navBg, #content").css({ "min-height" : (h) });
+        $("#wrapper, #grid, #navBg").css({ "min-height" : (h) });
+        $("#content").css({ "min-height" : (h-147) });
     });
     
     // toggle grid
