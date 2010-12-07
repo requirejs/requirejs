@@ -13,7 +13,7 @@ doh.register(
             var good1 = "require(['one', 'two'], function(){});",
                 bad1 = "require([foo, 'me'], function() {});";
 
-            t.is('require(["one","two"],function(){});', parse("good1", good1));
+            t.is('require(["one","two"]);', parse("good1", good1));
             t.is(null, parse("bad1", bad1));
         },
 
@@ -28,10 +28,10 @@ doh.register(
                 goodAnon2 = "require.def(function () { if (true) { callback(function () { require(\"bar\"); })}});",
                 emptyAnon1 = "require.def(function() { exports.name = 'empty'; });";
 
-            t.is('require.def("one",["two","three"],function(){});', parse("good1", good1));
-            t.is('require.def("one",function(){});', parse("good2", good2));
-            t.is('require.def("one",["two"],function(){});', parse("good3", good3));
-            t.is('require.def("one",function(){});', parse("good4", good4));
+            t.is('define("one",["two","three"]);', parse("good1", good1));
+            t.is('define("one",function(){});', parse("good2", good2));
+            t.is('define("one",["two"]);', parse("good3", good3));
+            t.is('define("one",function(){});', parse("good4", good4));
             t.is(null, parse("bad1", bad1));
             t.is(null, parse("bad2", bad2));
             t.is(['require', 'exports', 'module', 'foo'], parse.getAnonDeps("goodAnon1", goodAnon1));
@@ -44,19 +44,20 @@ doh.register(
                 good2 = "define('one', function(){});",
                 good3 = 'function(){ var foo = { bar: function() { define("one", ["two"], function(){}); } };}',
                 good4 = '(function (define) { define("one", function(){}); }(myGlobalDefine))',
+                nested1 = "(function () {\nvar foo = {\nbar: 'baz'\n}\n\n define('foo', [], foo); \n }());";
                 bad1 = "define('one', [foo, 'me'], function() {});",
                 bad2 = "define('one', somevar)",
                 goodAnon1 = "define(function(){ var foo = require('foo'); });",
                 goodAnon2 = "define(function () { if (true) { callback(function () { require(\"bar\"); })}});",
-                emptyAnon1 = "define(function() { exports.name = 'empty'; });";
+                emptyAnon1 = "define(function() { exports.name = 'empty'; });",
 
-            t.is('define("one",["two","three"],function(){});', parse("good1", good1));
+            t.is('define("one",["two","three"]);', parse("good1", good1));
             t.is('define("one",function(){});', parse("good2", good2));
-            t.is('define("one",["two"],function(){});', parse("good3", good3));
+            t.is('define("one",["two"]);', parse("good3", good3));
             t.is('define("one",function(){});', parse("good4", good4));
+            t.is('define("foo",[]);', parse("nested1", nested1));
             t.is(null, parse("bad1", bad1));
             t.is(null, parse("bad2", bad2));
-debugger;
 
             t.is(['require', 'exports', 'module', 'foo'], parse.getAnonDeps("goodAnon1", goodAnon1));
             t.is(['require', 'exports', 'module', 'bar'], parse.getAnonDeps("goodAnon2", goodAnon2));

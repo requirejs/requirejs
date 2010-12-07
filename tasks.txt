@@ -1,7 +1,7 @@
 - simple node example does not work
 - need to document how to use the packages config with Node.
-- order! dependencies in builds?
 - Document new closure compiler options from neonstalwart
+
 
 - email on jsonp removal, toUrl and package names.
 
@@ -16,7 +16,7 @@ xx* connect-redis/lib/redis/index.js, it tried to require('util') or 'sys' try/c
 * connect/lib/connect/index.js does dynamic/computed require calls
 
 - How to optimize a package? If ask for require('packageName'), what is the name of the module
-  included? define('packageName', ...) or define('packageName/lib/main') ? 
+  included? define('packageName', ...) or define('packageName/lib/main') ?
 
 
 require({
@@ -36,7 +36,7 @@ require({
         //A regular single script mapping,
         //or a traditional dojo-like mapping.
         'foo': '../../common/foo',
-    
+
         //alpha has specific mappings, so alpha's value
         'alpha': {
             //A package found relative to
@@ -47,7 +47,7 @@ require({
                 //A package found relative to
                 //baseUrl, but lib=. and main=index
                 theta: 'package:#./index',
-                
+
             }
         },
         'beta': 'package:path#lib/main'
@@ -61,7 +61,7 @@ define.paths('alpha', {}, function (define) {
     define('theta', [], function (){});
 
     define.paths('theta', {}, function (define) {
-        
+
     });
 });
 
@@ -79,12 +79,12 @@ require({
         mappings: {
         //A single, non-packaged module
         'theta': 'theta',
-        
+
         //HMM, HOW TO SPECIFY SIMPLE PACKAGE WITH CONVENTIONS?
         'gamma': 'package:',
         'epsilon': 'package:./lib/main',
         'foo': 'package:http://a.com/some/path/to/foo/./index'
-        
+
         //A beta package, but version 2,
         //assumes the lib and main conventions.
         {
