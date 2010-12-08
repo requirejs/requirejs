@@ -334,8 +334,6 @@ var require, define;
             //Do not bother if the depName is already in transit
             if (specified[fullName] || fullName in defined) {
                 return;
-            } else {
-                specified[fullName] = true;
             }
 
             if (prefix) {
@@ -432,11 +430,12 @@ var require, define;
                     return;
                 }
 
-                //Set loaded here for modules that are also loaded
+                //Set specified/loaded here for modules that are also loaded
                 //as part of a layer, where onScriptLoad is not fired
                 //for those cases. Do this after the inline define and
                 //dependency tracing is done.
                 //Also check if auto-registry of jQuery needs to be skipped.
+                specified[name] = true;
                 loaded[name] = true;
                 context.jQueryDef = (name === "jquery");
             }
@@ -687,7 +686,15 @@ var require, define;
 
         function loadPaused(dep) {
             var pluginName = dep.prefix,
-                name = dep.name;
+                name = dep.name,
+                fullName = dep.fullName;
+
+            //Do not bother if the dependency has already been specified.
+            if (specified[fullName] || fullName in defined) {
+                return;
+            } else {
+                specified[fullName] = true;
+            }
 
             if (pluginName) {
                 //If plugin not loaded, wait for it.
@@ -714,7 +721,7 @@ var require, define;
                     pluginsQueue[pluginName].push(name);
                 }
             } else {
-                load(dep.fullName);
+                load(fullName);
             }
         }
 
@@ -912,6 +919,7 @@ var require, define;
                         //Some other named require.def call, most likely the result
                         //of a build layer that included many require.def calls.
                         callDefMain(args);
+                        args = null;
                     }
                 }
                 if (args) {
