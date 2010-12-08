@@ -905,10 +905,21 @@ var require, define;
              * @param {String} moduleName the name of the module to potentially complete.
              */
             completeLoad: function (moduleName) {
-                //If there is a waiting require.def call
                 var args;
+
+                //Push all the globalDefQueue items into the context's defQueue
+                if (globalDefQueue.length) {
+                    //Array splice in the values since the context code has a
+                    //local var ref to defQueue, so cannot just reassign the one
+                    //on context.
+                    apsp.apply(context.defQueue,
+                               [context.defQueue.length - 1, 0].concat(globalDefQueue));
+                    globalDefQueue = [];
+                }
+
                 while (defQueue.length) {
                     args = defQueue.shift();
+
                     if (args[0] === null) {
                         args[0] = moduleName;
                         break;
@@ -1223,12 +1234,11 @@ var require, define;
         //If in IE 6-8 and hit an anonymous define() call, do the interactive
         //work.
         if (useInteractive) {
+            node = getInteractiveScript();
+            if (!node) {
+                return req.onError(new Error("ERROR: No matching script interactive for " + callback));
+            }
             if (!name) {
-                node = getInteractiveScript();
-                if (!node) {
-                    return req.onError(new Error("ERROR: No matching script interactive for " + callback));
-                }
-
                 name = node.getAttribute("data-requiremodule");
             }
             context = contexts[node.getAttribute("data-requirecontext")];
@@ -1277,7 +1287,7 @@ var require, define;
         //all old browsers will be supported, but this one was easy enough
         //to support and still makes sense.
         var node = evt.currentTarget || evt.srcElement, contextName, moduleName,
-            context, args;
+            context;
 
         if (evt.type === "load" || readyRegExp.test(node.readyState)) {
             //Reset interactive script so a script node is not held onto for
@@ -1288,16 +1298,6 @@ var require, define;
             contextName = node.getAttribute("data-requirecontext");
             moduleName = node.getAttribute("data-requiremodule");
             context = contexts[contextName];
-
-            //Push all the globalDefQueue items into the context's defQueue
-            if (globalDefQueue.length) {
-                //Array splice in the values since the context code has a
-                //local var ref to defQueue, so cannot just reassign the one
-                //on context.
-                args = [context.defQueue.length - 1, 0].concat(globalDefQueue);
-                apsp.apply(context.defQueue, args);
-                globalDefQueue = [];
-            }
 
             contexts[contextName].completeLoad(moduleName);
 
