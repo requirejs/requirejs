@@ -9,3 +9,7 @@ the function will only be called if app.js uses define() to define itself vs. re
 
 4) nameToUrl is different than toUrl, and toUrl *requires* the use of module
    names, cannot be optionally urls like what nameToUrl supports?
+
+5) Support ifdef! plugin?
+
+6) Pass config object to plugins? require.mixin, require.attach..

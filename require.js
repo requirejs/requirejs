@@ -682,7 +682,7 @@ var require, define;
                     callback: ret
                 });
                 context.completeLoad(fullName);
-            });
+            }, config);
         }
 
         function loadPaused(dep) {
