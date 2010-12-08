@@ -23,20 +23,21 @@ CommonJS modules, by overriding require.get().
         }
     };
 
-    require.load = function (moduleName, contextName) {
-        var url = require.nameToUrl(moduleName, null, contextName),
-            context = require.s.contexts[contextName];
+    require.makeLoad = function (context) {
+        return function (moduleName) {
+            var url = context.nameToUrl(moduleName, null);
 
-        //isDone is used by require.ready()
-        require.s.isDone = false;
+            //isDone is used by require.ready()
+            require.s.isDone = false;
 
-        //Indicate a the module is in process of loading.
-        context.loaded[moduleName] = false;
+            //Indicate a the module is in process of loading.
+            context.loaded[moduleName] = false;
 
-        load(url);
+            load(url);
 
-        //Support anonymous modules.
-        require.completeLoad(moduleName, context);
+            //Support anonymous modules.
+            context.completeLoad(moduleName);
+        };
     };
 
     //Adapter to get text plugin to work.

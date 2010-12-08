@@ -53,7 +53,6 @@ doh.registerUrl("relative", "../relative/relative.html");
 
 //Hmm, PS3 does not like exports test? assign2 is undefined?
 doh.registerUrl("exports", "../exports/exports.html");
-doh.registerUrl("transportD", "../transportD/transportD.html");
 
 
 doh.registerUrl("priority", "../priority/priority.html");

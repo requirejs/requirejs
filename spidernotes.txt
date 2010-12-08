@@ -13,3 +13,5 @@ the function will only be called if app.js uses define() to define itself vs. re
 5) Support ifdef! plugin?
 
 6) Pass config object to plugins? require.mixin, require.attach..
+
+7) Remove doc notes to Transport D, transportD
