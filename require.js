@@ -139,7 +139,8 @@ var require, define;
             defined = {},
             loaded = {},
             waiting = {},
-            waitCounter = 0,
+            waitAry = [],
+            waitIdCounter = 0,
             managerCallbacks = {},
             plugins = {},
             pluginsQueue = {};
@@ -401,7 +402,12 @@ var require, define;
             //Clean up waiting.
             if (waiting[manager.waitId]) {
                 delete waiting[manager.waitId];
+                manager.isDone = true;
                 context.waitCount -= 1;
+                if (context.waitCount === 0) {
+                    //Clear the wait array used for cycles.
+                    waitAry = [];
+                }
             }
 
             return undefined;
@@ -413,7 +419,7 @@ var require, define;
                 manager = {
                     //Use a wait ID because some entries are anon
                     //async require calls.
-                    waitId: name || reqWaitIdPrefix + (waitCounter++),
+                    waitId: name || reqWaitIdPrefix + (waitIdCounter++),
                     depCount: 0,
                     depMax: 0,
                     prefix: nameArgs.prefix,
@@ -422,7 +428,7 @@ var require, define;
                     depArray: depArray,
                     callback: callback,
                     onDep: function (depName, value) {
-                        if (depName in manager.deps) {
+                        if (!(depName in manager.deps)) {
                             manager.deps[depName] = value;
                             manager.depCount += 1;
                             if (manager.depCount === manager.depMax) {
@@ -487,7 +493,6 @@ var require, define;
                     } else {
                         //A dynamic dependency.
                         manager.depMax += 1;
-                        manager.deps[depName] = undefined;
 
                         queueDependency(depArg);
 
@@ -504,6 +509,7 @@ var require, define;
                 execManager(manager);
             } else {
                 waiting[manager.waitId] = manager;
+                waitAry.push(manager);
                 context.waitCount += 1;
             }
         }
@@ -520,33 +526,36 @@ var require, define;
             loaded[args[0]] = true;
         }
 
-        function findCycle(manager, traced) {
-            //Use explicit true test to avoid getting a true based on
-            //an object prototype method.
-            if (traced[manager.name] === true) {
-                return manager;
+        function forceExec(manager, traced) {
+            if (manager.isDone) {
+                return undefined;
             }
 
-            traced[manager.name] = true;
-
-            var depArray = manager.depArray,
+            var name = manager.name,
+                depArray = manager.depArray,
                 depName, i;
+            if (name) {
+                if (traced[name]) {
+                    return defined[name];
+                }
 
+                traced[name] = true;
+            }
+
+            //forceExec all of its dependencies.
             for (i = 0; i < depArray.length; i++) {
                 //Some array members may be null, like if a trailing comma
-                // IE, so do the explicit [i] access and check if it has a value.
+                //IE, so do the explicit [i] access and check if it has a value.
                 depName = depArray[i];
                 if (depName) {
                     if (!manager.deps[depName] && waiting[depName]) {
-                        manager = findCycle(waiting[depName], traced);
-                        if (manager) {
-                            return manager;
-                        }
+                        manager.onDep(depName, forceExec(waiting[depName], traced));
                     }
                 }
-
             }
-            return undefined;
+
+            return name ? defined[name] : undefined;
+
         }
 
         /**
@@ -560,7 +569,7 @@ var require, define;
                 //It is possible to disable the wait interval by using waitSeconds of 0.
                 expired = waitInterval && (context.startTime + waitInterval) < new Date().getTime(),
                 noLoads = "", hasLoadedProp = false, stillLoading = false, prop,
-                err, manager, depArray, depName;
+                err, manager;
 
             //If already doing a checkLoaded call,
             //then do not bother checking loaded state.
@@ -636,6 +645,11 @@ var require, define;
             //cycle, if nothing else loaded then this logic will pick it up
             //again.
             if (context.waitCount) {
+                //Cycle through the waitAry, and call items in sequence.
+                for (i = 0; (manager = waitAry[i]); i++) {
+                    forceExec(manager, {});
+                }
+
                 //Find somewhere to start. Skip anonymous require calls.
                 for (prop in waiting) {
                     if (!(prop in empty) && prop.indexOf(reqWaitIdPrefix) !== 0) {
@@ -644,24 +658,8 @@ var require, define;
                     }
                 }
 
-                if (manager && (manager = findCycle(manager, {}))) {
-                    depArray = manager.depArray;
-                    //Cycle through its dependencies, manually triggering
-                    //them. Recall that there could be null spaces in the
-                    //dependencies, particularly trailing ones in IE with a
-                    //dangling comma.
-                    for (i = 0; i < depArray.length; i++) {
-                        depName = depArray[i];
-                        if (depName && !manager.deps[depName]) {
-                            //Pass in the defined value, which will work
-                            //in the cases exports is in play.
-                            manager.onDep(depName, defined[depName]);
-                        }
-                    }
-
-                    checkLoaded();
-                    return undefined;
-                }
+                checkLoaded();
+                return undefined;
             }
 
             //Check for DOM ready, and nothing is waiting across contexts.
@@ -670,9 +668,12 @@ var require, define;
             return undefined;
         }
 
-        function callPlugin(pluginName, name) {
+        function callPlugin(pluginName, dep) {
+            var name = dep.name,
+                fullName = dep.fullName;
+
             //Do not bother if plugin is already defined.
-            if (name in defined) {
+            if (fullName in defined) {
                 return;
             }
 
@@ -681,17 +682,16 @@ var require, define;
             }
 
             //Only set loaded to false for tracking if it has not already been set.
-            if (!loaded[name]) {
-                loaded[name] = false;
+            if (!loaded[fullName]) {
+                loaded[fullName] = false;
             }
 
             plugins[pluginName].load(name, makeRequire(name), function (ret) {
-                var fullName = pluginName + '!' + name;
                 execManager({
                     name: fullName,
                     callback: ret
                 });
-                context.completeLoad(fullName);
+                loaded[fullName] = true;
             }, config);
         }
 
@@ -712,7 +712,7 @@ var require, define;
                 //set up callback list. if no list, then register
                 //managerCallback for that plugin.
                 if (defined[pluginName]) {
-                    callPlugin(pluginName, name);
+                    callPlugin(pluginName, dep);
                 } else {
                     if (!pluginsQueue[pluginName]) {
                         pluginsQueue[pluginName] = [];
@@ -729,7 +729,7 @@ var require, define;
                             }
                         });
                     }
-                    pluginsQueue[pluginName].push(name);
+                    pluginsQueue[pluginName].push(dep);
                 }
             } else {
                 req.load(context, fullName);
@@ -1003,7 +1003,7 @@ var require, define;
                 //If a colon is in the URL, it indicates a protocol is used and it is just
                 //an URL to a file, or if it starts with a slash or ends with .js, it is just a plain file.
                 //The slash is important for protocol-less URLs as well as full paths.
-                if (moduleName.indexOf(":") !== -1 || moduleName.charAt(0) === '/' || req.jsExtRegExp.test(moduleName)) {
+                if (req.jsExtRegExp.test(moduleName)) {
                     //Just a plain path, not module name lookup, so just return it.
                     //Add extension if it is included. This is a bit wonky, only non-.js things pass
                     //an extension, this method probably needs to be reworked.
@@ -1107,7 +1107,7 @@ var require, define;
     req.isFunction = isFunction;
     req.mixin = mixin;
     //Used to filter out dependencies that are already paths.
-    req.jsExtRegExp = /\.js$/;
+    req.jsExtRegExp = /^\/|:|\?|\.js$/;
     s = req.s = {
         contexts: contexts,
         //Stores a list of URLs that should not get async script tag treatment.
@@ -1337,9 +1337,8 @@ var require, define;
             //Helps Firefox 3.6+
             //Allow some URLs to not be fetched async. Mostly helps the order!
             //plugin
-            if (!req.s.skipAsync[url]) {
-                node.async = true;
-            }
+            node.async = !s.skipAsync[url];
+
             node.setAttribute("data-requirecontext", contextName);
             node.setAttribute("data-requiremodule", moduleName);
 
@@ -1422,12 +1421,19 @@ var require, define;
                 head = script.parentNode;
             }
 
+
             //Look for a data-main attribute to set main script for the page
             //to load.
-            if (!cfg.deps) {
-                dataMain = script.getAttribute('data-main');
-                if (dataMain) {
-                    cfg.deps = [dataMain];
+            if (!dataMain && (dataMain = script.getAttribute('data-main'))) {
+                cfg.deps = cfg.deps ? cfg.deps.concat(dataMain) : [dataMain];
+
+                //Favor using data-main tag as the base URL instead of
+                //trying to pattern-match src values.
+                if (!cfg.baseUrl && (src = script.src)) {
+                    src = src.split('/');
+                    src.pop();
+                    //Make sure current config gets the value.
+                    s.baseUrl = cfg.baseUrl = src.length ? src.join('/') : './';
                 }
             }
 
@@ -1435,8 +1441,7 @@ var require, define;
             //While using a relative URL will be fine for script tags, other
             //URLs used for text! resources that use XHR calls might benefit
             //from an absolute URL.
-            src = script.src;
-            if (src && !s.baseUrl) {
+            if (!s.baseUrl && (src = script.src)) {
                 m = src.match(rePkg);
                 if (m) {
                     s.baseUrl = src.substring(0, m.index);
