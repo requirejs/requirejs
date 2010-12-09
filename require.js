@@ -1183,6 +1183,7 @@ var require, define;
                 return (interactiveScript = script);
             }
         }
+
         return null;
     }
 
@@ -1194,7 +1195,7 @@ var require, define;
      * name.
      */
     define = req.def = function (name, deps, callback) {
-        var node = currentlyAddingScript, context;
+        var node, context;
 
         //Allow for anonymous functions
         if (typeof name !== 'string') {
@@ -1234,7 +1235,7 @@ var require, define;
         //If in IE 6-8 and hit an anonymous define() call, do the interactive
         //work.
         if (useInteractive) {
-            node = getInteractiveScript();
+            node = currentlyAddingScript || getInteractiveScript();
             if (!node) {
                 return req.onError(new Error("ERROR: No matching script interactive for " + callback));
             }

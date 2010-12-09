@@ -1,3 +1,6 @@
+- jquery/jqueryDynamic2.html in IE8: sometimes if using cache, the jquery ready callbacks do not fire,
+  even though we seem to indicate it correctly? Trace latest jQuery 1.4.4.
+
 1) In HTML, doing a require(["app"], function () {}),
 
 the function will only be called if app.js uses define() to define itself vs. require.
