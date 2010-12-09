@@ -4,7 +4,7 @@ require({
     ["require", "map", "simple", "dimple", "func"],
     function(require, map, simple, dimple, func) {
         doh.register(
-            "simple", 
+            "simple",
             [
                 function colors(t){
                     t.is("map", map.name);

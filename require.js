@@ -123,7 +123,7 @@ var require, define;
      * with the standard context.
      */
     function newContext(contextName) {
-        var context, load, resume,
+        var context, resume,
             config = {
                 waitSeconds: 7,
                 baseUrl: s.baseUrl || "./",
@@ -721,7 +721,7 @@ var require, define;
                     pluginsQueue[pluginName].push(name);
                 }
             } else {
-                load(fullName);
+                req.load(context, fullName);
             }
         }
 
@@ -1040,8 +1040,6 @@ var require, define;
         context.jQueryCheck = jQueryCheck;
         context.resume = resume;
 
-        load = req.makeLoad(context);
-
         return context;
     }
 
@@ -1130,45 +1128,39 @@ var require, define;
     };
 
     /**
-     * Creates a function that does the loading of the file that maps
-     * to a module. Make this a separate function to allow other environments
+     * Does the request to load a module for the browser case.
+     * Make this a separate function to allow other environments
      * to override it.
-     * @param {Object} context the context to use for this load function.
+     *
+     * @param {Object} context the require context to find state.
+     * @param {String} moduleName the name of the module.
      */
-    req.makeLoad = function (context) {
+    req.load = function (context, moduleName) {
+        var contextName = context.contextName,
+            urlFetched = context.urlFetched,
+            loaded = context.loaded, url;
+        isDone = false;
 
-        /**
-         * Does the request to load a module for the browser case.
-         *
-         * @param {String} moduleName the name of the module.
-         */
-        return function (moduleName) {
-            var contextName = context.contextName,
-                urlFetched = context.urlFetched,
-                loaded = context.loaded, url;
-            isDone = false;
+        //Only set loaded to false for tracking if it has not already been set.
+        if (!loaded[moduleName]) {
+            loaded[moduleName] = false;
+        }
 
-            //Only set loaded to false for tracking if it has not already been set.
-            if (!loaded[moduleName]) {
-                loaded[moduleName] = false;
+        //First derive the path name for the module.
+        url = context.nameToUrl(moduleName);
+        if (!urlFetched[url]) {
+            context.scriptCount += 1;
+            req.attach(url, contextName, moduleName);
+            urlFetched[url] = true;
+
+            //If tracking a jQuery, then make sure its readyWait
+            //is incremented to prevent its ready callbacks from
+            //triggering too soon.
+            if (context.jQuery && !context.jQueryIncremented) {
+                context.jQuery.readyWait += 1;
+                context.jQueryIncremented = true;
             }
-
-            //First derive the path name for the module.
-            url = context.nameToUrl(moduleName);
-            if (!urlFetched[url]) {
-                context.scriptCount += 1;
-                req.attach(url, contextName, moduleName);
-                urlFetched[url] = true;
-
-                //If tracking a jQuery, then make sure its readyWait
-                //is incremented to prevent its ready callbacks from
-                //triggering too soon.
-                if (context.jQuery && !context.jQueryIncremented) {
-                    context.jQuery.readyWait += 1;
-                    context.jQueryIncremented = true;
-                }
-            }
-        };
+        }
     };
 
     function getInteractiveScript() {

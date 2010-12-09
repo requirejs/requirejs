@@ -30,3 +30,4 @@ load("packages/packages-tests.js");
 doh.run();
 doh.run();
 doh.run();
+doh.run();
