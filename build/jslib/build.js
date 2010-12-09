@@ -29,7 +29,7 @@ var build, buildBaseConfig;
             prop, props, paths, path, i, fileContents, buildFileContents = "",
             doClosure, requireContents, pluginContents, pluginBuildFileContents,
             baseConfig, override, builtRequirePath, cmdConfig, config,
-            modules, module, moduleName, builtModule, srcPath;
+            modules, module, moduleName, builtModule, srcPath, buildContext;
 
         if (!args || args.length < 2) {
             print("java -jar path/to/js.jar build.js directory/containing/build.js/ build.js\n" +
@@ -111,12 +111,13 @@ var build, buildBaseConfig;
             baseUrl: config.baseUrl,
             paths: paths
         });
+        buildContext = require.s.contexts._;
         modules = config.modules;
 
         if (modules) {
             modules.forEach(function (module) {
                 if (module.name) {
-                    module._sourcePath = require.nameToUrl(module.name, null, require.s.ctxName);
+                    module._sourcePath = buildContext.nameToUrl(module.name);
                     //If the module does not exist, and this is not a "new" module layer,
                     //as indicated by a true "create" property on the module, then throw an error.
                     if (!(new java.io.File(module._sourcePath)).exists() && !module.create) {
@@ -147,7 +148,7 @@ var build, buildBaseConfig;
             if (modules) {
                 modules.forEach(function (module) {
                     if (module.name) {
-                        module._buildPath = require.nameToUrl(module.name, null, require.s.ctxName);
+                        module._buildPath = buildContext.nameToUrl(module.name, null);
                         if (!module.create) {
                             fileUtil.copyFile(module._sourcePath, module._buildPath);
                         }
@@ -491,7 +492,7 @@ var build, buildBaseConfig;
      */
     build.traceDependencies = function (module, config) {
         var include, override, url, layer, prop,
-            context = require.s.contexts[require.s.ctxName],
+            context = require.s.contexts._,
             baseConfig = context.config;
 
         //Reset some state set up in requirePatch.js, and clean up require's
@@ -521,7 +522,7 @@ var build, buildBaseConfig;
         //but grab the latest value from inside require() since it was reset
         //since our last context reference.
         layer = require._layer;
-        layer.specified = require.s.contexts[require.s.ctxName].specified;
+        layer.specified = context.specified;
 
         //Reset config
         if (module.override) {
@@ -580,25 +581,6 @@ var build, buildBaseConfig;
             buildFileContents += "require.js\n";
         }
 
-        //Check for any plugins loaded, and hoist to the top, but below
-        //the require() definition.
-        specified = layer.specified;
-        for (prop in specified) {
-            if (specified.hasOwnProperty(prop)) {
-                if (prop.indexOf("require/") === 0) {
-                    path = layer.buildPathMap[prop];
-                    if (path) {
-                        pluginBuildFileContents += path.replace(config.dir, "") + "\n";
-                        pluginContents += pragma.process(path, fileUtil.readFile(path), config);
-                    }
-                }
-            }
-        }
-        if (includeRequire) {
-            //require.js will be included so the plugins will appear right after it.
-            buildFileContents += pluginBuildFileContents;
-        }
-
         //If there was an existing file with require in it, hoist to the top.
         if (!includeRequire && layer.existingRequireUrl) {
             reqIndex = layer.buildFilePaths.indexOf(layer.existingRequireUrl);
@@ -632,14 +614,6 @@ var build, buildBaseConfig;
                     } else {
                         deps = null;
                     }
-                }
-
-                //Adust module name if it is for a plugin
-                if (require.s.contexts._.defPlugin[moduleName]) {
-                    moduleName = require.s.contexts._.defPlugin[moduleName] + '!' + moduleName;
-                    //Mark that it is a module with a name so do not need
-                    //a stub name insertion for it later.
-                    layer.modulesWithNames[moduleName] = true;
                 }
 
                 return "define('" + moduleName + "'," +

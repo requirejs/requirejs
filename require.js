@@ -347,11 +347,22 @@ var require, define;
         function execManager(manager) {
             var i, ret, waitingCallbacks,
                 cb = manager.callback,
-                name = manager.name;
+                name = manager.name,
+                args = [],
+                ary = manager.depArray;
 
             //Call the callback to define the module, if necessary.
             if (cb && isFunction(cb)) {
-                ret = req.execCb(manager);
+                //Pull out the defined dependencies and pass the ordered
+                //values to the callback.
+                if (ary) {
+                    for (i = 0; i < ary.length; i++) {
+                        args.push(manager.deps[ary[i]]);
+                    }
+                }
+
+                ret = req.execCb(name, manager.callback, args);
+
                 if (name) {
                     //If using exports and the function did not return a value,
                     //and the "module" object for this definition function did not
@@ -785,6 +796,7 @@ var require, define;
             defined: defined,
             paused: [],
             managerCallbacks: managerCallbacks,
+            normalizeName: normalizeName,
             /**
              * Set a configuration for the context.
              * @param {Object} cfg config object to integrate.
@@ -1255,16 +1267,8 @@ var require, define;
      *
      * @private
      */
-    req.execCb = function (manager) {
-        var args = [], ary = manager.depArray;
-        //Pull out the defined dependencies and pass the ordered
-        //values to the callback.
-        if (ary) {
-            for (i = 0; i < ary.length; i++) {
-                args.push(manager.deps[ary[i]]);
-            }
-        }
-        return manager.callback.apply(null, args);
+    req.execCb = function (name, callback, args) {
+        return callback.apply(null, args);
     };
 
     /**

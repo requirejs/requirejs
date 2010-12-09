@@ -45,10 +45,6 @@
         return ret;
     };
 
-    //Sync environments can allow multiple nested checkLoaded calls since
-    //nested dependencies are satisfied immediately.
-    require.blockCheckLoaded = false;
-
     //TODO: make this async. Using sync now to cheat to get to a bootstrap.
     require.load = function (moduleName, contextName) {
         var url = require.nameToUrl(moduleName, null, contextName),
@@ -156,5 +152,3 @@
     delete global.__requireIsDebug;
     delete global.__requireFileExists;
 }());
-
-

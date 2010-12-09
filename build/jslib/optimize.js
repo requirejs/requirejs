@@ -175,7 +175,7 @@ var optimize;
                 if (config.CompilerOptions[option]) {
                     options[option] = config.CompilerOptions[option];
                 }
-                
+
             }
             options.prettyPrint = keepLines || options.prettyPrint;
 
@@ -193,7 +193,8 @@ var optimize;
         inlineText: function (fileName, fileContents) {
             return fileContents.replace(textDepRegExp, function (match, prefix, dep, offset) {
                 var parts, modName, ext, strip, content, normalizedName, index,
-                    defSegment, defStart, defMatch, tempMatch, defName, textPath;
+                    defSegment, defStart, defMatch, tempMatch, defName, textPath,
+                    buildContext = require.s.contexts._;
 
                 //Ignore inlining of text plugin calls that are inside the
                 //CommonJS convenience wrapper define(function (require,..))
@@ -246,8 +247,8 @@ var optimize;
                         //Take the last match, the one closest to current text! string.
                         defName = defMatch[2];
 
-                        normalizedName = require.normalizeName(modName, defName, require.s.contexts._);
-                        textPath = require.nameToUrl(normalizedName, "." + ext, require.s.ctxName);
+                        normalizedName = buildContext.normalizeName(modName, defName);
+                        textPath = buildContext.nameToUrl(normalizedName, "." + ext);
                     } else {
                         //An anonymous module, and not part of a built layer
                         //that already has injected names. Use the fileName instead.
@@ -257,7 +258,7 @@ var optimize;
                         textPath = textPath.join('/') + '/' + modName + "." + ext;
                     }
                 } else {
-                    textPath = require.nameToUrl(normalizedName, "." + ext, require.s.ctxName);
+                    textPath = buildContext.nameToUrl(normalizedName, "." + ext);
                 }
 
                 if (strip !== "strip") {
