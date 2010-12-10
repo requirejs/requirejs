@@ -9,10 +9,6 @@
   setTimeout: false */
 "use strict";
 
-/*
-TODO: make sure 0.15 fixes are in this branch.
-*/
-
 var require, define;
 (function () {
     //Change this version number for each release.
@@ -314,7 +310,7 @@ var require, define;
                 nameToUrl: makeContextModuleFunc(context.nameToUrl, moduleName),
                 toUrl: makeContextModuleFunc(context.toUrl, moduleName),
                 ready: req.ready,
-                isBrowser: s.isBrowser
+                isBrowser: req.isBrowser
             });
             return modRequire;
         }
@@ -571,12 +567,6 @@ var require, define;
                 noLoads = "", hasLoadedProp = false, stillLoading = false, prop,
                 err, manager;
 
-            //If already doing a checkLoaded call,
-            //then do not bother checking loaded state.
-            if (context.isCheckLoaded) {
-                return undefined;
-            }
-
             //Determine if priority loading is done. If so clear the priority. If
             //not, then do not check
             if (config.priorityWait) {
@@ -588,12 +578,6 @@ var require, define;
                     return undefined;
                 }
             }
-
-            //Signal that checkLoaded is being require, so other calls that could be triggered
-            //by calling a waiting callback that then calls require and then this function
-            //should not proceed. At the end of this function, if there are still things
-            //waiting, then checkLoaded will be called again.
-            context.isCheckLoaded = true;
 
             //See if anything is still in flight.
             for (prop in loaded) {
@@ -614,7 +598,6 @@ var require, define;
             if (!hasLoadedProp && !context.waitCount) {
                 //If the loaded object had no items, then the rest of
                 //the work below does not need to be done.
-                context.isCheckLoaded = false;
                 return undefined;
             }
             if (expired && noLoads) {
@@ -624,17 +607,13 @@ var require, define;
                 err.requireModules = noLoads;
                 return req.onError(err);
             }
-            if (stillLoading) {
+            if (stillLoading || context.scriptCount) {
                 //Something is still waiting to load. Wait for it.
-                context.isCheckLoaded = false;
                 if (isBrowser || isWebWorker) {
                     setTimeout(checkLoaded, 50);
                 }
                 return undefined;
             }
-
-            //Indicate checkLoaded is now done.
-            context.isCheckLoaded = false;
 
             //If still have items in the waiting cue, but all modules have
             //been loaded, then it means there are some circular dependencies
@@ -648,14 +627,6 @@ var require, define;
                 //Cycle through the waitAry, and call items in sequence.
                 for (i = 0; (manager = waitAry[i]); i++) {
                     forceExec(manager, {});
-                }
-
-                //Find somewhere to start. Skip anonymous require calls.
-                for (prop in waiting) {
-                    if (!(prop in empty) && prop.indexOf(reqWaitIdPrefix) !== 0) {
-                        manager = waiting[prop];
-                        break;
-                    }
                 }
 
                 checkLoaded();
@@ -697,7 +668,6 @@ var require, define;
 
         function loadPaused(dep) {
             var pluginName = dep.prefix,
-                name = dep.name,
                 fullName = dep.fullName;
 
             //Do not bother if the dependency has already been specified.
@@ -967,8 +937,19 @@ var require, define;
                 //a module via define.
                 jQueryCheck();
 
-                context.scriptCount -= 1;
+                //Doing this scriptCount decrement branching because sync envs
+                //need to decrement after resume, otherwise it looks like
+                //loading is complete after the first dependency is fetched.
+                //For browsers, it works fine to decrement after, but it means
+                //the checkLoaded setTimeout 50 ms cost is taken. To avoid
+                //that cost, decrement beforehand.
+                if (req.isAsync) {
+                    context.scriptCount -= 1;
+                }
                 resume();
+                if (!req.isAsync) {
+                    context.scriptCount -= 1;
+                }
             },
 
             /**
@@ -1094,7 +1075,7 @@ var require, define;
 
         context = contexts[contextName] ||
                   (contexts[contextName] = newContext(contextName));
-
+debugger;
         if (config) {
             context.configure(config);
         }
@@ -1112,13 +1093,11 @@ var require, define;
         contexts: contexts,
         //Stores a list of URLs that should not get async script tag treatment.
         skipAsync: {},
-        isBrowser: isBrowser,
         isPageLoaded: !isBrowser,
-        readyCalls: [],
-        doc: isBrowser ? document : null
+        readyCalls: []
     };
 
-    req.isBrowser = s.isBrowser;
+    req.isAsync = req.isBrowser = isBrowser;
     if (isBrowser) {
         head = s.head = document.getElementsByTagName("head")[0];
         //If BASE tag is in play, using appendChild is a problem for IE6.

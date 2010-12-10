@@ -107,6 +107,7 @@
             contents;
 
         context.loaded[moduleName] = false;
+        context.scriptCount += 1;
 
         //Only handle urls that can be inlined, so that means avoiding some
         //URLs like ones that require network access or may be too dynamic,

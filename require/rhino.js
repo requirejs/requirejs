@@ -31,6 +31,7 @@ CommonJS modules, by overriding require.get().
 
         //Indicate a the module is in process of loading.
         context.loaded[moduleName] = false;
+        context.scriptCount += 1;
 
         load(url);
 
