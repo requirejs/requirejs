@@ -4,7 +4,8 @@
  * see: http://github.com/jrburke/requirejs for details
  */
 /*jslint nomen: false, plusplus: false */
-/*global require: false, window: false, document: false, setTimeout: false */
+/*global require: false, define: false, window: false, document: false,
+  setTimeout: false */
 "use strict";
 
 (function () {
@@ -31,34 +32,43 @@
                                //a better check may be:
                                //('mozIsLocallyAvailable' in window.navigator)
                                ("MozAppearance" in document.documentElement.style)),
-        readyRegExp = /^(complete|loaded)$/;
+        readyRegExp = /^(complete|loaded)$/,
+        waiting = [],
+        cached = {};
+
+    function loadResource(name, req, onLoad) {
+        req([name], function (value) {
+            onLoad(value);
+        });
+    }
 
     //Callback used by the type="script/cache" callback that indicates a script
     //has finished downloading.
     function scriptCacheCallback(evt) {
         var node = evt.currentTarget || evt.srcElement, i,
-            context, contextName, moduleName, waiting, cached;
+            moduleName, resource;
 
         if (evt.type === "load" || readyRegExp.test(node.readyState)) {
             //Pull out the name of the module and the context.
-            contextName = node.getAttribute("data-requirecontext");
             moduleName = node.getAttribute("data-requiremodule");
-            context = require.s.contexts[contextName];
-            waiting = context.orderWaiting;
-            cached = context.orderCached;
 
             //Mark this cache request as loaded
             cached[moduleName] = true;
 
             //Find out how many ordered modules have loaded
-            for (i = 0; cached[waiting[i]]; i++) {}
-            if (i > 0) {
-                require(waiting.splice(0, i), contextName);
+            for (i = 0; (resource = waiting[i]); i++) {
+                if (cached[resource.name]) {
+                    loadResource(resource.name, resource.req, resource.onLoad);
+                } else {
+                    //Something in the ordered list is not loaded,
+                    //so wait.
+                    break;
+                }
             }
 
-            //If no other order cache items are in the queue, do some cleanup.
-            if (!waiting.length) {
-                context.orderCached = {};
+            //If just loaded some items, remove them from waiting.
+            if (i > 0) {
+                waiting.splice(0, i);
             }
 
             //Remove this script tag from the DOM
@@ -70,34 +80,9 @@
         }
     }
 
-    require.plugin({
-        prefix: "order",
-
-        /**
-         * This callback is prefix-specific, only gets called for this prefix
-         */
-        require: function (name, deps, callback, context) {
-            //No-op, require never gets these order items, they are always
-            //a dependency, see load for the action.
-        },
-
-        /**
-         * Called when a new context is defined. Use this to store
-         * context-specific info on it.
-         */
-        newContext: function (context) {
-            require.mixin(context, {
-                orderWaiting: [],
-                orderCached: {}
-            });
-        },
-
-        /**
-         * Called when a dependency needs to be loaded.
-         */
-        load: function (name, contextName) {
-            var context = require.s.contexts[contextName],
-                url = require.nameToUrl(name, null, contextName);
+    define({
+        load: function (name, req, onLoad) {
+            var url = req.nameToUrl(name, null);
 
             //Make sure the async attribute is not set for any pathway involving
             //this script.
@@ -105,7 +90,9 @@
             if (supportsInOrderExecution) {
                 //Just a normal script tag append, but without async attribute
                 //on the script.
-                require([name], contextName);
+                req([name], function (value) {
+                    onLoad(value);
+                });
             } else {
                 //Credit to LABjs author Kyle Simpson for finding that scripts
                 //with type="script/cache" allow scripts to be downloaded into
@@ -113,32 +100,13 @@
                 //so that subsequent addition of a real type="text/javascript"
                 //tag will cause the scripts to be executed immediately in the
                 //correct order.
-                context.orderWaiting.push(name);
-                context.loaded[name] = false;
-                require.attach(url, contextName, name, scriptCacheCallback, "script/cache");
+                waiting.push({
+                    name: name,
+                    req: req,
+                    onLoad: onLoad
+                });
+                require.attach(url, "", name, scriptCacheCallback, "script/cache");
             }
-        },
-
-        /**
-         * Called when the dependencies of a module are checked.
-         */
-        checkDeps: function (name, deps, context) {
-            //No-op, checkDeps never gets these order items, they are always
-            //a dependency, see load for the action.
-        },
-
-        /**
-         * Called to determine if a module is waiting to load.
-         */
-        isWaiting: function (context) {
-            return !!context.orderWaiting.length;
-        },
-
-        /**
-         * Called when all modules have been loaded. Not needed for this plugin.
-         * State is reset as part of scriptCacheCallback. 
-         */
-        orderDeps: function (context) {
         }
     });
 }());

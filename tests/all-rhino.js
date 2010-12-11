@@ -16,19 +16,18 @@ load("doh/_rhinoRunner.js");
 //Load require with rhino extension
 load("../require.js");
 load("../require/rhino.js");
-load("../require/transportD.js");
 
 //Load the tests.
 load("simple-tests.js");
 load("circular-tests.js");
 load("relative/relative-tests.js");
-load("transportD/transportD-tests.js");
 load("exports/exports-tests.js");
 load("anon/anon-tests.js");
 load("packages/packages-tests.js");
 
 //Hmm, odd, need to call doh.run 3 times to see the summary result, even though
 //each test runs doh.run()?
+doh.run();
 doh.run();
 doh.run();
 doh.run();

@@ -6,7 +6,7 @@ require({
     }
 });
 
-require(["jquery.gamma", "jquery.epsilon"], function() {
+define(["jquery.gamma", "jquery.epsilon"], function() {
 
     $(function () {
         doh.is('epsilon', $('body').epsilon());

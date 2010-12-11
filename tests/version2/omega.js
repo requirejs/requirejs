@@ -1,6 +1,5 @@
 require.def("omega",
-  ["sigma"],
-  function(epsilon) {
+  function() {
     return {
       version: 2
     };

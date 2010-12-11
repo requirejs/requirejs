@@ -4,7 +4,7 @@ require({
     ["require", "map", "simple", "dimple", "func"],
     function(require, map, simple, dimple, func) {
         doh.register(
-            "simple", 
+            "simple",
             [
                 function colors(t){
                     t.is("map", map.name);
@@ -14,6 +14,9 @@ require({
                 }
             ]
         );
-        doh.run();
+        //In rhino there is no more simple tests, but in web browser there is.
+        if (typeof moreSimpleTests === undefined) {
+            doh.run();
+        }
     }
 );

@@ -15,51 +15,48 @@
 
     var natives = process.binding('natives'),
         isDebug = global.__requireIsDebug,
-        suffixRegExp = /\.js$/;
+        suffixRegExp = /\.js$/,
+        baseContext = require.s.contexts._;
 
     //Override require callback to use exports as the "this", to accomodate
     //some modules that attach to "this". WTF? Specifically,
     //socket.io/support/socket.io-client/lib/io.js.
     require.execCb = function (name, cb, args) {
-        return cb.apply(require.s.contexts[require.s.ctxName].defined[name] || null, args);
+        return cb.apply(baseContext.defined[name] || null, args);
     };
 
-    require.get = function (moduleName, contextName, relModuleName) {
+    require.get = function (context, moduleName, relModuleName) {
         if (moduleName === "require" || moduleName === "exports" || moduleName === "module") {
             require.onError(new Error("Explicit require of " + moduleName + " is not allowed."));
         }
-        contextName = contextName || require.s.ctxName;
 
-        var ret, context = require.s.contexts[contextName];
+        var ret;
 
         //Normalize module name, if it contains . or ..
-        moduleName = require.normalizeName(moduleName, relModuleName, context);
+        moduleName = context.normalizeName(moduleName, relModuleName);
 
-        ret = context.defined[moduleName];
-        if (ret === undefined) {
-            //Try to dynamically fetch it.
-            require([moduleName], function () {}, contextName, relModuleName);
-            //The above call is sync, so can do the next thing safely.
+        if (moduleName in context.defined) {
             ret = context.defined[moduleName];
+        } else {
+            if (ret === undefined) {
+                //Try to dynamically fetch it.
+                require.load(context, moduleName);
+                //The above call is sync, so can do the next thing safely.
+                ret = context.defined[moduleName];
+            }
         }
+
         return ret;
     };
 
-    //Sync environments can allow multiple nested checkLoaded calls since
-    //nested dependencies are satisfied immediately.
-    require.blockCheckLoaded = false;
-
     //TODO: make this async. Using sync now to cheat to get to a bootstrap.
-    require.load = function (moduleName, contextName) {
-        var url = require.nameToUrl(moduleName, null, contextName),
-            context = require.s.contexts[contextName],
-            content, dirName, indexUrl;
+    require.load = function (context, moduleName) {
+        var url = context.nameToUrl(moduleName, null),
+            dirName, indexUrl, content;
+
 
         //isDone is used by require.ready()
         require.s.isDone = false;
-
-        //Indicate a the module is in process of loading.
-        context.loaded[moduleName] = false;
 
         //Load the content for the module. Be sure to first check the natives
         //modules that are burned into node first.
@@ -121,10 +118,19 @@
                   '"; var __filename = "' + url +
                   '";\n' + content + '\n}());';
 
+
+        //Indicate a the module is in process of loading.
+        context.loaded[moduleName] = false;
+        context.scriptCount += 1;
+
+        if (isDebug && moduleName === 'http') {
+            logger.trace(content);
+        }
+
         process.compile(content, url);
 
         //Support anonymous modules.
-        require.completeLoad(moduleName, context);
+        context.completeLoad(moduleName);
     };
 
     //Adapter to get text plugin to work.
@@ -156,5 +162,3 @@
     delete global.__requireIsDebug;
     delete global.__requireFileExists;
 }());
-
-

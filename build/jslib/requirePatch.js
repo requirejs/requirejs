@@ -101,12 +101,13 @@
     };
 
     //Override load so that the file paths can be collected.
-    require.load = function (moduleName, contextName) {
+    require.load = function (context, moduleName) {
         /*jslint evil: true */
-        var url = require.nameToUrl(moduleName, null, contextName),
-            contents,
-            context = require.s.contexts[contextName];
+        var url = context.nameToUrl(moduleName),
+            contents;
+
         context.loaded[moduleName] = false;
+        context.scriptCount += 1;
 
         //Only handle urls that can be inlined, so that means avoiding some
         //URLs like ones that require network access or may be too dynamic,
@@ -154,7 +155,7 @@
                 eval(contents);
 
                 //Support anonymous modules.
-                require.completeLoad(moduleName, context);
+                context.completeLoad(moduleName);
             }
 
             // remember the list of dependencies for this layer - don't remember plugins
@@ -165,7 +166,6 @@
 
         //Mark the module loaded.
         context.loaded[moduleName] = true;
-        require.checkLoaded(contextName);
     };
 
     //Override a method provided by require/text.js for loading text files as

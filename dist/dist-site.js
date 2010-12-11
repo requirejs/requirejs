@@ -35,7 +35,7 @@ fileUtil.copyFile("main.css", "./dist-site/main.css");
 fileUtil.copyFile("init.js", "./dist-site/init.js");
 fileUtil.copyDir("i/", "./dist-site/i/", /\w/);
 fileUtil.copyDir("fonts", "./dist-site/fonts", /\w/);
-fileUtil.copyFile("../README.md", "./dist-site/index.html");
+fileUtil.copyFile("../index.html", "./dist-site/index.html");
 fileUtil.copyDir("../docs/", "./dist-site/docs/", /\w/);
 
 preContents = fileUtil.readFile("pre.html");

@@ -24,7 +24,7 @@ if (location.href.indexOf('http://127.0.0.1/requirejs/') === 0) {
     doh.registerUrl("simple-badbase", "../simple-badbase.html");
 }
 
- 
+
 doh.registerUrl("circular", "../circular.html");
 doh.registerUrl("depoverlap", "../depoverlap.html");
 doh.registerUrl("urlfetch", "../urlfetch/urlfetch.html");
@@ -42,7 +42,6 @@ doh.registerUrl("i18nlocale", "../i18n/i18n.html?locale=en-us-surfer");
 //Fail in PS3
 doh.registerUrl("i18nbundle", "../i18n/i18n.html?bundle=i18n!nls/en-us-surfer/colors");
 
-doh.registerUrl("modifiers", "../modifier/modifier.html", 10000);
 doh.registerUrl("pause/resume", "../pauseresume/pauseresume.html", 10000);
 doh.registerUrl("afterload", "../afterload.html", 10000);
 doh.registerUrl("text", "../text/text.html");
@@ -54,7 +53,6 @@ doh.registerUrl("relative", "../relative/relative.html");
 
 //Hmm, PS3 does not like exports test? assign2 is undefined?
 doh.registerUrl("exports", "../exports/exports.html");
-doh.registerUrl("transportD", "../transportD/transportD.html");
 
 
 doh.registerUrl("priority", "../priority/priority.html");

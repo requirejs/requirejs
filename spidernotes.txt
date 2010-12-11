@@ -1,0 +1,25 @@
+- jquery/jqueryDynamic2.html in IE8: sometimes if using cache, the jquery ready callbacks do not fire,
+  even though we seem to indicate it correctly? Trace latest jQuery 1.4.4.
+- check circular dep test in safari, commonjs tests too.
+- See if the exclude pragmas still make sense.
+
+- Support npm paths?
+- 
+
+1) In HTML, doing a require(["app"], function () {}),
+
+the function will only be called if app.js uses define() to define itself vs. require.
+
+2) No require.modify
+- REMOVED from the docs!
+
+3) No more pause/resume calls.
+
+4) nameToUrl is different than toUrl, and toUrl *requires* the use of module
+   names, cannot be optionally urls like what nameToUrl supports?
+
+5) Support ifdef! plugin?
+
+6) Pass config object to plugins? require.mixin, require.attach..
+
+7) Remove doc notes to Transport D, transportD
