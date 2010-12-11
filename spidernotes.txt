@@ -3,6 +3,9 @@
 - check circular dep test in safari, commonjs tests too.
 - See if the exclude pragmas still make sense.
 
+- Support npm paths?
+- 
+
 1) In HTML, doing a require(["app"], function () {}),
 
 the function will only be called if app.js uses define() to define itself vs. require.
