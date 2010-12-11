@@ -1214,21 +1214,24 @@ var require, define;
         //CommonJS thing with dependencies.
         if (!name && !deps.length && req.isFunction(callback)) {
             //Remove comments from the callback string,
-            //look for require calls, and pull them into the dependencies.
-            callback
-                .toString()
-                .replace(commentRegExp, "")
-                .replace(cjsRequireRegExp, function (match, dep) {
-                    deps.push(dep);
-                });
+            //look for require calls, and pull them into the dependencies,
+            //but only if there are function args.
+            if (callback.length) {
+                callback
+                    .toString()
+                    .replace(commentRegExp, "")
+                    .replace(cjsRequireRegExp, function (match, dep) {
+                        deps.push(dep);
+                    });
 
-            //May be a CommonJS thing even without require calls, but still
-            //could use exports, and such, so always add those as dependencies.
-            //This is a bit wasteful for RequireJS modules that do not need
-            //an exports or module object, but erring on side of safety.
-            //REQUIRES the function to expect the CommonJS variables in the
-            //order listed below.
-            deps = ["require", "exports", "module"].concat(deps);
+                //May be a CommonJS thing even without require calls, but still
+                //could use exports, and such, so always add those as dependencies.
+                //This is a bit wasteful for RequireJS modules that do not need
+                //an exports or module object, but erring on side of safety.
+                //REQUIRES the function to expect the CommonJS variables in the
+                //order listed below.
+                deps = ["require", "exports", "module"].concat(deps);
+            }
         }
 
         //If in IE 6-8 and hit an anonymous define() call, do the interactive
