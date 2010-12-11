@@ -847,6 +847,14 @@ var require, define;
             require: function (deps, callback, relModuleName) {
                 var moduleName, ret, nameProps;
                 if (typeof deps === "string") {
+                    //Synchronous access to one module. If require.get is
+                    //available (as in the Node adapter), prefer that.
+                    //In this case deps is the moduleName and callback is
+                    //the relModuleName
+                    if (req.get) {
+                        return req.get(context, deps, callback);
+                    }
+
                     //Just return the module wanted. In this scenario, the
                     //second arg (if passed) is just the relModuleName.
                     moduleName = deps;
@@ -1075,7 +1083,7 @@ var require, define;
 
         context = contexts[contextName] ||
                   (contexts[contextName] = newContext(contextName));
-debugger;
+
         if (config) {
             context.configure(config);
         }

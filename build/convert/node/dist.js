@@ -41,13 +41,14 @@ var injected = [
 
     requirejs = [
         fileUtil.readFile("../../../require.js"),
-        fileUtil.readFile("../../../require/i18n.js"),
-        fileUtil.readFile("../../../require/text.js")
-    ].join("\n");
+        //Make sure to name the modules, otherwise will get mismatched module error.
+        fileUtil.readFile("../../../require/i18n.js").replace(/define\(/, 'define("require/i18n",'),
+        fileUtil.readFile("../../../require/text.js").replace(/define\(/, 'define("require/text",')
+    ].join("\n"),
 
     adapter = fileUtil.readFile("requireAdapter.js"),
     r = fileUtil.readFile("r-source.js");
-    
+
 //Inject files into requireAdapter.
 adapter = jsEscape(adapter.replace(/\/\*INSERT REQUIREJS HERE\*\//, requirejs)
                  .replace(/\/\*INSERT PROTECTED CONTENT HERE\*\//, injected));
