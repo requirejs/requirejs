@@ -177,8 +177,16 @@ var require, define;
                             name.splice(i, 1);
                             i -= 1;
                         } else if (part === "..") {
-                            name.splice(i - 1, 2);
-                            i -= 2;
+                            if (i === 1) {
+                                //End of the line. Keep at least one non-dot
+                                //path segment at the front so it can be mapped
+                                //correctly to disk. Otherwise, there is likely
+                                //no path mapping for '..'.
+                                break;
+                            } else if (i > 1) {
+                                name.splice(i - 1, 2);
+                                i -= 2;
+                            }
                         }
                     }
                     name = name.join("/");
