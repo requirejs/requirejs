@@ -23,18 +23,13 @@
     <li class="hbox"><a href="#mechanics">Mechanics</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2</span></li>
     <li class="hbox"><a href="#config">Configuration Options</a><span class="spacer boxFlex"></span><span class="sect">&sect; 3</span></li>
     <li class="hbox"><a href="#pageload">Page Load Event Support</a><span class="spacer boxFlex"></span><span class="sect">&sect; 4</span></li>
-    <li class="hbox"><a href="#advanced">Advanced Usage</a><span class="spacer boxFlex"></span><span class="sect">&sect;&sect; 5-5.6</span></li>
+    <li class="hbox"><a href="#advanced">Advanced Usage</a><span class="spacer boxFlex"></span><span class="sect">&sect;&sect; 5-5.5</span></li>
     <ul>
         <li class="hbox"><a href="#packages">Loading Modules from Packages</a><span class="spacer boxFlex"></span><span class="sect">&sect; 5.1</span></li>
         <li class="hbox"><a href="#multiversion">Multiversion Support</a><span class="spacer boxFlex"></span><span class="sect">&sect; 5.2</span></li>
         <li class="hbox"><a href="#afterload">Loading Code After Page Load</a><span class="spacer boxFlex"></span><span class="sect">&sect; 5.3</span></li>
-        <li class="hbox"><a href="#modifiers">Module Modifiers</a><span class="spacer boxFlex"></span><span class="sect">&sect; 5.4</span></li>
-            <ul>
-                <li class="hbox"><a href="#modregister">Modifier Registration</a><span class="spacer boxFlex"></span><span class="sect">&sect; 5.4.1</span></li>
-                <li class="hbox"><a href="#moddef">Modifier Definition</a><span class="spacer boxFlex"></span><span class="sect">&sect; 5.4.2</span></li>
-            </ul>
-        <li class="hbox"><a href="#webworker">Web Worker Support</a><span class="spacer boxFlex"></span><span class="sect">&sect; 5.5</span></li>
-        <li class="hbox"><a href="#rhino">Rhino Support</a><span class="spacer boxFlex"></span><span class="sect">&sect; 5.6</span></li>
+        <li class="hbox"><a href="#webworker">Web Worker Support</a><span class="spacer boxFlex"></span><span class="sect">&sect; 5.4</span></li>
+        <li class="hbox"><a href="#rhino">Rhino Support</a><span class="spacer boxFlex"></span><span class="sect">&sect; 5.5</span></li>
     </ul>
 </ul>
 </div>
@@ -67,7 +62,8 @@
     require(["a.js", "b.js", "some/module"], function() {
         //This function will be called when all the dependencies
         //listed above are loaded. Note that this function could
-        //be called before the page is loaded. This callback is optional.
+        //be called before the page is loaded.
+        //This callback is optional.
     });
 &lt;/script&gt;
 </code></pre>
@@ -197,14 +193,15 @@ define(["./cart", "./inventory"], function(cart, inventory) {
 //but since foo/bar.js is in a different directory than
 //the "my" modules, it uses the "my" in the module dependency
 //name to find them. The "my" part of the name can be mapped
-//to any directory, but by default, it is assumed to be a sibling
-//to the "foo" directory.
+//to any directory, but by default, it is assumed to be a
+//sibling to the "foo" directory.
 define(["my/cart", "my/inventory"],
     function(cart, inventory) {
-        //return a function to define "foo/title". It gets or sets
-        //the window title.
+        //return a function to define "foo/title".
+        //It gets or sets the window title.
         return function(title) {
-            return title ? (window.title = title) : inventory.storeName + ' ' + cart.name;
+            return title ? (window.title = title) :
+                   inventory.storeName + ' ' + cart.name;
         }
     }
 );
@@ -379,8 +376,10 @@ define({
 
 <pre><code>require(["some/module", "text!some/module.html", "text!some/module.css"],
     function(module, html, css) {
-        //the html variable will be the text of the some/module.html file
-        //the css variable will be the text of the som/module.css file.
+        //the html variable will be the text
+        //of the some/module.html file
+        //the css variable will be the text
+        //of the som/module.css file.
     }
 );
 </code></pre>
@@ -391,8 +390,9 @@ define({
 
 <pre><code>require(["text!some/module.html!strip"],
     function(html) {
-        //the html variable will be the text of the some/module.html file,
-        //but only the part inside the body tag.
+        //the html variable will be the text of the
+        //some/module.html file, but only the part
+        //inside the body tag.
     }
 );
 </code></pre>
@@ -485,7 +485,8 @@ define({
       function() {
           //This function will be called when all the dependencies
           //listed above are loaded. Note that this function could
-          //be called before the page is loaded. This callback is optional.
+          //be called before the page is loaded.
+          //This callback is optional.
       }
   );
 &lt;/script&gt;
@@ -498,13 +499,14 @@ define({
         deps: ["a.js", "b.js", "some/module1", "my/module2"],
         callback: function(a, b, module1, module2) {
             //This function will be called when all the dependencies
-            //listed above in deps are loaded. Note that this function could
-            //be called before the page is loaded. This callback is optional.
+            //listed above in deps are loaded. Note that this
+            //function could be called before the page is loaded.
+            //This callback is optional.
         },
         ready: function() {
             //This function called once the DOM is ready.
-            //If you build require.js without page load support, then nothing
-            //is done with this function.
+            //If you build require.js without page load support,
+            //then nothing is done with this function.
         }
     };
 &lt;/script&gt;
@@ -819,7 +821,8 @@ require({
       setTimeout(function() {
         require(["omega"],
           function(omega) {
-            log("version1 omega loaded with version: " + omega.version); //prints 1
+            log("version1 omega loaded with version: " +
+                omega.version); //prints 1
           }
         );
       }, 100);
@@ -838,7 +841,8 @@ require({
       setTimeout(function() {
         require(["omega"],
           function(omega) {
-            log("version2 omega loaded with version: " + omega.version); //prints 2
+            log("version2 omega loaded with version: " +
+                omega.version); //prints 2
           }
         );
       }, 100);
@@ -853,73 +857,7 @@ require({
 
 <p>The example above in the <strong>Multiversion Support</strong> section shows how code can later be loaded by nested require() calls. </p>
 
-<h3><a name="modifiers">Module Modifiers</a><span class="sectionMark">&sect; 5.4</span></h3>
-
-<p>There are some cases where you want to be able to modify the behavior of a module. A common case is setting up a base module but modifying it only if some specific information or state is available.</p>
-
-<p>One example could be a module that calculates DOM node positions and sizes. In standards mode, the calculations are simpler, but in quirks mode it can be trickier. You may want to avoid loading the quirks mode code unless the browser page is really in quirks mode, but you still want the node dimension module to have the same interface to other modules.</p>
-
-<p>Enter Module Modifiers. They allow you to modify properties of a module. Some properties of module modifiers:</p>
-
-<ul>
-<li>modifiers are executed before the target module is given to other modules as dependency.</li>
-<li>modifiers can be specified before the target module is loaded.</li>
-<li>modifiers can be lazy-loaded and lazy-evaluated: only executed if the target module is loaded.</li>
-<li>modifiers can only modify <strong>properties</strong> of a module. They cannot completely redefine the whole module.</li>
-</ul>
-
-<p>require.modify() is used for modifiers, and require.modify() can be called in two ways:</p>
-
-<ul>
-<li>Modifier registration.</li>
-<li>Modifier definition.</li>
-</ul>
-
-<div class="subSection">
-<h4><a name="modregister">Modifier Registration</a><span class="sectionMark">&sect; 5.4.1</span></h4>
-
-<p>If you want to tell require.js that there is a modifier, but not actually load the modifier or the target yet, then just register the modifiers with require.js:</p>
-
-<pre><code>require.modify({
-    "my/target1": "my/modifier1",
-    "my/target1": "my/modifier2",
-    "my/target2": "my/modifier3"
-});
-</code></pre>
-
-<p>This call tells require.js to load the "my/modifier1" and "my/modifier2" modules if the "my/target1" module is loaded and to load "my/modifier3" module if "my/target2" is loaded.</p>
-
-<p>You are not required to register modifiers with require.js. Only do it if you want to avoid loading the target modules and defining the modifiers right away. Otherwise, you can use Modifier Definition.</p>
-</div>
-
-<div class="subSection">
-<h4><a name="moddef">Modifier Definition</a><span class="sectionMark">&sect; 5.4.2</span></h4>
-
-<p>A modifier definition looks like a normal define() module definition, but:</p>
-
-<ul>
-<li>require.modify() is used.</li>
-<li>the target module's name is listed first in the require.modify() call.</li>
-<li>modifiers do not need to return an object from the function definition, since they are just modifying another module.</li>
-</ul>
-
-<p>For the example given above in Modifier Registration, where "my/target1" is the target module and "my/modifier1" is the modifier, the "my/modifier1" module might look like this:</p>
-
-<pre><code>require.modify(
-    "my/target1",
-    "my/modifier1",
-    ["my/target1"],
-    function(target1) {
-        //Modify the properties on target1 as appropriate.
-        //No need to return a value from this function since it
-        //modifies another module.
-        target1.foo = function(){};
-    }
-);
-</code></pre>
-</div>
-
-<h3><a name="webworker">Web Worker Support</a><span class="sectionMark">&sect; 5.5</span></h3>
+<h3><a name="webworker">Web Worker Support</a><span class="sectionMark">&sect; 5.4</span></h3>
 
 <p>As of release 0.12, RequireJS can be run inside a Web Worker. Just use importScripts() inside a web worker to load require.js (or the JS file that contains the require() definition), then call require.</p>
 
@@ -927,7 +865,7 @@ require({
 
 <p>You can see an example of its use by looking at one of the files used in <a href="http://github.com/jrburke/requirejs/blob/master/tests/workers.js">the unit test</a>.</p>
 
-<h3><a name="rhino">Rhino Support</a><span class="sectionMark">&sect; 5.6</span></h3>
+<h3><a name="rhino">Rhino Support</a><span class="sectionMark">&sect; 5.5</span></h3>
 
 <p>RequireJS can be used in Rhino, just be sure to load require.js and require/rhino.js before doing any require calls:</p>
 
