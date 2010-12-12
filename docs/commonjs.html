@@ -2,13 +2,13 @@
 <h1>CommonJS Notes</h1>
 
 <ul class="index mono">
-<li class="hbox"><a href="#intro">Introduction</a><span class="spacer boxFlex"></span><span>&sect; 1</span></li>
-<li class="hbox"><a href="#manualconversion">Manual Conversion</a><span class="spacer boxFlex"></span><span>&sect; 2</span></li>
-<li class="hbox"><a href="#autoconversion">Conversion Tool</a><span class="spacer boxFlex"></span><span>&sect; 3</span></li>
-<li class="hbox"><a href="#exports">Setting Exported Value</a><span class="spacer boxFlex"></span><span>&sect; 4</span></li>
-<li class="hbox"><a href="#altsyntax">Alternative Syntax</a><span class="spacer boxFlex"></span><span>&sect; 5</span></li>
-<li class="hbox"><a href="packages">Loading Modules from CommonJS Packages</a><span class="spacer boxFlex"></span><span>&sect; 6</span></li>
-<li class="hbox"><a href="#optimize">Optimization Tool</a><span class="spacer boxFlex"></span><span>&sect; 7</span></li>
+<li class="hbox"><a href="#intro">Introduction</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1</span></li>
+<li class="hbox"><a href="#manualconversion">Manual Conversion</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2</span></li>
+<li class="hbox"><a href="#autoconversion">Conversion Tool</a><span class="spacer boxFlex"></span><span class="sect">&sect; 3</span></li>
+<li class="hbox"><a href="#exports">Setting Exported Value</a><span class="spacer boxFlex"></span><span class="sect">&sect; 4</span></li>
+<li class="hbox"><a href="#altsyntax">Alternative Syntax</a><span class="spacer boxFlex"></span><span class="sect">&sect; 5</span></li>
+<li class="hbox"><a href="packages">Loading Modules from CommonJS Packages</a><span class="spacer boxFlex"></span><span class="sect">&sect; 6</span></li>
+<li class="hbox"><a href="#optimize">Optimization Tool</a><span class="spacer boxFlex"></span><span class="sect">&sect; 7</span></li>
 </ul>
 
 </div>
@@ -28,7 +28,7 @@
 
 <p>If you just have a few modules to convert, then all you need to do is wrap the module in this code:</p>
 
-<pre><code>define(function(require, exports, module) { 
+<pre><code>define(function(require, exports, module) {
     //Put traditional CommonJS module content here
 });
 </code></pre>
@@ -88,4 +88,3 @@
 
 <p>RequireJS has an optimization tool that can combine module definitions together into optimized bundles for browser delivery. It works as a command-line tool that you use as part of code deployment. See the <a href="optimization.html">optimization docs</a> for more information.</p>
 </div>
-

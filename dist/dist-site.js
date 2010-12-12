@@ -27,11 +27,12 @@ load("../build/jslib/fileUtil.js");
 var files, i, htmlFile, transFile, fileContents,
     runtime = Packages.java.lang.Runtime.getRuntime(),
     process, preContents, postContents, h1, homePath, cssPath,
-    jsPath, length, j, isTopPage = false;
+    ieCssPath, jsPath, length, j, isTopPage = false;
 
 //Copy all the text files to a dist directory
 //fileUtil.deleteFile("./dist-site/");
 fileUtil.copyFile("main.css", "./dist-site/main.css");
+fileUtil.copyFile("ie.css", "./dist-site/ie.css");
 fileUtil.copyFile("init.js", "./dist-site/init.js");
 fileUtil.copyDir("i/", "./dist-site/i/", /\w/);
 fileUtil.copyDir("fonts", "./dist-site/fonts", /\w/);
@@ -76,6 +77,7 @@ for (i = 0; (htmlFile = files[i]); i++) {
         isTopPage = true;
         homePath = "./";
         cssPath = "main.css";
+        ieCssPath = "ie.css";
         jsPath = "init.js";
     } else {
         isTopPage = false;
@@ -85,10 +87,12 @@ for (i = 0; (htmlFile = files[i]); i++) {
             homePath += "../";
         }
         cssPath = homePath + "main.css";
+        ieCssPath = homePath + "ie.css";
         jsPath = homePath + "init.js";
     }
     fileContents = fileContents.replace(/HOMEPATH/, homePath);
     fileContents = fileContents.replace(/\main\.css/, cssPath);
+    fileContents = fileContents.replace(/\ie\.css/, ieCssPath);
     fileContents = fileContents.replace(/\init\.js/, jsPath);
 
 
