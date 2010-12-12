@@ -9,6 +9,10 @@ This file assumes Java 1.6 or greater is installed:
 
 > java -jar ../build/lib/rhino/js.jar dist-site.js
 
+This site assumes that the dist-site/i directory from
+https://jrburke@github.com/jrburke/requirejs-branding.git
+are included in the final push to the web site.
+
 debugging:
 
 > java -classpath ../build/lib/rhino/js.jar org.mozilla.javascript.tools.debugger.Main dist-site.js
@@ -34,7 +38,6 @@ var files, i, htmlFile, transFile, fileContents,
 fileUtil.copyFile("main.css", "./dist-site/main.css");
 fileUtil.copyFile("ie.css", "./dist-site/ie.css");
 fileUtil.copyFile("init.js", "./dist-site/init.js");
-fileUtil.copyDir("i/", "./dist-site/i/", /\w/);
 fileUtil.copyDir("fonts", "./dist-site/fonts", /\w/);
 fileUtil.copyFile("../index.html", "./dist-site/index.html");
 fileUtil.copyDir("../docs/", "./dist-site/docs/", /\w/);
