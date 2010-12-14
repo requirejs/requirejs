@@ -1407,6 +1407,13 @@ var require, define;
                         id: name,
                         uri: name ? req.nameToUrl(name, null, context.contextName) : undefined
                     };
+                    // HACK: This should be relocated
+                    // add "package" property if applicable
+                    var parts = module.name.split("/");
+                    if(parts.length>=2 && context.config.packages && context.config.packages[parts[0]]) {
+                        depModule["package"] = parts[0];
+                    }
+                    // /HACK
                     cjsModule.setExports = makeSetExports(cjsModule);
                 } else {
                     //Get dependent module. It could not exist, for a circular
