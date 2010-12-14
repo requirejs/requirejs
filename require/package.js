@@ -25,12 +25,16 @@
 
             // get package.json object
             var descriptor = callback();
+            
+            var libDir = descriptor && descriptor.directories && descriptor.directories.lib;
+            if(typeof libDir != "string"){
+                libDir = "lib";
+            }
 
             context.config.packages[m[1]] = {
                 "name": m[1],
                 "main": "main",
-                // TODO: asjust based on descriptor.directories.lib
-                "lib": "lib",
+                "lib": libDir,
                 "location": m[1],
                 "mappings": descriptor.mappings
             };

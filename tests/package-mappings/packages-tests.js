@@ -27,6 +27,9 @@ define("package!package3-dir/package.json", function() {
     return {
         "mappings": {
             "package2": "package2-dir"
+        },
+        "directories": {
+            "lib": "lib-dir"
         }
     };
 });
