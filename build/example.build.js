@@ -5,7 +5,7 @@
  * THIS BUILD FILE WILL NOT WORK. It is referencing paths that probably
  * do not exist on your machine. Just use it as a guide.
  *
- * 
+ *
  */
 
 ({
@@ -97,14 +97,6 @@
     //Skip processing for pragmas.
     skipPragmas: false,
 
-    //If execModules is true, each script is execute in
-    //full to find the require calls/dependencies, but the code is executed
-    //in the Rhino JavaScript environment. Set this value to true only
-    //if the code follows the strict require pattern of wrapping all
-    //code in a require callback. If you are using jQuery, Prototype or MooTools
-    //you should not set this value to true. Default is false.
-    execModules: false,
-
     //If skipModuleInsertion is false, then files that do not use require.def
     //to define modules will get a require.def() placeholder inserted for them.
     //Also, require.pause/resume calls will be inserted.
@@ -125,7 +117,7 @@
         //built file unless the locale: section is set above.
         {
             name: "foo/bar/bop",
-            
+
             //Should the contents of require.js be included in the optimized module.
             //Defaults to false.
             includeRequire: true,
@@ -175,4 +167,3 @@
         }
     ]
 })
-

@@ -342,7 +342,9 @@ var require, define;
             }
 
             if (prefix) {
-                //If it needs to be remapped to default set, do that now.
+                //Queue up loading of the dependency, track it
+                //via context.plugins
+                context.plugins[prefix] = undefined;
                 queueDependency(splitPrefix(prefix));
             }
 
@@ -773,7 +775,9 @@ var require, define;
             urlFetched: {},
             defined: defined,
             paused: [],
+            plugins: plugins,
             managerCallbacks: managerCallbacks,
+            splitPrefix: splitPrefix,
             normalizeName: normalizeName,
             /**
              * Set a configuration for the context.
@@ -890,7 +894,7 @@ var require, define;
 
                 //If the require call does not trigger anything new to load,
                 //then resume the dependency processing.
-                if (!context.scriptCount) {
+                while (!context.scriptCount && context.paused.length) {
                     resume();
                 }
                 return undefined;

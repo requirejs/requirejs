@@ -20,14 +20,13 @@ var build, buildBaseConfig;
             paths: {},
             optimize: "closure",
             optimizeCss: "standard.keepLines",
-            inlineText: true,
-            execModules: false
+            inlineText: true
         };
 
     build = function (args) {
         var requireBuildPath, buildFile, baseUrlFile, buildPaths, deps, fileName, fileNames,
             prop, props, paths, path, i, fileContents, buildFileContents = "",
-            doClosure, requireContents, pluginContents, pluginBuildFileContents,
+            doClosure, requireContents, pluginBuildFileContents,
             baseConfig, override, builtRequirePath, cmdConfig, config,
             modules, module, moduleName, builtModule, srcPath, buildContext;
 
@@ -517,7 +516,7 @@ var build, buildBaseConfig;
 
         //Figure out module layer dependencies by calling require to do the work.
         require(include);
-
+debugger;
         //Pull out the layer dependencies. Do not use the old context
         //but grab the latest value from inside require() since it was reset
         //since our last context reference.
@@ -548,14 +547,15 @@ var build, buildBaseConfig;
      */
     build.flattenModule = function (module, layer, config) {
         var buildFileContents = "", requireContents = "",
-            pluginContents = "", pluginBuildFileContents = "", includeRequire,
+            context = require.s.contexts._,
             //This regexp is not bullet-proof, and it has one optional part to
             //avoid issues with some Dojo transition modules that use a
             //define(\n//begin v1.x content
             //for a comment.
             anonDefRegExp = /(require\s*\.\s*def|define)\s*\(\s*(\/\/[^\n\r]*[\r\n])?(\[|f|\{)/,
             prop, path, reqIndex, fileContents, currContents,
-            i, moduleName, specified, deps;
+            i, moduleName, specified, deps, includeRequire,
+            parts, builder;
 
         //Use override settings, particularly for pragmas
         if (module.override) {
@@ -570,8 +570,6 @@ var build, buildBaseConfig;
 
         //If the file wants require.js added to the module, add it now
         requireContents = "";
-        pluginContents = "";
-        pluginBuildFileContents = "";
         includeRequire = false;
         if ("includeRequire" in module) {
             includeRequire = module.includeRequire;
@@ -595,33 +593,43 @@ var build, buildBaseConfig;
         for (i = 0; (path = layer.buildFilePaths[i]); i++) {
             moduleName = layer.buildFileToModule[path];
 
-            //Add the contents but remove any pragmas.
-            currContents = pragma.process(path, fileUtil.readFile(path), config);
+            //Figure out if the module is a result of a build plugin, and if so,
+            //then delegate to that plugin.
+            parts = context.splitPrefix(moduleName);
+            builder = parts.prefix && require.pluginBuilders[parts.prefix];
+            if (builder && builder.onWrite) {
+                builder.onWrite(moduleName, function (input) {
+                    fileContents += input;
+                });
+            } else {
+                //Add the contents but remove any pragmas.
+                currContents = pragma.process(path, fileUtil.readFile(path), config);
 
-            //If anonymous module, insert the module name.
-            currContents = currContents.replace(anonDefRegExp, function (match, callName, possibleComment, suffix) {
-                layer.modulesWithNames[moduleName] = true;
+                //If anonymous module, insert the module name.
+                currContents = currContents.replace(anonDefRegExp, function (match, callName, possibleComment, suffix) {
+                    layer.modulesWithNames[moduleName] = true;
 
-                //Look for CommonJS require calls inside the function if this is
-                //an anonymous define/require.def call that just has a function registered.
-                deps = null;
-                if (suffix.indexOf('f') !== -1) {
-                    deps = parse.getAnonDeps(path, currContents);
-                    if (deps.length) {
-                        deps = deps.map(function (dep) {
-                            return "'" + dep + "'";
-                        });
-                    } else {
-                        deps = null;
+                    //Look for CommonJS require calls inside the function if this is
+                    //an anonymous define/require.def call that just has a function registered.
+                    deps = null;
+                    if (suffix.indexOf('f') !== -1) {
+                        deps = parse.getAnonDeps(path, currContents);
+                        if (deps.length) {
+                            deps = deps.map(function (dep) {
+                                return "'" + dep + "'";
+                            });
+                        } else {
+                            deps = null;
+                        }
                     }
-                }
 
-                return "define('" + moduleName + "'," +
-                       (deps ? ('[' + deps.toString() + '],') : '') +
-                       suffix;
-            });
+                    return "define('" + moduleName + "'," +
+                           (deps ? ('[' + deps.toString() + '],') : '') +
+                           suffix;
+                });
 
-            fileContents += currContents;
+                fileContents += currContents;
+            }
 
             buildFileContents += path.replace(config.dir, "") + "\n";
             //Some files may not have declared a require module, and if so,
@@ -631,20 +639,10 @@ var build, buildBaseConfig;
             if (moduleName && !layer.modulesWithNames[moduleName] && !config.skipModuleInsertion) {
                 fileContents += 'define("' + moduleName + '", function(){});\n';
             }
-
-            //If we have plugins but are not injecting require.js,
-            //then need to place the plugins after the require definition,
-            //if it was found.
-            if (layer.existingRequireUrl === path && !includeRequire) {
-                fileContents += pluginContents;
-                buildFileContents += pluginBuildFileContents;
-                pluginContents = "";
-            }
         }
 
         //Add the require file contents to the head of the file.
         fileContents = (requireContents ? requireContents + "\n" : "") +
-                       (pluginContents ? pluginContents + "\n" : "") +
                        fileContents;
 
         return {

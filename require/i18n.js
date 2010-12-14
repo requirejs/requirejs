@@ -56,6 +56,13 @@
         }
     }
 
+    function addIfExists(req, locale, toLoad, prefix, suffix) {
+        var fullName = prefix + locale + '/' + suffix;
+        if (require._fileExists(req.nameToUrl(fullName, null))) {
+            toLoad.push(fullName);
+        }
+    }
+
     define({
         /**
          * Called when a dependency needs to be loaded.
@@ -68,7 +75,10 @@
                 prefix = match[1],
                 locale = match[4],
                 suffix = match[5],
-                value = {};
+                parts = locale.split("-"),
+                toLoad = [],
+                value = {},
+                i, part, current = "";
 
             //If match[5] is blank, it means this is the top bundle definition,
             //so it does not have to be handled. Locale-specific requests
@@ -85,39 +95,48 @@
                         typeof navigator === "undefined" ? "root" :
                         (navigator.language ||
                          navigator.userLanguage || "root").toLowerCase());
+                parts = locale.split("-");
             }
 
-            //First, fetch the master bundle, it knows what locales are available.
-            req([masterName], function (master) {
-                //Figure out the best fit
-                var parts = locale.split("-"),
-                    needed = [],
-                    toLoad = [],
-                    current = "",
-                    part, i;
-
-                //Always allow for root, then do the rest of the locale parts.
-                addPart("root", master, needed, toLoad, prefix, suffix);
+            if (require.isBuild) {
+                //Check for existence of all locale possible files and
+                //require them if exist.
+                toLoad.push(masterName);
+                addIfExists(req, "root", toLoad, prefix, suffix);
                 for (i = 0; (part = parts[i]); i++) {
                     current += (current ? "-" : "") + part;
-                    addPart(current, master, needed, toLoad, prefix, suffix);
+                    addIfExists(req, current, toLoad, prefix, suffix);
                 }
+                req(toLoad);
+            } else {
+                //First, fetch the master bundle, it knows what locales are available.
+                req([masterName], function (master) {
+                    //Figure out the best fit
+                    var needed = [];
 
-                //Load all the parts missing.
-                req(toLoad, function () {
-                    var i, partBundle;
-                    for (i = needed.length - 1; i > -1 && (part = needed[i]); i--) {
-                        partBundle = master[part];
-                        if (partBundle === true || partBundle === 1) {
-                            partBundle = req(prefix + part + '/' + suffix);
-                        }
-                        require.mixin(value, partBundle);
+                    //Always allow for root, then do the rest of the locale parts.
+                    addPart("root", master, needed, toLoad, prefix, suffix);
+                    for (i = 0; (part = parts[i]); i++) {
+                        current += (current ? "-" : "") + part;
+                        addPart(current, master, needed, toLoad, prefix, suffix);
                     }
 
-                    //All done, notify the loader.
-                    onLoad(value);
+                    //Load all the parts missing.
+                    req(toLoad, function () {
+                        var i, partBundle;
+                        for (i = needed.length - 1; i > -1 && (part = needed[i]); i--) {
+                            partBundle = master[part];
+                            if (partBundle === true || partBundle === 1) {
+                                partBundle = req(prefix + part + '/' + suffix);
+                            }
+                            require.mixin(value, partBundle);
+                        }
+
+                        //All done, notify the loader.
+                        onLoad(value);
+                    });
                 });
-            });
+            }
         }
     });
 }());
