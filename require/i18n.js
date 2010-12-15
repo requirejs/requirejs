@@ -108,6 +108,7 @@
                     addIfExists(req, current, toLoad, prefix, suffix);
                 }
                 req(toLoad);
+                onLoad();
             } else {
                 //First, fetch the master bundle, it knows what locales are available.
                 req([masterName], function (master) {

@@ -516,7 +516,7 @@ var build, buildBaseConfig;
 
         //Figure out module layer dependencies by calling require to do the work.
         require(include);
-debugger;
+
         //Pull out the layer dependencies. Do not use the old context
         //but grab the latest value from inside require() since it was reset
         //since our last context reference.
@@ -597,8 +597,9 @@ debugger;
             //then delegate to that plugin.
             parts = context.splitPrefix(moduleName);
             builder = parts.prefix && require.pluginBuilders[parts.prefix];
+
             if (builder && builder.onWrite) {
-                builder.onWrite(moduleName, function (input) {
+                builder.onWrite(parts.prefix, parts.name, function (input) {
                     fileContents += input;
                 });
             } else {

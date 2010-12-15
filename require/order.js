@@ -84,6 +84,12 @@
         load: function (name, req, onLoad) {
             var url = req.nameToUrl(name, null);
 
+            //If a build, just load the module as usual.
+            if (require.isBuild) {
+                loadResource(name, req, onLoad);
+                return;
+            }
+
             //Make sure the async attribute is not set for any pathway involving
             //this script.
             require.s.skipAsync[url] = true;

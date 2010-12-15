@@ -668,6 +668,11 @@ var require, define;
             }
 
             plugins[pluginName].load(name, makeRequire(name), function (ret) {
+                //Allow the build process to register plugin-loaded dependencies.
+                if (require.onPluginLoad) {
+                    require.onPluginLoad(context, pluginName, name, ret);
+                }
+
                 execManager({
                     name: fullName,
                     callback: ret

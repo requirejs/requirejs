@@ -11,7 +11,8 @@
 (function () {
     var progIds = ['Msxml2.XMLHTTP', 'Microsoft.XMLHTTP', 'Msxml2.XMLHTTP.4.0'],
         xmlRegExp = /^\s*<\?xml(\s)+version=[\'\"](\d)*.(\d)*[\'\"](\s)*\?>/im,
-        bodyRegExp = /<body[^>]*>\s*([\s\S]+)\s*<\/body>/im;
+        bodyRegExp = /<body[^>]*>\s*([\s\S]+)\s*<\/body>/im,
+        buildMap = [];
 
     if (!require.textStrip) {
         require.textStrip = function (text) {
@@ -51,7 +52,7 @@
                         progIds = [progId];  // so faster next time
                         break;
                     }
-                }   
+                }
             }
 
             if (!xhr) {
@@ -61,7 +62,7 @@
             return xhr;
         };
     }
-    
+
     if (!require.fetchText) {
         require.fetchText = function (url, callback) {
             var xhr = require.getXhr();
@@ -78,7 +79,7 @@
     }
 
     define({
-        load: function (name, req, onLoad) {
+        load: function (name, req, onLoad, config) {
             //Name has format: some.module!filext!strip!text
             //The strip and text parts are optional.
             //if strip is present, then that means only get the string contents
@@ -116,8 +117,20 @@
                 //Load the text.
                 url = req.nameToUrl(modName, "." + ext);
                 require.fetchText(url, function (text) {
-                    onLoad(strip ? require.textStrip(text) : text);
+                    text = strip ? require.textStrip(text) : text;
+                    if (require.isBuild && config.inlineText) {
+                        buildMap[name] = text;
+                    }
+                    onLoad(text);
                 });
+            }
+        },
+
+        onWrite: function (pluginName, moduleName, write) {
+            if (moduleName in buildMap) {
+                var text = buildMap[moduleName].replace(/'/g, "\\i");
+                write("define('" + pluginName + "!" + moduleName  +
+                      "', function () { return '" + text + "';);\n");
             }
         }
     });

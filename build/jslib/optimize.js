@@ -189,100 +189,6 @@ var optimize;
             return compiler.toSource();
         },
 
-        //Inlines text! dependencies.
-        inlineText: function (fileName, fileContents) {
-            return fileContents.replace(textDepRegExp, function (match, prefix, dep, offset) {
-                var parts, modName, ext, strip, content, normalizedName, index,
-                    defSegment, defStart, defMatch, tempMatch, defName, textPath,
-                    buildContext = require.s.contexts._;
-
-                //Ignore inlining of text plugin calls that are inside the
-                //CommonJS convenience wrapper define(function (require,..))
-                //In those cases it will be require("text!..."), so look to see
-                //if that text precedes the match.
-                defStart = offset - 20;
-                if (defStart < 0) {
-                    defStart = 0;
-                }
-
-                defSegment = fileContents.substring(defStart, offset);
-                if (cjsRequireRegExp.test(defSegment)) {
-                    return match;
-                }
-
-                parts = dep.split("!");
-                modName = parts[0];
-                ext = "";
-                strip = parts[1];
-                content = parts[2];
-
-                //Extension is part of modName
-                index = modName.lastIndexOf(".");
-                if (index !== -1) {
-                    ext = modName.substring(index + 1, modName.length);
-                    modName = modName.substring(0, index);
-                }
-
-                //Adjust the text path to be a full name, not a relative
-                //one, if needed.
-                normalizedName = modName;
-                if (modName.charAt(0) === ".") {
-                    //Need to backtrack an arbitrary amount in the file
-                    //to find the require.def call
-                    //that includes this relative name, to find what path to use
-                    //for the relative part.
-                    defStart = offset - 1000;
-                    if (defStart < 0) {
-                        defStart = 0;
-                    }
-                    defSegment = fileContents.substring(defStart, offset);
-
-                    //Take the last match, the one closest to current text! string.
-                    relativeDefRegExp.lastIndex = 0;
-                    while ((tempMatch = relativeDefRegExp.exec(defSegment)) !== null) {
-                        defMatch = tempMatch;
-                    }
-
-                    if (defMatch) {
-                        //Take the last match, the one closest to current text! string.
-                        defName = defMatch[2];
-
-                        normalizedName = buildContext.normalizeName(modName, defName);
-                        textPath = buildContext.nameToUrl(normalizedName, "." + ext);
-                    } else {
-                        //An anonymous module, and not part of a built layer
-                        //that already has injected names. Use the fileName instead.
-                        textPath = fileName.split('/');
-                        //Pop off the file name, so that there are just directories.
-                        textPath.pop();
-                        textPath = textPath.join('/') + '/' + modName + "." + ext;
-                    }
-                } else {
-                    textPath = buildContext.nameToUrl(normalizedName, "." + ext);
-                }
-
-                if (strip !== "strip") {
-                    content = strip;
-                    strip = null;
-                }
-
-                if (content) {
-                    //Already an inlined resource, return.
-                    return match;
-                } else {
-                    content = readFile(textPath);
-                    if (strip) {
-                        content = require.textStrip(content);
-                    }
-                    return "'" + prefix  +
-                           "!" + modName +
-                           (ext ? "." + ext : "") +
-                           (strip ? "!strip" : "") +
-                           "!" + jsEscape(content) + "'";
-                }
-            });
-        },
-
         /**
          * Optimizes a file that contains JavaScript content. It will inline
          * text plugin files and run it through Google Closure Compiler
@@ -297,18 +203,7 @@ var optimize;
             var doClosure = (config.optimize + "").indexOf("closure") === 0,
                 fileContents;
 
-            if (config.inlineText && !optimize.textLoaded) {
-                //Make sure text extension is loaded.
-                require(["require/text"]);
-                optimize.textLoaded = true;
-            }
-
             fileContents = fileUtil.readFile(fileName);
-
-            //Inline text files.
-            if (config.inlineText) {
-                fileContents = optimize.inlineText(fileName, fileContents);
-            }
 
             //Optimize the JS files if asked.
             if (doClosure) {

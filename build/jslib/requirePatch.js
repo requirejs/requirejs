@@ -192,6 +192,15 @@
         }
     };
 
+    //This method is called when a plugin specifies a loaded value. Use
+    //this to track dependencies that do not go through require.load.
+    require.onPluginLoad = function (context, pluginName, name, value) {
+        var registeredName = pluginName + '!' + name;
+        layer.buildFilePaths.push(registeredName);
+        layer.buildFileToModule[registeredName] = registeredName;
+        layer.modulesWithNames[registeredName] = true;
+    };
+
     //Override a method provided by require/text.js for loading text files as
     //dependencies.
     require.fetchText = function (url, callback) {
