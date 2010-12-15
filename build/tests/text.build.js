@@ -6,8 +6,7 @@
 
     modules: [
         {
-            name: "widget",
-            includeRequire: true
+            name: "widget"
         }
     ]
 }

@@ -32,6 +32,17 @@
         };
     }
 
+    if (!require.jsEscape) {
+        require.jsEscape = function (text) {
+            return text.replace(/(['\\])/g, '\\$1')
+                .replace(/[\f]/g, "\\f")
+                .replace(/[\b]/g, "\\b")
+                .replace(/[\n]/g, "\\n")
+                .replace(/[\t]/g, "\\t")
+                .replace(/[\r]/g, "\\r");
+        };
+    }
+
     //Upgrade require to add some methods for XHR handling. But it could be that
     //this require is used in a non-browser env, so detect for existing method
     //before attaching one.
@@ -128,9 +139,9 @@
 
         onWrite: function (pluginName, moduleName, write) {
             if (moduleName in buildMap) {
-                var text = buildMap[moduleName].replace(/'/g, "\\i");
+                var text = require.jsEscape(buildMap[moduleName]);
                 write("define('" + pluginName + "!" + moduleName  +
-                      "', function () { return '" + text + "';);\n");
+                      "', function () { return '" + text + "';});\n");
             }
         }
     });

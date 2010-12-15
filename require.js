@@ -354,7 +354,7 @@ var require, define;
         function execManager(manager) {
             var i, ret, waitingCallbacks,
                 cb = manager.callback,
-                name = manager.name,
+                fullName = manager.fullName,
                 args = [],
                 ary = manager.depArray;
 
@@ -368,40 +368,40 @@ var require, define;
                     }
                 }
 
-                ret = req.execCb(name, manager.callback, args);
+                ret = req.execCb(fullName, manager.callback, args);
 
-                if (name) {
+                if (fullName) {
                     //If using exports and the function did not return a value,
                     //and the "module" object for this definition function did not
                     //define an exported value, then use the exports object.
                     if (manager.usingExports && ret === undefined && (!manager.cjsModule || !("exports" in manager.cjsModule))) {
-                        ret = defined[name];
+                        ret = defined[fullName];
                     } else {
                         if (manager.cjsModule && "exports" in manager.cjsModule) {
-                            ret = defined[name] = manager.cjsModule.exports;
+                            ret = defined[fullName] = manager.cjsModule.exports;
                         } else {
-                            if (name in defined && !manager.usingExports) {
-                                return req.onError(new Error(name + " has already been defined"));
+                            if (fullName in defined && !manager.usingExports) {
+                                return req.onError(new Error(fullName + " has already been defined"));
                             }
-                            defined[name] = ret;
+                            defined[fullName] = ret;
                         }
                     }
                 }
-            } else if (name) {
+            } else if (fullName) {
                 //May just be an object definition for the module. Only
                 //worry about defining if have a module name.
-                ret = defined[name] = cb;
+                ret = defined[fullName] = cb;
             }
 
-            if (name) {
+            if (fullName) {
                 //If anything was waiting for this module to be defined,
                 //notify them now.
-                waitingCallbacks = managerCallbacks[name];
+                waitingCallbacks = managerCallbacks[fullName];
                 if (waitingCallbacks) {
                     for (i = 0; i < waitingCallbacks.length; i++) {
-                        waitingCallbacks[i].onDep(name, ret);
+                        waitingCallbacks[i].onDep(fullName, ret);
                     }
-                    delete managerCallbacks[name];
+                    delete managerCallbacks[fullName];
                 }
             }
 
@@ -422,6 +422,7 @@ var require, define;
         function main(inName, depArray, callback, relModuleName) {
             var nameArgs = splitPrefix(inName, relModuleName),
                 name = nameArgs.name,
+                fullName = nameArgs.fullName,
                 manager = {
                     //Use a wait ID because some entries are anon
                     //async require calls.
@@ -430,6 +431,7 @@ var require, define;
                     depMax: 0,
                     prefix: nameArgs.prefix,
                     name: name,
+                    fullName: fullName,
                     deps: {},
                     depArray: depArray,
                     callback: callback,
@@ -446,10 +448,10 @@ var require, define;
                 },
                 i, depArg, depName, cjsMod;
 
-            if (name) {
+            if (fullName) {
                 //If module already defined for context, or already loaded,
                 //then leave.
-                if (name in defined || loaded[name] === true) {
+                if (fullName in defined || loaded[fullName] === true) {
                     return;
                 }
 
@@ -458,9 +460,9 @@ var require, define;
                 //for those cases. Do this after the inline define and
                 //dependency tracing is done.
                 //Also check if auto-registry of jQuery needs to be skipped.
-                specified[name] = true;
-                loaded[name] = true;
-                context.jQueryDef = (name === "jquery");
+                specified[fullName] = true;
+                loaded[fullName] = true;
+                context.jQueryDef = (fullName === "jquery");
             }
 
             //Add the dependencies to the deps field, and register for callbacks
@@ -484,7 +486,7 @@ var require, define;
                         manager.deps[depName] = makeRequire(name);
                     } else if (depName === "exports") {
                         //CommonJS module spec 1.1
-                        manager.deps[depName] = defined[name] = {};
+                        manager.deps[depName] = defined[fullName] = {};
                         manager.usingExports = true;
                     } else if (depName === "module") {
                         //CommonJS module spec 1.1
@@ -537,15 +539,15 @@ var require, define;
                 return undefined;
             }
 
-            var name = manager.name,
+            var fullName = manager.fullName,
                 depArray = manager.depArray,
                 depName, i;
-            if (name) {
-                if (traced[name]) {
-                    return defined[name];
+            if (fullName) {
+                if (traced[fullName]) {
+                    return defined[fullName];
                 }
 
-                traced[name] = true;
+                traced[fullName] = true;
             }
 
             //forceExec all of its dependencies.
@@ -560,8 +562,7 @@ var require, define;
                 }
             }
 
-            return name ? defined[name] : undefined;
-
+            return fullName ? defined[fullName] : undefined;
         }
 
         /**
@@ -674,7 +675,9 @@ var require, define;
                 }
 
                 execManager({
-                    name: fullName,
+                    prefix: dep.prefix,
+                    name: dep.name,
+                    fullName: dep.fullName,
                     callback: ret
                 });
                 loaded[fullName] = true;

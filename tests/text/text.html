@@ -10,12 +10,12 @@
             baseUrl: "./",
             paths: {
                 require: "../../require"
-            }
+            } //, priority: ['widgetlayer']
         },
         ["require", "widget", "local", "text!resources/sample.html!strip"],
         function(require, widget, local, sampleText) {
             doh.register(
-                "text", 
+                "text",
                 [
                     function text(t){
                         t.is("<span>Hello World!</span>", sampleText);
