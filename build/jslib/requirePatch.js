@@ -118,6 +118,11 @@
             evalSource = false,
             contents, pluginContents, pluginBuilderMatch, builderName;
 
+        //Adjust the URL if it was not transformed to use baseUrl.
+        if (require.jsExtRegExp.test(moduleName)) {
+            url = context.config.dirBaseUrl + url;
+        }
+
         context.loaded[moduleName] = false;
         context.scriptCount += 1;
 
