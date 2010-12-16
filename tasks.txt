@@ -1,5 +1,3 @@
-- Get order, i18n, text plugins to work with new system.
-- Test all the build options/tests.
 - npm example/integration?
 - simple node example does not work
 - need to document how to use the packages config with Node.
