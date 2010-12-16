@@ -5,6 +5,7 @@ var hasToString = (function () {
 }).toString().indexOf('hello world') !== -1;
 
 doh.registerUrl("simple", "../simple.html");
+doh.registerUrl("contextdefine", "../contextdefine.html");
 
 //PS3 does not like this test
 doh.registerUrl("baseUrl", "../baseUrl.html");

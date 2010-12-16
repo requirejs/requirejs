@@ -313,11 +313,14 @@ var require, define;
          */
         function makeRequire(moduleName) {
             var modRequire = makeContextModuleFunc(context.require, moduleName);
-
             mixin(modRequire, {
                 nameToUrl: makeContextModuleFunc(context.nameToUrl, moduleName),
                 toUrl: makeContextModuleFunc(context.toUrl, moduleName),
                 ready: req.ready,
+                def: function(name, deps, callback){
+                    req.def(name, deps, callback, context);
+                    context.completeLoad(name);
+                },
                 isBrowser: req.isBrowser
             });
             return modRequire;
@@ -1205,8 +1208,8 @@ var require, define;
      * return a value to define the module corresponding to the first argument's
      * name.
      */
-    define = req.def = function (name, deps, callback) {
-        var node, context;
+    define = req.def = function (name, deps, callback, context) {
+        var node;
 
         //Allow for anonymous functions
         if (typeof name !== 'string') {

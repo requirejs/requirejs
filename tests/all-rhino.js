@@ -19,6 +19,7 @@ load("../require/rhino.js");
 
 //Load the tests.
 load("simple-tests.js");
+load("contextdefine-tests.js");
 load("circular-tests.js");
 load("relative/relative-tests.js");
 load("exports/exports-tests.js");
