@@ -1,8 +1,11 @@
 - npm example/integration?
-- simple node example does not work
 - need to document how to use the packages config with Node.
 - Document new closure compiler options from neonstalwart
 - require.modify alternative syntax/patch.
+- Document plugin API and differences with proposal. The build stuff.
+  - Actually test a pluginBuilder.
+- has.js plugins
+
 
 - email on jsonp removal, toUrl and package names.
 
