@@ -2,7 +2,7 @@
 - simple node example does not work
 - need to document how to use the packages config with Node.
 - Document new closure compiler options from neonstalwart
-
+- require.modify alternative syntax/patch.
 
 - email on jsonp removal, toUrl and package names.
 
