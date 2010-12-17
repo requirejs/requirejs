@@ -1,3 +1,9 @@
+- require.ready() not firing if no modules to load?
+- i18n build issue.
+- require({}, []) does not pick up the dependencies? Or is it:
+- require.js + modules in one file, still asks to load the other files, if there is a require in there?
+
+
 - npm example/integration?
 - need to document how to use the packages config with Node.
 - Document new closure compiler options from neonstalwart
@@ -5,7 +11,7 @@
 - Document plugin API and differences with proposal. The build stuff.
   - Actually test a pluginBuilder.
 - has.js plugins
-
+- require.def patch: https://github.com/jrburke/requirejs/pull/50
 
 - email on jsonp removal, toUrl and package names.
 
