@@ -1,2 +1,2 @@
 //Just a test file to to use in order build process.
-require(["require", "order!one", "order!two", "order!three"]);
+define(["require", "order!one.js", "order!two", "order!three.js"]);

@@ -43,7 +43,11 @@
 <li>Otherwise the module is assumed to be relative to the file that is given to Node to start your app.</li>
 </ul>
 
-<p>You can always use the <a href="api.html#config">Configuration Options</a> for RequireJS in your top level app file to configure paths and even a different baseUrl for your modules.</p>
+<p>What this means in practice: you cannot use packages installed by npm and assume RequireJS will find them. This may change in the future though.</p>
+
+<p>You can use the <a href="api.html#config">Configuration Options</a> for RequireJS in your top level app file to configure paths, package pages, and even a different baseUrl for your modules.</p>
+
+<p>So if you configure that package paths to the locations where npm installs modules, then the r.js adapter will be able to load them.</p>
 
 <p>RequireJS does not support require.main and the module free variable only contains an <strong>id</strong> property. It does not define a require.async method, since require() in RequireJS can accept roughly equivalent arguments.</p>
 
@@ -51,7 +55,6 @@
 
 <p>Finally, RequireJS in Node can only load modules that are on the local disk -- fetching modules across http, for instance, is not supported at this time.</p>
 
-<p>For RequireJS features: the text plugin does not work in Node at the moment, but that should be fixed by the next RequireJS release.</p>
 </div>
 
 <div class="section">
@@ -76,7 +79,7 @@
 <pre><code>node path/to/r.js debug myNodeApp.js
 </code></pre>
 
-<p>Node integration is a relatively new feature, so I expect the conversion process may not work for all modules, and in particular, RequireJS has a different approach to circular dependencies than normal CommonJS modules.</p>
+<p>Node integration is a relatively new feature, so I expect the conversion process may not work for all modules.</p>
 
 <p>If you find you have a problem, and want to report it, use the <a href="http://github.com/jrburke/requirejs/issues">RequireJS GitHub Issues page</a>. If you can attach the output of the <strong>debug</strong> run, that would be helpful, <strong>but be forewarned</strong>, it is very verbose and prints out all the source code.</p>
 
