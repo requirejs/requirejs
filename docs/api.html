@@ -59,7 +59,7 @@
 
 <pre><code>&lt;script src="scripts/require.js"&gt;&lt;/script&gt;
 &lt;script&gt;
-    require(["a.js", "b.js", "some/module"], function() {
+    require(["some/module", "a.js", "b.js"], function(someModule) {
         //This function will be called when all the dependencies
         //listed above are loaded. Note that this function could
         //be called before the page is loaded.
@@ -68,12 +68,12 @@
 &lt;/script&gt;
 </code></pre>
 
-<p>The dependencies above, ["a.js", "b.js", "some/module"], will be loaded via scripts tags that have the following src values:</p>
+<p>The dependencies above, ["some/module", "a.js", "b.js"], will be loaded via scripts tags that have the following src values:</p>
 
 <ul>
+<li>scripts/some/module.js</li>
 <li>a.js (in the same directory as the HTML page that has the above HTML snippet)</li>
 <li>b.js (in the same directory as the HTML page that has the above HTML snippet)</li>
-<li>scripts/some/module.js</li>
 </ul>
 
 <p>Files that end in ".js" are assumed to just be plain JS files that do not use require.js's module syntax, and therefore do not use the module-to-path algorithm used for looking up dot-notation modules, like "some/module" above.</p>
@@ -88,7 +88,7 @@
 <p>The data-main attribute tells RequireJS will take the value of the data-main attribute and treat it like a require([]) call. So, in this case, it would load scripts/main.js, and that file should have the top-level require call:</p>
 
 <pre><code>//Inside scripts/main.js
-require(["a.js", "b.js", "some/module"], function() {
+require(["some/module", "a.js", "b.js"], function(someModule) {
     //...
 });
 </code></pre>
@@ -483,8 +483,8 @@ define({
           locale: "fr-fr",
           context: "foo"
       },
-      ["a.js", "b.js", "some/module", "my/module"],
-      function() {
+      ["some/module", "my/module", "a.js", "b.js"],
+      function(someModule, myModule) {
           //This function will be called when all the dependencies
           //listed above are loaded. Note that this function could
           //be called before the page is loaded.
@@ -498,8 +498,8 @@ define({
 
 <pre><code>&lt;script type="text/javascript"&gt;
     var require = {
-        deps: ["a.js", "b.js", "some/module1", "my/module2"],
-        callback: function(a, b, module1, module2) {
+        deps: ["some/module1", "my/module2", "a.js", "b.js"],
+        callback: function(module1, module2) {
             //This function will be called when all the dependencies
             //listed above in deps are loaded. Note that this
             //function could be called before the page is loaded.
