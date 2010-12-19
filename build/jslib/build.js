@@ -598,10 +598,12 @@ var build, buildBaseConfig;
             parts = context.splitPrefix(moduleName);
             builder = parts.prefix && require.pluginBuilders[parts.prefix];
 
-            if (builder && builder.onWrite) {
-                builder.onWrite(parts.prefix, parts.name, function (input) {
-                    fileContents += input;
-                });
+            if (builder) {
+                if (builder.onWrite) {
+                    builder.onWrite(parts.prefix, parts.name, function (input) {
+                        fileContents += input;
+                    });
+                }
             } else {
                 //Add the contents but remove any pragmas.
                 currContents = pragma.process(path, fileUtil.readFile(path), config);
