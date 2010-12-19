@@ -54,7 +54,7 @@
     /** Reset state for each build layer pass. */
     require._buildReset = function () {
         //Clear up the existing context.
-        delete require.s.contexts[require.s.ctxName];
+        delete require.s.contexts._;
 
         //These variables are not contextName-aware since the build should
         //only have one context.
