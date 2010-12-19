@@ -1607,6 +1607,7 @@ var require, define;
             if (!ctx.scriptCount) {
                 ctx.resume();
             }
+            req.checkReadyState();
         }, 0);
     }
 }());
