@@ -12,6 +12,8 @@
 - has.js plugins
 - require.def patch: https://github.com/jrburke/requirejs/pull/50
 
+- Visualization of dependencies, highlighting circular dependencies: RobbertAtWork
+
 - email on jsonp removal, toUrl and package names.
 
 - Nested package config: https://github.com/jrburke/requirejs/pull/28

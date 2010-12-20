@@ -41,7 +41,9 @@
             //The value may be a real defined module. Wrap
             //it in a function call, because this function is used
             //as the factory function for this ordered dependency.
-            onLoad(function () { return value; });
+            onLoad(function () {
+                return value;
+            });
         });
     }
 
@@ -103,7 +105,9 @@
                     //The value may be a real defined module. Wrap
                     //it in a function call, because this function is used
                     //as the factory function for this ordered dependency.
-                    onLoad(function () { return value; });
+                    onLoad(function () {
+                        return value;
+                    });
                 });
             } else {
                 //Credit to LABjs author Kyle Simpson for finding that scripts
@@ -112,12 +116,23 @@
                 //so that subsequent addition of a real type="text/javascript"
                 //tag will cause the scripts to be executed immediately in the
                 //correct order.
-                waiting.push({
-                    name: name,
-                    req: req,
-                    onLoad: onLoad
-                });
-                require.attach(url, "", name, scriptCacheCallback, "script/cache");
+                if (req.isDefined(name)) {
+                    req([name], function (value) {
+                        //The value may be a real defined module. Wrap
+                        //it in a function call, because this function is used
+                        //as the factory function for this ordered dependency.
+                        onLoad(function () {
+                            return value;
+                        });
+                    });
+                } else {
+                    waiting.push({
+                        name: name,
+                        req: req,
+                        onLoad: onLoad
+                    });
+                    require.attach(url, "", name, scriptCacheCallback, "script/cache");
+                }
             }
         }
     });

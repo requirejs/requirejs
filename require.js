@@ -317,6 +317,7 @@ var require, define;
             mixin(modRequire, {
                 nameToUrl: makeContextModuleFunc(context.nameToUrl, moduleName),
                 toUrl: makeContextModuleFunc(context.toUrl, moduleName),
+                isDefined: makeContextModuleFunc(context.isDefined, moduleName),
                 ready: req.ready,
                 isBrowser: req.isBrowser
             });
@@ -862,6 +863,10 @@ var require, define;
                 if (cfg.ready) {
                     req.ready(cfg.ready);
                 }
+            },
+
+            isDefined: function (moduleName, relModuleName) {
+                return splitPrefix(moduleName, relModuleName).fullName in defined;
             },
 
             require: function (deps, callback, relModuleName) {
