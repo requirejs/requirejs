@@ -228,6 +228,7 @@ var require, define;
             return {
                 prefix: prefix,
                 name: name,
+                parentName: baseName,
                 fullName: prefix ? prefix + "!" + name : name
             };
         }
@@ -475,7 +476,7 @@ var require, define;
                 //value as a dependency.
                 if (depArg) {
                     //Split the dependency name into plugin and name parts
-                    depArg = splitPrefix(depArg, name);
+                    depArg = splitPrefix(depArg, (name || relModuleName));
                     depName = depArg.fullName;
 
                     //Fix the name in depArray to be just the name, since
@@ -669,7 +670,10 @@ var require, define;
                 loaded[fullName] = false;
             }
 
-            plugins[pluginName].load(name, makeRequire(name), function (ret) {
+            //Use parentName here since the plugin's name is not reliable,
+            //could be some weird string with no path that actually wants to
+            //reference the parentName's path.
+            plugins[pluginName].load(name, makeRequire(dep.parentName), function (ret) {
                 //Allow the build process to register plugin-loaded dependencies.
                 if (require.onPluginLoad) {
                     require.onPluginLoad(context, pluginName, name, ret);
