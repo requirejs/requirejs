@@ -733,7 +733,7 @@ var require, define;
          * Resumes tracing of dependencies and then checks if everything is loaded.
          */
         resume = function () {
-            var args, i, p = context.paused;
+            var args, i, p;
 
             if (context.scriptCount <= 0) {
                 //Synchronous envs will push the number below zero with the
@@ -758,7 +758,8 @@ var require, define;
                 return undefined;
             }
 
-            if (p.length) {
+            while (context.paused.length) {
+                p = context.paused;
                 //Reset paused list
                 context.paused = [];
 
