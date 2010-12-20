@@ -1,5 +1,5 @@
 /** vim: et:ts=4:sw=4:sts=4
- * @license RequireJS 0.2.0 Copyright (c) 2010, The Dojo Foundation All Rights Reserved.
+ * @license RequireJS 0.2.1 Copyright (c) 2010, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/requirejs for details
  */
@@ -12,7 +12,7 @@
 var require, define;
 (function () {
     //Change this version number for each release.
-    var version = "0.2.0",
+    var version = "0.2.1",
         commentRegExp = /(\/\*([\s\S]*?)\*\/|\/\/(.*)$)/mg,
         cjsRequireRegExp = /require\(["']([\w\!\-_\.\/]+)["']\)/g,
         ostring = Object.prototype.toString,
