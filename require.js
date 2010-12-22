@@ -43,7 +43,7 @@ var require, define;
             "order": "require/order"
         },
         req, cfg = {}, currentlyAddingScript, s, head, baseElement, scripts, script,
-        rePkg, src, m, dataMain, i, scrollIntervalId, setReadyState;
+        rePkg, src, m, dataMain, i, scrollIntervalId, setReadyState, ctx;
 
     function isFunction(it) {
         return ostring.call(it) === "[object Function]";
@@ -252,36 +252,6 @@ var require, define;
                 }
             }
             return priorityDone;
-        }
-
-        /**
-         * As of jQuery 1.4.3, it supports a readyWait property that will hold off
-         * calling jQuery ready callbacks until all scripts are loaded. Be sure
-         * to track it if readyWait is available. Also, since jQuery 1.4.3 does
-         * not register as a module, need to do some global inference checking.
-         * Even if it does register as a module, not guaranteed to be the precise
-         * name of the global. If a jQuery is tracked for this context, then go
-         * ahead and register it as a module too, if not already in process.
-         */
-        function jQueryCheck(jqCandidate) {
-            if (!context.jQuery) {
-                var $ = jqCandidate || (typeof jQuery !== "undefined" ? jQuery : null);
-                if ($ && "readyWait" in $) {
-                    context.jQuery = $;
-
-                    //Manually create a "jquery" module entry if not one already
-                    //or in process.
-                    if (!defined.jquery && !context.jQueryDef) {
-                        defined.jquery = $;
-                    }
-
-                    //Increment jQuery readyWait if ncecessary.
-                    if (context.scriptCount) {
-                        $.readyWait += 1;
-                        context.jQueryIncremented = true;
-                    }
-                }
-            }
         }
 
         /**
@@ -534,6 +504,36 @@ var require, define;
             //to doing it in require.def in case a script does
             //not call require.def
             loaded[args[0]] = true;
+        }
+
+        /**
+         * As of jQuery 1.4.3, it supports a readyWait property that will hold off
+         * calling jQuery ready callbacks until all scripts are loaded. Be sure
+         * to track it if readyWait is available. Also, since jQuery 1.4.3 does
+         * not register as a module, need to do some global inference checking.
+         * Even if it does register as a module, not guaranteed to be the precise
+         * name of the global. If a jQuery is tracked for this context, then go
+         * ahead and register it as a module too, if not already in process.
+         */
+        function jQueryCheck(jqCandidate) {
+            if (!context.jQuery) {
+                var $ = jqCandidate || (typeof jQuery !== "undefined" ? jQuery : null);
+                if ($ && "readyWait" in $) {
+                    context.jQuery = $;
+
+                    //Manually create a "jquery" module entry if not one already
+                    //or in process.
+                    callDefMain(["jquery", [], function () {
+                        return jQuery;
+                    }]);
+
+                    //Increment jQuery readyWait if ncecessary.
+                    if (context.scriptCount) {
+                        $.readyWait += 1;
+                        context.jQueryIncremented = true;
+                    }
+                }
+            }
         }
 
         function forceExec(manager, traced) {
@@ -798,7 +798,7 @@ var require, define;
              * @param {Object} cfg config object to integrate.
              */
             configure: function (cfg) {
-                var paths, packages, prop, packagePaths;
+                var paths, packages, prop, packagePaths, requireWait;
 
                 //Make sure the baseUrl ends in a slash.
                 if (cfg.baseUrl) {
@@ -852,7 +852,11 @@ var require, define;
                     //easily tested for config priority completion.
                     //Do this instead of wiping out the config.priority
                     //in case it needs to be inspected for debug purposes later.
+                    //Hold on to requireWait value, and reset it after done
+                    requireWait = context.requireWait;
+                    context.requireWait = false;
                     context.require(cfg.priority);
+                    context.requireWait = requireWait;
                     config.priorityWait = cfg.priority;
                 }
 
@@ -912,10 +916,28 @@ var require, define;
 
                 //If the require call does not trigger anything new to load,
                 //then resume the dependency processing.
-                while (!context.scriptCount && context.paused.length) {
-                    resume();
+                if (!context.requireWait) {
+                    while (!context.scriptCount && context.paused.length) {
+                        resume();
+                    }
                 }
                 return undefined;
+            },
+
+            /**
+             * Internal method to transfer globalQueue items to this context's
+             * defQueue.
+             */
+            takeGlobalQueue: function () {
+                //Push all the globalDefQueue items into the context's defQueue
+                if (globalDefQueue.length) {
+                    //Array splice in the values since the context code has a
+                    //local var ref to defQueue, so cannot just reassign the one
+                    //on context.
+                    apsp.apply(context.defQueue,
+                               [context.defQueue.length - 1, 0].concat(globalDefQueue));
+                    globalDefQueue = [];
+                }
             },
 
             /**
@@ -927,15 +949,7 @@ var require, define;
             completeLoad: function (moduleName) {
                 var args;
 
-                //Push all the globalDefQueue items into the context's defQueue
-                if (globalDefQueue.length) {
-                    //Array splice in the values since the context code has a
-                    //local var ref to defQueue, so cannot just reassign the one
-                    //on context.
-                    apsp.apply(context.defQueue,
-                               [context.defQueue.length - 1, 0].concat(globalDefQueue));
-                    globalDefQueue = [];
-                }
+                context.takeGlobalQueue();
 
                 while (defQueue.length) {
                     args = defQueue.shift();
@@ -1471,7 +1485,6 @@ var require, define;
         }
     }
 
-    //>>excludeStart("requireExcludePageLoad", pragmas.requireExcludePageLoad);
     //****** START page load functionality ****************
     /**
      * Sets the page as loaded and triggers check for all modules loaded.
@@ -1599,7 +1612,6 @@ var require, define;
         }
     }
     //****** END page load functionality ****************
-    //>>excludeEnd("requireExcludePageLoad");
 
     //Set up default context. If require was a configuration object, use that as base config.
     req(cfg);
@@ -1609,11 +1621,22 @@ var require, define;
     //themselves. In a non-browser env, assume that modules are not built into require.js,
     //which seems odd to do on the server.
     if (typeof setTimeout !== "undefined") {
+        ctx = s.contexts[(cfg.context || defContextName)];
+        //Indicate that the script that includes require() is still loading,
+        //so that require()'d dependencies are not traced until the end of the
+        //file is parsed (approximated via the setTimeout call).
+        ctx.requireWait = true;
         setTimeout(function () {
-            var ctx = s.contexts[(cfg.context || defContextName)];
+            ctx.requireWait = false;
+
+            //Any modules included with the require.js file will be in the
+            //global queue, assign them to this context.
+            ctx.takeGlobalQueue();
+
             //Allow for jQuery to be loaded/already in the page, and if jQuery 1.4.3,
             //make sure to hold onto it for readyWait triggering.
             ctx.jQueryCheck();
+
             if (!ctx.scriptCount) {
                 ctx.resume();
             }

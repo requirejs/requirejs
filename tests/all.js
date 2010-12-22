@@ -42,7 +42,9 @@ doh.registerUrl("i18nlocale", "../i18n/i18n.html?locale=en-us-surfer");
 //Fail in PS3
 doh.registerUrl("i18nbundle", "../i18n/i18n.html?bundle=i18n!nls/en-us-surfer/colors");
 
-doh.registerUrl("pause/resume", "../pauseresume/pauseresume.html", 10000);
+doh.registerUrl("layers", "../layers/layers.html", 10000);
+doh.registerUrl("allplugins-text", "../layers/allplugins-text.html");
+
 doh.registerUrl("afterload", "../afterload.html", 10000);
 doh.registerUrl("text", "../text/text.html");
 doh.registerUrl("textOnly", "../text/textOnly.html");

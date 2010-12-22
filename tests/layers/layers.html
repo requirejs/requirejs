@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>require.js: Pause/Resume Test</title>
+    <title>require.js: Layers Test</title>
     <script type="text/javascript" src="../../require.js"></script>
     <script type="text/javascript" src="../doh/runner.js"></script>
     <script type="text/javascript" src="../doh/_browserRunner.js"></script>
     <script type="text/javascript">
     var master = new doh.Deferred();
     doh.register(
-        "pause/resume", 
+        "layers",
         [
             {
-                name: "pause/resume",
+                name: "layers",
                 timeout: 5000,
                 runTest: function() {
                     return master;
@@ -19,7 +19,7 @@
             }
         ]
     );
-    doh.run();			
+    doh.run();
 
     require(
         {
@@ -46,9 +46,9 @@
                 for (var i = scripts.length - 1; i > -1; i--) {
                     doh.f(regExp.test(scripts[i].src));
                 }
-                master.callback(true);		
+                master.callback(true);
             };
-            
+
             //Account for requirening this test with a version of require.js that
             //does not have require.ready built in.
             if (require.ready) {
@@ -61,7 +61,7 @@
     </script>
 </head>
 <body>
-    <h1>require.js: Pause/Resume Test</h1>
+    <h1>require.js: Layers Test</h1>
     <p>Check console for messages</p>
 </body>
 </html>

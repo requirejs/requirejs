@@ -75,8 +75,8 @@
     useStrict: false,
 
     //Specify build pragmas. If the source files contain comments like so:
-    //>>excludeStart("requireExcludeModify", pragmas.requireExcludeModify);
-    //>>excludeEnd("requireExcludeModify");
+    //>>excludeStart("fooExclude", pragmas.fooExclude);
+    //>>excludeEnd("fooExclude");
     //Then the comments that start with //>> are the build pragmas.
     //excludeStart/excludeEnd and includeStart/includeEnd work, and the
     //the pragmas value to the includeStart or excludeStart lines
@@ -84,14 +84,7 @@
     //lines should be included or excluded.
     pragmas: {
         //Indicates require will be included with jquery.
-        jquery: true,
-        //Remove require.modify() code
-        requireExcludeModify: true,
-        //Remove plugin support from require. The i18n! order! and
-        //text! extensions will not work.
-        requireExcludePlugin: true,
-        //Remove the page loaded detection.
-        requireExcludePageLoad: true
+        jquery: true
     },
 
     //Skip processing for pragmas.
@@ -129,7 +122,7 @@
             //contain any of the other build options in this file.
             override: {
                 pragmas: {
-                    requireExcludeModify: true
+                    fooExclude: true
                 }
             }
         },
