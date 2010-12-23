@@ -21,6 +21,7 @@
         path = require("path"),
         cwd = process.cwd(),
         appFilePath = process.argv[2],
+        paths = require.paths,
         isDebug = false,
         appDir, content;
 
@@ -52,6 +53,7 @@
     global.__requireFileExists = function (fileName) {
         return path.existsSync(fileName);
     };
+    global.__requirePaths = paths;
 
     //dist.sh will inject the modified requireAdapter content as a string.
     process.compile('/*INSERT STRING HERE*/', "requirejs/requireAdapter.js");

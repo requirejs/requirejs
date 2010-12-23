@@ -292,6 +292,10 @@ var require, define;
                 ready: req.ready,
                 isBrowser: req.isBrowser
             });
+            //Something used by node.
+            if (req.paths) {
+                modRequire.paths = req.paths;
+            }
             return modRequire;
         }
 

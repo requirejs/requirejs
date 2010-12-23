@@ -3,7 +3,7 @@
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/requirejs for details
  */
-/*jslint nomen: false */
+/*jslint nomen: false, plusplus: false, regexp: false */
 /*global require: false, process: false, global: false, logger: false, commonJs: false */
 
 "use strict";
@@ -15,8 +15,29 @@
 
     var natives = process.binding('natives'),
         isDebug = global.__requireIsDebug,
+        paths = global.__requirePaths,
         suffixRegExp = /\.js$/,
+        extensions = ['.node', '/index.js', '/index.node'],
         baseContext = require.s.contexts._;
+
+    function generateNodeExtension(context, url) {
+        var exports = {};
+
+        if (!context.nodeExts) {
+            context.nodeExts = {};
+        }
+        context.nodeExts[url] = exports;
+
+        process.dlopen(url, exports);
+
+        return 'define(function() { return require.s.contexts["' +
+                context.contextName +
+                '"].nodeExts["' +
+                url +
+                '"];});';
+    }
+
+    require.paths = paths;
 
     //Override require callback to use exports as the "this", to accomodate
     //some modules that attach to "this". WTF? Specifically,
@@ -49,48 +70,92 @@
         return ret;
     };
 
+    function tryExtensions(url) {
+        var i, ext, tempUrl;
+        for (i = 0; (ext = extensions[i]); i++) {
+            tempUrl = url + ext;
+            if (require._fileExists(tempUrl)) {
+                return tempUrl;
+            }
+        }
+        return null;
+    }
+
+    //Look up source for the module. Use node rules to look for name.js,
+    //name.node, name/index.js, name/index.node, then look in node
+    //natives cache. Use the natives cache last, to allow for path mapping
+    //overrides to native, to allow monkey patching.
+    function findPath(moduleName, url) {
+        var tempUrl, i, path;
+        if (require._fileExists(url)) {
+            return url;
+        }
+
+        //Remove the .js extension.
+        url = url.replace(suffixRegExp, '');
+
+        //Try normal url extensions
+        if ((tempUrl = tryExtensions(url))) {
+            return tempUrl;
+        }
+
+        //Now try in require.paths, do this after doing RequireJS logic.
+        url = moduleName;
+        for (i = 0; i < paths.length; i++) {
+            path = paths[i];
+            if (path) {
+                if ((tempUrl = tryExtensions(path + '/' + url))) {
+                    return tempUrl;
+                }
+            }
+        }
+
+        //See if it is in the native list. Do this last to allow
+        //for monkey patch overrides.
+        if (natives[moduleName]) {
+            //a natives module that is burned into node.
+            return "nodenative:" + moduleName;
+        }
+
+        return null;
+    }
+
     //TODO: make this async. Using sync now to cheat to get to a bootstrap.
     require.load = function (context, moduleName) {
-        var url = context.nameToUrl(moduleName, null),
-            dirName, indexUrl, content;
-
+        var url = findPath(moduleName, context.nameToUrl(moduleName, null)),
+            dirName, content;
 
         //isDone is used by require.ready()
         require.s.isDone = false;
 
-        //Load the content for the module. Be sure to first check the natives
-        //modules that are burned into node first.
-        if (natives[moduleName]) {
-            if (isDebug) {
-                logger.trace("RequireJS loading module: " + moduleName + " from Node cache");
-            }
+        if (!url) {
+            //Goofy part, there is at least one module, that does
+            //a try{require('constants')} catch(){}, so need to mark
+            //the module as "loaded" but just undefined, so requirejs
+            //later does not trigger a timeout error.
+            context.loaded[moduleName] = true;
+            context.defined[moduleName] = undefined;
+            throw new Error("RequireJS cannot find file for module: " +
+                            moduleName + " Tried paths around: " + url +
+                            ' (.node/index.js/index.node)');
+        }
 
-            content = natives[moduleName];
-        } else {
-            if (isDebug) {
-                logger.trace("RequireJS loading module: " + moduleName + " at path: " + url);
-            }
-            if (require._fileExists(url)) {
-                content = require._nodeReadFile(url);
+        if (isDebug) {
+            logger.trace("RequireJS loading module: " + moduleName + " at path: " + url);
+        }
+
+        if (!content) {
+            if (url.indexOf('nodenative:') === 0) {
+                content = natives[moduleName];
+            } else if (url.indexOf('.node') === url.length - 5) {
+                content = generateNodeExtension(context, url);
             } else {
-                //Maybe it is the goofy index.js thing Node supports.
-                indexUrl = url.replace(suffixRegExp, '/index.js');
-                if (require._fileExists(indexUrl)) {
-                    content = require._nodeReadFile(indexUrl);
-                    url = indexUrl;
-                } else {
-                    //Goofy part, there is at least one module, that does
-                    //a try{require('constants')} catch(){}, so need to mark
-                    //the module as "loaded" but just undefined, so requirejs
-                    //later does not trigger a timeout error.
-                    context.loaded[moduleName] = true;
-                    context.defined[moduleName] = undefined;
-                    throw new Error("RequireJS cannot find file for module: " +
-                                    moduleName + " Tried paths: " + url +
-                                    ' and ' + indexUrl);
-                }
+                content = require._nodeReadFile(url);
             }
         }
+
+        //Some node modules have a shell script path thing at the top, remove
+        content = content.replace(/^\#\!.*[\r\n]/, '');
 
         //If a CommonJS module, translate it on the fly.
         //The commonJs module is from build/jslib/commonJs.js
@@ -161,4 +226,5 @@
     delete global.__requireLog;
     delete global.__requireIsDebug;
     delete global.__requireFileExists;
+    delete global.__requirePaths;
 }());
