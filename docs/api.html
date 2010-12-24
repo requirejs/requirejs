@@ -598,7 +598,7 @@ define({
 <li><strong>name</strong>: The name of the package (used for the module name/prefix mapping)</li>
 <li><strong>location</strong>: The location on disk. Locations are relative to the baseUrl configuration value, unless they contain a protocol or start with a front slash (/).</li>
 <li><strong>lib</strong>: The name of the directory inside the package folder that contains modules. The default value is "lib", so no need to specify it unless it is different than the default.</li>
-<li><strong>main</strong>: The name of the module inside the lib directory that should be used when someone does a require for "packageName". The default value is "main", so only specify it if it differs from the default.</li>
+<li><strong>main</strong>: The name of the module inside the package that should be used when someone does a require for "packageName". The default value is "lib/main", so only specify it if it differs from the default. The value is relative to the package folder.</li>
 </ul></li>
 </ul>
 
