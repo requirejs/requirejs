@@ -10,7 +10,7 @@ require({
                     name: 'beta',
                     location: 'beta/0.2',
                     lib: 'scripts',
-                    main: 'beta'
+                    main: 'scripts/beta'
                 },
                 'dojox/chair',
                 {
@@ -24,7 +24,8 @@ require({
             {
                 name: 'bar',
                 location: 'bar/0.4',
-                lib: 'scripts'
+                lib: 'scripts',
+                main: 'scripts/main'
             },
             {
                 name: 'foo',
@@ -32,12 +33,12 @@ require({
             },
             {
                 name: 'funky',
-                main: '../index'
+                main: 'index'
             },
             {
                 name: 'baz',
                 location: 'baz',
-                main: 'index'
+                main: 'lib/index'
             },
             {
                 name: 'dojox/window',

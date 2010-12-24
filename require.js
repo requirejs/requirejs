@@ -90,7 +90,7 @@ var require, define;
             //Normalize package paths.
             pkgObj.location = pkgObj.location || pkgObj.name;
             pkgObj.lib = pkgObj.lib || "lib";
-            pkgObj.main = pkgObj.main || "main";
+            pkgObj.main = pkgObj.main || "lib/main";
 
             packages[pkgObj.name] = pkgObj;
         }
@@ -1108,14 +1108,12 @@ var require, define;
                                 syms.splice(0, i, paths[parentModule]);
                                 break;
                             } else if ((pkg = packages[parentModule])) {
-                                //pkg can have just a string value to the path
-                                //or can be an object with props:
-                                //main, lib, name, location.
-                                pkgPath = pkg.location + '/' + pkg.lib;
                                 //If module name is just the package name, then looking
                                 //for the main module.
                                 if (moduleName === pkg.name) {
-                                    pkgPath += '/' + pkg.main;
+                                    pkgPath = pkg.location + '/' + pkg.main;
+                                } else {
+                                    pkgPath = pkg.location + '/' + pkg.lib;
                                 }
                                 syms.splice(0, i, pkgPath);
                                 break;
