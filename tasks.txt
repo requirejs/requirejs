@@ -1,6 +1,8 @@
+- Implement a pluginBuilder test.
+- sync calls to plugins, the has! example.
+
 - ending slash in paths should throw error: https://github.com/jrburke/requirejs/issues/issue/49/
 
-- sync calls to plugins, the has! example.
 - John's email about an error callback, also allow loader to abort a plugin-loaded resource?
 - Document plugin API and differences with proposal. The build stuff.
   - Actually test a pluginBuilder.

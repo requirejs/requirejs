@@ -1,6 +1,9 @@
-//Tested with nave, node 0.2.5, npm install canvas
+//Tested with nave, node 0.2.5,
+//npm install canvas
+//npm install express
 
 var Canvas = require('canvas'),
+    express = require('express'),
     canvas = new Canvas(200,200),
     ctx = canvas.getContext('2d');
 

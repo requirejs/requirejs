@@ -17,7 +17,7 @@
         isDebug = global.__requireIsDebug,
         paths = global.__requirePaths,
         suffixRegExp = /\.js$/,
-        extensions = ['.node', '/index.js', '/index.node'],
+        extensions = ['.js', '.node', '/index.js', '/index.node'],
         baseContext = require.s.contexts._,
         noUrls = {
             require: true,
