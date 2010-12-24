@@ -18,7 +18,12 @@
         paths = global.__requirePaths,
         suffixRegExp = /\.js$/,
         extensions = ['.node', '/index.js', '/index.node'],
-        baseContext = require.s.contexts._;
+        baseContext = require.s.contexts._,
+        noUrls = {
+            require: true,
+            exports: true,
+            module: true
+        };
 
     function generateNodeExtension(context, url) {
         var exports = {};
@@ -46,22 +51,23 @@
         return cb.apply(baseContext.defined[name] || null, args);
     };
 
-    require.get = function (context, moduleName, relModuleName) {
+    require.get = function (context, moduleName, relModuleMap) {
         if (moduleName === "require" || moduleName === "exports" || moduleName === "module") {
             require.onError(new Error("Explicit require of " + moduleName + " is not allowed."));
         }
 
-        var ret;
+        var ret,
+            moduleMap = context.makeModuleMap(moduleName, relModuleMap);
 
         //Normalize module name, if it contains . or ..
-        moduleName = context.normalizeName(moduleName, relModuleName);
+        moduleName = moduleMap.fullName;
 
         if (moduleName in context.defined) {
             ret = context.defined[moduleName];
         } else {
             if (ret === undefined) {
                 //Try to dynamically fetch it.
-                require.load(context, moduleName);
+                require.load(context, moduleName, moduleMap.url);
                 //The above call is sync, so can do the next thing safely.
                 ret = context.defined[moduleName];
             }
@@ -81,12 +87,21 @@
         return null;
     }
 
-    //Look up source for the module. Use node rules to look for name.js,
-    //name.node, name/index.js, name/index.node, then look in node
-    //natives cache. Use the natives cache last, to allow for path mapping
-    //overrides to native, to allow monkey patching.
-    function findPath(moduleName, url) {
-        var tempUrl, i, path;
+    require.toModuleUrl = function (context, moduleName, relModuleMap) {
+        //Do not bother for modules that will not have URLs.
+        if (noUrls[moduleName]) {
+            return null;
+        }
+
+        //Start with normal logic
+        var url = context.nameToUrl(moduleName, null, relModuleMap),
+            tempUrl, i, path;
+
+        //Now apply Node lookup logic.
+        //Look up source for the module. Use node rules to look for name.js,
+        //name.node, name/index.js, name/index.node, then look in node
+        //natives cache. Use the natives cache last, to allow for path mapping
+        //overrides to native, to allow monkey patching.
         if (require._fileExists(url)) {
             return url;
         }
@@ -118,12 +133,10 @@
         }
 
         return null;
-    }
+    };
 
-    //TODO: make this async. Using sync now to cheat to get to a bootstrap.
-    require.load = function (context, moduleName) {
-        var url = findPath(moduleName, context.nameToUrl(moduleName, null)),
-            dirName, content;
+    require.load = function (context, moduleName, url) {
+        var dirName, content;
 
         //isDone is used by require.ready()
         require.s.isDone = false;

@@ -23,9 +23,7 @@ CommonJS modules, by overriding require.get().
         }
     };
 
-    require.load = function (context, moduleName) {
-        var url = context.nameToUrl(moduleName, null);
-
+    require.load = function (context, moduleName, url) {
         //isDone is used by require.ready()
         require.s.isDone = false;
 

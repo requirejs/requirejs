@@ -112,10 +112,9 @@
     require.pluginBuilders = {};
 
     //Override load so that the file paths can be collected.
-    require.load = function (context, moduleName) {
+    require.load = function (context, moduleName, url) {
         /*jslint evil: true */
-        var url = context.nameToUrl(moduleName),
-            evalSource = false,
+        var evalSource = false,
             contents, pluginContents, pluginBuilderMatch, builderName;
 
         //Adjust the URL if it was not transformed to use baseUrl.

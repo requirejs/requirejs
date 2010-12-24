@@ -7,11 +7,11 @@ require({
     ["require", "magenta", "red", "blue", "green", "yellow", "a", "c"],
     function(require, magenta, red, blue, green, yellow, a, c) {
         doh.register(
-            "anonSimple", 
+            "anonSimple",
             [
                 function colors(t){
                     t.is("redblue", magenta.name);
-                    t.is((require.isBrowser ? "./foo.html" : "./anon/foo.html"), magenta.path);
+                    t.is((require.isBrowser ? "foo.html" : "anon/foo.html"), magenta.path);
                     t.is("red", red.name);
                     t.is("blue", blue.name);
                     t.is("green", green.name);

@@ -595,7 +595,7 @@ var build, buildBaseConfig;
 
             //Figure out if the module is a result of a build plugin, and if so,
             //then delegate to that plugin.
-            parts = context.splitPrefix(moduleName);
+            parts = context.makeModuleMap(moduleName);
             builder = parts.prefix && require.pluginBuilders[parts.prefix];
 
             if (builder) {
