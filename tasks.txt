@@ -9,10 +9,6 @@
 - jquery/jqueryDynamic2.html in IE8: sometimes if using cache, the jquery ready callbacks do not fire,
   even though we seem to indicate it correctly? Trace latest jQuery 1.4.4.
 
-- Support npm paths?
-
-- npm example/integration?
-- need to document how to use the packages config with Node.
 - Document new closure compiler options from neonstalwart
 - require.modify alternative syntax/patch.
 - has.js plugins
