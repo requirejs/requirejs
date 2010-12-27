@@ -1,3 +1,4 @@
+- relative path issue from Kris.
 - Implement a pluginBuilder test.
 - sync calls to plugins, the has! example.
 
