@@ -15,6 +15,7 @@ var require, define;
     var version = "0.2.1",
         commentRegExp = /(\/\*([\s\S]*?)\*\/|\/\/(.*)$)/mg,
         cjsRequireRegExp = /require\(["']([\w\!\-_\.\/]+)["']\)/g,
+        currDirRegExp = /^\.\//,
         ostring = Object.prototype.toString,
         ap = Array.prototype,
         aps = ap.slice,
@@ -90,7 +91,8 @@ var require, define;
             //Normalize package paths.
             pkgObj.location = pkgObj.location || pkgObj.name;
             pkgObj.lib = pkgObj.lib || "lib";
-            pkgObj.main = pkgObj.main || "lib/main";
+            //Remove leading dot in main, so main paths are normalized.
+            pkgObj.main = (pkgObj.main || "lib/main").replace(currDirRegExp, '');
 
             packages[pkgObj.name] = pkgObj;
         }
@@ -158,7 +160,7 @@ var require, define;
                     ary.splice(i, 1);
                     i -= 1;
                 } else if (part === "..") {
-                    if (i === 1 && ary[2] === '..') {
+                    if (i === 1 && (ary[2] === '..' || ary[0] === '..')) {
                         //End of the line. Keep at least one non-dot
                         //path segment at the front so it can be mapped
                         //correctly to disk. Otherwise, there is likely
@@ -183,13 +185,15 @@ var require, define;
          * @returns {String} normalized name
          */
         function normalizeName(name, baseName) {
+            var pkgName, pkgConfig;
+
             //Adjust any relative paths.
             if (name.charAt(0) === ".") {
                 //If have a base name, try to normalize against it,
                 //otherwise, assume it is a top-level require that will
                 //be relative to baseUrl in the end.
                 if (baseName) {
-                    if (context.config.packages[baseName]) {
+                    if (config.packages[baseName]) {
                         //If the baseName is a package name, then just treat it as one
                         //name to concat the name with.
                         baseName = [baseName];
@@ -205,7 +209,14 @@ var require, define;
 
                     name = baseName.concat(name.split("/"));
                     trimDots(name);
+
+                    //Some use of packages may use a . path to reference the
+                    //"main" module name, so normalize for that.
+                    pkgConfig = config.packages[(pkgName = name[0])];
                     name = name.join("/");
+                    if (pkgConfig && name === pkgName + '/' + pkgConfig.main) {
+                        name = pkgName;
+                    }
                 }
             }
             return name;
