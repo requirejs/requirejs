@@ -4,7 +4,8 @@
  * see: http://github.com/jrburke/requirejs for details
  */
 /*jslint nomen: false, plusplus: false, regexp: false */
-/*global require: false, process: false, global: false, logger: false, commonJs: false */
+/*global require: false, process: false, global: false,
+         console: false, logger: false, commonJs: false */
 
 "use strict";
 
@@ -142,15 +143,13 @@
         require.s.isDone = false;
 
         if (!url) {
-            //Goofy part, there is at least one module, that does
-            //a try{require('constants')} catch(){}, so need to mark
-            //the module as "loaded" but just undefined, so requirejs
-            //later does not trigger a timeout error.
-            context.loaded[moduleName] = true;
-            context.defined[moduleName] = undefined;
-            throw new Error("RequireJS cannot find file for module: " +
-                            moduleName + " Tried paths around: " + url +
-                            ' (.node/index.js/index.node)');
+            //Node seems to fail "silently" if it does not find a module
+            //for a given path. Was doing the "cannot find module" error
+            //but now just console log it.
+            url = "about:404";
+            content = " ";
+            console.log("Warning: RequireJS cannot find file for module: " +
+                            moduleName + ", using an empty object.");
         }
 
         if (isDebug) {

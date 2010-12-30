@@ -19,7 +19,7 @@ app.configure(function () {
         res.send('hello world');
     });
 
-    //app.use(express.gzip());
+    app.use(express.gzip());
     app.listen(3000);
 });
 
