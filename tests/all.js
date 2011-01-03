@@ -48,6 +48,8 @@ doh.registerUrl("layers", "../layers/layers.html", 10000);
 doh.registerUrl("allplugins-text", "../layers/allplugins-text.html");
 
 doh.registerUrl("afterload", "../afterload.html", 10000);
+
+doh.registerUrl("pluginsSync", "../plugins/sync.html");
 doh.registerUrl("text", "../text/text.html");
 doh.registerUrl("textOnly", "../text/textOnly.html");
 doh.registerUrl("jsonp", "../jsonp/jsonp.html");

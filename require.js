@@ -14,7 +14,7 @@ var require, define;
     //Change this version number for each release.
     var version = "0.2.1",
         commentRegExp = /(\/\*([\s\S]*?)\*\/|\/\/(.*)$)/mg,
-        cjsRequireRegExp = /require\(["']([\w\!\-_\.\/]+)["']\)/g,
+        cjsRequireRegExp = /require\(["']([^'"\s]+)["']\)/g,
         currDirRegExp = /^\.\//,
         ostring = Object.prototype.toString,
         ap = Array.prototype,
@@ -184,7 +184,7 @@ var require, define;
          * to.
          * @returns {String} normalized name
          */
-        function normalizeName(name, baseName) {
+        function normalize(name, baseName) {
             var pkgName, pkgConfig;
 
             //Adjust any relative paths.
@@ -225,7 +225,7 @@ var require, define;
         /**
          * Creates a module mapping that includes plugin prefix, module
          * name, and path. If parentModuleMap is provided it will
-         * also normalize the name via require.normalizeName()
+         * also normalize the name via require.normalize()
          *
          * @param {String} name the module name
          * @param {String} [parentModuleMap] parent module map
@@ -237,16 +237,45 @@ var require, define;
             var index = name ? name.indexOf("!") : -1,
                 prefix = null,
                 parentName = parentModuleMap ? parentModuleMap.name : null,
-                normalizedName, url;
+                originalName = name,
+                normalizedName, url, pluginModule;
 
             if (index !== -1) {
                 prefix = name.substring(0, index);
                 name = name.substring(index + 1, name.length);
             }
 
+            if (prefix) {
+                prefix = normalize(prefix, parentName);
+                //Allow simpler mappings for some plugins
+                prefix = requirePlugins[prefix] || prefix;
+            }
+
             //Account for relative paths if there is a base name.
             if (name) {
-                normalizedName = normalizeName(name, parentName);
+                if (prefix) {
+                    pluginModule = defined[prefix];
+                    if (pluginModule) {
+                        //Plugin is loaded, use its normalize method, otherwise,
+                        //normalize name as usual.
+                        if (pluginModule.normalize) {
+                            normalizedName = pluginModule.normalize(name, function (name) {
+                                return normalize(name, parentName);
+                            });
+                        } else {
+                            normalizedName = normalize(name, parentName);
+                        }
+                    } else {
+                        //Plugin is not loaded yet, so do not normalize
+                        //the name, wait for plugin to load to see if
+                        //it has a normalize method. To avoid possible
+                        //ambiguity with relative names loaded from another
+                        //plugin, use the parent's name as part of this name.
+                        normalizedName = '__$p' + parentName + '@' + name;
+                    }
+                } else {
+                    normalizedName = normalize(name, parentName);
+                }
 
                 url = urlMap[normalizedName];
                 if (!url) {
@@ -264,17 +293,12 @@ var require, define;
                 }
             }
 
-            if (prefix) {
-                prefix = normalizeName(prefix, parentName);
-                //Allow simpler mappings for some plugins
-                prefix = requirePlugins[prefix] || prefix;
-            }
-
             return {
                 prefix: prefix,
                 name: normalizedName,
                 parentMap: parentModuleMap,
                 url: url,
+                originalName: originalName,
                 fullName: prefix ? prefix + "!" + normalizedName : normalizedName
             };
         }
@@ -363,10 +387,12 @@ var require, define;
                 return;
             }
 
-            if (prefix) {
+            if (prefix && !plugins[prefix]) {
                 //Queue up loading of the dependency, track it
-                //via context.plugins
-                context.plugins[prefix] = undefined;
+                //via context.plugins. Mark it as a plugin so
+                //that the build system will know to treat it
+                //special.
+                plugins[prefix] = undefined;
                 queueDependency(makeModuleMap(prefix));
             }
 
@@ -739,9 +765,49 @@ var require, define;
             }, config);
         }
 
+        /**
+         * Used to update the normalized name for a dependency after a plugin
+         * loads, since it can have its own normalization structure.
+         * @param {String} pluginName the normalized plugin module name
+         * @param {Object} oldModuleMap the old moduleMap for the old name.
+         * @returns {Object} a new moduleMap that has the new, normalized
+         * module name.
+         */
+        function updateNormalizedName(pluginName, oldModuleMap) {
+            var oldFullName = oldModuleMap.fullName,
+                moduleMap = makeModuleMap(oldModuleMap.originalName, oldModuleMap.parentMap),
+                fullName = moduleMap.fullName,
+                callbacks = managerCallbacks[oldFullName],
+                i, j, depArray;
+
+            if (fullName !== oldFullName) {
+                //Update managerCallbacks to use the correct normalized name.
+                managerCallbacks[fullName] = callbacks;
+                delete managerCallbacks[oldFullName];
+
+                //In each manager callback, update the normalized name in the depArray.
+                for (i = 0; i < callbacks.length; i++) {
+                    depArray = callbacks[i].depArray;
+                    for (j = 0; j < depArray.length; j++) {
+                        if (depArray[j] === oldFullName) {
+                            depArray[j] = fullName;
+                        }
+                    }
+                }
+            }
+
+            return moduleMap;
+        }
+
         function loadPaused(dep) {
             var pluginName = dep.prefix,
                 fullName = dep.fullName;
+
+            //Renormalize dependency if its name was waiting on a plugin
+            //to load, which as since loaded.
+            if (pluginName && dep.name.indexOf('__$p') === 0 && defined[pluginName]) {
+                dep = makeModuleMap(dep.originalName, dep.parentMap);
+            }
 
             //Do not bother if the dependency has already been specified.
             if (specified[fullName] || fullName in defined) {
@@ -763,9 +829,12 @@ var require, define;
                         (managerCallbacks[pluginName] = [])).push({
                             onDep: function (name, value) {
                                 if (name === pluginName) {
-                                    var i, ary = pluginsQueue[pluginName];
+                                    var i, moduleMap, ary = pluginsQueue[pluginName];
+
+                                    //Now update all queued plugin actions.
                                     for (i = 0; i < ary.length; i++) {
-                                        callPlugin(pluginName, ary[i]);
+                                        moduleMap = updateNormalizedName(pluginName, ary[i]);
+                                        callPlugin(pluginName, moduleMap);
                                     }
                                     delete pluginsQueue[pluginName];
                                 }
@@ -843,7 +912,7 @@ var require, define;
             plugins: plugins,
             managerCallbacks: managerCallbacks,
             makeModuleMap: makeModuleMap,
-            normalizeName: normalizeName,
+            normalize: normalize,
             /**
              * Set a configuration for the context.
              * @param {Object} cfg config object to integrate.
@@ -944,11 +1013,6 @@ var require, define;
                     //second arg (if passed) is just the relModuleMap.
                     moduleName = deps;
                     relModuleMap = callback;
-                    if (moduleName === "require" ||
-                        moduleName === "exports" || moduleName === "module") {
-                        return req.onError(new Error("Explicit require of " +
-                                           moduleName + " is not allowed."));
-                    }
 
                     //Normalize module name, if it contains . or ..
                     moduleMap = makeModuleMap(moduleName, relModuleMap);
@@ -1096,7 +1160,7 @@ var require, define;
                 } else {
 
                     //Normalize module name if have a base relative module name to work from.
-                    moduleName = normalizeName(moduleName, relModuleMap);
+                    moduleName = normalize(moduleName, relModuleMap);
 
                     //If a colon is in the URL, it indicates a protocol is used and it is just
                     //an URL to a file, or if it starts with a slash or ends with .js, it is just a plain file.
