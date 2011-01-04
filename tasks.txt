@@ -4,8 +4,9 @@
 - For jquery sample project, put in a paths: "jquery": "require-jquery", and update main.js to use
   "jquery" as a dependency. Check the docs too.
 
+- build's name insertion if there is comment between define( and the [dependencies]
+
 - ending slash in paths should throw error: https://github.com/jrburke/requirejs/issues/issue/49/
-- test if a dependency shows up twice in the dep list, in Function.toString parsing?
 
 - John's email about an error callback, also allow loader to abort a plugin-loaded resource?
 - Document plugin API and differences with proposal. The build stuff.
