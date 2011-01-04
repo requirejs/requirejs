@@ -98,7 +98,7 @@
                 parts = locale.split("-");
             }
 
-            if (require.isBuild) {
+            if (config.isBuild) {
                 //Check for existence of all locale possible files and
                 //require them if exist.
                 toLoad.push(masterName);

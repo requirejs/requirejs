@@ -20,7 +20,8 @@ var build, buildBaseConfig;
             paths: {},
             optimize: "closure",
             optimizeCss: "standard.keepLines",
-            inlineText: true
+            inlineText: true,
+            isBuild: true
         };
 
     build = function (args) {
@@ -598,8 +599,8 @@ var build, buildBaseConfig;
             parts = context.makeModuleMap(moduleName);
             builder = parts.prefix && require.pluginBuilders[parts.prefix];
             if (builder) {
-                if (builder.onWrite) {
-                    builder.onWrite(parts.prefix, parts.name, function (input) {
+                if (builder.write) {
+                    builder.write(parts.prefix, parts.name, function (input) {
                         fileContents += input;
                     });
                 }

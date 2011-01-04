@@ -1,0 +1,39 @@
+# Plugins
+
+RequireJS allows you to write loader plugins that can load different types of resources as dependencies, and even include the dependencies in optimized builds.
+
+Existing loader plugins are the text! and i18n! plugins. The text! plugin handles loading text, and the i18n plugin handles loading a JavaScript object that is made up from objects from a few different modules. The object contains localized strings.
+
+## Plugin Names
+
+Loader plugins are just another module, but they implement a specific API. You can reference your plugin by putting its module name before a ! in the dependency. For instance, if you create a plugin with the name "foo.js", you would use it like so:
+
+    require(['foo!something/loaded/by/foo'], function (somethingFooLoaded) {
+        //Use somethingFooLoaded was something the foo.js file loaded given the
+        //string 'something/loaded/by/foo'.
+    });
+
+So, the plugin's module name comes before the ! separator. The part after the ! separator is called the <b>resource name</b>. The resource name may look like a normal module name. THe plugin's module name can be any valid module name, so for instance, you could use a relative indicator:
+
+    require(['./foo!something/loaded/by/foo'], function (somethingFooLoaded) {
+    });
+
+Or, if it was inside a package or directory, say bar/foo.js:
+
+    require(['bar/foo!something/loaded/by/foo'], function (somethingFooLoaded) {
+    });
+
+Note that the text!, i18n! and order! plugins are "special" in that you only need to use a name like "text" to refer to it, instead of its full module name, "require/text". This was done to support old code that was authored before the Plugin API was fully fleshed out. You can use their full module name if you prefer: "require/text!path/to/dialog.html".
+
+## Plugin API
+
+RequireJS will load the plugin module first, then pass it the rest of the dependency name to a load() method on the plugin. There are also some methods to help with module name normalization and for making use of the plugin as part of the <a href="optimization.html">optimizer</a>.
+
+The complete Plugin API:
+
+<ul>
+    <li><b>load</b>: A function that is called to load a resource. This is the only mandatory API method that needs to be implemented for the plugin to be useful.</li>
+    <li><b>normalize</b>: A function to normalize the resource name. This is useful in providing optimal caching and optimization, but only needed if the resource name is not a module name.</li>
+    <li><b>pluginBuilder</b>: A module name string for a module that should be used in the optimizer to do optimization work. That module is used instead of the plugin module when the optimizer runs.</li>
+    <li><b>write</b>:
+</ul>

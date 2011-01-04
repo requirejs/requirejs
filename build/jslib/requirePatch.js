@@ -100,9 +100,6 @@
         return oldDef.apply(require, arguments);
     };
 
-    //Indicate this is a build run.
-    require.isBuild = true;
-
     //Add some utilities for plugins/pluginBuilders
     require._readFile = _readFile;
     require._fileExists = function (path) {

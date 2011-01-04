@@ -34,7 +34,7 @@
 
         //This is strictly not necessary (and *not* recommended),
         //but just doing it as a test.
-        onWrite: function (pluginName, moduleName, write) {
+        write: function (pluginName, moduleName, write) {
             var parsed = parse(moduleName);
             write("define('" + pluginName + "!" + moduleName  +
                   "', ['" + parsed.choice + "'], function (value) { return value;});\n");

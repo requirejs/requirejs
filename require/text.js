@@ -114,14 +114,14 @@
             url = req.nameToUrl(modName, "." + ext);
             require.fetchText(url, function (text) {
                 text = strip ? require.textStrip(text) : text;
-                if (require.isBuild && config.inlineText) {
+                if (config.isBuild && config.inlineText) {
                     buildMap[name] = text;
                 }
                 onLoad(text);
             });
         },
 
-        onWrite: function (pluginName, moduleName, write) {
+        write: function (pluginName, moduleName, write) {
             if (moduleName in buildMap) {
                 var text = require.jsEscape(buildMap[moduleName]);
                 write("define('" + pluginName + "!" + moduleName  +
