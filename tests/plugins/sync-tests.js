@@ -1,6 +1,7 @@
 require({
-        baseUrl: "./"
+        baseUrl: require.isBrowser ? "./" : "./plugins/"
 }, ['earth', 'prime/earth'], function (earth, primeEarth) {
+
     doh.register(
         "pluginsSync",
         [
