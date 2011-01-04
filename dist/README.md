@@ -9,6 +9,7 @@ When doing a release, do the following:
     * README.md
     * docs/download.md: check for nested paths too, add new release section
     * pre.html
+    * post.html
 * Update integrated jQuery versioned-builds:
     * Save a built jQuery to build/jquery
     * Make sure to apply changes from previous converted jQuery to new one via examining diffs.
