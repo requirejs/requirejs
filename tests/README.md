@@ -35,3 +35,7 @@ Try manual testing:
 * ../build.sh indexBuilder.build.js - confirm plugin onWrite calls are done.
 * ../build.sh text.build.js - confirm plugin onWrite calls are done.
 * ../build.sh i18n.build.js - confirm plugin required the nls/en-us-surfer/colors module.
+
+# Sample jQuery project
+
+Test the sample jQuery project, complete with running the optimizer, testing the output.
