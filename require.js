@@ -142,7 +142,8 @@ var require, define;
             waitIdCounter = 0,
             managerCallbacks = {},
             plugins = {},
-            pluginsQueue = {};
+            pluginsQueue = {},
+            normalizedWaiting = {};
 
         /**
          * Trims the . and .. from an array of path segments.
@@ -369,6 +370,45 @@ var require, define;
             return modRequire;
         }
 
+        /**
+         * Used to update the normalized name for plugin-based dependencies
+         * after a plugin loads, since it can have its own normalization structure.
+         * @param {String} pluginName the normalized plugin module name.
+         */
+        function updateNormalizedNames(pluginName) {
+
+            var oldFullName, oldModuleMap, moduleMap, fullName, callbacks,
+                i, j, k, depArray,
+                maps = normalizedWaiting[pluginName];
+
+            if (maps) {
+                for (i = 0; (oldModuleMap = maps[i]); i++) {
+                    oldFullName = oldModuleMap.fullName;
+                    moduleMap = makeModuleMap(oldModuleMap.originalName, oldModuleMap.parentMap);
+                    fullName = moduleMap.fullName;
+                    callbacks = managerCallbacks[oldFullName];
+
+                    if (fullName !== oldFullName) {
+                        //Update managerCallbacks to use the correct normalized name.
+                        managerCallbacks[fullName] = callbacks;
+                        delete managerCallbacks[oldFullName];
+
+                        //In each manager callback, update the normalized name in the depArray.
+                        for (j = 0; j < callbacks.length; j++) {
+                            depArray = callbacks[j].depArray;
+                            for (k = 0; k < depArray.length; k++) {
+                                if (depArray[k] === oldFullName) {
+                                    depArray[k] = fullName;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            delete normalizedWaiting[pluginName];
+        }
+
         /*
          * Queues a dependency for checking after the loader is out of a
          * "paused" state, for example while a script file is being loaded
@@ -393,6 +433,24 @@ var require, define;
                 //that the build system will know to treat it
                 //special.
                 plugins[prefix] = undefined;
+
+                //Remember this dep that needs to have normaliztion done
+                //after the plugin loads.
+                (normalizedWaiting[prefix] || (normalizedWaiting[prefix] = []))
+                    .push(dep);
+
+                //Register an action to do once the plugin loads, to update
+                //all managerCallbacks to use a properly normalized module
+                //name.
+                (managerCallbacks[prefix] ||
+                (managerCallbacks[prefix] = [])).push({
+                    onDep: function (name, value) {
+                        if (name === prefix) {
+                            updateNormalizedNames(prefix);
+                        }
+                    }
+                });
+
                 queueDependency(makeModuleMap(prefix));
             }
 
@@ -765,49 +823,15 @@ var require, define;
             }, config);
         }
 
-        /**
-         * Used to update the normalized name for a dependency after a plugin
-         * loads, since it can have its own normalization structure.
-         * @param {String} pluginName the normalized plugin module name
-         * @param {Object} oldModuleMap the old moduleMap for the old name.
-         * @returns {Object} a new moduleMap that has the new, normalized
-         * module name.
-         */
-        function updateNormalizedName(pluginName, oldModuleMap) {
-            var oldFullName = oldModuleMap.fullName,
-                moduleMap = makeModuleMap(oldModuleMap.originalName, oldModuleMap.parentMap),
-                fullName = moduleMap.fullName,
-                callbacks = managerCallbacks[oldFullName],
-                i, j, depArray;
-
-            if (fullName !== oldFullName) {
-                //Update managerCallbacks to use the correct normalized name.
-                managerCallbacks[fullName] = callbacks;
-                delete managerCallbacks[oldFullName];
-
-                //In each manager callback, update the normalized name in the depArray.
-                for (i = 0; i < callbacks.length; i++) {
-                    depArray = callbacks[i].depArray;
-                    for (j = 0; j < depArray.length; j++) {
-                        if (depArray[j] === oldFullName) {
-                            depArray[j] = fullName;
-                        }
-                    }
-                }
-            }
-
-            return moduleMap;
-        }
-
         function loadPaused(dep) {
-            var pluginName = dep.prefix,
-                fullName = dep.fullName;
-
             //Renormalize dependency if its name was waiting on a plugin
             //to load, which as since loaded.
-            if (pluginName && dep.name.indexOf('__$p') === 0 && defined[pluginName]) {
+            if (dep.prefix && dep.name.indexOf('__$p') === 0 && defined[dep.prefix]) {
                 dep = makeModuleMap(dep.originalName, dep.parentMap);
             }
+
+            var pluginName = dep.prefix,
+                fullName = dep.fullName;
 
             //Do not bother if the dependency has already been specified.
             if (specified[fullName] || fullName in defined) {
@@ -829,12 +853,16 @@ var require, define;
                         (managerCallbacks[pluginName] = [])).push({
                             onDep: function (name, value) {
                                 if (name === pluginName) {
-                                    var i, moduleMap, ary = pluginsQueue[pluginName];
+                                    var i, oldModuleMap, ary = pluginsQueue[pluginName];
 
                                     //Now update all queued plugin actions.
                                     for (i = 0; i < ary.length; i++) {
-                                        moduleMap = updateNormalizedName(pluginName, ary[i]);
-                                        callPlugin(pluginName, moduleMap);
+                                        oldModuleMap = ary[i];
+                                        //Update the moduleMap since the
+                                        //module name may be normalized
+                                        //differently now.
+                                        callPlugin(pluginName,
+                                                   makeModuleMap(oldModuleMap.originalName, oldModuleMap.parentMap));
                                     }
                                     delete pluginsQueue[pluginName];
                                 }

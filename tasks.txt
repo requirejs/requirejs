@@ -1,6 +1,9 @@
 - Implement a pluginBuilder test.
 - sync calls to plugins, the has! example.
 
+- For jquery sample project, put in a paths: "jquery": "require-jquery", and update main.js to use
+  "jquery" as a dependency. Check the docs too.
+
 - ending slash in paths should throw error: https://github.com/jrburke/requirejs/issues/issue/49/
 - test if a dependency shows up twice in the dep list, in Function.toString parsing?
 
