@@ -115,7 +115,7 @@
     require.load = function (context, moduleName, url) {
         /*jslint evil: true */
         var isPlugin = false,
-            contents, pluginContents, pluginBuilderMatch, builderName;
+            contents, pluginBuilderMatch, builderName;
 
         //Adjust the URL if it was not transformed to use baseUrl.
         if (require.jsExtRegExp.test(moduleName)) {
@@ -213,5 +213,9 @@
             layer.loadedFiles[url] = true;
             layer.modulesWithNames[name] = true;
         }
+        if (cb.__requireJsBuild) {
+            return cb.apply(null, args);
+        }
+        return undefined;
     };
 }());

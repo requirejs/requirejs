@@ -27,7 +27,6 @@
         },
 
         load: function (name, req, load, config) {
-debugger;
             req([parse(name).choice], function (value) {
                 load(value);
             });

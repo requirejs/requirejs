@@ -336,12 +336,16 @@ var require, define;
             };
         }
 
-        function makeContextModuleFunc(func, relModuleMap) {
+        function makeContextModuleFunc(func, relModuleMap, enableBuildCallback) {
             return function () {
                 //A version of a require function that passes a moduleName
                 //value for items that may need to
                 //look up paths relative to the moduleName
-                var args = [].concat(aps.call(arguments, 0));
+                var args = [].concat(aps.call(arguments, 0)), lastArg;
+                if (enableBuildCallback &&
+                    isFunction((lastArg = args[args.length - 1]))) {
+                    lastArg.__requireJsBuild = true;
+                }
                 args.push(relModuleMap);
                 return func.apply(null, args);
             };
@@ -353,8 +357,8 @@ var require, define;
          * per module because of the implication of path mappings that may
          * need to be relative to the module name.
          */
-        function makeRequire(relModuleMap) {
-            var modRequire = makeContextModuleFunc(context.require, relModuleMap);
+        function makeRequire(relModuleMap, enableBuildCallback) {
+            var modRequire = makeContextModuleFunc(context.require, relModuleMap, enableBuildCallback);
 
             mixin(modRequire, {
                 nameToUrl: makeContextModuleFunc(context.nameToUrl, relModuleMap),
@@ -807,7 +811,7 @@ var require, define;
             //Use parentName here since the plugin's name is not reliable,
             //could be some weird string with no path that actually wants to
             //reference the parentName's path.
-            plugins[pluginName].load(name, makeRequire(dep.parentMap), function (ret) {
+            plugins[pluginName].load(name, makeRequire(dep.parentMap, true), function (ret) {
                 //Allow the build process to register plugin-loaded dependencies.
                 if (require.onPluginLoad) {
                     require.onPluginLoad(context, pluginName, name, ret);
