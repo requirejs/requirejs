@@ -35,6 +35,7 @@ Try manual testing:
 * ../build.sh indexBuilder.build.js - confirm plugin write calls are done.
 * ../build.sh text.build.js - confirm plugin write calls are done.
 * ../build.sh i18n.build.js - confirm plugin required the nls/en-us-surfer/colors module.
+* ../build.sh order.build.js - confirm one, two, three are in order.
 * ../build.sh hasTestModule.build.js - confirm plugin required the nls/en-us-surfer/colors module.
 
 # Sample jQuery project

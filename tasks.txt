@@ -1,7 +1,4 @@
-- For jquery sample project, put in a paths: "jquery": "require-jquery", and update main.js to use
-  "jquery" as a dependency. Check the docs too.
-
-- Update docs in the using section, fix links in plugin api page.
+- Update copyrights to 2011
 
 - build's name insertion if there is comment between define( and the [dependencies]
 

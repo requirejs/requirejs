@@ -17,18 +17,21 @@
 </div>
 
 <div class="section">
-<h2><a name="latest">Latest Release: 0.2.1</a><span class="sectionMark">&sect; 1</span></h2>
+<h2><a name="latest">Latest Release: 0.22.0</a><span class="sectionMark">&sect; 1</span></h2>
 
 <ul>
-<li>[Bug Fixes from 2010-12-16 through 2010-12-19](https://github.com/jrburke/requirejs/commits/)</li>
+<li>A <a href="plugins.html">full plugin API</a> that supports also including plugin loaded artifacts in optimized builds.</li>
+<li><a href="node.html">Robust Node support</a>: now can use npm-installed modules, .node add-ons, and modules on require.paths.</li>
+<li>Support for <a href="optimization.html#hasjs">has.js optimizations</a> in the optimizer, including dead code branch removal via Closure Compiler.</a>
+<li><a href="https://github.com/jrburke/requirejs/commits/">Bug Fixes from 2010-12-21 through 2011-01-05</a>.</li>
 </ul>
 
 <div class="subSection">
 <h4 class="hbox">
 <a name="requirejs">require.js</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/0.2.1/minified/require.js">Minified</a>
-<a class="download" href="http://requirejs.org/docs/release/0.2.1/comments/require.js">With Comments</a>
+<a class="download" href="http://requirejs.org/docs/release/0.22.0/minified/require.js">Minified</a>
+<a class="download" href="http://requirejs.org/docs/release/0.22.0/comments/require.js">With Comments</a>
 </h4>
 
 <p>All you need to start using require.js in the browser. Does not include i18n, text, order plugins or Node/Rhino support.</p>
@@ -38,8 +41,8 @@
 <h4 class="hbox">
 <a name="requirejsplugins">require.js with plugins</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/0.2.1/minified/allplugins-require.js">Minified</a>
-<a class="download" href="http://requirejs.org/docs/release/0.2.1/comments/allplugins-require.js">With Comments</a>
+<a class="download" href="http://requirejs.org/docs/release/0.22.0/minified/allplugins-require.js">Minified</a>
+<a class="download" href="http://requirejs.org/docs/release/0.22.0/comments/allplugins-require.js">With Comments</a>
 </h4>
 
 <p>require.js for use in the browser with the i18n, text, and order plugins included. </p>
@@ -49,8 +52,8 @@
 <h4 class="hbox">
 <a name="jqueryrequirejs">jQuery 1.4.4 with require()</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/0.2.1/minified/require-jquery-1.4.4.js">Minified</a>
-<a class="download" href="http://requirejs.org/docs/release/0.2.1/comments/require-jquery-1.4.4.js">With Comments</a>
+<a class="download" href="http://requirejs.org/docs/release/0.22.0/minified/require-jquery-1.4.4.js">Minified</a>
+<a class="download" href="http://requirejs.org/docs/release/0.22.0/comments/require-jquery-1.4.4.js">With Comments</a>
 </h4>
 
 <p>A build of jQuery with integrated require() support. <strong>Does not include</strong> the i18n, text, and order plugins.</p>
@@ -60,8 +63,8 @@
 <h4 class="hbox">
 <a name="jqueryrequirejsplugins">jQuery 1.4.4 with require() and plugins</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/0.2.1/minified/requireplugins-jquery-1.4.4.js">Minified</a>
-<a class="download" href="http://requirejs.org/docs/release/0.2.1/comments/requireplugins-jquery-1.4.4.js">With Comments</a>
+<a class="download" href="http://requirejs.org/docs/release/0.22.0/minified/requireplugins-jquery-1.4.4.js">Minified</a>
+<a class="download" href="http://requirejs.org/docs/release/0.22.0/comments/requireplugins-jquery-1.4.4.js">With Comments</a>
 </h4>
 
 <p>A build of jQuery with integrated require() support that includes the i18n, text, and order plugins.</p>
@@ -71,7 +74,7 @@
 <h4 class="hbox">
 <a name="samplejquery">Sample jQuery 1.4.4 project with require()</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/0.2.1/jquery-require-sample.zip">Download</a>
+<a class="download" href="http://requirejs.org/docs/release/0.22.0/jquery-require-sample.zip">Download</a>
 </h4>
 
 <p>A zip file containing a build of jQuery with integrated require() support, with an sample project included to show how it can be used when using jQuery.</p>
@@ -80,9 +83,9 @@
 <div class="subSection">
 <h4><a name="node">RequireJS adapter for Node</a></h4>
 
-<p><strong><a href="http://requirejs.org/docs/release/0.2.1/node/r.js">r.js</a></strong>: use this file if you want to code to the RequireJS module format in Node. The <a href="node.html">Node instructions</a> explain how to use it. It includes all the code needed for RequireJS to function with Node.</p>
+<p><strong><a href="http://requirejs.org/docs/release/0.22.0/node/r.js">r.js</a></strong>: use this file if you want to code to the RequireJS module format in Node. The <a href="node.html">Node instructions</a> explain how to use it. It includes all the code needed for RequireJS to function with Node.</p>
 
-<p><strong><a href="http://requirejs.org/docs/release/0.2.1/node/index.js">index.js</a></strong>: the standard HTTP server-based Hello World app for Node, but coded to work with the r.js adapter. Download it in the same directory as r.js and then run this command:</p>
+<p><strong><a href="http://requirejs.org/docs/release/0.22.0/node/index.js">index.js</a></strong>: the standard HTTP server-based Hello World app for Node, but coded to work with the r.js adapter. Download it in the same directory as r.js and then run this command:</p>
 
 <pre><code>node r.js index.js
 </code></pre>
@@ -94,7 +97,7 @@
 <h4 class="hbox">
 <a name="optimizationtool">Optimization Tool / Full Source</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/0.2.1/requirejs-0.2.1.zip">Download</a></h4>
+<a class="download" href="http://requirejs.org/docs/release/0.22.0/requirejs-0.22.0.zip">Download</a></h4>
 
 <p>A zip file that is the optimization tool for RequireJS. It also includes the full source for require.js and its plugins.</p>
 
@@ -105,7 +108,13 @@
 <div class="section">
 <h2><a name="previous">Previous releases</a><span class="sectionMark">&sect; 2</span></h2>
 
-<h3>0.2.0</h3>
+<h3>0.2.1 (should have been 0.21.0)</h3>
+
+<ul>
+<li>[Bug Fixes from 2010-12-16 through 2010-12-19](https://github.com/jrburke/requirejs/commits/)</li>
+</ul>
+
+<h3>0.2.0 (should have been 0.20.0)</h3>
 
 <ul>
 <li>Refactored core.</li>
