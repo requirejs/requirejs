@@ -29,7 +29,11 @@
 <span class="sectionMark">&sect; 1</span>
 </h2>
 
-<p>First step is to <a href="download.md">download a build of jQuery with RequireJS built in</a>.</p>
+<p>First step is to get RequireJS:</p>
+<ul>
+    <li><a href="download.html#samplejquery">download the sample project</a> (<b>recommended</b>).</li>
+    <li><a href="download.html#jqueryrequirejs">download just one file with jQuery and RequireJS built in</a>.</li>
+</ul>
 </div>
 
 <div class="section">
@@ -57,17 +61,22 @@
 <pre><code>&lt;script data-main="scripts/main.js" src="scripts/require-jquery.js"&gt;&lt;/script&gt;
 </code></pre>
 
-<p>What is in main.js? Another call to require.js to load all the scripts you need and any init work you want to do for the page. This example main.js script loads two plugins, jquery.alpha.js and jquery.beta.js (not the names of real plugins, just an example). The plugins should be in the same directory as require-jquery.js:</p>
+<p>What is in main.js? A call to require() to load all the scripts you need and any init work you want to do for the page. This example main.js script loads two plugins, jquery.alpha.js and jquery.beta.js (not the names of real plugins, just an example). The plugins should be in the same directory as require-jquery.js:</p>
 
 <p>main.js:</p>
 
-<pre><code>require(["jquery.alpha", "jquery.beta"], function() {
+<pre><code>require(["jquery", "jquery.alpha", "jquery.beta"], function($) {
     //the jquery.alpha.js and jquery.beta.js plugins have been loaded.
     $(function() {
         $('body').alpha().beta();
     });
 });
 </code></pre>
+
+<p>In the require() call, "jquery" was referenced as a dependency. The require-jquery.js file has special code in it to register jQuery as a RequireJS module, and since it is registered as a module, you can get a handle on that module as the first argument to the function callback passed to require. In the above example, $ is used to reference the jQuery module.</p>
+
+<p>Since jquery.alpha and jquery.beta are just plugins that augment jQuery, they do not return modules that you can reference as function arguments.</p>
+
 </div>
 
 <div class="section">
@@ -76,7 +85,13 @@
 <span class="sectionMark">&sect; 3</span>
 </h2>
 
-<p>Now your page is set up to be optimized very easily. Download the RequireJS source and place it anywhere you like, preferrably somewhere outside your web development area. For the purposes of this example, the RequireJS source is placed as a sibling to the <strong>webapp</strong> directory, which contains the HTML page and the scripts directory with all the scripts. Complete directory structure:</p>
+<p>Now your page is set up to be optimized very easily via the <a href="optimization.html">optimizer tool</a>.</p>
+
+<p>If you downloaded the jQuery sample project, then the optimizer that is part of the RequireJS source is already included.</p>
+
+<p>If you are not using the jQuery sample project, get the optimizer by downloading the <a href="download.html#optimizationtool">RequireJS source bundle</a> and place it anywhere you like outside your web development area.</p>
+
+<p>For the purposes of this example, the RequireJS source is placed as a sibling to the <strong>webapp</strong> directory, which contains the HTML page and the scripts directory with all the scripts. Complete directory structure:</p>
 
 <ul>
 <li>requirejs/  (used for the build tools)</li>
@@ -98,9 +113,14 @@
     //the "simple" optimizations mode
     optimize: "none",
 
+    paths: {
+        "jquery": "require-jquery"
+    },
+
     modules: [
         {
-            name: "main"
+            name: "main",
+            exclude: ["jquery"]
         }
     ]
 })
@@ -131,5 +151,5 @@
 
 <p>This example is really basic, but demonstrates how you can upgrade your code to use RequireJS, and get powerful build optimizations without needing to change your code.</p>
 
-<p>Visit the <a href="download.html">Download page</a> to get this jQuery sample project as a zip file.</p>
+<p>The download page has <a href="download.html#samplejquery">this jQuery sample project as a zip file</a>.</p>
 </div>

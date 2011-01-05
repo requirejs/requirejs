@@ -1,14 +1,13 @@
 - For jquery sample project, put in a paths: "jquery": "require-jquery", and update main.js to use
   "jquery" as a dependency. Check the docs too.
 
+- Update docs in the using section, fix links in plugin api page.
+
 - build's name insertion if there is comment between define( and the [dependencies]
 
 - ending slash in paths should throw error: https://github.com/jrburke/requirejs/issues/issue/49/
 
 - John's email about an error callback, also allow loader to abort a plugin-loaded resource?
-- Document plugin API and differences with proposal. The build stuff.
-  - Actually test a pluginBuilder.
-- As part of documentation, list available plugins
 
 - jquery/jqueryDynamic2.html in IE8: sometimes if using cache, the jquery ready callbacks do not fire,
   even though we seem to indicate it correctly? Trace latest jQuery 1.4.4.
