@@ -145,14 +145,14 @@
         if (!url) {
             //Node seems to fail "silently" if it does not find a module
             //for a given path. Was doing the "cannot find module" error
-            //but now just console log it.
+            //but now just log it.
             url = "about:404";
             content = " ";
-            console.log("Warning: RequireJS cannot find file for module: " +
+            if (isDebug) {
+                logger.trace(">> RequireJS cannot find file for module: " +
                             moduleName + ", using an empty object.");
-        }
-
-        if (isDebug) {
+            }
+        } else if (isDebug) {
             logger.trace("RequireJS loading module: " + moduleName + " at path: " + url);
         }
 
@@ -179,10 +179,6 @@
             content = content.replace(/,\s*"child_process"/, "");
         }
 
-        if (isDebug) {
-            logger.trace("RequireJS about to evaluate module: " + moduleName);
-        }
-
         //Attempt to support __dirname and __filename in node
         dirName = url.split('/');
         dirName.pop();
@@ -199,10 +195,6 @@
         //Indicate a the module is in process of loading.
         context.loaded[moduleName] = false;
         context.scriptCount += 1;
-
-        if (isDebug && moduleName === 'http') {
-            logger.trace(content);
-        }
 
         process.compile(content, url);
 
