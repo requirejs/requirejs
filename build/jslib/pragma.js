@@ -12,6 +12,7 @@
 var pragma = {
     conditionalRegExp: /(exclude|include)Start\s*\(\s*["'](\w+)["']\s*,(.*)\)/,
     useStrictRegExp: /['"]use strict['"];/g,
+    hasRegExp: /has\s*\(\s*['"]([^'"]+)['"]\)/g,
 
     removeStrict: function (contents, config) {
         return config.useStrict ? contents : contents.replace(pragma.useStrictRegExp, '');
@@ -28,6 +29,16 @@ var pragma = {
             //Legacy arg defined to help in dojo conversion script. Remove later
             //when dojo no longer needs conversion:
             kwArgs = pragmas;
+
+        //Replace has references if desired
+        if (config.has) {
+            fileContents = fileContents.replace(pragma.hasRegExp, function (match, test) {
+                if (test in config.has) {
+                    return !!config.has[test];
+                }
+                return match;
+            });
+        }
 
         //If pragma work is not desired, skip it.
         if (config.skipPragmas) {
