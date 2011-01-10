@@ -20,7 +20,7 @@
         sys = require("sys"),
         path = require("path"),
         cwd = process.cwd(),
-        appFilePath = process.argv[2],
+        appFilePath = (process.argv[2] || "main.js"),
         paths = require.paths,
         isDebug = false,
         appDir, content;
@@ -33,6 +33,11 @@
     //Make sure path to app file is absolute.
     if (appFilePath.charAt(0) !== "/") {
         appFilePath = [cwd, appFilePath].join("/");
+    }
+
+    if (!path.existsSync(appFilePath)) {
+        sys.puts("Cannot find .js file at " + appFilePath);
+        return;
     }
 
     //Now get app directory.
