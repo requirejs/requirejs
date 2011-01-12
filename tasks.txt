@@ -1,5 +1,12 @@
 - Update copyrights to 2011
 
+- replacement for modify that intercepts callbacks, holds off until another module loads them?
+- build tool to rename require and define calls to other names?
+
+- call to require({}) by itself in a main.js optimization fails.
+
+- Update info on path resolution, fix Configuration Options link on page.
+
 - build's name insertion if there is comment between define( and the [dependencies]
 
 - ending slash in paths should throw error: https://github.com/jrburke/requirejs/issues/issue/49/
