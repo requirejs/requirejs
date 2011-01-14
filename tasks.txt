@@ -1,6 +1,11 @@
 - Update copyrights to 2011
 - How to use with Dojo page
 
+- Build with requireplugins-jquery.js uses bad definition for require/text, probably other plugins. Use a jqueryStub.js
+  for builds that need it with plain define, and allow the build system to load
+  the plugins. A problem, since previously built layers with plugins in them
+  can cause a problem.
+
 - replacement for modify that intercepts callbacks, holds off until another module loads them?
 - build tool to rename require and define calls to other names?
 
