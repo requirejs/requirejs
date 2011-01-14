@@ -12,11 +12,13 @@ doh.register(
         function require(t) {
             var good1 = "require(['one', 'two'], function(){});",
                 good2 = "require({baseUrl: './'}, ['one', 'two']);",
-                bad1 = "require([foo, 'me'], function() {});";
+                bad1 = "require([foo, 'me'], function() {});",
+                bad2 = "require({baseUrl: './'});";
 
             t.is('require(["one","two"]);', parse("good1", good1));
             t.is('require(["one","two"]);', parse("good2", good2));
             t.is(null, parse("bad1", bad1));
+            t.is(null, parse("bad2", bad2));
         },
 
         function requireDef(t) {

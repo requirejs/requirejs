@@ -358,7 +358,7 @@ var parse;
                     config = null;
                 }
 
-                if (!validateDeps(deps)) {
+                if (!deps || !validateDeps(deps)) {
                     return null;
                 }
 
