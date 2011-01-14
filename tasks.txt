@@ -1,4 +1,5 @@
 - Update copyrights to 2011
+- How to use with Dojo page
 
 - replacement for modify that intercepts callbacks, holds off until another module loads them?
 - build tool to rename require and define calls to other names?

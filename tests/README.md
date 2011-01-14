@@ -24,6 +24,8 @@ For this test, use nave, and do the npm installs listed in the JS file:
 
 Do these tests for each version of Node to support.
 
+Be sure to update the r.js in the build directory.
+
 ## Build testing in build/tests
 
 To run automated tests:

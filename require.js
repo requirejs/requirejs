@@ -718,6 +718,13 @@ var require, define;
                 noLoads = "", hasLoadedProp = false, stillLoading = false, prop,
                 err, manager;
 
+            //If there are items still in the paused queue processing wait.
+            //This is particularly important in the sync case where each paused
+            //item is processed right away but there may be more waiting.
+            if (context.pausedCount > 0) {
+                return undefined;
+            }
+
             //Determine if priority loading is done. If so clear the priority. If
             //not, then do not check
             if (config.priorityWait) {
@@ -911,6 +918,7 @@ var require, define;
 
             while (context.paused.length) {
                 p = context.paused;
+                context.pausedCount += p.length;
                 //Reset paused list
                 context.paused = [];
 
@@ -919,6 +927,7 @@ var require, define;
                 }
                 //Move the start time for timeout forward.
                 context.startTime = (new Date()).getTime();
+                context.pausedCount -= p.length;
             }
 
             checkLoaded();
@@ -941,6 +950,7 @@ var require, define;
             urlFetched: {},
             defined: defined,
             paused: [],
+            pausedCount: 0,
             plugins: plugins,
             managerCallbacks: managerCallbacks,
             makeModuleMap: makeModuleMap,
@@ -1785,7 +1795,7 @@ var require, define;
     //traced. Use a setTimeout in the browser world, to allow all the modules to register
     //themselves. In a non-browser env, assume that modules are not built into require.js,
     //which seems odd to do on the server.
-    if (typeof setTimeout !== "undefined") {
+    if (req.isAsync && typeof setTimeout !== "undefined") {
         ctx = s.contexts[(cfg.context || defContextName)];
         //Indicate that the script that includes require() is still loading,
         //so that require()'d dependencies are not traced until the end of the
