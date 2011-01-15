@@ -11,8 +11,9 @@
 
 "use strict";
 
-var build, buildBaseConfig;
-(function () {
+define(['env!env/file'], function (file) {
+    var build, buildBaseConfig;
+
     buildBaseConfig = {
             requireBuildPath: "../",
             appDir: "",
@@ -654,4 +655,6 @@ var build, buildBaseConfig;
             buildText: buildFileContents
         };
     };
-}());
+
+    return build;
+});
