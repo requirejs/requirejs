@@ -5,13 +5,15 @@
  */
 
 /*jslint regexp: false, plusplus: false, nomen: false */
-/*global java: false, lang: false, fileUtil: false, optimize: false,
-  load: false, quit: false, print: false, logger: false, require: false,
-  pragma: false, parse: false */
+/*global define: false, require: false */
 
 "use strict";
 
-define(['env!env/file'], function (file) {
+
+define([ 'lang', 'logger', 'env!env/file', 'env!env/parse', 'optimize', 'pragma',
+         'env!env/load'],
+function (lang,   logger,   file,          parse,            optimize,   pragma,
+          load) {
     var build, buildBaseConfig;
 
     buildBaseConfig = {
@@ -33,9 +35,9 @@ define(['env!env/file'], function (file) {
             modules, module, moduleName, builtModule, srcPath, buildContext;
 
         if (!args || args.length < 2) {
-            print("java -jar path/to/js.jar build.js directory/containing/build.js/ build.js\n" +
+            logger.error("java -jar path/to/js.jar build.js directory/containing/build.js/ build.js\n" +
                   "where build.js is the name of the build file (see example.build.js for hints on how to make a build file.");
-            quit();
+            return;
         }
 
         //First argument to this script should be the directory on where to find this script.
@@ -44,10 +46,6 @@ define(['env!env/file'], function (file) {
         if (requireBuildPath.charAt(requireBuildPath.length - 1) !== "/") {
             requireBuildPath += "/";
         }
-
-        ["lang", "logger", "fileUtil", "parse", "optimize", "pragma", "build"].forEach(function (path) {
-            load(requireBuildPath + "jslib/" + path + ".js");
-        });
 
         //Next args can include a build file path as well as other build args.
         //build file path comes first. If it does not contain an = then it is
@@ -76,7 +74,7 @@ define(['env!env/file'], function (file) {
             //lots of files to process.
 
             //First copy all the baseUrl content
-            fileUtil.copyDir((config.appDir || config.baseUrl), config.dir, /\w/, true);
+            file.copyDir((config.appDir || config.baseUrl), config.dir, /\w/, true);
 
             //Adjust baseUrl if config.appDir is in play, and set up build output paths.
             buildPaths = {};
@@ -98,7 +96,7 @@ define(['env!env/file'], function (file) {
                         }
 
                         //Copy files to build area. Copy all files (the /\w/ regexp)
-                        fileUtil.copyDir(srcPath, config.dirBaseUrl + buildPaths[prop], /\w/, true);
+                        file.copyDir(srcPath, config.dirBaseUrl + buildPaths[prop], /\w/, true);
                     }
                 }
             }
@@ -121,10 +119,10 @@ define(['env!env/file'], function (file) {
                     module._sourcePath = buildContext.nameToUrl(module.name);
                     //If the module does not exist, and this is not a "new" module layer,
                     //as indicated by a true "create" property on the module, then throw an error.
-                    if (!(new java.io.File(module._sourcePath)).exists() && !module.create) {
+                    if (!file.exists(module._sourcePath) && !module.create) {
                         throw new Error("ERROR: module path does not exist: " +
                                         module._sourcePath + " for module named: " + module.name +
-                                        ". Path is relative to: " + (new java.io.File('.')).getAbsolutePath());
+                                        ". Path is relative to: " + file.absPath('.'));
                     }
                 }
             });
@@ -151,7 +149,7 @@ define(['env!env/file'], function (file) {
                     if (module.name) {
                         module._buildPath = buildContext.nameToUrl(module.name, null);
                         if (!module.create) {
-                            fileUtil.copyFile(module._sourcePath, module._buildPath);
+                            file.copyFile(module._sourcePath, module._buildPath);
                         }
                     }
                 });
@@ -207,7 +205,7 @@ define(['env!env/file'], function (file) {
 
                 //Flatten them and collect the build output for each module.
                 builtModule = build.flattenModule(module, module.layer, config);
-                fileUtil.saveUtf8File(module._buildPath, builtModule.text);
+                file.saveUtf8File(module._buildPath, builtModule.text);
                 buildFileContents += builtModule.buildText;
             });
         }
@@ -221,7 +219,7 @@ define(['env!env/file'], function (file) {
             //Normal optimizations across modules.
 
             //JS optimizations.
-            fileNames = fileUtil.getFilteredFileList(config.dir, /\.js$/, true);
+            fileNames = file.getFilteredFileList(config.dir, /\.js$/, true);
             for (i = 0; (fileName = fileNames[i]); i++) {
                 optimize.jsFile(fileName, fileName, config);
             }
@@ -232,7 +230,7 @@ define(['env!env/file'], function (file) {
             }
 
             //All module layers are done, write out the build.txt file.
-            fileUtil.saveUtf8File(config.dir + "build.txt", buildFileContents);
+            file.saveUtf8File(config.dir + "build.txt", buildFileContents);
         }
 
         //If just have one CSS file to optimize, do that here.
@@ -242,7 +240,7 @@ define(['env!env/file'], function (file) {
 
         //Print out what was built into which layers.
         if (buildFileContents) {
-            print(buildFileContents);
+            logger.info(buildFileContents);
         }
 
     };
@@ -327,23 +325,23 @@ define(['env!env/file'], function (file) {
                 cfg.requireBuildPath = config.requireBuildPath;
             }
         }
-        config.requireUrl = fileUtil.absPath(java.io.File(cfg.requireBuildPath + "../require.js"));
+        config.requireUrl = file.absPath(cfg.requireBuildPath + "../require.js");
 
         if (config.buildFile) {
             //A build file exists, load it to get more config.
-            buildFile = new java.io.File(config.buildFile).getAbsoluteFile();
+            buildFile = file.absPath(config.buildFile);
 
             //Find the build file, and make sure it exists, if this is a build
             //that has a build profile, and not just command line args with an in=path
-            if (!buildFile.exists()) {
-                throw new Error("ERROR: build file does not exist: " + buildFile.getAbsolutePath());
+            if (!file.exists(buildFile)) {
+                throw new Error("ERROR: build file does not exist: " + buildFile);
             }
 
-            absFilePath = config.baseUrl = fileUtil.absPath(buildFile.getParentFile()).replace(lang.backSlashRegExp, '/');
+            absFilePath = config.baseUrl = file.absPath(file.parent(buildFile));
             config.dir = config.baseUrl + "/build/";
 
             //Load build file options.
-            buildFileContents = fileUtil.readFile(buildFile);
+            buildFileContents = file.readFile(buildFile);
             buildFileConfig = eval("(" + buildFileContents + ")");
             lang.mixin(config, buildFileConfig, true);
 
@@ -365,7 +363,7 @@ define(['env!env/file'], function (file) {
             }
 
             //In this scenario, the absFile path is current directory
-            absFilePath = (String((new java.io.File('.')).getAbsolutePath())).replace(lang.backSlashRegExp, '/');
+            absFilePath = file.absPath('.');
         }
 
         if (config.out && !config.cssIn) {
@@ -577,7 +575,7 @@ define(['env!env/file'], function (file) {
             includeRequire = module.includeRequire;
         }
         if (includeRequire) {
-            requireContents = pragma.process(config.requireUrl, fileUtil.readFile(config.requireUrl), config);
+            requireContents = pragma.process(config.requireUrl, file.readFile(config.requireUrl), config);
             buildFileContents += "require.js\n";
         }
 
@@ -607,7 +605,7 @@ define(['env!env/file'], function (file) {
                 }
             } else {
                 //Add the contents but remove any pragmas.
-                currContents = pragma.process(path, fileUtil.readFile(path), config);
+                currContents = pragma.process(path, file.readFile(path), config);
 
                 //If anonymous module, insert the module name.
                 currContents = currContents.replace(anonDefRegExp, function (match, callName, possibleComment, suffix) {
