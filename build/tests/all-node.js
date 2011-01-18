@@ -14,8 +14,23 @@
 //A hack to doh to avoid dojo setup stuff in doh/runner.js
 skipDohSetup = true;
 
-require(['../../tests/doh/runner.js', '../../tests/doh/_nodeRunner.js'], function () {
+require({
+    baseUrl: '../jslib/',
+    paths: {
+        'uglify': 'uglifyjs/index'
+    }
+})
 
+require(
+['../../tests/doh/runner.js', '../../tests/doh/_nodeRunner.js', 'uglify'], function (r, nr, uglify) {
+
+    var good3 = 'function foo(){ var object = ""; var foo = { bar: function() { require.def("one", ["two"], function(){}); } };}',
+        ast = uglify.parser.parse(good3);
+
+debugger;
+    console.log(JSON.stringify(ast, null, '  '));
+
+    /*
     doh.register(
     "test1",
     [
@@ -25,4 +40,5 @@ require(['../../tests/doh/runner.js', '../../tests/doh/_nodeRunner.js'], functio
     ]);
 
     doh.run();
+    */
 });

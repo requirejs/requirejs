@@ -12,60 +12,7 @@
 /*global java: false, Packages: false, load: false */
 
 "use strict";
-
-var parse;
-(function () {
-    //fileContents = 'require.def("foo", ["one", \n//This is a comment\n"two",\n/*Another comment*/"three"], {});',
-    //fileContents = 'require.def("foo", {one: "two"});',
-    var jscomp = Packages.com.google.javascript.jscomp,
-        compiler = new jscomp.Compiler(),
-
-        //Values taken from com.google.javascript.rhino.Token,
-        //but duplicated here to avoid weird Java-to-JS transforms.
-        GETPROP = 33,
-        CALL = 37,
-        NAME = 38,
-        STRING = 40,
-        ARRAYLIT = 63,
-        OBJECTLIT = 64,
-        ASSIGN = 86,
-        FUNCTION = 105,
-        EXPR_RESULT = 130,
-
-        //Oh Java, you rascal.
-        JSSourceFilefromCode = java.lang.Class.forName('com.google.javascript.jscomp.JSSourceFile').getMethod('fromCode', [java.lang.String, java.lang.String]);
-
-    //Helper for closureOptimize, because of weird Java-JavaScript interactions.
-    function closurefromCode(filename, content) {
-        return JSSourceFilefromCode.invoke(null, [filename, content]);
-    }
-
-    /**
-     * Calls node.getString() but makes sure a JS string is returned
-     */
-    function nodeString(node) {
-        return String(node.getString());
-    }
-
-    /**
-     * Calls compiler.parse, and if any errors, throws.
-     */
-    function compilerParse(jsSourceFile, fileName) {
-        var result = compiler.parse(jsSourceFile),
-            errorManager = compiler.getErrorManager(),
-            errorMsg = '', errors, i;
-
-        if (errorManager.getErrorCount() > 0) {
-            errorMsg += 'ERROR(S) in file: ' + fileName + ':\n';
-            errors = errorManager.getErrors();
-            for (i = 0; i < errors.length; i++) {
-                errorMsg += errors[i].toString() + '\n';
-            }
-            throw new Error(errorMsg);
-        }
-
-        return result;
-    }
+define(['uglify'], function (uglify) {
 
     /**
      * Validates a node as being an object literal (like for i18n bundles)
@@ -74,23 +21,7 @@ var parse;
      * present in this AST.
      */
     function validateDeps(node) {
-        var type = node.getType(), i, dep;
-
-        if (type === OBJECTLIT || type === FUNCTION) {
-            return true;
-        }
-
-        //Dependencies can be an object literal or an array.
-        if (type !== ARRAYLIT) {
-            return false;
-        }
-
-        for (i = 0; (dep = node.getChildAtIndex(i)); i++) {
-            if (dep.getType() !== STRING) {
-                return false;
-            }
-        }
-        return true;
+        return false
     }
 
     /**
@@ -101,13 +32,13 @@ var parse;
      * @returns {String} JS source string or null, if no require or define/require.def
      * calls are found.
      */
-    parse = function (fileName, fileContents) {
+    function parse (fileName, fileContents) {
         //Set up source input
-        var matches = [], result = null,
-            jsSourceFile = closurefromCode(String(fileName), String(fileContents)),
-            astRoot = compilerParse(jsSourceFile, fileName);
+        var matches = [], result = null;
+            //jsSourceFile = closurefromCode(String(fileName), String(fileContents)),
+            //astRoot = compilerParse(jsSourceFile, fileName);
 
-        parse.recurse(astRoot, matches);
+        //parse.recurse(astRoot, matches);
 
         if (matches.length) {
             result = matches.join("\n");
@@ -139,8 +70,10 @@ var parse;
      * @returns {Boolean}
      */
     parse.definesRequire = function (fileName, fileContents) {
-        var jsSourceFile = closurefromCode(String(fileName), String(fileContents)),
-            astRoot = compilerParse(jsSourceFile, fileName);
+        //var jsSourceFile = closurefromCode(String(fileName), String(fileContents)),
+        //    astRoot = compilerParse(jsSourceFile, fileName);
+
+        return false;
 
         return parse.nodeHasRequire(astRoot);
     };
@@ -156,6 +89,8 @@ var parse;
      * returns an array, but could be of length zero.
      */
     parse.getAnonDeps = function (fileName, fileContents) {
+        return [];
+        /*
         var jsSourceFile = closurefromCode(String(fileName), String(fileContents)),
             astRoot = compilerParse(jsSourceFile, fileName),
             deps = [],
@@ -171,6 +106,7 @@ var parse;
         }
 
         return deps;
+        */
     };
 
     /**
@@ -180,6 +116,8 @@ var parse;
      */
 
     parse.findAnonRequireDefCallback = function (node) {
+        return false;
+        /*
         var methodName, func, callback, i, n;
 
         if (node.getType() === GETPROP &&
@@ -214,8 +152,10 @@ var parse;
         }
 
         return null;
+        */
     };
 
+/*
     parse.findRequireDepNames = function (node, deps) {
         var moduleName, i, n;
 
@@ -236,13 +176,15 @@ var parse;
             parse.findRequireDepNames(n, deps);
         }
     };
-
+*/
     /**
      * Determines if a given node contains a require() definition.
      * @param {Packages.com.google.javascript.rhino.Node} node
      * @returns {Boolean}
      */
     parse.nodeHasRequire = function (node) {
+        return false;
+    /*
         if (parse.isRequireNode(node)) {
             return true;
         }
@@ -254,6 +196,7 @@ var parse;
         }
 
         return false;
+    */
     };
 
     /**
@@ -262,6 +205,8 @@ var parse;
      * @returns {Boolean}
      */
     parse.isRequireNode = function (node) {
+        return false;
+    /*
         //Actually look for the require.s = assignment, since
         //that is more indicative of RequireJS vs a plain require definition.
         var prop, name, s;
@@ -281,6 +226,7 @@ var parse;
             }
         }
         return false;
+    */
     };
 
     function optionalString(node) {
@@ -342,6 +288,8 @@ var parse;
      * Otherwise null.
      */
     parse.parseNode = function (node) {
+        return null;
+    /*
         var call, methodName, targetName, name, config, deps, callChildCount;
 
         if (node.getType() === EXPR_RESULT && node.getFirstChild().getType() === CALL) {
@@ -416,6 +364,7 @@ var parse;
         }
 
         return null;
+    */
     };
 
     /**
@@ -425,8 +374,13 @@ var parse;
      * @returns {String} a JS source string.
      */
     parse.nodeToString = function (node) {
+        return false;
+        /*
         var codeBuilder = new jscomp.Compiler.CodeBuilder();
         compiler.toSource(codeBuilder, 1, node);
         return String(codeBuilder.toString());
+        */
     };
-}());
+
+    return parse;
+});
