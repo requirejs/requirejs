@@ -1,3 +1,4 @@
+- warn or protect against duplicate dependencies listed.
 - Update copyrights to 2011
 - How to use with Dojo page
 
