@@ -24,14 +24,42 @@
   java: false, Packages: false */
 
 "use strict";
-var require;
 
-(function (args) {
-    var requireBuildPath = args[0];
-    if (requireBuildPath.charAt(requireBuildPath.length - 1) !== "/") {
-        requireBuildPath += "/";
+debugger;
+
+var requireBuildPath, env;
+if (typeof Packages !== 'undefined') {
+    env = 'rhino';
+    requireBuildPath = arguments[0];
+} else if (typeof process !== 'undefined') {
+    env = 'node';
+    requireBuildPath = process.argv[3];
+    //Account for debug being passed to r.js
+    if (requireBuildPath.indexOf('build.js') !== -1) {
+        requireBuildPath = process.argv[4];
     }
-    load(requireBuildPath + "jslib/build.js");
-    build(args);
+} else if (typeof window !== "undefined" && navigator && document) {
+    env = 'browser';
+    requireBuildPath = require.s.baseUrl;
+}
 
-}(Array.prototype.slice.call(arguments)));
+//Make sure build path ends in a slash.
+if (requireBuildPath.charAt(requireBuildPath.length - 1) !== "/") {
+    requireBuildPath += "/";
+}
+
+if (env === 'rhino') {
+    //Load up require.js
+    load(requireBuildPath + '../require.js');
+    load(requireBuildPath + '../require/rhino.js');
+}
+
+require({
+    baseUrl: requireBuildPath + 'jslib/',
+    //Use a separate context than the default context so that the
+    //build can use the default context.
+    context: 'build'
+},       ['env!env/args', 'build'],
+function (args,            build) {
+    build(args);
+});

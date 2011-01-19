@@ -35,8 +35,8 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
             modules, module, moduleName, builtModule, srcPath, buildContext;
 
         if (!args || args.length < 2) {
-            logger.error("java -jar path/to/js.jar build.js directory/containing/build.js/ build.js\n" +
-                  "where build.js is the name of the build file (see example.build.js for hints on how to make a build file.");
+            logger.error("build.js directory/containing/build.js/ buildProfile.js\n" +
+                  "where buildProfile.js is the name of the build file (see example.build.js for hints on how to make a build file.");
             return;
         }
 
