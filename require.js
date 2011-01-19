@@ -828,7 +828,9 @@ var require, define;
                     prefix: dep.prefix,
                     name: dep.name,
                     fullName: dep.fullName,
-                    callback: ret
+                    callback: function () {
+                        return ret;
+                    }
                 });
                 loaded[fullName] = true;
             }, config);
