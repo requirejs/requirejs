@@ -22,23 +22,14 @@ require({
 })
 
 require(
-['../../tests/doh/runner.js', '../../tests/doh/_nodeRunner.js', 'uglify'], function (r, nr, uglify) {
+['../../tests/doh/runner.js', '../../tests/doh/_nodeRunner.js', './parse'], function (r, nr, parseTests) {
 
-    var good3 = 'function foo(){ var object = ""; var foo = { bar: function() { require.def("one", ["two"], function(){}); } };}',
-        ast = uglify.parser.parse(good3);
-
-debugger;
-    console.log(JSON.stringify(ast, null, '  '));
 
     /*
-    doh.register(
-    "test1",
-    [
-        function test1(t) {
-            t.is('ok', 'ok2');
-        }
-    ]);
+    Use this to quickly output AST from Uglify:
+    var good3 = '(function(){ var object = ""; var foo = { bar: function() { require.def("one", ["two"], function(){}); } };}());',
+        ast = uglify.parser.parse(good3);
 
-    doh.run();
+    console.log(JSON.stringify(ast, null, '  '));
     */
 });
