@@ -60,7 +60,8 @@ define(['uglify'], function (uglify) {
 
         arrayArgs = node[1];
 
-        for (i = 0; (dep = arrayArgs[i]); i++) {
+        for (i = 0; i < arrayArgs.length; i++) {
+            dep = arrayArgs[i];
             if (dep[0] !== 'string') {
                 return false;
             }
@@ -97,13 +98,16 @@ define(['uglify'], function (uglify) {
      */
     parse.recurse = function (parentNode, matches) {
         var i, node, parsed;
-        for (i = 0; (node = parentNode[i]); i++) {
-            if (isArray(node)) {
-                parsed = parse.parseNode(node);
-                if (parsed) {
-                    matches.push(parsed);
+        if (isArray(parentNode)) {
+            for (i = 0; i < parentNode.length; i++) {
+                node = parentNode[i];
+                if (isArray(node)) {
+                    parsed = parse.parseNode(node);
+                    if (parsed) {
+                        matches.push(parsed);
+                    }
+                    parse.recurse(node, matches);
                 }
-                parse.recurse(node, matches);
             }
         }
     };
@@ -154,24 +158,27 @@ define(['uglify'], function (uglify) {
     parse.findAnonRequireDefCallback = function (node) {
         var callback, i, n, call, args;
 
-        if (node[0] === 'call') {
-            call = node[1];
-            args = node[2];
-            if ((call[0] === 'name' && call[1] === 'define') ||
-                       (call[0] === 'dot' && call[1][1] === 'require' && call[2] === 'def')) {
+        if (isArray(node)) {
+            if (node[0] === 'call') {
+                call = node[1];
+                args = node[2];
+                if ((call[0] === 'name' && call[1] === 'define') ||
+                           (call[0] === 'dot' && call[1][1] === 'require' && call[2] === 'def')) {
 
-                //There should only be one argument and it should be a function.
-                if (args.length === 1 && args[0][0] === 'function') {
-                    return args[0];
+                    //There should only be one argument and it should be a function.
+                    if (args.length === 1 && args[0][0] === 'function') {
+                        return args[0];
+                    }
+
                 }
-
             }
-        }
 
-        //Check child nodes
-        for (i = 0; (n = node[i]); i++) {
-            if ((callback = parse.findAnonRequireDefCallback(n))) {
-                return callback;
+            //Check child nodes
+            for (i = 0; i < node.length; i++) {
+                n = node[i];
+                if ((callback = parse.findAnonRequireDefCallback(n))) {
+                    return callback;
+                }
             }
         }
 
@@ -181,23 +188,26 @@ define(['uglify'], function (uglify) {
     parse.findRequireDepNames = function (node, deps) {
         var moduleName, i, n, call, args;
 
-        if (node[0] === 'call') {
-            call = node[1];
-            args = node[2];
+        if (isArray(node)) {
+            if (node[0] === 'call') {
+                call = node[1];
+                args = node[2];
 
-            if (call[0] === 'name' && call[1] === 'require') {
-                moduleName = args[0];
-                if (moduleName[0] === 'string') {
-                    deps.push(moduleName[1]);
+                if (call[0] === 'name' && call[1] === 'require') {
+                    moduleName = args[0];
+                    if (moduleName[0] === 'string') {
+                        deps.push(moduleName[1]);
+                    }
                 }
+
+
             }
 
-
-        }
-
-        //Check child nodes
-        for (i = 0; (n = node[i]); i++) {
-            parse.findRequireDepNames(n, deps);
+            //Check child nodes
+            for (i = 0; i < node.length; i++) {
+                n = node[i];
+                parse.findRequireDepNames(n, deps);
+            }
         }
     };
 
@@ -211,9 +221,12 @@ define(['uglify'], function (uglify) {
             return true;
         }
 
-        for (var i = 0, n; (n = node[i]); i++) {
-            if (parse.nodeHasRequire(n)) {
-                return true;
+        if (isArray(node)) {
+            for (var i = 0, n; i < node.length; i++) {
+                n = node[i];
+                if (parse.nodeHasRequire(n)) {
+                    return true;
+                }
             }
         }
 
@@ -229,6 +242,10 @@ define(['uglify'], function (uglify) {
         //Actually look for the require.s = assignment, since
         //that is more indicative of RequireJS vs a plain require definition.
         var assign;
+        if (!node) {
+            return null;
+        }
+
         if (node[0] === 'assign' && node[1] === true) {
             assign = node[2];
             if (assign[0] === 'dot' && assign[1][0] === 'name' &&

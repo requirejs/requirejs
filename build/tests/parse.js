@@ -69,7 +69,7 @@ require(['parse'], function (parse) {
 
             function hasRequire(t) {
                 var good1 = "var require; (function(){ require = function(){}; s = require.s = {};}());",
-                    good2 = "var myGlobalRequire = (function () { var require = {}; function(){ require = function(){}; s = require.s = {};} }());",
+                    good2 = "var myGlobalRequire = (function () { var require = {}; (function(){ require = function(){}; s = require.s = {};}()); }());",
                     bad1 = "var require; function boom(){ var require = function(){}; }",
                     bad2 = "(function(require) { require(); }(myvar));";
 

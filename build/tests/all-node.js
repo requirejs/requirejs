@@ -21,9 +21,9 @@ require({
     }
 })
 
-require(
-['../../tests/doh/runner.js', '../../tests/doh/_nodeRunner.js', './parse'], function (r, nr, parseTests) {
-
+require(['../../tests/doh/runner.js', '../../tests/doh/_nodeRunner.js',
+         './parse'],
+function () {
 
     /*
     Use this to quickly output AST from Uglify:
