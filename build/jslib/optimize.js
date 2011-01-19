@@ -5,28 +5,15 @@
  */
 
 /*jslint plusplus: false, nomen: false, regexp: false */
-/*global require: false, java: false, Packages: false, logger: false, fileUtil: false,
-  readFile: false, lang: false */
+/*global define: false */
 
 "use strict";
 
-var optimize;
-
-(function () {
-    var JSSourceFilefromCode,
+define([ 'lang', 'logger', 'env!env/optimize', 'env!env/file', 'uglify'],
+function (lang,   logger,   envOptimize,        file,           uglify) {
+    var optimize,
         cssImportRegExp = /\@import\s+(url\()?\s*([^);]+)\s*(\))?([\w, ]*)(;)?/g,
         cssUrlRegExp = /\url\(\s*([^\)]+)\s*\)?/g;
-
-
-    //Bind to Closure compiler, but if it is not available, do not sweat it.
-    try {
-        JSSourceFilefromCode = java.lang.Class.forName('com.google.javascript.jscomp.JSSourceFile').getMethod('fromCode', [java.lang.String, java.lang.String]);
-    } catch (e) {}
-
-    //Helper for closure compiler, because of weird Java-JavaScript interactions.
-    function closurefromCode(filename, content) {
-        return JSSourceFilefromCode.invoke(null, [filename, content]);
-    }
 
     /**
      * If an URL from a CSS url value contains start/end quotes, remove them.
@@ -87,7 +74,7 @@ var optimize;
                 //If it is not a relative path, then the readFile below will fail,
                 //and we will just skip that import.
                 var fullImportFileName = importFileName.charAt(0) === "/" ? importFileName : filePath + importFileName,
-                    importContents = fileUtil.readFile(fullImportFileName), i,
+                    importContents = file.readFile(fullImportFileName), i,
                     importEndIndex, importPath, fixedUrlMatch, colonIndex, parts;
 
                 //Make sure to flatten any nested imports.
@@ -140,40 +127,6 @@ var optimize;
     }
 
     optimize = {
-        closure: function (fileName, fileContents, keepLines, config) {
-            config = config || {};
-            var jscomp = Packages.com.google.javascript.jscomp,
-                flags = Packages.com.google.common.flags,
-                //Fake extern
-                externSourceFile = closurefromCode("fakeextern.js", " "),
-                //Set up source input
-                jsSourceFile = closurefromCode(String(fileName), String(fileContents)),
-                options, option, FLAG_compilation_level, compiler,
-                Compiler = Packages.com.google.javascript.jscomp.Compiler;
-
-            logger.trace("Minifying file: " + fileName);
-
-            //Set up options
-            options = new jscomp.CompilerOptions();
-            for (option in config.CompilerOptions) {
-                // options are false by default and jslint wanted an if statement in this for loop
-                if (config.CompilerOptions[option]) {
-                    options[option] = config.CompilerOptions[option];
-                }
-
-            }
-            options.prettyPrint = keepLines || options.prettyPrint;
-
-            FLAG_compilation_level = flags.Flag.value(jscomp.CompilationLevel[config.CompilationLevel || 'SIMPLE_OPTIMIZATIONS']);
-            FLAG_compilation_level.get().setOptionsForCompilationLevel(options);
-
-            //Trigger the compiler
-            Compiler.setLoggingLevel(Packages.java.util.logging.Level[config.loggingLevel || 'WARNING']);
-            compiler = new Compiler();
-            compiler.compile(externSourceFile, jsSourceFile, options);
-            return compiler.toSource();
-        },
-
         /**
          * Optimizes a file that contains JavaScript content. It will inline
          * text plugin files and run it through Google Closure Compiler
@@ -185,20 +138,26 @@ var optimize;
          * @param {Object} config the build config object.
          */
         jsFile: function (fileName, outFileName, config) {
-            var doClosure = (config.optimize + "").indexOf("closure") === 0,
+            var parts = (config.optimize + "").split('.'),
+                optimizerName = parts[0],
+                keepLines = parts[1] === 'keepLines',
                 fileContents;
 
-            fileContents = fileUtil.readFile(fileName);
+            fileContents = file.readFile(fileName);
 
             //Optimize the JS files if asked.
-            if (doClosure) {
-                fileContents = optimize.closure(fileName,
-                                               fileContents,
-                                               (config.optimize.indexOf(".keepLines") !== -1),
-                                               config.closure);
+            if (optimizerName && optimizerName !== 'none') {
+                optimize = envOptimize[optimizerName] || optimize.optimizers[optimizerName];
+                if (!optimize) {
+                    throw new Error('optimizer with name of "' +
+                                    optimizerName +
+                                    '" not found for this environment');
+                }
+                fileContents = optimize(fileName, fileContents, keepLines,
+                                        config[optimizerName]);
             }
 
-            fileUtil.saveUtf8File(outFileName, fileContents);
+            file.saveUtf8File(outFileName, fileContents);
         },
 
         /**
@@ -211,7 +170,7 @@ var optimize;
          */
         cssFile: function (fileName, outFileName, config) {
             //Read in the file. Make sure we have a JS string.
-            var originalFileContents = fileUtil.readFile(fileName),
+            var originalFileContents = file.readFile(fileName),
                 fileContents = flattenCss(fileName, originalFileContents, config.cssImportIgnore),
                 startIndex, endIndex;
 
@@ -242,7 +201,7 @@ var optimize;
                 logger.error("Could not optimized CSS file: " + fileName + ", error: " + e);
             }
 
-            fileUtil.saveUtf8File(outFileName, fileContents);
+            file.saveUtf8File(outFileName, fileContents);
         },
 
         /**
@@ -255,7 +214,7 @@ var optimize;
         css: function (startDir, config) {
             if (config.optimizeCss.indexOf("standard") !== -1) {
                 var i, fileName,
-                    fileList = fileUtil.getFilteredFileList(startDir, /\.css$/, true);
+                    fileList = file.getFilteredFileList(startDir, /\.css$/, true);
                 if (fileList) {
                     for (i = 0; i < fileList.length; i++) {
                         fileName = fileList[i];
@@ -263,6 +222,25 @@ var optimize;
                         optimize.cssFile(fileName, fileName, config);
                     }
                 }
+            }
+        },
+
+        optimizers: {
+            uglify: function (fileName, fileContents, keepLines, config) {
+                var parser = uglify.parser,
+                    processor = uglify.uglify,
+                    ast, genCodeConfig;
+
+                config = config || {};
+                genCodeConfig = config.gen_codeOptions || keepLines;
+
+                logger.trace("Uglifying file: " + fileName);
+
+                ast = parser.parse(fileName, config.strict_semicolons);
+                ast = processor.ast_mangle(ast, config.do_toplevel);
+                ast = processor.ast_squeeze(ast, config.ast_squeezeOptions);
+
+                return processor.gen_code(ast, genCodeConfig);
             }
         }
     };

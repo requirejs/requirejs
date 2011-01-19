@@ -10,9 +10,9 @@
 "use strict";
 
 
-define([ 'lang', 'logger', 'env!env/file', 'env!env/parse', 'optimize', 'pragma',
+define([ 'lang', 'logger', 'env!env/file', 'parse', 'optimize', 'pragma',
          'env!env/load'],
-function (lang,   logger,   file,          parse,            optimize,   pragma,
+function (lang,   logger,   file,          parse,    optimize,   pragma,
           load) {
     var build, buildBaseConfig;
 
