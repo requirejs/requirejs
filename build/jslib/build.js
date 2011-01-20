@@ -109,7 +109,9 @@ var build, buildBaseConfig;
         //require multiple times and the above copyDir call only copies newer files.
         require({
             baseUrl: config.baseUrl,
-            paths: paths
+            paths: paths,
+            packagePaths: config.packagePaths,
+            packages: config.packages
         });
         buildContext = require.s.contexts._;
         modules = config.modules;
@@ -142,6 +144,7 @@ var build, buildBaseConfig;
                 baseUrl: config.dirBaseUrl,
                 paths: buildPaths
             };
+
             lang.mixin(baseConfig, config);
             require(baseConfig);
 
