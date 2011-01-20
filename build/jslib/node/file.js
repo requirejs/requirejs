@@ -20,8 +20,12 @@ define(['fs', 'path'], function (fs, path) {
         var parts = dir.split('/'),
             currDir = '';
         parts.forEach(function (part) {
-            currDir += (currDir ? '/' : '') + part;
-            mkDir(currDir);
+            currDir += (currDir || !part ? '/' : '') + part;
+
+            //First part may be empty string if path starts with a slash.
+            if (part) {
+                mkDir(currDir);
+            }
         });
     }
 
