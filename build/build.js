@@ -25,8 +25,6 @@
 
 "use strict";
 
-debugger;
-
 var requireBuildPath, env;
 if (typeof Packages !== 'undefined') {
     env = 'rhino';

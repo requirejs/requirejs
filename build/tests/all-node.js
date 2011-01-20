@@ -15,10 +15,7 @@
 skipDohSetup = true;
 
 require({
-    baseUrl: '../jslib/',
-    paths: {
-        'uglify': 'uglifyjs/index'
-    }
+    baseUrl: '../jslib/'
 })
 
 require(['../../tests/doh/runner.js', '../../tests/doh/_nodeRunner.js',

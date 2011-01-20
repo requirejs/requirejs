@@ -36,7 +36,7 @@ define(['fs', 'path'], function (fs, path) {
         },
 
         parent: function (fileName) {
-            var parts = filName.split('/');
+            var parts = fileName.split('/');
             parts.pop();
             return parts.join('/');
         },

@@ -12,7 +12,7 @@
 /*global define: false */
 
 "use strict";
-define(['uglify'], function (uglify) {
+define(['uglifyjs/index'], function (uglify) {
     var parser = uglify.parser,
         processor = uglify.uglify,
         ostring = Object.prototype.toString,

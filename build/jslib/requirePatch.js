@@ -8,48 +8,17 @@
  */
 
 /*jslint nomen: false, plusplus: false, regexp: false */
-/*global load: false, require: false, logger: false, setTimeout: true,
- pragma: false, Packages: false, parse: false, java: true, define: true */
+/*global require: false, define: true */
 "use strict";
 
-(function () {
+//NOT asking for require as a dependency since the goal is to modify the
+//global require below
+define([ 'env!env/file', 'pragma', 'parse'],
+function (file,           pragma,   parse) {
+
     var layer,
-        lineSeparator = java.lang.System.getProperty("line.separator"),
         pluginBuilderRegExp = /(["']?)pluginBuilder(["']?)\s*[=\:]\s*["']([^'"\s]+)["']/,
         oldDef;
-
-    //A file read function that can deal with BOMs
-    function _readFile(path, encoding) {
-        encoding = encoding || "utf-8";
-        var file = new java.io.File(path),
-                input = new java.io.BufferedReader(new java.io.InputStreamReader(new java.io.FileInputStream(file), encoding)),
-                stringBuffer, line;
-        try {
-            stringBuffer = new java.lang.StringBuffer();
-            line = input.readLine();
-
-            // Byte Order Mark (BOM) - The Unicode Standard, version 3.0, page 324
-            // http://www.unicode.org/faq/utf_bom.html
-
-            // Note that when we use utf-8, the BOM should appear as "EF BB BF", but it doesn't due to this bug in the JDK:
-            // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4508058
-            if (line && line.length() && line.charAt(0) === 0xfeff) {
-                // Eat the BOM, since we've already found the encoding on this file,
-                // and we plan to concatenating this buffer with others; the BOM should
-                // only appear at the top of a file.
-                line = line.substring(1);
-            }
-            while (line !== null) {
-                stringBuffer.append(line);
-                stringBuffer.append(lineSeparator);
-                line = input.readLine();
-            }
-            //Make sure we return a JavaScript string and not a Java string.
-            return String(stringBuffer.toString()); //String
-        } finally {
-            input.close();
-        }
-    }
 
     /** Reset state for each build layer pass. */
     require._buildReset = function () {
@@ -101,9 +70,9 @@
     };
 
     //Add some utilities for plugins/pluginBuilders
-    require._readFile = _readFile;
+    require._readFile = file.readFile;
     require._fileExists = function (path) {
-        return (new java.io.File(path)).exists();
+        return file.exists(path);
     };
 
     require.pluginBuilders = {};
@@ -132,7 +101,7 @@
 
             //Load the file contents, process for conditionals, then
             //evaluate it.
-            contents = _readFile(url);
+            contents = file.readFile(url);
             contents = pragma.process(url, contents, context.config);
 
             //Find out if the file contains a require() definition. Need to know
@@ -151,7 +120,7 @@
                 if (pluginBuilderMatch) {
                     //Load the plugin builder for the plugin contents.
                     builderName = context.normalize(pluginBuilderMatch[3], moduleName);
-                    contents = _readFile(context.nameToUrl(builderName));
+                    contents = file.readFile(context.nameToUrl(builderName));
                 }
 
                 //plugins need to have their source evaled as-is.
@@ -197,7 +166,7 @@
     //Override a method provided by require/text.js for loading text files as
     //dependencies.
     require.fetchText = function (url, callback) {
-        callback(_readFile(url));
+        callback(file.readFile(url));
     };
 
     //Marks the module as part of the loaded set, and puts
@@ -215,4 +184,4 @@
         }
         return undefined;
     };
-}());
+});

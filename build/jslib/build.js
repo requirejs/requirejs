@@ -28,21 +28,17 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
         };
 
     build = function (args) {
-        var requireBuildPath, buildFile, baseUrlFile, buildPaths, deps, fileName, fileNames,
-            prop, props, paths, path, i, fileContents, buildFileContents = "",
-            doClosure, requireContents, pluginBuildFileContents,
-            baseConfig, override, builtRequirePath, cmdConfig, config,
-            modules, module, moduleName, builtModule, srcPath, buildContext;
+        var requireBuildPath, buildFile, cmdConfig;
 
-        if (!args || args.length < 2) {
+        if (!args || args.length < 3) {
             logger.error("build.js directory/containing/build.js/ buildProfile.js\n" +
-                  "where buildProfile.js is the name of the build file (see example.build.js for hints on how to make a build file.");
+                  "where buildProfile.js is the name of the build file (see example.build.js for hints on how to make a build file).");
             return;
         }
 
-        //First argument to this script should be the directory on where to find this script.
+        //Second argument should be the directory on where to find this script.
         //This path should end in a slash.
-        requireBuildPath = args[0];
+        requireBuildPath = args[1];
         if (requireBuildPath.charAt(requireBuildPath.length - 1) !== "/") {
             requireBuildPath += "/";
         }
@@ -51,23 +47,41 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
         //build file path comes first. If it does not contain an = then it is
         //a build file path. Otherwise, just all build args.
         if (args[1].indexOf("=") === -1) {
-            buildFile = args[1];
-            args.splice(0, 2);
+            buildFile = args[2];
+            args.splice(0, 3);
         } else {
-            args.splice(0, 1);
+            args.splice(0, 2);
         }
 
-        //Remaining args are options to the build
-        cmdConfig = build.convertArrayToObject(args);
-        cmdConfig.buildFile = buildFile;
-        cmdConfig.requireBuildPath = requireBuildPath;
+        function doRun() {
+            //Remaining args are options to the build
+            cmdConfig = build.convertArrayToObject(args);
+            cmdConfig.buildFile = buildFile;
+            cmdConfig.requireBuildPath = requireBuildPath;
+            build._run(cmdConfig);
+        }
+
+        //Need to do this because requirePatch below messes with
+        //require.execCb, and will only execute the doRun callback if
+        //this property is true.
+        doRun.__requireJsBuild = true;
+
+        //Can now load the patches to require.js to allow it to be used for
+        //build generation. Do it here instead of as a dependency to this
+        //module because we want normal require behavior to load the build tool
+        //then want to switch to build mode.
+        require({ context: 'build' }, ['requirePatch'], doRun);
+    };
+
+    build._run = function (cmdConfig) {
+        var buildFileContents = "",
+            buildPaths, fileName, fileNames,
+            prop, paths, i,
+            baseConfig, config,
+            modules, builtModule, srcPath, buildContext;
 
         config = build.createConfig(cmdConfig);
         paths = config.paths;
-
-        //Load require.js with the build patches.
-        load(config.requireUrl);
-        load(requireBuildPath + "jslib/requirePatch.js");
 
         if (!config.out && !config.cssIn) {
             //This is not just a one-off file build but a full build profile, with
@@ -310,7 +324,7 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
      */
     build.createConfig = function (cfg) {
         /*jslint evil: true */
-        var config = {}, baseUrl, buildFileContents, buildFileConfig,
+        var config = {}, buildFileContents, buildFileConfig,
             paths, props, i, prop, buildFile, absFilePath, originalBaseUrl;
 
         lang.mixin(config, buildBaseConfig);
@@ -490,7 +504,7 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
      * be in the flattened module.
      */
     build.traceDependencies = function (module, config) {
-        var include, override, url, layer, prop,
+        var include, override, layer,
             context = require.s.contexts._,
             baseConfig = context.config;
 

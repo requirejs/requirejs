@@ -234,12 +234,13 @@ function JS_Parse_Error(message, line, col, pos) {
         this.line = line;
         this.col = col;
         this.pos = pos;
-debugger;
+/*
         try {
                 ({})();
         } catch(ex) {
                 this.stack = ex.stack;
         };
+*/
 };
 
 JS_Parse_Error.prototype.toString = function() {

@@ -9,8 +9,9 @@
 
 "use strict";
 
-define([ 'lang', 'logger', 'env!env/optimize', 'env!env/file', 'uglify'],
+define([ 'lang', 'logger', 'env!env/optimize', 'env!env/file', 'uglifyjs/index'],
 function (lang,   logger,   envOptimize,        file,           uglify) {
+
     var optimize,
         cssImportRegExp = /\@import\s+(url\()?\s*([^);]+)\s*(\))?([\w, ]*)(;)?/g,
         cssUrlRegExp = /\url\(\s*([^\)]+)\s*\)?/g;
@@ -141,19 +142,19 @@ function (lang,   logger,   envOptimize,        file,           uglify) {
             var parts = (config.optimize + "").split('.'),
                 optimizerName = parts[0],
                 keepLines = parts[1] === 'keepLines',
-                fileContents;
+                fileContents, optFunc;
 
             fileContents = file.readFile(fileName);
 
             //Optimize the JS files if asked.
             if (optimizerName && optimizerName !== 'none') {
-                optimize = envOptimize[optimizerName] || optimize.optimizers[optimizerName];
-                if (!optimize) {
+                optFunc = envOptimize[optimizerName] || optimize.optimizers[optimizerName];
+                if (!optFunc) {
                     throw new Error('optimizer with name of "' +
                                     optimizerName +
                                     '" not found for this environment');
                 }
-                fileContents = optimize(fileName, fileContents, keepLines,
+                fileContents = optFunc(fileName, fileContents, keepLines,
                                         config[optimizerName]);
             }
 
@@ -236,12 +237,19 @@ function (lang,   logger,   envOptimize,        file,           uglify) {
 
                 logger.trace("Uglifying file: " + fileName);
 
-                ast = parser.parse(fileName, config.strict_semicolons);
-                ast = processor.ast_mangle(ast, config.do_toplevel);
-                ast = processor.ast_squeeze(ast, config.ast_squeezeOptions);
+                try {
+                    ast = parser.parse(fileContents, config.strict_semicolons);
+                    ast = processor.ast_mangle(ast, config.do_toplevel);
+                    ast = processor.ast_squeeze(ast, config.ast_squeezeOptions);
 
-                return processor.gen_code(ast, genCodeConfig);
+                    fileContents = processor.gen_code(ast, genCodeConfig);
+                } catch (e) {
+                    logger.error('Cannot uglify file: ' + fileName + '. Skipping it. Error is:\n' + e.toString());
+                }
+                return fileContents;
             }
         }
     };
-}());
+
+    return optimize;
+});
