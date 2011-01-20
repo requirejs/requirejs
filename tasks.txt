@@ -1,4 +1,3 @@
-- building packages do not work
 - warn or protect against duplicate dependencies listed.
 - Update copyrights to 2011
 - How to use with Dojo page
@@ -14,6 +13,8 @@
 
 - replacement for modify that intercepts callbacks, holds off until another module loads them?
 - build tool to rename require and define calls to other names?
+
+- building with packages.build.js, the alpha/replace path mapping does not work out?
 
 - Update info on path resolution, fix Configuration Options link on page.
 

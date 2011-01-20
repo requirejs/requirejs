@@ -122,7 +122,9 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
         //require multiple times and the above copyDir call only copies newer files.
         require({
             baseUrl: config.baseUrl,
-            paths: paths
+            paths: paths,
+            packagePaths: config.packagePaths,
+            packages: config.packages
         });
         buildContext = require.s.contexts._;
         modules = config.modules;
@@ -155,6 +157,7 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
                 baseUrl: config.dirBaseUrl,
                 paths: buildPaths
             };
+
             lang.mixin(baseConfig, config);
             require(baseConfig);
 
