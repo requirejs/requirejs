@@ -54,6 +54,10 @@ define(['fs', 'path'], function (fs, path) {
             return fs.realpathSync(fileName).replace(/\\/g, '/');
         },
 
+        normalize: function (fileName) {
+            return path.normalize(fileName);
+        },
+
         getFilteredFileList: function (/*String*/startDir, /*RegExp*/regExpFilters, /*boolean?*/makeUnixPaths) {
             //summary: Recurses startDir and finds matches to the files that match regExpFilters.include
             //and do not match regExpFilters.exclude. Or just one regexp can be passed in for regExpFilters,

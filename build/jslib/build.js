@@ -310,6 +310,7 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
             path = absFilePath +
                    (absFilePath.charAt(absFilePath.length - 1) === '/' ? '' : '/') +
                    path;
+            path = file.normalize(path);
         }
         return path;
     };
