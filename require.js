@@ -147,6 +147,7 @@ var require, define;
             managerCallbacks = {},
             plugins = {},
             pluginsQueue = {},
+            resumeDepth = 0,
             normalizedWaiting = {};
 
         /**
@@ -903,6 +904,8 @@ var require, define;
         resume = function () {
             var args, i, p;
 
+            resumeDepth += 1;
+
             if (context.scriptCount <= 0) {
                 //Synchronous envs will push the number below zero with the
                 //decrement above, be sure to set it back to zero for good measure.
@@ -940,7 +943,16 @@ var require, define;
                 context.pausedCount -= p.length;
             }
 
-            checkLoaded();
+            //Only check if loaded when resume depth is 1. It is likely that
+            //it is only greater than 1 in sync environments where a factory
+            //function also then calls the callback-style require. In those
+            //cases, the checkLoaded should not occur until the resume
+            //depth is back at the top level.
+            if (resumeDepth === 1) {
+                checkLoaded();
+            }
+
+            resumeDepth -= 1;
 
             return undefined;
         };
