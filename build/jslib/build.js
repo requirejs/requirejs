@@ -27,6 +27,13 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
             isBuild: true
         };
 
+    function endsWithSlash(dirName) {
+        if (dirName.charAt(dirName.length - 1) !== "/") {
+            dirName += "/";
+        }
+        return dirName;
+    }
+
     build = function (args) {
         var requireBuildPath, buildFile, cmdConfig;
 
@@ -39,9 +46,7 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
         //Second argument should be the directory on where to find this script.
         //This path should end in a slash.
         requireBuildPath = args[0];
-        if (requireBuildPath.charAt(requireBuildPath.length - 1) !== "/") {
-            requireBuildPath += "/";
-        }
+        requireBuildPath = endsWithSlash(requireBuildPath);
 
         //Next args can include a build file path as well as other build args.
         //build file path comes first. If it does not contain an = then it is
@@ -83,7 +88,6 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
         config = build.createConfig(cmdConfig);
         paths = config.paths;
 
-debugger;
         if (!config.out && !config.cssIn) {
             //This is not just a one-off file build but a full build profile, with
             //lots of files to process.
@@ -260,7 +264,6 @@ debugger;
         if (buildFileContents) {
             logger.info(buildFileContents);
         }
-
     };
 
     /**
@@ -438,18 +441,13 @@ debugger;
                     }
 
                     //Make sure dirBaseUrl ends in a slash, since it is
-                    //concatenated with
-                    if (config.dirBaseUrl.charAt(config.dirBaseUrl.length - 1) !== "/") {
-                        config.dirBaseUrl += "/";
-                    }
+                    //concatenated with other strings.
+                    config.dirBaseUrl = endsWithSlash(config.dirBaseUrl);
                 } else {
                     config[prop] = build.makeAbsPath(config[prop], absFilePath);
                 }
 
-                if (config[prop].charAt(config[prop].length - 1) !== "/") {
-                    config[prop] += "/";
-                }
-
+                config[prop] = endsWithSlash(config[prop]);
             }
         }
 
