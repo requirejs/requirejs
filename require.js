@@ -537,6 +537,7 @@ var require, define;
             var moduleMap = makeModuleMap(inName, relModuleMap),
                 name = moduleMap.name,
                 fullName = moduleMap.fullName,
+                uniques = {},
                 manager = {
                     //Use a wait ID because some entries are anon
                     //async require calls.
@@ -612,7 +613,8 @@ var require, define;
                     } else if (depName in defined && !(depName in waiting)) {
                         //Module already defined, no need to wait for it.
                         manager.deps[depName] = defined[depName];
-                    } else {
+                    } else if (!uniques[depName]) {
+
                         //A dynamic dependency.
                         manager.depMax += 1;
 
@@ -621,6 +623,8 @@ var require, define;
                         //Register to get notification when dependency loads.
                         (managerCallbacks[depName] ||
                         (managerCallbacks[depName] = [])).push(manager);
+
+                        uniques[depName] = true;
                     }
                 }
             }
