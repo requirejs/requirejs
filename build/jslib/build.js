@@ -30,7 +30,7 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
     build = function (args) {
         var requireBuildPath, buildFile, cmdConfig;
 
-        if (!args || args.length < 3) {
+        if (!args || args.length < 2) {
             logger.error("build.js directory/containing/build.js/ buildProfile.js\n" +
                   "where buildProfile.js is the name of the build file (see example.build.js for hints on how to make a build file).");
             return;
@@ -38,7 +38,7 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
 
         //Second argument should be the directory on where to find this script.
         //This path should end in a slash.
-        requireBuildPath = args[1];
+        requireBuildPath = args[0];
         if (requireBuildPath.charAt(requireBuildPath.length - 1) !== "/") {
             requireBuildPath += "/";
         }
@@ -47,10 +47,10 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
         //build file path comes first. If it does not contain an = then it is
         //a build file path. Otherwise, just all build args.
         if (args[1].indexOf("=") === -1) {
-            buildFile = args[2];
-            args.splice(0, 3);
-        } else {
+            buildFile = args[1];
             args.splice(0, 2);
+        } else {
+            args.splice(0, 1);
         }
 
         function doRun() {
@@ -83,6 +83,7 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
         config = build.createConfig(cmdConfig);
         paths = config.paths;
 
+debugger;
         if (!config.out && !config.cssIn) {
             //This is not just a one-off file build but a full build profile, with
             //lots of files to process.
@@ -418,9 +419,6 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
         for (i = 0; (prop = props[i]); i++) {
             if (config[prop]) {
                 config[prop] = config[prop].replace(lang.backSlashRegExp, "/");
-                if (config[prop].charAt(config[prop].length - 1) !== "/") {
-                    config[prop] += "/";
-                }
 
                 //Add abspath if necessary.
                 if (prop === "baseUrl") {
@@ -438,9 +436,20 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
                         config.baseUrl = build.makeAbsPath(config[prop], absFilePath);
                         config.dirBaseUrl = config.dir;
                     }
+
+                    //Make sure dirBaseUrl ends in a slash, since it is
+                    //concatenated with
+                    if (config.dirBaseUrl.charAt(config.dirBaseUrl.length - 1) !== "/") {
+                        config.dirBaseUrl += "/";
+                    }
                 } else {
                     config[prop] = build.makeAbsPath(config[prop], absFilePath);
                 }
+
+                if (config[prop].charAt(config[prop].length - 1) !== "/") {
+                    config[prop] += "/";
+                }
+
             }
         }
 

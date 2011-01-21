@@ -12,7 +12,6 @@
 define(['logger'], function (logger) {
     var JSSourceFilefromCode, optimize;
 
-
     //Bind to Closure compiler, but if it is not available, do not sweat it.
     try {
         JSSourceFilefromCode = java.lang.Class.forName('com.google.javascript.jscomp.JSSourceFile').getMethod('fromCode', [java.lang.String, java.lang.String]);

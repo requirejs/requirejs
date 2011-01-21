@@ -17,5 +17,9 @@ define(function () {
         args.shift();
     }
 
+    //Take off the script name argument, since the rhino branch does
+    //not have it.
+    args.shift();
+
     return args;
 });

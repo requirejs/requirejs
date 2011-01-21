@@ -1,6 +1,13 @@
 - Update copyrights to 2011
 - How to use with Dojo page
 - Document that JSONP support only works with objects: https://github.com/jrburke/requirejs/issues/#issue/60
+- add gcf to pages
+
+- From Richard Backhouse: As an FYI I have been doing my own investigation of using UglifyJS for compression
+and one thing I found when trying to compress dojo 1.5 code was that I had ensure that "make_seqs"
+flag was set to false when calling ast_squeeze. If I left this flag set to true the code would not load.
+
+- Test has code branch removal with Uglify.
 
 - Support Node's "extensions" mechanism.
 
