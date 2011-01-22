@@ -463,7 +463,7 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
         //can be loaded for the build.
         paths = config.paths;
         if (!paths.require) {
-            paths.require = config.requireUrl.substring(0, config.requireUrl.lastIndexOf("/")) + "/require";
+            paths.require = file.absPath(config.requireUrl.substring(0, config.requireUrl.lastIndexOf("/")) + "/require");
         }
 
         return config;

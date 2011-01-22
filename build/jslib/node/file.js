@@ -51,7 +51,7 @@ define(['fs', 'path'], function (fs, path) {
          * @param {String} fileName
          */
         absPath: function (fileName) {
-            return fs.realpathSync(fileName).replace(/\\/g, '/');
+            return path.normalize(fs.realpathSync(fileName).replace(/\\/g, '/'));
         },
 
         normalize: function (fileName) {
