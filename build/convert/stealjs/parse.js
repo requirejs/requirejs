@@ -30,17 +30,30 @@ define(['../../jslib/parse'], function (baseParse) {
     }
 
     function addStringsToArray(node, array) {
-        var i, item;
+        var i, item, matches = [];
         for (i = 0; i < node.length; i++) {
             item = node[i];
             if (item && baseParse.isArray(item) && item[0] === 'string') {
-                array.unshift(item[1]);
+                matches.push(item[1]);
             }
+        }
+
+        if (matches.length) {
+            //Build up arguments to splice, since we need to put these
+            //matches before other matches, given the backwards nature of
+            //the call traversal in the AST.
+            matches.unshift(0);
+            matches.unshift(0);
+            array.splice.apply(array, matches);
         }
     }
 
     function generateRequireCall(node, array) {
-        //Need to unwind the call since the dot access shows up funny
+        if (!baseParse.isArray(node)) {
+            return;
+        }
+
+        //Need to unwind the call since the dot access shows up "backwards"
         //in the AST.
         var args = node[node.length - 1],
             previous = node[node.length - 2],
@@ -54,8 +67,7 @@ define(['../../jslib/parse'], function (baseParse) {
             }
 
             //Find out if there are any other chained calls.
-            previous = previous[previous.length - 1];
-            previous = previous[previous.length - 1];
+            previous = previous[previous.length - 2];
 
             generateRequireCall(previous, array);
         }
@@ -77,11 +89,12 @@ define(['../../jslib/parse'], function (baseParse) {
             return value;
         }
 
-debugger;
         if (hasStealCall(node)) {
+debugger;
             value = [];
             generateRequireCall(node, value);
-            return "require(" + JSON.stringify(value) + ");";
+            return value.length ?
+                   "require(" + JSON.stringify(value) + ");" : '';
         }
 
         return null;
