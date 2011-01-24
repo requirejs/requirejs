@@ -16,7 +16,7 @@ debugger;
 
 //Try: steal('one, 'two') also?
 
-                t.is('require(["foo", "bar", "ejs!abc/init.ejs"])', parse("good1", good1));
+                t.is('require(["foo","bar","ejs!abc/init.ejs"]);', parse("good1", good1));
             }
         ]
     );

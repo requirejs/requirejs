@@ -13,7 +13,8 @@ define(['../../jslib/parse'], function (baseParse) {
         allowedCalls = {
             plugins: true,
             views: true
-        };
+        },
+        viewStringRegExp = /^\/\//;
 
     function hasStealCall(node) {
         if (!baseParse.isArray(node)) {
@@ -29,12 +30,21 @@ define(['../../jslib/parse'], function (baseParse) {
         return false;
     }
 
-    function addStringsToArray(node, array) {
+    /**
+     * Transform a .views depdencency to an ejs! plugin loaded depdendency
+     * @param {String} value the .views string name.
+     * @returns {String} an 'ejs!' string
+     */
+    function viewTransform(value) {
+        return 'ejs!' + value.replace(viewStringRegExp, '');
+    }
+
+    function addStringsToArray(node, array, transform) {
         var i, item, matches = [];
         for (i = 0; i < node.length; i++) {
             item = node[i];
             if (item && baseParse.isArray(item) && item[0] === 'string') {
-                matches.push(item[1]);
+                matches.push((transform ? transform(item[1]) : item[1]));
             }
         }
 
@@ -63,7 +73,7 @@ define(['../../jslib/parse'], function (baseParse) {
             if (call === 'plugins') {
                 addStringsToArray(args, array);
             } else if (call === 'views') {
-                //special work in  here.
+                addStringsToArray(args, array, viewTransform);
             }
 
             //Find out if there are any other chained calls.
