@@ -5,7 +5,7 @@
  */
 
 /*jslint plusplus: false, regexp: false */
-/*global Packages: false, logger: false, fileUtil: false */
+/*global Packages: false, console: false, fileUtil: false */
 "use strict";
 
 var commonJs = {
@@ -20,9 +20,6 @@ var commonJs = {
     //Set to false if you do not want this file to log. Useful in environments
     //like node where you want the work to happen without noise.
     useLog: true,
-
-    //Set to true to see full converted module contents logged to output.
-    logConverted: false,
 
     convertDir: function (commonJsPath, savePath, prefix) {
         //Normalize prefix
@@ -47,11 +44,13 @@ var commonJs = {
 
         //Cycle through all the JS files and convert them.
         if (!fileList || !fileList.length) {
-            if (commonJsPath === "convert") {
-                //A request just to convert one file.
-                logger.trace('\n\n' + commonJs.convert(savePath, fileUtil.readFile(savePath)));
-            } else {
-                logger.error("No files to convert in directory: " + commonJsPath);
+            if (commonJs.useLog) {
+                if (commonJsPath === "convert") {
+                    //A request just to convert one file.
+                    console.log('\n\n' + commonJs.convert(savePath, fileUtil.readFile(savePath)));
+                } else {
+                    console.log("No files to convert in directory: " + commonJsPath);
+                }
             }
         } else {
             for (i = 0; (fileName = fileList[i]); i++) {
@@ -149,7 +148,7 @@ var commonJs = {
                 while ((match = commonJs.depRegExp.exec(tempContents))) {
                     depName = match[1];
                     if (commonJs.useLog) {
-                        logger.trace("  " + depName);
+                        console.log("  " + depName);
                     }
                     if (depName) {
                         deps.push('"' + depName + '"');
@@ -161,17 +160,13 @@ var commonJs = {
             fileContents = 'define(["require", "exports", "module"' +
                    (deps.length ? ', ' + deps.join(",") : '') + '], ' +
                    'function(require, exports, module) {\n' +
-                   (commonJs.logConverted ? 'global._requirejs_logger.trace("Evaluating module: ' + moduleName + '");\n' : "") +
                    fileContents +
                    '\n});\n';
         } catch (e) {
-            logger.error("COULD NOT CONVERT: " + fileName + ", so skipping it. Error was: " + e);
+            console.log("COULD NOT CONVERT: " + fileName + ", so skipping it. Error was: " + e);
             return fileContents;
         }
 
-        if (commonJs.logConverted) {
-            logger.trace("\nREQUIREJS CONVERTED MODULE: " + moduleName + "\n\n" + fileContents + "\n");
-        }
         return fileContents;
     }
 };

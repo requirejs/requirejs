@@ -1,3 +1,5 @@
+- test commmonjs converter
+
 - Update copyrights to 2011
 - How to use with Dojo page
 - Document that JSONP support only works with objects: https://github.com/jrburke/requirejs/issues/#issue/60

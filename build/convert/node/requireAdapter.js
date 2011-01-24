@@ -5,7 +5,7 @@
  */
 /*jslint nomen: false, plusplus: false, regexp: false */
 /*global require: false, process: false, global: false,
-         console: false, logger: false, commonJs: false */
+         console: false commonJs: false */
 
 "use strict";
 
@@ -149,11 +149,11 @@
             url = "about:404";
             content = " ";
             if (isDebug) {
-                logger.trace(">> RequireJS cannot find file for module: " +
+                console.log(">> RequireJS cannot find file for module: " +
                             moduleName + ", using an empty object.");
             }
         } else if (isDebug) {
-            logger.trace("RequireJS loading module: " + moduleName + " at path: " + url);
+            console.log("RequireJS loading module: " + moduleName + " at path: " + url);
         }
 
         if (!content) {
@@ -209,17 +209,12 @@
     };
 
     //Do some patch-ups
-    logger._sysPrint = global.__requireLog;
     commonJs.useRhino = false;
 
     //Set useLog to true if some modules do not seem to convert.
     commonJs.useLog = false;
     if (isDebug) {
         commonJs.useLog = true;
-        //Uncomment to try to see converted module code, but seems to be
-        //not useful-- only prints a little bit, interferes with other output?
-        //commonJs.logConverted = true;
-        global._requirejs_logger = logger;
     }
 
     require._log = global.__requireLog;

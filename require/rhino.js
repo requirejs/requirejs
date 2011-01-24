@@ -3,25 +3,11 @@
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/requirejs for details
  */
-/*global require: false, readFile: false */
 
-/*
-TODO: Work out relative paths, that use ./ and such, and allow loading normal
-CommonJS modules, by overriding require.get().
-*/
-
-/*globals load: false, java: false */
 "use strict";
+/*global require: false, java: false, load: false */
 
 (function () {
-
-    var fileUtil = {
-        backSlashRegExp: /\\/g,
-
-        getLineSeparator: function () {
-            return java.lang.System.getProperty("line.separator"); //Java String
-        }
-    };
 
     require.load = function (context, moduleName, url) {
         //isDone is used by require.ready()
@@ -41,7 +27,7 @@ CommonJS modules, by overriding require.get().
     require.fetchText = function (url, callback) {
         var encoding = "utf-8",
             file = new java.io.File(url),
-            lineSeparator = fileUtil.getLineSeparator(),
+            lineSeparator = java.lang.System.getProperty("line.separator"),
             input = new java.io.BufferedReader(new java.io.InputStreamReader(new java.io.FileInputStream(file), encoding)),
             stringBuffer, line,
             content = '';

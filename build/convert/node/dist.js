@@ -13,47 +13,46 @@
  */
 
 /*jslint */
-/*global load: false, fileUtil: false */
+/*global require: false */
 "use strict";
 
-load("../../jslib/logger.js");
-load("../../jslib/fileUtil.js");
+require(['logger', 'env!env/file'], function (logger, file) {
 
-/**
- * Escapes a string so it is safe as a JS string
- * Taken from Dojo's buildUtil.jsEscape
- * @param {String} str
- * @returns {String}
- */
-function jsEscape(str) {
-    return ('"' + str.replace(/(["\\])/g, '\\$1') + '"'
-        ).replace(/[\f]/g, "\\f"
-        ).replace(/[\b]/g, "\\b"
-        ).replace(/[\n]/g, "\\n"
-        ).replace(/[\t]/g, "\\t"
-        ).replace(/[\r]/g, "\\r"); // string
-}
+    /**
+     * Escapes a string so it is safe as a JS string
+     * Taken from Dojo's buildUtil.jsEscape
+     * @param {String} str
+     * @returns {String}
+     */
+    function jsEscape(str) {
+        return ('"' + str.replace(/(["\\])/g, '\\$1') + '"'
+            ).replace(/[\f]/g, "\\f"
+            ).replace(/[\b]/g, "\\b"
+            ).replace(/[\n]/g, "\\n"
+            ).replace(/[\t]/g, "\\t"
+            ).replace(/[\r]/g, "\\r"); // string
+    }
 
-var injected = [
-        fileUtil.readFile("../../jslib/logger.js"),
-        fileUtil.readFile("../../jslib/commonJs.js")
-    ].join("\n"),
+    var injected = [
+            file.readFile("../../jslib/commonJs.js")
+        ].join("\n"),
 
-    requirejs = [
-        fileUtil.readFile("../../../require.js"),
-        //Make sure to name the modules, otherwise will get mismatched module error.
-        fileUtil.readFile("../../../require/i18n.js").replace(/define\(/, 'define("require/i18n",'),
-        fileUtil.readFile("../../../require/text.js").replace(/define\(/, 'define("require/text",')
-    ].join("\n"),
+        requirejs = [
+            file.readFile("../../../require.js"),
+            //Make sure to name the modules, otherwise will get mismatched module error.
+            file.readFile("../../../require/i18n.js").replace(/define\(/, 'define("require/i18n",'),
+            file.readFile("../../../require/text.js").replace(/define\(/, 'define("require/text",')
+        ].join("\n"),
 
-    adapter = fileUtil.readFile("requireAdapter.js"),
-    r = fileUtil.readFile("r-source.js");
+        adapter = file.readFile("requireAdapter.js"),
+        r = file.readFile("r-source.js");
 
-//Inject files into requireAdapter.
-adapter = jsEscape(adapter.replace(/\/\*INSERT REQUIREJS HERE\*\//, requirejs)
-                 .replace(/\/\*INSERT PROTECTED CONTENT HERE\*\//, injected));
+    //Inject files into requireAdapter.
+    adapter = jsEscape(adapter.replace(/\/\*INSERT REQUIREJS HERE\*\//, requirejs)
+                     .replace(/\/\*INSERT PROTECTED CONTENT HERE\*\//, injected));
 
-//Now inject requireAdapter as a string in the r.js file
-r = r.replace(/'\/\*INSERT STRING HERE\*\/'/, adapter.replace(/['\r\n]/g, "\\'"));
+    //Now inject requireAdapter as a string in the r.js file
+    r = r.replace(/'\/\*INSERT STRING HERE\*\/'/, adapter.replace(/['\r\n]/g, "\\'"));
 
-fileUtil.saveFile("r.js", r);
+    file.saveFile("r.js", r);
+});

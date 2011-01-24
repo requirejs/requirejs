@@ -5,7 +5,7 @@
  */
 
 /*jslint nomen: false */
-/*global require: true, process: false, global: false, logger: false, commonJs: false */
+/*global require: true, process: false, global: false */
 "use strict";
 
 /*
