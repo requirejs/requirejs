@@ -8,51 +8,49 @@
  * This script will create the final r.js file used in node projects to use
  * RequireJS.
  *
- * Call this file like so:
- * java -jar ../../lib/rhino/js.jar dist.js
+ * This file uses Node to run:
+ * node dist.js
  */
 
 /*jslint */
 /*global require: false */
-"use strict";
+'use strict';
 
-require(['logger', 'env!env/file'], function (logger, file) {
+/**
+ * Escapes a string so it is safe as a JS string
+ * Taken from Dojo's buildUtil.jsEscape
+ * @param {String} str
+ * @returns {String}
+ */
+function jsEscape(str) {
+    return ('"' + str.replace(/(["\\])/g, '\\$1') + '"'
+        ).replace(/[\f]/g, '\\f'
+        ).replace(/[\b]/g, '\\b'
+        ).replace(/[\n]/g, '\\n'
+        ).replace(/[\t]/g, '\\t'
+        ).replace(/[\r]/g, '\\r'); // string
+}
 
-    /**
-     * Escapes a string so it is safe as a JS string
-     * Taken from Dojo's buildUtil.jsEscape
-     * @param {String} str
-     * @returns {String}
-     */
-    function jsEscape(str) {
-        return ('"' + str.replace(/(["\\])/g, '\\$1') + '"'
-            ).replace(/[\f]/g, "\\f"
-            ).replace(/[\b]/g, "\\b"
-            ).replace(/[\n]/g, "\\n"
-            ).replace(/[\t]/g, "\\t"
-            ).replace(/[\r]/g, "\\r"); // string
-    }
+var fs = require('fs'),
+    injected = [
+        fs.readFileSync('../../jslib/commonJs.js', 'utf8')
+    ].join('\n'),
 
-    var injected = [
-            file.readFile("../../jslib/commonJs.js")
-        ].join("\n"),
+    requirejs = [
+        fs.readFileSync('../../../require.js', 'utf8'),
+        //Make sure to name the modules, otherwise will get mismatched module error.
+        fs.readFileSync('../../../require/i18n.js', 'utf8').replace(/define\(/, "define('require/i18n',"),
+        fs.readFileSync('../../../require/text.js', 'utf8').replace(/define\(/, "define('require/text',")
+    ].join('\n'),
 
-        requirejs = [
-            file.readFile("../../../require.js"),
-            //Make sure to name the modules, otherwise will get mismatched module error.
-            file.readFile("../../../require/i18n.js").replace(/define\(/, 'define("require/i18n",'),
-            file.readFile("../../../require/text.js").replace(/define\(/, 'define("require/text",')
-        ].join("\n"),
+    adapter = fs.readFileSync('requireAdapter.js', 'utf8'),
+    r = fs.readFileSync('r-source.js', 'utf8');
 
-        adapter = file.readFile("requireAdapter.js"),
-        r = file.readFile("r-source.js");
+//Inject files into requireAdapter.
+adapter = jsEscape(adapter.replace(/\/\*INSERT REQUIREJS HERE\*\//, requirejs)
+                 .replace(/\/\*INSERT PROTECTED CONTENT HERE\*\//, injected));
 
-    //Inject files into requireAdapter.
-    adapter = jsEscape(adapter.replace(/\/\*INSERT REQUIREJS HERE\*\//, requirejs)
-                     .replace(/\/\*INSERT PROTECTED CONTENT HERE\*\//, injected));
+//Now inject requireAdapter as a string in the r.js file
+r = r.replace(/'\/\*INSERT STRING HERE\*\/'/, adapter.replace(/['\r\n]/g, "\\'"));
 
-    //Now inject requireAdapter as a string in the r.js file
-    r = r.replace(/'\/\*INSERT STRING HERE\*\/'/, adapter.replace(/['\r\n]/g, "\\'"));
-
-    file.saveFile("r.js", r);
-});
+fs.writeFileSync('r.js', r, 'utf8');
