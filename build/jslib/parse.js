@@ -4,10 +4,6 @@
  * see: http://github.com/jrburke/requirejs for details
  */
 
-/*
- * Java 6 is required.
- */
-
 /*jslint plusplus: false */
 /*global define: false */
 
@@ -91,6 +87,11 @@ define(['uglifyjs/index'], function (uglify) {
         return result;
     }
 
+    //Add some private methods to object for use in derived objects.
+    parse.isArray = isArray;
+    parse.isObjectLiteral = isObjectLiteral;
+    parse.isArrayLiteral = isArrayLiteral;
+
     /**
      * Handles parsing a file recursively for require calls.
      * @param {Array} parentNode the AST node to start with.
@@ -102,11 +103,11 @@ define(['uglifyjs/index'], function (uglify) {
             for (i = 0; i < parentNode.length; i++) {
                 node = parentNode[i];
                 if (isArray(node)) {
-                    parsed = parse.parseNode(node);
+                    parsed = this.parseNode(node);
                     if (parsed) {
                         matches.push(parsed);
                     }
-                    parse.recurse(node, matches);
+                    this.recurse(node, matches);
                 }
             }
         }
@@ -120,7 +121,7 @@ define(['uglifyjs/index'], function (uglify) {
      */
     parse.definesRequire = function (fileName, fileContents) {
         var astRoot = parser.parse(fileContents);
-        return parse.nodeHasRequire(astRoot);
+        return this.nodeHasRequire(astRoot);
     };
 
     /**
@@ -136,11 +137,11 @@ define(['uglifyjs/index'], function (uglify) {
     parse.getAnonDeps = function (fileName, fileContents) {
         var astRoot = parser.parse(fileContents),
             deps = [],
-            defFunc = parse.findAnonRequireDefCallback(astRoot);
+            defFunc = this.findAnonRequireDefCallback(astRoot);
 
         //Now look inside the def call's function for require calls.
         if (defFunc) {
-            parse.findRequireDepNames(defFunc, deps);
+            this.findRequireDepNames(defFunc, deps);
 
             //If no deps, still add the standard CommonJS require, exports, module,
             //in that order, to the deps.
@@ -176,7 +177,7 @@ define(['uglifyjs/index'], function (uglify) {
             //Check child nodes
             for (i = 0; i < node.length; i++) {
                 n = node[i];
-                if ((callback = parse.findAnonRequireDefCallback(n))) {
+                if ((callback = this.findAnonRequireDefCallback(n))) {
                     return callback;
                 }
             }
@@ -206,7 +207,7 @@ define(['uglifyjs/index'], function (uglify) {
             //Check child nodes
             for (i = 0; i < node.length; i++) {
                 n = node[i];
-                parse.findRequireDepNames(n, deps);
+                this.findRequireDepNames(n, deps);
             }
         }
     };
@@ -217,14 +218,14 @@ define(['uglifyjs/index'], function (uglify) {
      * @returns {Boolean}
      */
     parse.nodeHasRequire = function (node) {
-        if (parse.isRequireNode(node)) {
+        if (this.isRequireNode(node)) {
             return true;
         }
 
         if (isArray(node)) {
             for (var i = 0, n; i < node.length; i++) {
                 n = node[i];
-                if (parse.nodeHasRequire(n)) {
+                if (this.nodeHasRequire(n)) {
                     return true;
                 }
             }
@@ -259,7 +260,7 @@ define(['uglifyjs/index'], function (uglify) {
     function optionalString(node) {
         var str = null;
         if (node) {
-            str = parse.nodeToString(node);
+            str = this.nodeToString(node);
         }
         return str;
     }
@@ -332,7 +333,7 @@ define(['uglifyjs/index'], function (uglify) {
                     return null;
                 }
 
-                return parse.callToString("require", null, null, deps);
+                return this.callToString("require", null, null, deps);
 
             } else if ((call[0] === 'name' && call[1] === 'define') ||
                        (call[0] === 'dot' && call[1][1] === 'require' && call[2] === 'def')) {
@@ -340,7 +341,7 @@ define(['uglifyjs/index'], function (uglify) {
                 //A define or require.def call
                 name = args[0];
                 deps = args[1];
-                return parse.callToString("define", null, name, deps);
+                return this.callToString("define", null, name, deps);
             }
         }
 

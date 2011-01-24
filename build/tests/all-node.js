@@ -1,9 +1,6 @@
 /**
- * Run the tests in Rhino via this command:
- * java -classpath ../lib/rhino/js.jar:../lib/closure/compiler.jar org.mozilla.javascript.tools.shell.Main all-rhino.js
- *
- * To run with debugger:
- * java -classpath ../lib/rhino/js.jar:../lib/closure/compiler.jar org.mozilla.javascript.tools.debugger.Main all-rhino.js
+ * Run the tests in Node:
+ * node ../convert/node/r.js all-node.js
  */
 
 /*jslint plusplus: false */
