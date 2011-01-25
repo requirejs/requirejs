@@ -11,6 +11,8 @@ if [ -z $version ]; then
     exit 1
 fi
 
+myDir=`cd \`dirname "$0"\`; pwd`
+
 jqueryName=jquery-1.4.4.js
 
 # Setup a build directory
@@ -57,7 +59,7 @@ cp dist/jquery-require-sample.zip ../../../$version
 # Create node integration layer
 cd ../../
 cd build/convert/node
-java -jar ../../lib/rhino/js.jar dist.js
+node dist.js
 mkdir ../../../../$version/node
 cp r.js ../../../../$version/node
 cp index.js ../../../../$version/node

@@ -260,7 +260,7 @@ define(['uglifyjs/index'], function (uglify) {
     function optionalString(node) {
         var str = null;
         if (node) {
-            str = this.nodeToString(node);
+            str = parse.nodeToString(node);
         }
         return str;
     }

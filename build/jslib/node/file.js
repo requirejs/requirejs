@@ -64,7 +64,7 @@ define(['fs', 'path'], function (fs, path) {
             //and it will be treated as the "include" case.
             //Ignores files/directories that start with a period (.).
             var files = [], topDir, regExpInclude, regExpExclude, dirFileArray,
-                i, stat, filePath, ok, dirFiles;
+                i, stat, filePath, ok, dirFiles, fileName;
 
             topDir = startDir;
 
@@ -74,7 +74,8 @@ define(['fs', 'path'], function (fs, path) {
             if (path.existsSync(topDir)) {
                 dirFileArray = fs.readdirSync(topDir);
                 for (i = 0; i < dirFileArray.length; i++) {
-                    filePath = path.join(topDir, dirFileArray[i]);
+                    fileName = dirFileArray[i];
+                    filePath = path.join(topDir, fileName);
                     stat = fs.statSync(filePath);
                     if (stat.isFile()) {
                         if (makeUnixPaths) {
@@ -92,10 +93,10 @@ define(['fs', 'path'], function (fs, path) {
                             ok = !filePath.match(regExpExclude);
                         }
 
-                        if (ok && !filePath.match(/^\./)) {
+                        if (ok && !fileName.match(/^\./)) {
                             files.push(filePath);
                         }
-                    } else if (stat.isDirectory() && !filePath.match(/^\./)) {
+                    } else if (stat.isDirectory() && !fileName.match(/^\./)) {
                         dirFiles = this.getFilteredFileList(filePath, regExpFilters, makeUnixPaths);
                         files.push.apply(files, dirFiles);
                     }
@@ -194,13 +195,13 @@ define(['fs', 'path'], function (fs, path) {
             //summary: deletes a file or directory if it exists.
             var files, i, stat;
             if (path.existsSync(fileName)) {
-                stat = fs.stat(fileName);
+                stat = fs.statSync(fileName);
                 if (stat.isDirectory()) {
                     files = fs.readdirSync(fileName);
                     for (i = 0; i < files.length; i++) {
                         this.deleteFile(path.join(fileName, files[i]));
                     }
-                    fs.rmdir(fileName);
+                    fs.rmdirSync(fileName);
                 } else {
                     fs.unlinkSync(fileName);
                 }
