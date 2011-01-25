@@ -16,18 +16,33 @@ define(['../../jslib/parse'], function (baseParse) {
         },
         viewStringRegExp = /^\/\//;
 
-    function hasStealCall(node) {
+    /**
+     * Finds a steal node in a nested, backwards AST tree structure.
+     */
+    function getStealCall(node) {
         if (!baseParse.isArray(node)) {
             return false;
         }
 
-        if (node[0] === 'name' && node[1] === 'steal') {
-            return true;
-        } else if (node[0] === 'call' && node[1][0] === 'dot') {
-            return hasStealCall(node[1][1]);
+        if (node[0] === 'name' && node[1] === 'steal' && !node.isRequireJSParsed) {
+            return node;
+        } else if (node[0] === 'call') {
+            if (node[1][0] === 'name' && node[1][1] === 'steal') {
+                return getStealCall(node[1]);
+            } else if (node[1][0] === 'dot') {
+                return getStealCall(node[1][1]);
+            }
         }
 
-        return false;
+        return null;
+    }
+
+    /**
+     * Mark the steal node tree as processed. Need to do this given the
+     * backwards structure of the AST.
+     */
+    function markStealTreeProcessed(node) {
+        getStealCall(node).isRequireJSParsed = true;
     }
 
     /**
@@ -63,23 +78,31 @@ define(['../../jslib/parse'], function (baseParse) {
             return;
         }
 
-        //Need to unwind the call since the dot access shows up "backwards"
-        //in the AST.
-        var args = node[node.length - 1],
-            previous = node[node.length - 2],
+        var args, previous, call;
+
+        if (node[0] === 'call' && node[1][0] === 'name' && node[1][1] === 'steal') {
+            //A simple steal() call.
+            addStringsToArray(node[2], array);
+        } else {
+            //A chained call
+            //Need to unwind the call since the dot access shows up "backwards"
+            //in the AST.
+            args = node[node.length - 1];
+            previous = node[node.length - 2];
             call = previous[previous.length - 1];
 
-        if (typeof call === 'string' && allowedCalls[call]) {
-            if (call === 'plugins') {
-                addStringsToArray(args, array);
-            } else if (call === 'views') {
-                addStringsToArray(args, array, viewTransform);
+            if (typeof call === 'string' && allowedCalls[call]) {
+                if (call === 'plugins') {
+                    addStringsToArray(args, array);
+                } else if (call === 'views') {
+                    addStringsToArray(args, array, viewTransform);
+                }
+
+                //Find out if there are any other chained calls.
+                previous = previous[previous.length - 2];
+
+                generateRequireCall(previous, array);
             }
-
-            //Find out if there are any other chained calls.
-            previous = previous[previous.length - 2];
-
-            generateRequireCall(previous, array);
         }
     }
 
@@ -99,12 +122,15 @@ define(['../../jslib/parse'], function (baseParse) {
             return value;
         }
 
-        if (hasStealCall(node)) {
-debugger;
+        if (getStealCall(node)) {
             value = [];
             generateRequireCall(node, value);
-            return value.length ?
-                   "require(" + JSON.stringify(value) + ");" : '';
+            if (value.length) {
+                markStealTreeProcessed(node);
+                return "require(" + JSON.stringify(value) + ");";
+            } else {
+                return '';
+            }
         }
 
         return null;
@@ -149,6 +175,36 @@ debugger;
     [
       "string",
       "//abc/init.ejs"
+    ]
+  ]
+]
+
+**************************
+
+steal('one', 'two')
+
+[
+  "toplevel",
+  [
+    [
+      "stat",
+      [
+        "call",
+        [
+          "name",
+          "steal"
+        ],
+        [
+          [
+            "string",
+            "one"
+          ],
+          [
+            "string",
+            "two"
+          ]
+        ]
+      ]
     ]
   ]
 ]

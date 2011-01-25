@@ -5,18 +5,15 @@
 
 require(['require', 'parse'], function (require, parse) {
 
-debugger;
-
     doh.register(
         "parse-stealjs",
         [
             function stealCalls(t) {
-                var good1 = "steal.plugins('foo','bar').views('//abc/init.ejs').then(function(){})";
-
-
-//Try: steal('one, 'two') also?
+                var good1 = "steal.plugins('foo','bar').views('//abc/init.ejs').then(function(){})",
+                    good2 = "steal('one', 'two')";
 
                 t.is('require(["foo","bar","ejs!abc/init.ejs"]);', parse("good1", good1));
+                t.is('require(["one","two"]);', parse("good2", good2));
             }
         ]
     );
