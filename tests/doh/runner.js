@@ -795,13 +795,14 @@ doh._handleFailure = function(groupName, fixture, e){
 	} 
 }
 
-try{
-	setTimeout(function(){}, 0);
-}catch(e){
-	setTimeout = function(func){
-		return func();
-	}
-}
+//Assume a setTimeout implementation that is synchronous, so that
+//the Node and Rhino envs work similar to each other. Node defines
+//a setTimeout, so testing for setTimeout is not enough, each environment
+//adapter should set this value accordingly.
+debugger;
+doh.setTimeout = function(func){
+	return func();
+};
 
 doh._runPerfFixture = function(/*String*/groupName, /*Object*/fixture){
 	//	summary:
@@ -849,7 +850,7 @@ doh._runPerfFixture = function(/*String*/groupName, /*Object*/fixture){
 	var timer;
 	var to = fixture.timeout; 
 	if(to > 0) {
-		timer = setTimeout(function(){
+		timer = doh.setTimeout(function(){
 			// ret.cancel();
 			// retEnd();
 			def.errback(new Error("test timeout in "+fixture.name.toString()));
@@ -949,7 +950,7 @@ doh._runPerfFixture = function(/*String*/groupName, /*Object*/fixture){
 					//Okay, have we run all the trials yet?
 					countdown--;
 					if(countdown){
-						setTimeout(trialRunner, fixture.trialDelay);
+						doh.setTimeout(trialRunner, fixture.trialDelay);
 					}else{
 						//Okay, we're done, lets compute some final performance results.
 						var t = res.trials;
@@ -1037,13 +1038,13 @@ doh._calcTrialIterations =  function(/*String*/ groupName, /*Object*/ fixture){
 							curIter: 0
 						}
 						state = null;
-						setTimeout(function(){
+						doh.setTimeout(function(){
 							nState.start = new Date();
 							handleIteration(nState);
 						}, 50);
 					}else{
 						var itrs = state.iterations;
-						setTimeout(function(){def.callback(itrs)}, 50);
+						doh.setTimeout(function(){def.callback(itrs)}, 50);
 						state = null;
 					}
 				}
@@ -1051,7 +1052,7 @@ doh._calcTrialIterations =  function(/*String*/ groupName, /*Object*/ fixture){
 		};
 		handleIteration(iState);
 	};
-	setTimeout(calibrate, 10);
+	doh.setTimeout(calibrate, 10);
 	return def;
 };
 
@@ -1092,7 +1093,7 @@ doh._runRegFixture = function(/*String*/groupName, /*Object*/fixture){
 			}
 		}
 
-		var timer = setTimeout(function(){
+		var timer = doh.setTimeout(function(){
 			// ret.cancel();
 			// retEnd();
 			ret.errback(new Error("test timeout in "+fixture.name.toString()));
@@ -1143,7 +1144,7 @@ doh._runFixture = function(groupName, fixture){
 		}
 	}
 	var d = new doh.Deferred();
-	setTimeout(this.hitch(this, function(){
+	doh.setTimeout(this.hitch(this, function(){
 		if(threw){
 			this._handleFailure(groupName, fixture, err);
 		}
@@ -1152,7 +1153,7 @@ doh._runFixture = function(groupName, fixture){
 		if((!tg.inFlight)&&(tg.iterated)){
 			doh._groupFinished(groupName, !tg.failures);
 		}else if(tg.inFlight > 0){
-			setTimeout(this.hitch(this, function(){
+			doh.setTimeout(this.hitch(this, function(){
 				doh.runGroup(groupName); // , idx);
 			}), 100);
 			this._paused = true;
@@ -1396,7 +1397,7 @@ if (typeof skipDohSetup === "undefined") {
                                                     if(dojo.byId("testList")){
                                                             var _tm = ( (dojo.global.testModule && dojo.global.testModule.length) ? dojo.global.testModule : "dojo.tests.module");
                                                             dojo.forEach(_tm.split(","), dojo.require, dojo);
-                                                            setTimeout(function(){
+                                                            doh.setTimeout(function(){
                                                                     doh.run();
                                                             }, 500);
                                                     }

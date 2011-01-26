@@ -14,12 +14,8 @@
  * the host environment. Right now only works for Node, Rhino and browser.
  */
 (function () {
-    var pathRegExp = /(\/|^)env\//,
+    var pathRegExp = /(\/|^)env\/|\{env\}/,
         env = 'unknown';
-
-    function setEnv(value) {
-        env = value + '/';
-    }
 
     if (typeof Packages !== 'undefined') {
         env = 'rhino';
@@ -29,17 +25,19 @@
         env = 'browser';
     }
 
-    setEnv(env);
-
     define({
         load: function (name, req, load, config) {
             //Allow override in the config.
             if (config.env) {
-                setEnv(config.env);
+                env = config.env;
             }
 
             name = name.replace(pathRegExp, function (match, prefix) {
-                return prefix + env;
+                if (match.indexOf('{') === -1) {
+                    return prefix + env + '/';
+                } else {
+                    return env;
+                }
             });
 
             req([name], function (mod) {

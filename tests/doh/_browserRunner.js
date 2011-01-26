@@ -5,6 +5,9 @@ if(window["dojo"]){
 // FIXME: need to add prompting for monkey-do testing
 
 (function(){
+
+	doh.setTimeout = setTimeout;
+
 	try{
 		var topdog = (window.parent == window) || !Boolean(window.parent.doh);
 	}catch(e){
@@ -305,9 +308,9 @@ if(window["dojo"]){
 								var chartData = chartsToRender.shift();
 								plotResults(chartData.div, chartData.title, chartData.data);
 							}
-							setTimeout(delayedRenders, 50);
+							doh.setTimeout(delayedRenders, 50);
 						};
-						setTimeout(delayedRenders, 150);
+						doh.setTimeout(delayedRenders, 150);
 					}catch(e){
 						doh.debug(e);
 					}
@@ -658,7 +661,7 @@ if(window["dojo"]){
 			}
 			var tl = byId("testList");
 			if(!tl){ return; }
-			listHeightTimer = setTimeout(function(){
+			listHeightTimer = doh.setTimeout(function(){
 				tl.style.display = "none";
 				tl.style.display = "";
 
