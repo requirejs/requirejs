@@ -6,7 +6,7 @@
   http://groups.google.com/group/requirejs/browse_thread/thread/8c5f6ad9d6329b36
 
 - Update copyrights to 2011
-- How to use with Dojo page
+- How to use with Dojo page: http://trac.dojotoolkit.org/ticket/12200
 - Document that JSONP support only works with objects: https://github.com/jrburke/requirejs/issues/#issue/60
 - add gcf to pages
 

@@ -21,7 +21,7 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
             appDir: "",
             pragmas: {},
             paths: {},
-            optimize: "closure",
+            optimize: "uglify",
             optimizeCss: "standard.keepLines",
             inlineText: true,
             isBuild: true
