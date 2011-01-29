@@ -437,7 +437,7 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
                         //The dir output baseUrl is same as regular baseUrl, both
                         //relative to the absFilePath.
                         config.baseUrl = build.makeAbsPath(config[prop], absFilePath);
-                        config.dirBaseUrl = config.dir;
+                        config.dirBaseUrl = config.dir || config.baseUrl;
                     }
 
                     //Make sure dirBaseUrl ends in a slash, since it is

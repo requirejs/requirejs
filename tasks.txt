@@ -1,6 +1,5 @@
 - test commmonjs converter
 - Is rhino build slower now than before?
-- Find an array reduce method for use in Rhino for UglifyJS
 
 - Consider patches in jetpack for:
   - removing scanning
@@ -19,7 +18,7 @@
 and one thing I found when trying to compress dojo 1.5 code was that I had ensure that "make_seqs"
 flag was set to false when calling ast_squeeze. If I left this flag set to true the code would not load.
 
-- Test has code branch removal with Uglify.
+- Test has code branch removal with Uglify: it does not.
 
 - Support Node's "extensions" mechanism.
 
