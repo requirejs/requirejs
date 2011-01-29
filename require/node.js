@@ -44,7 +44,7 @@
 
     //Adapter to get text plugin to work.
     require.fetchText = function (url, callback) {
-        fs.readFile(url, 'utf8', callback);
+        callback(fs.readFileSync(url, 'utf8'));
     };
 
 }());

@@ -7,7 +7,7 @@ require({
     ["require", "foo/bar/one"],
     function(require, one) {
         doh.register(
-            "relative", 
+            "relative",
             [
                 function relative(t){
                     t.is("one", one.name);
@@ -17,6 +17,7 @@ require({
                 }
             ]
         );
+
         doh.run();
     }
 );

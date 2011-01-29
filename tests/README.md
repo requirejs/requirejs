@@ -6,8 +6,9 @@ This is a list of things to test before doing a RequireJS release.
 
 First build allplugins-require.js in build/require, since one test relies on an up-to-date version.
 
-* tests/doh/runner.html?testUrl=../all in all the browsers
-* java -jar ../build/lib/rhino/js.jar all-rhino.js
+* All browsers: tests/doh/runner.html?testUrl=../all in all the browsers
+* Node: node all-server.js
+* Rhino: java -jar ../build/lib/rhino/js.jar all-server.js
 * Optional, only do on major refactors: tests/commonjs, run each file in browser.
 
 ## Node testing

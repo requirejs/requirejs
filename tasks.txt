@@ -2,6 +2,11 @@
 - Is rhino build slower now than before?
 - Find an array reduce method for use in Rhino for UglifyJS
 
+- Consider patches in jetpack for:
+  - removing scanning
+  - add amd object
+  - add plugins?
+
 - data-main is not processed if a baseUrl has been set before calling require.js
   http://groups.google.com/group/requirejs/browse_thread/thread/8c5f6ad9d6329b36
 

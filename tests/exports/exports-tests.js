@@ -1,10 +1,10 @@
 require({
-        baseUrl: require.isBrowser ? "./" : "./exports/"    
+        baseUrl: require.isBrowser ? "./" : "./exports/"
     },
     ["require", "vanilla", "funcSet", "assign", "assign2"],
     function(require, vanilla, funcSet, assign, assign2) {
         doh.register(
-            "exports", 
+            "exports",
             [
                 function exports(t){
                     t.is("vanilla", vanilla.name);
