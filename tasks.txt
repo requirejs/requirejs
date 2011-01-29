@@ -1,5 +1,7 @@
 - test commmonjs converter
 - Is rhino build slower now than before?
+- .js removal from main packages config?
+- data-main change/baseUrl change?
 
 - Consider patches in jetpack for:
   - removing scanning
@@ -21,6 +23,8 @@ flag was set to false when calling ast_squeeze. If I left this flag set to true 
 - Test has code branch removal with Uglify: it does not.
 
 - Support Node's "extensions" mechanism.
+
+- Don't put use strict at the top of files? https://github.com/jrburke/requirejs/issues#issue/61
 
 - Update AMD page to mention require scanning means only do them at the top.
 
