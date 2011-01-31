@@ -18,7 +18,7 @@ var require, define;
             i, defContextName = "_", contextLoads = [],
             scripts, script, rePkg, src, m, dataMain, cfg = {}, setReadyState,
             commentRegExp = /(\/\*([\s\S]*?)\*\/|\/\/(.*)$)/mg,
-            cjsRequireRegExp = /[\s;]require\(["']([\w\-_\.\/]+)["']\)/g,
+            cjsRequireRegExp = /[\s;=\(]require\(["']([\w\-_\.\/]+)["']\)/g,
             main,
             isBrowser = !!(typeof window !== "undefined" && navigator && document),
             isWebWorker = !isBrowser && typeof importScripts !== "undefined",
