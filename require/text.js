@@ -83,8 +83,7 @@
          * This callback is prefix-specific, only gets called for this prefix
          */
         require: function (name, deps, callback, context) {
-            //No-op, require never gets these text items, they are always
-            //a dependency, see load for the action.
+            context["text"][name.replace(".", "!")] = callback();
         },
 
         /**

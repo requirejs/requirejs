@@ -42,6 +42,12 @@
 
         normalizeName: function (name, baseName, context) {
 
+            // remove and keep plugin handy
+            var pluginInfo = name.match(/^(\w+)!(.+?)$/);
+            if(pluginInfo && pluginInfo[1]) {
+                name = pluginInfo[2];
+            }
+
             // if there is no baseName we are not interested
             if(!baseName) {
                 return false;
@@ -71,7 +77,9 @@
                 return false;
             }
 
-            return context.config.packages[baseParts[0]].mappings[nameParts[0]] + "/" + nameParts.splice(1, nameParts.length).join("/");
+            return ((pluginInfo && pluginInfo[1])?pluginInfo[1]+"!":"") +
+                   context.config.packages[baseParts[0]].mappings[nameParts[0]] + "/" +
+                   nameParts.splice(1, nameParts.length).join("/");
         }        
     
     });

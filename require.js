@@ -996,6 +996,10 @@ var require, define;
      * @returns {String} normalized name
      */
     req.normalizeName = function (name, baseName, context) {
+        var pluginInfo = name.match(/^(\w+)!(.+?)$/);
+        if(pluginInfo && pluginInfo[1]) {
+            name = pluginInfo[2];
+        }
         // NOTE: This assumes the 'package' plugin is loaded and can be called sync
         if(s.plugins.defined["package"]) {
             var ret;
