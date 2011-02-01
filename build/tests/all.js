@@ -1,6 +1,6 @@
 /**
  * Run the tests in Node with this command:
- * ../../x all.js
+ * ../../bin/x all.js
  */
 
 /*jslint plusplus: false */

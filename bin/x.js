@@ -45,6 +45,9 @@
         requireBuildPath += "/";
     }
 
+    //Actual base directory is up one directory from this script.
+    requireBuildPath += '../';
+
     load(requireBuildPath + 'require.js');
     load(requireBuildPath + 'require/' + env + '.js');
     process.compile("require({" +

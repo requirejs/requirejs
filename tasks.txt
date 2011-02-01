@@ -1,5 +1,3 @@
-- test steal unit test
-- put x files in a bin/node.sh, etc directory?
 - Update documentation for new tools.
 - test commmonjs converter
 - Is rhino build slower now than before?

@@ -7,7 +7,7 @@
 /*
 To run this file, use x (assumes Node installed):
 
-> ../x dist-site.js
+> ../bin/x dist-site.js
 
 */
 
