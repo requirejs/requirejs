@@ -1,6 +1,6 @@
 /**
  * Run the tests in Node:
- * node ../../node/r.js all-node.js
+ * ../../../../x all-node.js
  */
 
 /*jslint plusplus: false */
@@ -16,9 +16,10 @@ require({
     paths: {
         parse: '../convert/stealjs/parse'
     }
-})
-
-require(['../../../../tests/doh/runner.js', '../../../../tests/doh/_nodeRunner.js',
-         './parse'],
-function () {
+}, [
+    '../../../../tests/doh/runner.js',
+    'env!../../../../tests/doh/_{env}Runner.js',
+    './parse'
+], function () {
+   doh.run();
 });

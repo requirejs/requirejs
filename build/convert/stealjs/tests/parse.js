@@ -3,12 +3,12 @@
 
 "use strict";
 
-require(['require', 'parse'], function (require, parse) {
+define(['require', 'parse'], function (require, parse) {
 
     doh.register(
-        "parse-stealjs",
+        "parseStealCalls",
         [
-            function stealCalls(t) {
+            function parseStealCalls(t) {
                 var good1 = "steal.plugins('foo','bar').views('//abc/init.ejs').then(function(){})",
                     good2 = "steal('one', 'two')";
 
