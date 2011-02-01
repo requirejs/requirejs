@@ -221,7 +221,10 @@ var require, define;
                     }
                 }
             }
-            return name;
+            // TODO: Don't know why this is needed when absolute AND relative pathed
+            //       dependencies are in play.  Can't reproduce in requirejs "relative"
+            //       browser test.  Reproduced in peterwmwong/cell test/unit/cellTest.
+            return name.replace('/./','/');
         }
 
         /**
