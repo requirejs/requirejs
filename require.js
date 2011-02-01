@@ -1,5 +1,5 @@
 /** vim: et:ts=4:sw=4:sts=4
- * @license RequireJS 0.2.0 Copyright (c) 2010, The Dojo Foundation All Rights Reserved.
+ * @license RequireJS 0.22.0 Copyright (c) 2010, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/requirejs for details
  */
@@ -12,9 +12,10 @@
 var require, define;
 (function () {
     //Change this version number for each release.
-    var version = "0.2.0",
+    var version = "0.22.0",
         commentRegExp = /(\/\*([\s\S]*?)\*\/|\/\/(.*)$)/mg,
-        cjsRequireRegExp = /require\(["']([\w\!\-_\.\/]+)["']\)/g,
+        cjsRequireRegExp = /require\(["']([^'"\s]+)["']\)/g,
+        currDirRegExp = /^\.\//,
         ostring = Object.prototype.toString,
         ap = Array.prototype,
         aps = ap.slice,
@@ -43,7 +44,7 @@ var require, define;
             "order": "require/order"
         },
         req, cfg = {}, currentlyAddingScript, s, head, baseElement, scripts, script,
-        rePkg, src, m, dataMain, i, scrollIntervalId, setReadyState;
+        rePkg, src, m, dataMain, i, scrollIntervalId, setReadyState, ctx;
 
     function isFunction(it) {
         return ostring.call(it) === "[object Function]";
@@ -90,7 +91,8 @@ var require, define;
             //Normalize package paths.
             pkgObj.location = pkgObj.location || pkgObj.name;
             pkgObj.lib = pkgObj.lib || "lib";
-            pkgObj.main = pkgObj.main || "main";
+            //Remove leading dot in main, so main paths are normalized.
+            pkgObj.main = (pkgObj.main || "lib/main").replace(currDirRegExp, '');
 
             packages[pkgObj.name] = pkgObj;
         }
@@ -132,6 +134,8 @@ var require, define;
                 "exports": true,
                 "module": true
             },
+            errored = {},
+            urlMap = {},
             defined = {},
             loaded = {},
             waiting = {},
@@ -139,7 +143,40 @@ var require, define;
             waitIdCounter = 0,
             managerCallbacks = {},
             plugins = {},
-            pluginsQueue = {};
+            pluginsQueue = {},
+            normalizedWaiting = {};
+
+        /**
+         * Trims the . and .. from an array of path segments.
+         * It will keep a leading path segment if a .. will become
+         * the first path segment, to help with module name lookups,
+         * which act like paths, but can be remapped. But the end result,
+         * all paths that use this function should look normalized.
+         * NOTE: this method MODIFIES the input array.
+         * @param {Array} ary the array of path segments.
+         */
+        function trimDots(ary) {
+            var i, part;
+            for (i = 0; (part = ary[i]); i++) {
+                if (part === ".") {
+                    ary.splice(i, 1);
+                    i -= 1;
+                } else if (part === "..") {
+                    if (i === 1 && (ary[2] === '..' || ary[0] === '..')) {
+                        //End of the line. Keep at least one non-dot
+                        //path segment at the front so it can be mapped
+                        //correctly to disk. Otherwise, there is likely
+                        //no path mapping for a path starting with '..'.
+                        //This can still fail, but catches the most reasonable
+                        //uses of ..
+                        break;
+                    } else if (i > 0) {
+                        ary.splice(i - 1, 2);
+                        i -= 2;
+                    }
+                }
+            }
+        }
 
         /**
          * Given a relative module name, like ./something, normalize it to
@@ -149,15 +186,16 @@ var require, define;
          * to.
          * @returns {String} normalized name
          */
-        function normalizeName(name, baseName) {
+        function normalize(name, baseName) {
+            var pkgName, pkgConfig;
+
             //Adjust any relative paths.
-            var part, i;
             if (name.charAt(0) === ".") {
                 //If have a base name, try to normalize against it,
                 //otherwise, assume it is a top-level require that will
                 //be relative to baseUrl in the end.
                 if (baseName) {
-                    if (context.config.packages[baseName]) {
+                    if (config.packages[baseName]) {
                         //If the baseName is a package name, then just treat it as one
                         //name to concat the name with.
                         baseName = [baseName];
@@ -172,63 +210,100 @@ var require, define;
                     }
 
                     name = baseName.concat(name.split("/"));
-                    for (i = 0; (part = name[i]); i++) {
-                        if (part === ".") {
-                            name.splice(i, 1);
-                            i -= 1;
-                        } else if (part === "..") {
-                            if (i === 1) {
-                                //End of the line. Keep at least one non-dot
-                                //path segment at the front so it can be mapped
-                                //correctly to disk. Otherwise, there is likely
-                                //no path mapping for '..'.
-                                break;
-                            } else if (i > 1) {
-                                name.splice(i - 1, 2);
-                                i -= 2;
-                            }
-                        }
-                    }
+                    trimDots(name);
+
+                    //Some use of packages may use a . path to reference the
+                    //"main" module name, so normalize for that.
+                    pkgConfig = config.packages[(pkgName = name[0])];
                     name = name.join("/");
+                    if (pkgConfig && name === pkgName + '/' + pkgConfig.main) {
+                        name = pkgName;
+                    }
                 }
             }
             return name;
         }
 
         /**
-         * Splits a name into a possible plugin prefix and
-         * the module name. If baseName is provided it will
-         * also normalize the name via require.normalizeName()
+         * Creates a module mapping that includes plugin prefix, module
+         * name, and path. If parentModuleMap is provided it will
+         * also normalize the name via require.normalize()
          *
          * @param {String} name the module name
-         * @param {String} [baseName] base name that name is
-         * relative to.
+         * @param {String} [parentModuleMap] parent module map
+         * for the module name, used to resolve relative names.
          *
-         * @returns {Object} with properties, 'prefix' (which
-         * may be null), 'name' and 'fullName', which is a combination
-         * of the prefix (if it exists) and the name.
+         * @returns {Object}
          */
-        function splitPrefix(name, baseName) {
-            var index = name ? name.indexOf("!") : -1, prefix = null;
+        function makeModuleMap(name, parentModuleMap) {
+            var index = name ? name.indexOf("!") : -1,
+                prefix = null,
+                parentName = parentModuleMap ? parentModuleMap.name : null,
+                originalName = name,
+                normalizedName, url, pluginModule;
+
             if (index !== -1) {
                 prefix = name.substring(0, index);
                 name = name.substring(index + 1, name.length);
             }
 
-            //Account for relative paths if there is a base name.
-            if (name) {
-                name = normalizeName(name, baseName);
-            }
             if (prefix) {
-                prefix = normalizeName(prefix, baseName);
+                prefix = normalize(prefix, parentName);
                 //Allow simpler mappings for some plugins
                 prefix = requirePlugins[prefix] || prefix;
             }
 
+            //Account for relative paths if there is a base name.
+            if (name) {
+                if (prefix) {
+                    pluginModule = defined[prefix];
+                    if (pluginModule) {
+                        //Plugin is loaded, use its normalize method, otherwise,
+                        //normalize name as usual.
+                        if (pluginModule.normalize) {
+                            normalizedName = pluginModule.normalize(name, function (name) {
+                                return normalize(name, parentName);
+                            });
+                        } else {
+                            normalizedName = normalize(name, parentName);
+                        }
+                    } else {
+                        //Plugin is not loaded yet, so do not normalize
+                        //the name, wait for plugin to load to see if
+                        //it has a normalize method. To avoid possible
+                        //ambiguity with relative names loaded from another
+                        //plugin, use the parent's name as part of this name.
+                        normalizedName = '__$p' + parentName + '@' + name;
+                    }
+                } else {
+                    normalizedName = normalize(name, parentName);
+                }
+
+                url = urlMap[normalizedName];
+                if (!url) {
+                    //Calculate url for the module, if it has a name.
+                    if (req.toModuleUrl) {
+                        //Special logic required for a particular engine,
+                        //like Node.
+                        url = req.toModuleUrl(context, name, parentModuleMap);
+                    } else {
+                        url = context.nameToUrl(name, null, parentModuleMap);
+                    }
+
+                    //Store the URL mapping for later.
+                    urlMap[normalizedName] = url;
+                }
+            }else{
+                normalizedName = "";
+            }
+
             return {
                 prefix: prefix,
-                name: name,
-                fullName: prefix ? prefix + "!" + name : name
+                name: normalizedName,
+                parentMap: parentModuleMap,
+                url: url,
+                originalName: originalName,
+                fullName: prefix ? prefix + "!" + normalizedName : normalizedName
             };
         }
 
@@ -254,36 +329,6 @@ var require, define;
         }
 
         /**
-         * As of jQuery 1.4.3, it supports a readyWait property that will hold off
-         * calling jQuery ready callbacks until all scripts are loaded. Be sure
-         * to track it if readyWait is available. Also, since jQuery 1.4.3 does
-         * not register as a module, need to do some global inference checking.
-         * Even if it does register as a module, not guaranteed to be the precise
-         * name of the global. If a jQuery is tracked for this context, then go
-         * ahead and register it as a module too, if not already in process.
-         */
-        function jQueryCheck(jqCandidate) {
-            if (!context.jQuery) {
-                var $ = jqCandidate || (typeof jQuery !== "undefined" ? jQuery : null);
-                if ($ && "readyWait" in $) {
-                    context.jQuery = $;
-
-                    //Manually create a "jquery" module entry if not one already
-                    //or in process.
-                    if (!defined.jquery && !context.jQueryDef) {
-                        defined.jquery = $;
-                    }
-
-                    //Increment jQuery readyWait if ncecessary.
-                    if (context.scriptCount) {
-                        $.readyWait += 1;
-                        context.jQueryIncremented = true;
-                    }
-                }
-            }
-        }
-
-        /**
          * Helper function that creates a setExports function for a "module"
          * CommonJS dependency. Do this here to avoid creating a closure that
          * is part of a loop.
@@ -294,13 +339,17 @@ var require, define;
             };
         }
 
-        function makeContextModuleFunc(func, moduleName) {
+        function makeContextModuleFunc(func, relModuleMap, enableBuildCallback) {
             return function () {
                 //A version of a require function that passes a moduleName
                 //value for items that may need to
                 //look up paths relative to the moduleName
-                var args = [].concat(aps.call(arguments, 0));
-                args.push(moduleName);
+                var args = [].concat(aps.call(arguments, 0)), lastArg;
+                if (enableBuildCallback &&
+                    isFunction((lastArg = args[args.length - 1]))) {
+                    lastArg.__requireJsBuild = true;
+                }
+                args.push(relModuleMap);
                 return func.apply(null, args);
             };
         }
@@ -311,11 +360,12 @@ var require, define;
          * per module because of the implication of path mappings that may
          * need to be relative to the module name.
          */
-        function makeRequire(moduleName) {
-            var modRequire = makeContextModuleFunc(context.require, moduleName);
+        function makeRequire(relModuleMap, enableBuildCallback) {
+            var modRequire = makeContextModuleFunc(context.require, relModuleMap, enableBuildCallback);
             mixin(modRequire, {
-                nameToUrl: makeContextModuleFunc(context.nameToUrl, moduleName),
-                toUrl: makeContextModuleFunc(context.toUrl, moduleName),
+                nameToUrl: makeContextModuleFunc(context.nameToUrl, relModuleMap),
+                toUrl: makeContextModuleFunc(context.toUrl, relModuleMap),
+                isDefined: makeContextModuleFunc(context.isDefined, relModuleMap),
                 ready: req.ready,
                 def: function(name, deps, callback){
                     req.def(name, deps, callback, context);
@@ -323,7 +373,50 @@ var require, define;
                 },
                 isBrowser: req.isBrowser
             });
+            //Something used by node.
+            if (req.paths) {
+                modRequire.paths = req.paths;
+            }
             return modRequire;
+        }
+
+        /**
+         * Used to update the normalized name for plugin-based dependencies
+         * after a plugin loads, since it can have its own normalization structure.
+         * @param {String} pluginName the normalized plugin module name.
+         */
+        function updateNormalizedNames(pluginName) {
+
+            var oldFullName, oldModuleMap, moduleMap, fullName, callbacks,
+                i, j, k, depArray,
+                maps = normalizedWaiting[pluginName];
+
+            if (maps) {
+                for (i = 0; (oldModuleMap = maps[i]); i++) {
+                    oldFullName = oldModuleMap.fullName;
+                    moduleMap = makeModuleMap(oldModuleMap.originalName, oldModuleMap.parentMap);
+                    fullName = moduleMap.fullName;
+                    callbacks = managerCallbacks[oldFullName];
+
+                    if (fullName !== oldFullName) {
+                        //Update managerCallbacks to use the correct normalized name.
+                        managerCallbacks[fullName] = callbacks;
+                        delete managerCallbacks[oldFullName];
+
+                        //In each manager callback, update the normalized name in the depArray.
+                        for (j = 0; j < callbacks.length; j++) {
+                            depArray = callbacks[j].depArray;
+                            for (k = 0; k < depArray.length; k++) {
+                                if (depArray[k] === oldFullName) {
+                                    depArray[k] = fullName;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            delete normalizedWaiting[pluginName];
         }
 
         /*
@@ -344,11 +437,31 @@ var require, define;
                 return;
             }
 
-            if (prefix) {
+            if (prefix && !plugins[prefix]) {
                 //Queue up loading of the dependency, track it
-                //via context.plugins
-                context.plugins[prefix] = undefined;
-                queueDependency(splitPrefix(prefix));
+                //via context.plugins. Mark it as a plugin so
+                //that the build system will know to treat it
+                //special.
+                plugins[prefix] = undefined;
+
+                //Remember this dep that needs to have normaliztion done
+                //after the plugin loads.
+                (normalizedWaiting[prefix] || (normalizedWaiting[prefix] = []))
+                    .push(dep);
+
+                //Register an action to do once the plugin loads, to update
+                //all managerCallbacks to use a properly normalized module
+                //name.
+                (managerCallbacks[prefix] ||
+                (managerCallbacks[prefix] = [])).push({
+                    onDep: function (name, value) {
+                        if (name === prefix) {
+                            updateNormalizedNames(prefix);
+                        }
+                    }
+                });
+
+                queueDependency(makeModuleMap(prefix));
             }
 
             context.paused.push(dep);
@@ -361,39 +474,45 @@ var require, define;
                 args = [],
                 ary = manager.depArray;
 
-            //Call the callback to define the module, if necessary.
-            if (cb && isFunction(cb)) {
-                //Pull out the defined dependencies and pass the ordered
-                //values to the callback.
-                if (ary) {
-                    for (i = 0; i < ary.length; i++) {
-                        args.push(manager.deps[ary[i]]);
-                    }
+            if(manager.errors){
+                if(typeof manager.errCallback === 'function'){
+                    manager.errCallback(manager.deps,manager.errorDeps);
                 }
-
-                ret = req.execCb(fullName, manager.callback, args);
-
-                if (fullName) {
-                    //If using exports and the function did not return a value,
-                    //and the "module" object for this definition function did not
-                    //define an exported value, then use the exports object.
-                    if (manager.usingExports && ret === undefined && (!manager.cjsModule || !("exports" in manager.cjsModule))) {
-                        ret = defined[fullName];
-                    } else {
-                        if (manager.cjsModule && "exports" in manager.cjsModule) {
-                            ret = defined[fullName] = manager.cjsModule.exports;
-                        } else {
-                            if (fullName in defined && !manager.usingExports) {
-                                return req.onError(new Error(fullName + " has already been defined"));
-                            }
-                            defined[fullName] = ret;
+            }else{
+                //Call the callback to define the module, if necessary.
+                if (cb && isFunction(cb)) {
+                    //Pull out the defined dependencies and pass the ordered
+                    //values to the callback.
+                    if (ary) {
+                        for (i = 0; i < ary.length; i++) {
+                            args.push(manager.deps[ary[i]]);
                         }
                     }
+
+                    ret = req.execCb(fullName, manager.callback, args);
+
+                    if (fullName) {
+                        //If using exports and the function did not return a value,
+                        //and the "module" object for this definition function did not
+                        //define an exported value, then use the exports object.
+                        if (manager.usingExports && ret === undefined && (!manager.cjsModule || !("exports" in manager.cjsModule))) {
+                            ret = defined[fullName];
+                        } else {
+                            if (manager.cjsModule && "exports" in manager.cjsModule) {
+                                ret = defined[fullName] = manager.cjsModule.exports;
+                            } else {
+                                if (fullName in defined && !manager.usingExports) {
+                                    return req.onError(new Error(fullName + " has already been defined"));
+                                }
+                                defined[fullName] = ret;
+                            }
+                        }
+                    }
+                } else if (fullName) {
+                    //May just be an object definition for the module. Only
+                    //worry about defining if have a module name.
+                    ret = defined[fullName] = cb;
                 }
-            } else if (fullName) {
-                //May just be an object definition for the module. Only
-                //worry about defining if have a module name.
-                ret = defined[fullName] = cb;
             }
 
             if (fullName) {
@@ -422,25 +541,42 @@ var require, define;
             return undefined;
         }
 
-        function main(inName, depArray, callback, relModuleName) {
-            var nameArgs = splitPrefix(inName, relModuleName),
-                name = nameArgs.name,
-                fullName = nameArgs.fullName,
+        function main(inName, depArray, callback, errCallback, relModuleMap) {
+            // Normalize errCallback and relModuleMap arguments
+            if(relModuleMap === undefined && typeof errCallback === 'string'){
+                relModuleMap = errCallback;
+                errCallback = undefined;
+            }
+
+            var moduleMap = makeModuleMap(inName, relModuleMap),
+                name = moduleMap.name,
+                fullName = moduleMap.fullName,
                 manager = {
                     //Use a wait ID because some entries are anon
                     //async require calls.
                     waitId: name || reqWaitIdPrefix + (waitIdCounter++),
                     depCount: 0,
                     depMax: 0,
-                    prefix: nameArgs.prefix,
+                    prefix: moduleMap.prefix,
                     name: name,
                     fullName: fullName,
                     deps: {},
+                    errors: false,
+                    errorDeps: {},
                     depArray: depArray,
                     callback: callback,
+                    errCallback: errCallback,
                     onDep: function (depName, value) {
                         if (!(depName in manager.deps)) {
-                            manager.deps[depName] = value;
+
+                            if( depName in errored ){
+                                manager.errors = true;
+                                manager.errorDeps[depName] = errored[depName];
+                            }else{
+                                //Module already defined, no need to wait for it.
+                                manager.deps[depName] = value;
+                            }
+
                             manager.depCount += 1;
                             if (manager.depCount === manager.depMax) {
                                 //All done, execute!
@@ -477,7 +613,7 @@ var require, define;
                 //value as a dependency.
                 if (depArg) {
                     //Split the dependency name into plugin and name parts
-                    depArg = splitPrefix(depArg, name);
+                    depArg = makeModuleMap(depArg, (name ? moduleMap : relModuleMap));
                     depName = depArg.fullName;
 
                     //Fix the name in depArray to be just the name, since
@@ -486,7 +622,7 @@ var require, define;
 
                     //Fast path CommonJS standard dependencies.
                     if (depName === "require") {
-                        manager.deps[depName] = makeRequire(name);
+                        manager.deps[depName] = makeRequire(moduleMap);
                     } else if (depName === "exports") {
                         //CommonJS module spec 1.1
                         manager.deps[depName] = defined[fullName] = {};
@@ -495,12 +631,20 @@ var require, define;
                         //CommonJS module spec 1.1
                         manager.cjsModule = cjsMod = manager.deps[depName] = {
                             id: name,
-                            uri: name ? context.nameToUrl(name, null, relModuleName) : undefined
+                            uri: name ? context.nameToUrl(name, null, relModuleMap) : undefined
                         };
                         cjsMod.setExports = makeSetExports(cjsMod);
+                    } else if (depName[depName.length-1] === '!') {
+                        manager.deps[depName] = callPlugin_loadDefineDependency(depName.slice(0,depName.length-1),inName);
                     } else if (depName in defined && !(depName in waiting)) {
-                        //Module already defined, no need to wait for it.
-                        manager.deps[depName] = defined[depName];
+
+                        if( depName in errored ){
+                            manager.errors = true;
+                            manager.errorDeps[depName] = errored[depName];
+                        }else{
+                            //Module already defined, no need to wait for it.
+                            manager.deps[depName] = defined[depName];
+                        }
                     } else {
                         //A dynamic dependency.
                         manager.depMax += 1;
@@ -535,6 +679,36 @@ var require, define;
             //to doing it in require.def in case a script does
             //not call require.def
             loaded[args[0]] = true;
+        }
+
+        /**
+         * As of jQuery 1.4.3, it supports a readyWait property that will hold off
+         * calling jQuery ready callbacks until all scripts are loaded. Be sure
+         * to track it if readyWait is available. Also, since jQuery 1.4.3 does
+         * not register as a module, need to do some global inference checking.
+         * Even if it does register as a module, not guaranteed to be the precise
+         * name of the global. If a jQuery is tracked for this context, then go
+         * ahead and register it as a module too, if not already in process.
+         */
+        function jQueryCheck(jqCandidate) {
+            if (!context.jQuery) {
+                var $ = jqCandidate || (typeof jQuery !== "undefined" ? jQuery : null);
+                if ($ && "readyWait" in $) {
+                    context.jQuery = $;
+
+                    //Manually create a "jquery" module entry if not one already
+                    //or in process.
+                    callDefMain(["jquery", [], function () {
+                        return jQuery;
+                    }]);
+
+                    //Increment jQuery readyWait if ncecessary.
+                    if (context.scriptCount) {
+                        $.readyWait += 1;
+                        context.jQueryIncremented = true;
+                    }
+                }
+            }
         }
 
         function forceExec(manager, traced) {
@@ -653,6 +827,15 @@ var require, define;
             return undefined;
         }
 
+
+        function callPlugin_loadDefineDependency(pluginName,definingModuleName){
+            var plugin = plugins[pluginName] || (plugins[pluginName] = defined[pluginName]);
+
+            return (plugin)
+                ? plugin.loadDefineDependency(definingModuleName)
+                : undefined;
+        }
+
         function callPlugin(pluginName, dep) {
             var name = dep.name,
                 fullName = dep.fullName;
@@ -671,11 +854,17 @@ var require, define;
                 loaded[fullName] = false;
             }
 
-            plugins[pluginName].load(name, makeRequire(name), function (ret) {
+            //Use parentName here since the plugin's name is not reliable,
+            //could be some weird string with no path that actually wants to
+            //reference the parentName's path.
+            plugins[pluginName].load(name, makeRequire(dep.parentMap, true), function (ret,error) {
                 //Allow the build process to register plugin-loaded dependencies.
                 if (require.onPluginLoad) {
                     require.onPluginLoad(context, pluginName, name, ret);
                 }
+                
+                if(error)
+                    errored[dep.fullName] = new Error("Couldn't load "+dep.fullName);
 
                 execManager({
                     prefix: dep.prefix,
@@ -688,6 +877,12 @@ var require, define;
         }
 
         function loadPaused(dep) {
+            //Renormalize dependency if its name was waiting on a plugin
+            //to load, which as since loaded.
+            if (dep.prefix && dep.name.indexOf('__$p') === 0 && defined[dep.prefix]) {
+                dep = makeModuleMap(dep.originalName, dep.parentMap);
+            }
+
             var pluginName = dep.prefix,
                 fullName = dep.fullName;
 
@@ -711,9 +906,16 @@ var require, define;
                         (managerCallbacks[pluginName] = [])).push({
                             onDep: function (name, value) {
                                 if (name === pluginName) {
-                                    var i, ary = pluginsQueue[pluginName];
+                                    var i, oldModuleMap, ary = pluginsQueue[pluginName];
+
+                                    //Now update all queued plugin actions.
                                     for (i = 0; i < ary.length; i++) {
-                                        callPlugin(pluginName, ary[i]);
+                                        oldModuleMap = ary[i];
+                                        //Update the moduleMap since the
+                                        //module name may be normalized
+                                        //differently now.
+                                        callPlugin(pluginName,
+                                                   makeModuleMap(oldModuleMap.originalName, oldModuleMap.parentMap));
                                     }
                                     delete pluginsQueue[pluginName];
                                 }
@@ -723,7 +925,7 @@ var require, define;
                     pluginsQueue[pluginName].push(dep);
                 }
             } else {
-                req.load(context, fullName);
+                req.load(context, fullName, dep.url);
             }
         }
 
@@ -731,7 +933,7 @@ var require, define;
          * Resumes tracing of dependencies and then checks if everything is loaded.
          */
         resume = function () {
-            var args, i, p = context.paused;
+            var args, i, p;
 
             if (context.scriptCount <= 0) {
                 //Synchronous envs will push the number below zero with the
@@ -756,7 +958,8 @@ var require, define;
                 return undefined;
             }
 
-            if (p.length) {
+            while (context.paused.length) {
+                p = context.paused;
                 //Reset paused list
                 context.paused = [];
 
@@ -782,20 +985,22 @@ var require, define;
             waitCount: 0,
             specified: specified,
             loaded: loaded,
+            urlMap: urlMap,
             scriptCount: 0,
             urlFetched: {},
             defined: defined,
+            errored: errored,
             paused: [],
             plugins: plugins,
             managerCallbacks: managerCallbacks,
-            splitPrefix: splitPrefix,
-            normalizeName: normalizeName,
+            makeModuleMap: makeModuleMap,
+            normalize: normalize,
             /**
              * Set a configuration for the context.
              * @param {Object} cfg config object to integrate.
              */
             configure: function (cfg) {
-                var paths, packages, prop, packagePaths;
+                var paths, packages, prop, packagePaths, requireWait;
 
                 //Make sure the baseUrl ends in a slash.
                 if (cfg.baseUrl) {
@@ -849,7 +1054,11 @@ var require, define;
                     //easily tested for config priority completion.
                     //Do this instead of wiping out the config.priority
                     //in case it needs to be inspected for debug purposes later.
+                    //Hold on to requireWait value, and reset it after done
+                    requireWait = context.requireWait;
+                    context.requireWait = false;
                     context.require(cfg.priority);
+                    context.requireWait = requireWait;
                     config.priorityWait = cfg.priority;
                 }
 
@@ -867,48 +1076,65 @@ var require, define;
                 }
             },
 
-            require: function (deps, callback, relModuleName) {
-                var moduleName, ret, nameProps;
+            isDefined: function (moduleName, relModuleMap) {
+                return makeModuleMap(moduleName, relModuleMap).fullName in defined;
+            },
+
+            require: function (deps, callback, errCallback, relModuleMap) {
+                var moduleName, ret, moduleMap;
                 if (typeof deps === "string") {
                     //Synchronous access to one module. If require.get is
                     //available (as in the Node adapter), prefer that.
                     //In this case deps is the moduleName and callback is
-                    //the relModuleName
+                    //the relModuleMap
                     if (req.get) {
                         return req.get(context, deps, callback);
                     }
 
                     //Just return the module wanted. In this scenario, the
-                    //second arg (if passed) is just the relModuleName.
+                    //second arg (if passed) is just the relModuleMap.
                     moduleName = deps;
-                    relModuleName = callback;
-                    if (moduleName === "require" ||
-                        moduleName === "exports" || moduleName === "module") {
-                        return req.onError(new Error("Explicit require of " +
-                                           moduleName + " is not allowed."));
-                    }
+                    relModuleMap = callback;
 
                     //Normalize module name, if it contains . or ..
-                    nameProps = splitPrefix(moduleName, relModuleName);
+                    moduleMap = makeModuleMap(moduleName, relModuleMap);
 
-                    ret = defined[nameProps.fullName];
+                    ret = defined[moduleMap.fullName];
                     if (ret === undefined) {
                         return req.onError(new Error("require: module name '" +
-                                    nameProps.fullName +
+                                    moduleMap.fullName +
                                     "' has not been loaded yet for context: " +
                                     contextName));
                     }
                     return ret;
                 }
 
-                main(null, deps, callback, relModuleName);
+                main(null, deps, callback, errCallback, relModuleMap);
 
                 //If the require call does not trigger anything new to load,
                 //then resume the dependency processing.
-                while (!context.scriptCount && context.paused.length) {
-                    resume();
+                if (!context.requireWait) {
+                    while (!context.scriptCount && context.paused.length) {
+                        resume();
+                    }
                 }
                 return undefined;
+            },
+
+            /**
+             * Internal method to transfer globalQueue items to this context's
+             * defQueue.
+             */
+            takeGlobalQueue: function () {
+                //Push all the globalDefQueue items into the context's defQueue
+                if (globalDefQueue.length) {
+                    //Array splice in the values since the context code has a
+                    //local var ref to defQueue, so cannot just reassign the one
+                    //on context.
+                    apsp.apply(context.defQueue,
+                               [context.defQueue.length - 1, 0].concat(globalDefQueue));
+                    globalDefQueue = [];
+                }
             },
 
             /**
@@ -920,15 +1146,7 @@ var require, define;
             completeLoad: function (moduleName) {
                 var args;
 
-                //Push all the globalDefQueue items into the context's defQueue
-                if (globalDefQueue.length) {
-                    //Array splice in the values since the context code has a
-                    //local var ref to defQueue, so cannot just reassign the one
-                    //on context.
-                    apsp.apply(context.defQueue,
-                               [context.defQueue.length - 1, 0].concat(globalDefQueue));
-                    globalDefQueue = [];
-                }
+                context.takeGlobalQueue();
 
                 while (defQueue.length) {
                     args = defQueue.shift();
@@ -988,8 +1206,8 @@ var require, define;
              * *Requires* the use of a module name. It does not support using
              * plain URLs like nameToUrl.
              */
-            toUrl: function (moduleNamePlusExt, relModuleName) {
-                var index = moduleNamePlusExt.lastIndexOf('.'),
+            toUrl: function (moduleNamePlusExt, relModuleMap) {
+                var index = moduleNamePlusExt.lastIndexOf("."),
                     ext = null;
 
                 if (index !== -1) {
@@ -997,62 +1215,76 @@ var require, define;
                     moduleNamePlusExt = moduleNamePlusExt.substring(0, index);
                 }
 
-                return context.nameToUrl(moduleNamePlusExt, ext, relModuleName);
+                return context.nameToUrl(moduleNamePlusExt, ext, relModuleMap);
             },
 
             /**
              * Converts a module name to a file path. Supports cases where
              * moduleName may actually be just an URL.
              */
-            nameToUrl: function (moduleName, ext, relModuleName) {
+            nameToUrl: function (moduleName, ext, relModuleMap) {
 
                 var paths, packages, pkg, pkgPath, syms, i, parentModule, url,
                     config = context.config;
 
-                //Normalize module name if have a base relative module name to work from.
-                moduleName = normalizeName(moduleName, relModuleName);
-
-                //If a colon is in the URL, it indicates a protocol is used and it is just
-                //an URL to a file, or if it starts with a slash or ends with .js, it is just a plain file.
-                //The slash is important for protocol-less URLs as well as full paths.
-                if (req.jsExtRegExp.test(moduleName)) {
-                    //Just a plain path, not module name lookup, so just return it.
-                    //Add extension if it is included. This is a bit wonky, only non-.js things pass
-                    //an extension, this method probably needs to be reworked.
-                    url = moduleName + (ext ? ext : "");
-                } else {
-                    //A module that needs to be converted to a path.
-                    paths = config.paths;
-                    packages = config.packages;
-
-                    syms = moduleName.split("/");
-                    //For each module name segment, see if there is a path
-                    //registered for it. Start with most specific name
-                    //and work up from it.
-                    for (i = syms.length; i > 0; i--) {
-                        parentModule = syms.slice(0, i).join("/");
-                        if (paths[parentModule]) {
-                            syms.splice(0, i, paths[parentModule]);
-                            break;
-                        } else if ((pkg = packages[parentModule])) {
-                            //pkg can have just a string value to the path
-                            //or can be an object with props:
-                            //main, lib, name, location.
-                            pkgPath = pkg.location + '/' + pkg.lib;
-                            //If module name is just the package name, then looking
-                            //for the main module.
-                            if (moduleName === pkg.name) {
-                                pkgPath += '/' + pkg.main;
-                            }
-                            syms.splice(0, i, pkgPath);
-                            break;
-                        }
+                if (moduleName.indexOf("./") === 0 || moduleName.indexOf("../") === 0) {
+                    //A relative ID, just map it relative to relModuleMap's url
+                    syms = relModuleMap && relModuleMap.url ? relModuleMap.url.split('/') : [];
+                    //Pop off the file name.
+                    if (syms.length) {
+                        syms.pop();
                     }
+                    syms = syms.concat(moduleName.split('/'));
+                    trimDots(syms);
+                    url = syms.join('/') +
+                          (ext ? ext :
+                          (req.jsExtRegExp.test(moduleName) ? "" : ".js"));
+                } else {
 
-                    //Join the path parts together, then figure out if baseUrl is needed.
-                    url = syms.join("/") + (ext || ".js");
-                    url = (url.charAt(0) === '/' || url.match(/^\w+:/) ? "" : config.baseUrl) + url;
+                    //Normalize module name if have a base relative module name to work from.
+                    moduleName = normalize(moduleName, relModuleMap);
+
+                    //If a colon is in the URL, it indicates a protocol is used and it is just
+                    //an URL to a file, or if it starts with a slash or ends with .js, it is just a plain file.
+                    //The slash is important for protocol-less URLs as well as full paths.
+                    if (req.jsExtRegExp.test(moduleName)) {
+                        //Just a plain path, not module name lookup, so just return it.
+                        //Add extension if it is included. This is a bit wonky, only non-.js things pass
+                        //an extension, this method probably needs to be reworked.
+                        url = moduleName + (ext ? ext : "");
+                    } else {
+                        //A module that needs to be converted to a path.
+                        paths = config.paths;
+                        packages = config.packages;
+
+                        syms = moduleName.split("/");
+                        //For each module name segment, see if there is a path
+                        //registered for it. Start with most specific name
+                        //and work up from it.
+                        for (i = syms.length; i > 0; i--) {
+                            parentModule = syms.slice(0, i).join("/");
+                            if (paths[parentModule]) {
+                                syms.splice(0, i, paths[parentModule]);
+                                break;
+                            } else if ((pkg = packages[parentModule])) {
+                                //If module name is just the package name, then looking
+                                //for the main module.
+                                if (moduleName === pkg.name) {
+                                    pkgPath = pkg.location + '/' + pkg.main;
+                                } else {
+                                    pkgPath = pkg.location + '/' + pkg.lib;
+                                }
+                                syms.splice(0, i, pkgPath);
+                                break;
+                            }
+                        }
+
+                        //Join the path parts together, then figure out if baseUrl is needed.
+                        url = syms.join("/") + (ext || ".js");
+                        url = (url.charAt(0) === '/' || url.match(/^\w+:/) ? "" : config.baseUrl) + url;
+                    }
                 }
+
                 return config.urlArgs ? url +
                                         ((url.indexOf('?') === -1 ? '?' : '&') +
                                          config.urlArgs) : url;
@@ -1081,7 +1313,7 @@ var require, define;
      * on a require that are not standardized), and to give a short
      * name for minification/local scope use.
      */
-    req = require = function (deps, callback) {
+    req = require = function (deps, callback, errCallback) {
 
         //Find the right context, use default
         var contextName = defContextName,
@@ -1095,6 +1327,7 @@ var require, define;
                 // Adjust args if there are dependencies
                 deps = callback;
                 callback = arguments[2];
+                errCallback = arguments[3];
             } else {
                 deps = [];
             }
@@ -1111,7 +1344,7 @@ var require, define;
             context.configure(config);
         }
 
-        return context.require(deps, callback);
+        return context.require(deps, callback, errCallback);
     };
 
     req.version = version;
@@ -1156,11 +1389,12 @@ var require, define;
      *
      * @param {Object} context the require context to find state.
      * @param {String} moduleName the name of the module.
+     * @param {Object} url the URL to the module.
      */
-    req.load = function (context, moduleName) {
+    req.load = function (context, moduleName, url) {
         var contextName = context.contextName,
             urlFetched = context.urlFetched,
-            loaded = context.loaded, url;
+            loaded = context.loaded;
         isDone = false;
 
         //Only set loaded to false for tracking if it has not already been set.
@@ -1168,8 +1402,6 @@ var require, define;
             loaded[moduleName] = false;
         }
 
-        //First derive the path name for the module.
-        url = context.nameToUrl(moduleName);
         if (!urlFetched[url]) {
             context.scriptCount += 1;
             req.attach(url, contextName, moduleName);
@@ -1338,6 +1570,19 @@ var require, define;
             //In the browser so use a script tag
             callback = callback || req.onScriptLoad;
             node = document.createElement("script");
+            node.onerror = function(){
+                contexts[contextName].errored[moduleName] = new Error('Could not load '+moduleName);
+                contexts[contextName].completeLoad(moduleName);
+
+                //Clean up script binding.
+                if (node.removeEventListener) {
+                    node.removeEventListener("load", req.onScriptLoad, false);
+                } else {
+                    //Probably IE. If not it will throw an error, which will be
+                    //useful to know.
+                    node.detachEvent("onreadystatechange", req.onScriptLoad);
+                }
+            }
             node.type = type || "text/javascript";
             node.charset = "utf-8";
             //Use async so Gecko does not block on executing the script if something
@@ -1464,7 +1709,6 @@ var require, define;
         }
     }
 
-    //>>excludeStart("requireExcludePageLoad", pragmas.requireExcludePageLoad);
     //****** START page load functionality ****************
     /**
      * Sets the page as loaded and triggers check for all modules loaded.
@@ -1592,7 +1836,6 @@ var require, define;
         }
     }
     //****** END page load functionality ****************
-    //>>excludeEnd("requireExcludePageLoad");
 
     //Set up default context. If require was a configuration object, use that as base config.
     req(cfg);
@@ -1602,14 +1845,26 @@ var require, define;
     //themselves. In a non-browser env, assume that modules are not built into require.js,
     //which seems odd to do on the server.
     if (typeof setTimeout !== "undefined") {
+        ctx = s.contexts[(cfg.context || defContextName)];
+        //Indicate that the script that includes require() is still loading,
+        //so that require()'d dependencies are not traced until the end of the
+        //file is parsed (approximated via the setTimeout call).
+        ctx.requireWait = true;
         setTimeout(function () {
-            var ctx = s.contexts[(cfg.context || defContextName)];
+            ctx.requireWait = false;
+
+            //Any modules included with the require.js file will be in the
+            //global queue, assign them to this context.
+            ctx.takeGlobalQueue();
+
             //Allow for jQuery to be loaded/already in the page, and if jQuery 1.4.3,
             //make sure to hold onto it for readyWait triggering.
             ctx.jQueryCheck();
+
             if (!ctx.scriptCount) {
                 ctx.resume();
             }
+            req.checkReadyState();
         }, 0);
     }
 }());

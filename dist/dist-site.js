@@ -93,7 +93,7 @@ for (i = 0; (htmlFile = files[i]); i++) {
         ieCssPath = homePath + "ie.css";
         jsPath = homePath + "init.js";
     }
-    fileContents = fileContents.replace(/HOMEPATH/, homePath);
+    fileContents = fileContents.replace(/HOMEPATH/g, homePath);
     fileContents = fileContents.replace(/\main\.css/, cssPath);
     fileContents = fileContents.replace(/\ie\.css/, ieCssPath);
     fileContents = fileContents.replace(/\init\.js/, jsPath);

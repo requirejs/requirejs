@@ -7,13 +7,15 @@
 load("../jslib/parse.js");
 
 doh.register(
-    "parse", 
+    "parse",
     [
         function require(t) {
             var good1 = "require(['one', 'two'], function(){});",
+                good2 = "require({baseUrl: './'}, ['one', 'two']);",
                 bad1 = "require([foo, 'me'], function() {});";
 
             t.is('require(["one","two"]);', parse("good1", good1));
+            t.is('require(["one","two"]);', parse("good2", good2));
             t.is(null, parse("bad1", bad1));
         },
 
@@ -44,12 +46,12 @@ doh.register(
                 good2 = "define('one', function(){});",
                 good3 = 'function(){ var foo = { bar: function() { define("one", ["two"], function(){}); } };}',
                 good4 = '(function (define) { define("one", function(){}); }(myGlobalDefine))',
-                nested1 = "(function () {\nvar foo = {\nbar: 'baz'\n}\n\n define('foo', [], foo); \n }());";
+                nested1 = "(function () {\nvar foo = {\nbar: 'baz'\n}\n\n define('foo', [], foo); \n }());",
                 bad1 = "define('one', [foo, 'me'], function() {});",
                 bad2 = "define('one', somevar)",
                 goodAnon1 = "define(function(){ var foo = require('foo'); });",
                 goodAnon2 = "define(function () { if (true) { callback(function () { require(\"bar\"); })}});",
-                emptyAnon1 = "define(function() { exports.name = 'empty'; });",
+                emptyAnon1 = "define(function() { exports.name = 'empty'; });";
 
             t.is('define("one",["two","three"]);', parse("good1", good1));
             t.is('define("one",function(){});', parse("good2", good2));
@@ -69,7 +71,7 @@ doh.register(
                 bad1 = "require.modify('one', 'one-mod', [foo, 'me'], function() {});";
 
             t.is('require.modify("one","one-mod",["two","three"],function(){});', parse("good1", good1));
-            t.is(null, parse("bad1", bad1));   
+            t.is(null, parse("bad1", bad1));
         },
 
         function hasRequire(t) {
@@ -80,8 +82,8 @@ doh.register(
 
             t.is(true, parse.definesRequire("good1", good1));
             t.is(true, parse.definesRequire("good2", good2));
-            t.is(false, parse.definesRequire("bad1", bad1));   
-            t.is(false, parse.definesRequire("bad2", bad2));   
+            t.is(false, parse.definesRequire("bad1", bad1));
+            t.is(false, parse.definesRequire("bad2", bad2));
         }
     ]
 );

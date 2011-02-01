@@ -10,7 +10,7 @@ require({
                     name: 'beta',
                     location: 'beta/0.2',
                     lib: 'scripts',
-                    main: 'beta'
+                    main: 'scripts/beta'
                 },
                 'dojox/chair',
                 {
@@ -24,16 +24,21 @@ require({
             {
                 name: 'bar',
                 location: 'bar/0.4',
-                lib: 'scripts'
+                lib: 'scripts',
+                main: 'scripts/main'
             },
             {
                 name: 'foo',
                 location: 'foo'
             },
             {
+                name: 'funky',
+                main: 'index'
+            },
+            {
                 name: 'baz',
                 location: 'baz',
-                main: 'index'
+                main: 'lib/index'
             },
             {
                 name: 'dojox/window',
@@ -45,12 +50,13 @@ require({
     },
        ["require", "alpha", "alpha/replace", "beta", "beta/util", "bar", "baz",
         "foo", "foo/second", "dojox/chair", "dojox/table", "dojox/door", "dojox/window/pane",
-        "dojox/window", "dojox/table/legs"],
+        "dojox/window", "dojox/table/legs", "funky"],
 function(require,   alpha,   replace,         beta,   util,        bar,   baz,
          foo,   second,       chair,         table,         door,         pane,
-         window,         legs) {
+         window,         legs,               funky) {
+    var dataUrl = require.nameToUrl('foo/../data', '.html');
     doh.register(
-        "packages", 
+        "packages",
         [
             function packages(t){
                 t.is("alpha", alpha.name);
@@ -66,7 +72,7 @@ function(require,   alpha,   replace,         beta,   util,        bar,   baz,
                 t.is("foo", foo.name);
                 t.is("alpha", foo.alphaName);
                 t.is("foo/second", second.name);
-                t.is((require.isBrowser ? "./foo/lib/../data.html" : "./packages/foo/lib/../data.html"), require.nameToUrl('foo/../data', '.html'));
+                t.is((require.isBrowser ? "./foo/lib/../data.html" : "./packages/foo/lib/../data.html"), dataUrl);
                 t.is('dojox/chair', chair.name);
                 t.is('dojox/chair/legs', chair.legsName);
                 t.is('dojox/table', table.name);
@@ -76,6 +82,8 @@ function(require,   alpha,   replace,         beta,   util,        bar,   baz,
                 t.is('dojox/window/pane', pane.name);
                 t.is('dojox/window', window.name);
                 t.is('dojox/window/pane', window.paneName);
+                t.is('funky', funky.name);
+                t.is('monkey', funky.monkeyName);
             }
         ]
     );

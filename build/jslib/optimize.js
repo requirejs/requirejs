@@ -14,10 +14,7 @@ var optimize;
 
 (function () {
     var JSSourceFilefromCode,
-        textDepRegExp = /["'](text)\!([^"']+)["']/g,
-        relativeDefRegExp = /(require\s*\.\s*def|define)\s*\(\s*['"]([^'"]+)['"]/g,
         cssImportRegExp = /\@import\s+(url\()?\s*([^);]+)\s*(\))?([\w, ]*)(;)?/g,
-        cjsRequireRegExp = /require\s*\(\s*$/,
         cssUrlRegExp = /\url\(\s*([^\)]+)\s*\)?/g;
 
 
@@ -29,18 +26,6 @@ var optimize;
     //Helper for closure compiler, because of weird Java-JavaScript interactions.
     function closurefromCode(filename, content) {
         return JSSourceFilefromCode.invoke(null, [filename, content]);
-    }
-
-    //Adds escape sequences for non-visual characters, double quote and backslash
-    //and surrounds with double quotes to form a valid string literal.
-    //Assumes the string will be in a single quote string value.
-    function jsEscape(text) {
-        return text.replace(/(['\\])/g, '\\$1')
-            .replace(/[\f]/g, "\\f")
-            .replace(/[\b]/g, "\\b")
-            .replace(/[\n]/g, "\\n")
-            .replace(/[\t]/g, "\\t")
-            .replace(/[\r]/g, "\\r");
     }
 
     /**
@@ -269,7 +254,7 @@ var optimize;
          */
         css: function (startDir, config) {
             if (config.optimizeCss.indexOf("standard") !== -1) {
-                var i, fileName, startIndex, endIndex, originalFileContents, fileContents,
+                var i, fileName,
                     fileList = fileUtil.getFilteredFileList(startDir, /\.css$/, true);
                 if (fileList) {
                     for (i = 0; i < fileList.length; i++) {

@@ -102,11 +102,19 @@ a:hover {
     z-index: 1;
 }
 
+#nav .homeImageLink {
+    position: absolute;
+    display: block;
+    top: 10px;
+    left: 0;
+    width: 220px;
+    height: 138px;
+}
 #nav ul {
     list-style-type:none;
     padding: 0;
     margin: 21px 0 0 0;
-}  
+}
 
 #nav ul li {
     width: 100%;
@@ -114,7 +122,7 @@ a:hover {
 
 #nav ul li.version {
     text-align: center;
-    color: #4d4d4d;    
+    color: #4d4d4d;
 }
 
 #nav h1 {
@@ -459,17 +467,17 @@ span.sectionMark {
     background-color: #fff;
 }
 
-#footer .latest {
+#footer .line {
     display: block;
 }
 
-#footer .latest a {
+#footer .line a {
     color: #4d4d4d;
     text-decoration: underline;
 }
 
-/* 
-    Pygments manni style 
+/*
+    Pygments manni style
 */
 
 code {background-color: #fafafa; color: #333;}
@@ -509,8 +517,8 @@ code .string.other {color: #c30}
 code .number {color: #f60}
 
 
-/* 
-    webkit scroll bars 
+/*
+    webkit scroll bars
 */
 
 pre::-webkit-scrollbar {
@@ -551,113 +559,113 @@ pre::-webkit-scrollbar-thumb:horizontal {
 /*
     hbox
 */
- 
+
 .hbox {
 	display: -webkit-box;
 	-webkit-box-orient: horizontal;
 	-webkit-box-align: stretch;
- 
+
 	display: -moz-box;
 	-moz-box-orient: horizontal;
 	-moz-box-align: stretch;
- 
+
 	display: box;
 	box-orient: horizontal;
 	box-align: stretch;
-	
+
 	width: 100%;
 }
- 
+
 .hbox > * {
 	-webkit-box-flex: 0;
 	-moz-box-flex: 0;
 	box-flex: 0;
 	display: block;
 }
- 
+
 .vbox {
 	display: -webkit-box;
 	-webkit-box-orient: vertical;
 	-webkit-box-align: stretch;
- 
+
 	display: -moz-box;
 	-moz-box-orient: vertical;
 	-moz-box-align: stretch;
- 
+
 	display: box;
 	box-orient: vertical;
 	box-align: stretch;
 }
- 
+
 .vbox > * {
 	-webkit-box-flex: 0;
 	-moz-box-flex: 0;
 	box-flex: 0;
 	display: block;
 }
- 
+
 .spacer {
 	-webkit-box-flex: 1;
 	-moz-box-flex: 1;
 	box-flex: 1;
 }
- 
+
 .reverse {
 	-webkit-box-direction: reverse;
 	-moz-box-direction: reverse;
 	box-direction: reverse;
 }
- 
+
 .boxFlex0 {
 	-webkit-box-flex: 0;
 	-moz-box-flex: 0;
 	box-flex: 0;
 }
- 
+
 .boxFlex1, .boxFlex {
 	-webkit-box-flex: 1;
 	-moz-box-flex: 1;
 	box-flex: 1;
 }
- 
+
 .boxFlex2 {
 	-webkit-box-flex: 2;
 	-moz-box-flex: 2;
 	box-flex: 2;
 }
- 
+
 .boxGroup1 {
 	-webkit-box-flex-group: 1;
 	-moz-box-flex-group: 1;
 	box-flex-group: 1;
 }
- 
+
 .boxGroup2 {
 	-webkit-box-flex-group: 2;
 	-moz-box-flex-group: 2;
 	box-flex-group: 2;
 }
- 
+
 .start {
 	-webkit-box-pack: start;
 	-moz-box-pack: start;
 	box-pack: start;
 }
- 
+
 .end {
 	-webkit-box-pack: end;
 	-moz-box-pack: end;
 	box-pack: end;
 }
- 
+
 .center {
 	-webkit-box-pack: center;
 	-moz-box-pack: center;
 	box-pack: center;
 }
 
-/* 
-    clearfix 
+/*
+    clearfix
 */
 
 .clearfix:after {
@@ -668,11 +676,11 @@ pre::-webkit-scrollbar-thumb:horizontal {
 	line-height: 0;
 	height: 0;
 }
- 
+
 html[xmlns] .clearfix {
 	display: block;
 }
- 
+
 * html .clearfix {
 	height: 1%;
 }

@@ -34,7 +34,7 @@ var commonJs = {
 
         //Get list of files to convert.
         fileList = fileUtil.getFilteredFileList(commonJsPath, /\w/, true);
-        
+
         //Normalize on front slashes and make sure the paths do not end in a slash.
         commonJsPath = commonJsPath.replace(/\\/g, "/");
         savePath = savePath.replace(/\\/g, "/");
@@ -60,7 +60,7 @@ var commonJs = {
                 //Handle JS files.
                 if (jsFileRegExp.test(fileName)) {
                     moduleName = fileName.replace(commonJsPath + "/", "").replace(/\.js$/, "");
-        
+
                     fileContents = fileUtil.readFile(fileName);
                     fileContents = commonJs.convert(prefix + moduleName, fileName, fileContents);
                     fileUtil.saveUtf8File(convertedFileName, fileContents);
@@ -77,10 +77,10 @@ var commonJs = {
      * Rhino is available, otherwise a cruder regexp is used. If the regexp
      * is used, then the contents may not be executable, but hopefully good
      * enough to use to find require() calls.
-     * 
+     *
      * @param {String} fileContents
      * @param {String} fileName mostly used for informative reasons if an error.
-     * 
+     *
      * @returns {String} a string of JS with comments removed.
      */
     removeComments: function (fileContents, fileName) {
@@ -111,9 +111,9 @@ var commonJs = {
      *
      * @param {String} moduleName the name of the module to use for the
      * define() call.
-     * 
+     *
      * @param {String} fileName the name of the file.
-     * 
+     *
      * @param {String} fileContents the contents of a file :)
      *
      * @param {Boolean} skipDeps if true, require("") dependencies
@@ -121,14 +121,11 @@ var commonJs = {
      * standard require, exports, module dependencies. Only usable in sync
      * environments like Node where the require("") calls can be resolved on
      * the fly.
-     * 
+     *
      * @returns {String} the converted contents
      */
     convert: function (moduleName, fileName, fileContents, skipDeps) {
         //Strip out comments.
-        if (commonJs.useLog) {
-            logger.trace("fileName: " + fileName);
-        }
         try {
             var deps = [], depName, match,
                 //Remove comments
@@ -142,7 +139,7 @@ var commonJs = {
 
             //Set baseName to be one directory higher than moduleName.
             baseName.pop();
-    
+
             //Reset the regexp to start at beginning of file. Do this
             //since the regexp is reused across files.
             commonJs.depRegExp.lastIndex = 0;

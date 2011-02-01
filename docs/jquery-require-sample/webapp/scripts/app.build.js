@@ -7,9 +7,14 @@
     //the "simple" optimizations mode
     optimize: "none",
 
+    paths: {
+        "jquery": "require-jquery"
+    },
+
     modules: [
         {
-            name: "main"
+            name: "main",
+            exclude: ["jquery"]
         }
     ]
 })

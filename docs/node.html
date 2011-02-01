@@ -13,7 +13,6 @@
         </li>
     </ul>
 
-<span class="note">Note: You can use RequireJS in <a href="http://nodejs.org">Node</a></span>
 </div>
 
 <div class="section">
@@ -22,7 +21,7 @@
 <span class="sectionMark">&sect; 1</span>
 </h2>
 
-<p>Yes it does. That loader uses the CommonJS module format. The CommonJS module format is <a href="why.html">non-optimal for the browser</a>, and I do not prefer <a href="http://tagneto.blogspot.com/2010/03/commonjs-module-trade-offs.html">some of the trade-offs made in the CommonJS module format</a>. By using RequireJS on the server, you can use one format for all your modules, whether they are running server side or in the browser. That way you can preserve the speed benefits and easy debugging you get with RequireJS in the browser, and not have to worry about extra translation costs for moving between two formats.</p>
+<p>Yes <a href="http://nodejs.org">Node</a> does. That loader uses the CommonJS module format. The CommonJS module format is <a href="why.html">non-optimal for the browser</a>, and I do not prefer <a href="http://tagneto.blogspot.com/2010/03/commonjs-module-trade-offs.html">some of the trade-offs made in the CommonJS module format</a>. By using RequireJS on the server, you can use one format for all your modules, whether they are running server side or in the browser. That way you can preserve the speed benefits and easy debugging you get with RequireJS in the browser, and not have to worry about extra translation costs for moving between two formats.</p>
 </div>
 
 <div class="section">
@@ -30,28 +29,17 @@
 <a name="2">Can I use server modules already written in the CommonJS module format?</a>
 <span class="sectionMark">&sect; 2</span></h2>
 
-<p>Yes! The Node adapter for RequireJS, called r.js, automatically converts CommonJS modules to the RequireJS format on the fly, as they are loaded, so you can use your existing modules without having to hand-modify them.</p>
+<p>Yes! The Node adapter for RequireJS, called r.js, automatically converts CommonJS modules on the fly to a format usable by RequireJS, as they are loaded, so you can use your existing Node-based modules without having to hand-modify them.</p>
 
 <p>However, the top most app file, the one you pass to Node on startup, needs to be coded to the RequireJS API. That file is evaluated as-is, no automatic format conversion.</p>
 
-<p>Notes on the automatic format conversion:</p>
+<p>You can use modules installed by <a href="http://npmjs.org/">npm</a>, or use the <a href="api.html#config">Configuration Options</a> for RequireJS in your top level app file to configure paths, package pages, and even a different baseUrl for your modules.</p>
 
-<p>RequireJS does not use search paths for modules. It only does the following:</p>
+<p>RequireJS will use its configuration first to find modules, then use require.paths to search for the module, then if it is not found, it will look in the internal cache of modules built into Node.</p>
 
-<ul>
-<li>If the module ID is one of the modules that Node contains within itself (the ones in the Node's lib directory in its source distribution), it will be used.</li>
-<li>Otherwise the module is assumed to be relative to the file that is given to Node to start your app.</li>
-</ul>
+<p>RequireJS does not support require.main and the module free variable only contains an <strong>id</strong> property. It does not define a require.async method, since require() in RequireJS can accept equivalent arguments.</p>
 
-<p>What this means in practice: you cannot use packages installed by npm and assume RequireJS will find them. This may change in the future though.</p>
-
-<p>You can use the <a href="api.html#config">Configuration Options</a> for RequireJS in your top level app file to configure paths, package pages, and even a different baseUrl for your modules.</p>
-
-<p>So if you configure that package paths to the locations where npm installs modules, then the r.js adapter will be able to load them.</p>
-
-<p>RequireJS does not support require.main and the module free variable only contains an <strong>id</strong> property. It does not define a require.async method, since require() in RequireJS can accept roughly equivalent arguments.</p>
-
-<p>Even though RequireJS is an asynchronous loader in the browser, the RequireJS Node adapter loads modules synchronously in the Node environment. This was done to make the adapter easier to code. The adapter could be made asynchronous, but the primary benefit of RequireJS integration with Node is to allow you to write modules in the same format on the server and for the browser.</p>
+<p>Even though RequireJS is an asynchronous loader in the browser, the RequireJS Node adapter loads modules synchronously in the Node environment to match the default loading behavior in Node.</p>
 
 <p>Finally, RequireJS in Node can only load modules that are on the local disk -- fetching modules across http, for instance, is not supported at this time.</p>
 
@@ -74,14 +62,12 @@
 
 <p>If you want to try a sample app that works with r.js, see the index.js Hello World app on <a href="download.html#node">the download page</a>.</p>
 
-<p>The on-the-fly CommonJS module conversion could hit edge cases where it may not work. If you need to get get some visibility into where it failed, you can pass <strong>debug</strong> after r.js to get some printout on the converstion process and any problems during module execution:</p>
+<p>If you get a load failure, you can pass <strong>debug</strong> after r.js to get some information on what modules were attempted to be loaded and from what location:</p>
 
 <pre><code>node path/to/r.js debug myNodeApp.js
 </code></pre>
 
-<p>Node integration is a relatively new feature, so I expect the conversion process may not work for all modules.</p>
-
-<p>If you find you have a problem, and want to report it, use the <a href="http://github.com/jrburke/requirejs/issues">RequireJS GitHub Issues page</a>. If you can attach the output of the <strong>debug</strong> run, that would be helpful, <strong>but be forewarned</strong>, it is very verbose and prints out all the source code.</p>
+<p>If you find you have a problem, and want to report it, use the <a href="http://github.com/jrburke/requirejs/issues">RequireJS GitHub Issues page</a>. If you can attach the output of the <strong>debug</strong> run, that would be helpful.</p>
 
 <p>If you want to discuss the RequireJS-Node integration, you can use the <a href="http://groups.google.com/group/requirejs">RequireJS Group</a>.</p>
 </div>

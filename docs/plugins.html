@@ -1,0 +1,228 @@
+<div id="directory" class="section">
+<h1>Plugins</h1>
+
+<ul class="index mono">
+    <li class="hbox"><a href="#intro">Intro</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1</span></li>
+    <li class="hbox"><a href="#names">Plugin Names</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2</span></li>
+    <li class="hbox"><a href="#api">API</a><span class="spacer boxFlex"></span><span class="sect">&sect; 3</span></li>
+    <ul>
+        <li class="hbox"><a href="#apiload">load</a><span class="spacer boxFlex"></span><span class="sect">&sect; 3.1</span></li>
+        <li class="hbox"><a href="#apinormalize">normalize</a><span class="spacer boxFlex"></span><span class="sect">&sect; 3.2</span></li>
+        <li class="hbox"><a href="#apiwrite">write</a><span class="spacer boxFlex"></span><span class="sect">&sect; 3.3</span></li>
+        <li class="hbox"><a href="#apipluginbuilder">pluginBuilder</a><span class="spacer boxFlex"></span><span class="sect">&sect; 3.4</span></li>
+    </ul>
+</ul>
+</div>
+
+<div class="section">
+<h2 id="intro">
+Intro
+<span class="sectionMark">&sect; 1</span>
+</h2>
+
+<p>RequireJS allows you to write loader plugins that can load different types of resources as dependencies, and even include the dependencies in optimized builds.</p>
+
+<p>Existing loader plugins are the text! and i18n! plugins. The text! plugin handles loading text, and the i18n plugin handles loading a JavaScript object that is made up from objects from a few different modules. The object contains localized strings.</p>
+</div>
+
+<div class="section">
+<h2 id="names">
+Plugin Names
+<span class="sectionMark">&sect; 2</span>
+</h2>
+
+<p>Loader plugins are just another module, but they implement a specific API. You can reference your plugin by putting its module name before a ! in the dependency. For instance, if you create a plugin with the name "foo.js", you would use it like so:</p>
+
+<pre><code>
+require(['foo!something/for/foo'], function (something) {
+    //something is a reference to the resource
+    //'something/for/foo' that was loaded by foo.js.
+});
+</code></pre>
+
+<p>So, the plugin's module name comes before the ! separator. The part after the ! separator is called the <b>resource name</b>. The resource name may look like a normal module name. THe plugin's module name can be any valid module name, so for instance, you could use a relative indicator:</p>
+
+<pre><code>
+require(['./foo!something/for/foo'], function (something) {
+});
+</code></pre>
+
+<p>Or, if it was inside a package or directory, say bar/foo.js:</p>
+
+<pre><code>
+require(['bar/foo!something/for/foo'], function (something) {
+});
+</code></pre>
+
+<p>Note that the text!, i18n! and order! plugins are "special" in that you only need to use a name like "text" to refer to it, instead of its full module name, "require/text". This was done to support old code that was authored before the Plugin API was fully fleshed out. You can use their full module name if you prefer: "require/text!path/to/dialog.html".</p>
+
+</div>
+
+<div class="section">
+<h2 id="api">
+API
+<span class="sectionMark">&sect; 3</span>
+</h2>
+
+<p>RequireJS will load the plugin module first, then pass it the rest of the dependency name to a load() method on the plugin. There are also some methods to help with module name normalization and for making use of the plugin as part of the <a href="optimization.html">optimizer</a>.</p>
+
+<p>The complete Plugin API:</p>
+
+<ul>
+    <li><b><a href="#apiload">load</a></b>: A function that is called to load a resource. This is the only mandatory API method that needs to be implemented for the plugin to be useful.</li>
+    <li><b><a href="#apinormalize">normalize</a></b>: A function to normalize the resource name. This is useful in providing optimal caching and optimization, but only needed if the resource name is not a module name.</li>
+    <li><b><a href="#apiwrite">write</a></b>: used by the optimizer to indicate when the plugin should write out a representation of the the resource in the optimized file.</li>
+    <li><b><a href="#apipluginbuilder">pluginBuilder</a></b>: A module name string for a module that should be used in the optimizer to do optimization work. That module is used instead of the plugin module when the optimizer runs.</li>
+</ul>
+
+<h3>
+<a name="apiload">load: function (name, parentRequire, load, config)</a>
+<span class="sectionMark">&sect; 3.1</span>
+</h3>
+
+<p>load is a function, and it will be called with the following arguments:</p>
+
+<ul>
+    <li><b>name</b>: String. The name of the resource to load. This is the part after the ! separator in the name. So, if a module asks for 'foo!something/for/foo', the foo module's load function will receive 'something/for/foo' as the name.</li>
+    <li><b>parentRequire</b>: Function. A local "require" function to use to load other modules. It is suggested that you <b>do not</b> use the name "require" for this argument name to avoid any possible undesired behavior with the static analysis done by the optimizer when it looks for require() calls. The text! and i18n! plugins normally use "req" for this argument.</li>
+    <li><b>load</b>: Function. A function to call with the value for name. This tells the loader that the plugin is done loading the resource.</li>
+    <li><b>config</b>: Object. A configuration object. This is a way for the optimizer and the web app to pass configuration information to the plugin. The i18n! plugin uses this to get the current current locale, if the web app wants to force a specific locale. The optimizer will set an <b>isBuild</b> property in the config to true if this plugin (or pluginBuilder) is being called as part of an optimizer build.</li>
+</ul>
+
+<p>An example plugin that does not do anything interesting, just does a normal require to load a JS module:</p>
+
+<pre><code>
+define({
+    load: function (name, req, load, config) {
+        //req has the same API as require().
+        req([name], function (value) {
+            load(value);
+        });
+    }
+});
+</code></pre>
+
+<h3>
+<a name="apinormalize">normalize: function (name, normalize)</a>
+<span class="sectionMark">&sect; 3.2</span>
+</h3>
+
+<p><b>normalize</b> is called to normalize the name used to identify a resource. Some resources could use relative paths, and need to be normalized to the full path. normalize is called with the following arguments:</p>
+
+<ul>
+    <li><b>name</b>: String. The resource name to normalize.</li>
+    <li><b>normalize</b>: Function. A function that can be called to normalize a regular module name.</li>
+</ul>
+
+<p>An example: suppose there is an <b>index!</b> plugin that will load a module name given an index. This is a contrived example, just to illustrate the concept. A module may reference an index! resource like so:</p>
+
+<pre><code>
+define(['index!2?./a:./b:./c'], function (indexResource) {
+    //indexResource will be the module that corresponds to './c'.
+});
+</code></pre>
+
+<p>In this case, the normalized names the './a', './b', and './c' will be determined relative to the module asking for this resource. Since RequireJS does not know how to inspect the 'index!2?./a:./b:./c' to normalize the names for './a', './b', and './c', it needs to ask the plugin. This is the purpose of the normalize call.</p>
+
+<p>By properly normalizing the resource name, it allows the loader to cache the value effectively, and to properly build an optimized build layer in the optimizer.</p>
+
+<p>The <b>index!</b> plugin could be written like so:</p>
+
+<pre><code>
+(function () {
+
+    //Helper function to parse the 'N?value:value:value'
+    //format used in the resource name.
+    function parse(name) {
+        var parts = name.split('?'),
+            index = parseInt(parts[0], 10),
+            choices = parts[1].split(':'),
+            choice = choices[index];
+
+        return {
+            index: index,
+            choices: choices,
+            choice: choice
+        };
+    }
+
+    //Main module definition.
+    define({
+        normalize: function (name, normalize) {
+            var parsed = parse(name),
+                choices = parsed.choices;
+
+            //Normalize each path choice.
+            for (i = 0; i < choices.length; i++) {
+                //Call the normalize() method passed in
+                //to this function to normalize each
+                //module name.
+                choices[i] = normalize(choices[i]);
+            }
+
+            return parsed.index + '?' + choices.join(':');
+        },
+
+        load: function (name, req, load, config) {
+            req([parse(name).choice], function (value) {
+                load(value);
+            });
+        }
+    });
+
+}());
+</code></pre>
+
+<p>You do not need to implement normalize if the resource name is just a regular module name. For instance, the text! plugin does not implement normalize because the dependency names look like 'text!./some/path.html'.</p>
+
+<p>If a plugin does not implement normalize, then the loader will try to normalize the resource name using the normal module name rules.</p>
+
+<h3>
+<a name="apiwrite">write: function (pluginName, moduleName, write)</a>
+<span class="sectionMark">&sect; 3.3</span>
+</h3>
+
+<p><b>write</b> is only used by the optimizer, and it only needs to be implemented if the plugin can output something that would belong in an optimized layer. It is called with the following arguments:</p>
+
+<ul>
+    <li><b>pluginName</b>: String. The <b>normalized</b> name for the plugin. Most plugins will not be authored with a name (they will be anonymous plugins) so it is useful to know the normalized name for the plugin module for use in the optimized file.</li>
+    <li><b>name</b>: String. The <b>normalized</b> resource name.</li>
+    <li><b>write</b>: Function. A function to be called with a string of output to write to the optimized file.</li>
+</ul>
+
+<p>The text! plugin implements write, to write out a string value for the text file that it loaded. A snippet from that file:</p>
+
+<pre><code>
+write: function (pluginName, moduleName, write) {
+    //The text plugin keeps a map of strings it fetched
+    //during the build process, in a buildMap object.
+    if (moduleName in buildMap) {
+        //jsEscape is an internal method for the text plugin
+        //that is used to make the string safe
+        //for embedding in a JS string.
+        var text = jsEscape(buildMap[moduleName]);
+        write("define('" + pluginName + "!" + moduleName  +
+              "', function () { return '" + text + "';});\n");
+    }
+}
+</code></pre>
+
+<h3>
+<a name="apipluginbuilder">pluginBuilder</a>
+<span class="sectionMark">&sect; 3.4</span>
+</h3>
+
+<p><b>pluginBuilder</b> can be a string that points to another module to use instead of the current plugin when the plugin is used as part of an optimizer build.</p>
+
+<p>A plugin could have very specific logic that depends on a certain environment, like the browser. However, when run inside the optimizer, the environment is very different, and the plugin may have a <b>write</b> plugin API implementation that it does not want to deliver as part of the normal plugin that is loaded in the browser. In those cases, specifying a pluginBuilder is useful.</p>
+
+<p>Some notes about using a pluginBuilder:</p>
+
+<ul>
+    <li>Do not use named modules for the plugin or the pluginBuilder. The pluginBuilder text contents are used instead of the contents of the plugin file, but that will only work if the files do not call define() with a name.</li>
+    <li>Plugins and pluginBuilders that run as part of the build process have a very limited environment. Right now the optimizer runs on top of Rhino, but it may in the future run also on Node. Be careful of the environment assumptions if you want the plugin to run as part of the optimizer.</li>
+</ul>
+
+</div>
+
+

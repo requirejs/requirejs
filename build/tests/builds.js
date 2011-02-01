@@ -92,9 +92,9 @@ fileUtil.deleteFile("builds");
                 build(["..", "name=one", "include=require/text", "out=builds/oneText.js",
                        "baseUrl=../../tests", "optimize=none"]);
 
-                t.is(nol(cPragma("../../require/text.js") +
-                         c("../../tests/two.js") +
-                         c("../../tests/one.js")), nol(c("builds/oneText.js")));
+                t.is(nol(nol(c("../../tests/two.js") +
+                         c("../../tests/one.js")) +
+                         cPragma("../../require/text.js")), nol(c("builds/oneText.js")));
                 delete require.s.contexts._;
             }
 

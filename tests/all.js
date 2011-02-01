@@ -6,6 +6,9 @@ var hasToString = (function () {
 
 doh.registerUrl("simple", "../simple.html");
 doh.registerUrl("contextdefine", "../contextdefine.html");
+doh.registerUrl("plugin_loadDefineDependency", "../plugin_loadDefineDependency.html");
+doh.registerUrl("errorCallback", "../errorCallback.html");
+doh.registerUrl("errorCallback2", "../errorCallback2.html");
 
 //PS3 does not like this test
 doh.registerUrl("baseUrl", "../baseUrl.html");
@@ -43,8 +46,14 @@ doh.registerUrl("i18nlocale", "../i18n/i18n.html?locale=en-us-surfer");
 //Fail in PS3
 doh.registerUrl("i18nbundle", "../i18n/i18n.html?bundle=i18n!nls/en-us-surfer/colors");
 
-doh.registerUrl("pause/resume", "../pauseresume/pauseresume.html", 10000);
+doh.registerUrl("paths", "../paths/paths.html");
+
+doh.registerUrl("layers", "../layers/layers.html", 10000);
+doh.registerUrl("allplugins-text", "../layers/allplugins-text.html");
+
 doh.registerUrl("afterload", "../afterload.html", 10000);
+
+doh.registerUrl("pluginsSync", "../plugins/sync.html");
 doh.registerUrl("text", "../text/text.html");
 doh.registerUrl("textOnly", "../text/textOnly.html");
 doh.registerUrl("jsonp", "../jsonp/jsonp.html");

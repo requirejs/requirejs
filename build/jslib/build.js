@@ -20,7 +20,8 @@ var build, buildBaseConfig;
             paths: {},
             optimize: "closure",
             optimizeCss: "standard.keepLines",
-            inlineText: true
+            inlineText: true,
+            isBuild: true
         };
 
     build = function (args) {
@@ -595,13 +596,14 @@ var build, buildBaseConfig;
 
             //Figure out if the module is a result of a build plugin, and if so,
             //then delegate to that plugin.
-            parts = context.splitPrefix(moduleName);
+            parts = context.makeModuleMap(moduleName);
             builder = parts.prefix && require.pluginBuilders[parts.prefix];
-
-            if (builder && builder.onWrite) {
-                builder.onWrite(parts.prefix, parts.name, function (input) {
-                    fileContents += input;
-                });
+            if (builder) {
+                if (builder.write) {
+                    builder.write(parts.prefix, parts.name, function (input) {
+                        fileContents += input;
+                    });
+                }
             } else {
                 //Add the contents but remove any pragmas.
                 currContents = pragma.process(path, fileUtil.readFile(path), config);
@@ -615,6 +617,7 @@ var build, buildBaseConfig;
                     deps = null;
                     if (suffix.indexOf('f') !== -1) {
                         deps = parse.getAnonDeps(path, currContents);
+
                         if (deps.length) {
                             deps = deps.map(function (dep) {
                                 return "'" + dep + "'";

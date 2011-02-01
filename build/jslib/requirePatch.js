@@ -15,7 +15,7 @@
 (function () {
     var layer,
         lineSeparator = java.lang.System.getProperty("line.separator"),
-        pluginBuilderRegExp = /(["']?)pluginBuilder(["']?)\s*[=\:]\s*["']([\w\d-\.]+)["']/g,
+        pluginBuilderRegExp = /(["']?)pluginBuilder(["']?)\s*[=\:]\s*["']([^'"\s]+)["']/,
         oldDef;
 
     //A file read function that can deal with BOMs
@@ -54,7 +54,7 @@
     /** Reset state for each build layer pass. */
     require._buildReset = function () {
         //Clear up the existing context.
-        delete require.s.contexts[require.s.ctxName];
+        delete require.s.contexts._;
 
         //These variables are not contextName-aware since the build should
         //only have one context.
@@ -100,9 +100,6 @@
         return oldDef.apply(require, arguments);
     };
 
-    //Indicate this is a build run.
-    require.isBuild = true;
-
     //Add some utilities for plugins/pluginBuilders
     require._readFile = _readFile;
     require._fileExists = function (path) {
@@ -112,11 +109,10 @@
     require.pluginBuilders = {};
 
     //Override load so that the file paths can be collected.
-    require.load = function (context, moduleName) {
+    require.load = function (context, moduleName, url) {
         /*jslint evil: true */
-        var url = context.nameToUrl(moduleName),
-            evalSource = false,
-            contents, pluginContents, pluginBuilderMatch, builderName;
+        var isPlugin = false,
+            contents, pluginBuilderMatch, builderName;
 
         //Adjust the URL if it was not transformed to use baseUrl.
         if (require.jsExtRegExp.test(moduleName)) {
@@ -149,27 +145,23 @@
             }
 
             if (moduleName in context.plugins) {
-                //This is a loader plugin, check to see if it has a build extension.
+                //This is a loader plugin, check to see if it has a build extension,
+                //otherwise the plugin will act as the plugin builder too.
                 pluginBuilderMatch = pluginBuilderRegExp.exec(contents);
                 if (pluginBuilderMatch) {
                     //Load the plugin builder for the plugin contents.
-                    builderName = context.normalizeName(pluginBuilderMatch[3], moduleName);
-                    pluginContents = _readFile(context.nameToUrl(builderName));
-
-                    //Add the name of the module if it is not already there.
-                    pluginContents = pluginContents.replace(/define\s*\(\s*([\[\{f])/, "define('" + builderName + "', $1");
-                } else {
-                    //This plugin can handle being the plugin builder too.
-                    //In this case need to eval the source as-is.
-                    evalSource = true;
-                    builderName = moduleName;
+                    builderName = context.normalize(pluginBuilderMatch[3], moduleName);
+                    contents = _readFile(context.nameToUrl(builderName));
                 }
+
+                //plugins need to have their source evaled as-is.
+                isPlugin = true;
             }
 
             //Parse out the require and define calls.
             //Do this even for plugins in case they have their own
             //dependencies that may be separate to how the pluginBuilder works.
-            if (!evalSource) {
+            if (!isPlugin) {
                 contents = parse(url, contents);
             }
 
@@ -187,13 +179,9 @@
         //Mark the module loaded.
         context.loaded[moduleName] = true;
 
-        //If there was a pluginBuilder, eval it now.
-        if (pluginContents) {
-            eval(pluginContents);
-        }
         //Get a handle on the pluginBuilder
-        if (builderName) {
-            require.pluginBuilders[moduleName] = context.defined[builderName];
+        if (isPlugin) {
+            require.pluginBuilders[moduleName] = context.defined[moduleName];
         }
     };
 
@@ -222,5 +210,9 @@
             layer.loadedFiles[url] = true;
             layer.modulesWithNames[name] = true;
         }
+        if (cb.__requireJsBuild) {
+            return cb.apply(null, args);
+        }
+        return undefined;
     };
 }());

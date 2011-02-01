@@ -2,7 +2,7 @@
 <h1>How to use RequireJS with jQuery</h1>
 <ul class="index mono">
     <li class="hbox">
-        <a href="#1">Get Require.js</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1</span>
+        <a href="#1">Get RequireJS</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1</span>
     </li>
     <li class="hbox">
         <a href="#2">Set up your HTML page</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2</span>
@@ -18,18 +18,22 @@
 
 <p>You may also want to load code on the fly, after page load.</p>
 
-<p>RequireJS can help you manage the script modules, load them in the right order, and make it easy to combine the scripts later via the RequireJS <a href="optmization.md">optmization tool</a> without needing to change your markup. It also gives you an easy way to load scripts after the page has loaded, allowing you to spread out the download size over time.</p>
+<p>RequireJS can help you manage the script modules, load them in the right order, and make it easy to combine the scripts later via the RequireJS <a href="optimization.md">optimization tool</a> without needing to change your markup. It also gives you an easy way to load scripts after the page has loaded, allowing you to spread out the download size over time.</p>
 
 <p>RequireJS has a module system that lets you define well-scoped modules, but you do not have to follow that system to get the benefits of dependency management and build-time optimizations. Over time, if you start to create more modular code that needs to be reused in a few places, the module format for RequireJS makes it easy to write encapsulated code that can be loaded on the fly. It can grow with you, particularly if you want to incorporate internationalization (i18n) string bundles, to localize your project for different languages, or load some HTML strings and make sure those strings are available before executing code, or even use JSONP services as dependencies.</p>
 </div>
 
 <div class="section">
 <h2>
-<a name="1">Get require.js</a>
+<a name="1">Get RequireJS</a>
 <span class="sectionMark">&sect; 1</span>
 </h2>
 
-<p>First step is to <a href="download.md">download a build of jQuery with RequireJS built in</a>.</p>
+<p>First step is to get RequireJS:</p>
+<ul>
+    <li><a href="download.html#samplejquery">download the sample project</a> (<b>recommended</b>).</li>
+    <li><a href="download.html#jqueryrequirejs">download just one file with jQuery and RequireJS built in</a>.</li>
+</ul>
 </div>
 
 <div class="section">
@@ -57,17 +61,22 @@
 <pre><code>&lt;script data-main="scripts/main.js" src="scripts/require-jquery.js"&gt;&lt;/script&gt;
 </code></pre>
 
-<p>What is in main.js? Another call to require.js to load all the scripts you need and any init work you want to do for the page. This example main.js script loads two plugins, jquery.alpha.js and jquery.beta.js (not the names of real plugins, just an example). The plugins should be in the same directory as require-jquery.js:</p>
+<p>What is in main.js? A call to require() to load all the scripts you need and any init work you want to do for the page. This example main.js script loads two plugins, jquery.alpha.js and jquery.beta.js (not the names of real plugins, just an example). The plugins should be in the same directory as require-jquery.js:</p>
 
 <p>main.js:</p>
 
-<pre><code>require(["jquery.alpha", "jquery.beta"], function() {
+<pre><code>require(["jquery", "jquery.alpha", "jquery.beta"], function($) {
     //the jquery.alpha.js and jquery.beta.js plugins have been loaded.
     $(function() {
         $('body').alpha().beta();
     });
 });
 </code></pre>
+
+<p>In the require() call, "jquery" was referenced as a dependency. The require-jquery.js file has special code in it to register jQuery as a RequireJS module, and since it is registered as a module, you can get a handle on that module as the first argument to the function callback passed to require. In the above example, $ is used to reference the jQuery module.</p>
+
+<p>Since jquery.alpha and jquery.beta are just plugins that augment jQuery, they do not return modules that you can reference as function arguments.</p>
+
 </div>
 
 <div class="section">
@@ -76,7 +85,13 @@
 <span class="sectionMark">&sect; 3</span>
 </h2>
 
-<p>Now your page is set up to be optimized very easily. Download the RequireJS source and place it anywhere you like, preferrably somewhere outside your web development area. For the purposes of this example, the RequireJS source is placed as a sibling to the <strong>webapp</strong> directory, which contains the HTML page and the scripts directory with all the scripts. Complete directory structure:</p>
+<p>Now your page is set up to be optimized very easily via the <a href="optimization.html">optimizer tool</a>.</p>
+
+<p>If you downloaded the jQuery sample project, then the optimizer that is part of the RequireJS source is already included.</p>
+
+<p>If you are not using the jQuery sample project, get the optimizer by downloading the <a href="download.html#optimizationtool">RequireJS source bundle</a> and place it anywhere you like outside your web development area.</p>
+
+<p>For the purposes of this example, the RequireJS source is placed as a sibling to the <strong>webapp</strong> directory, which contains the HTML page and the scripts directory with all the scripts. Complete directory structure:</p>
 
 <ul>
 <li>requirejs/  (used for the build tools)</li>
@@ -98,9 +113,14 @@
     //the "simple" optimizations mode
     optimize: "none",
 
+    paths: {
+        "jquery": "require-jquery"
+    },
+
     modules: [
         {
-            name: "main"
+            name: "main",
+            exclude: ["jquery"]
         }
     ]
 })
@@ -131,5 +151,5 @@
 
 <p>This example is really basic, but demonstrates how you can upgrade your code to use RequireJS, and get powerful build optimizations without needing to change your code.</p>
 
-<p>Visit the <a href="download.html">Download page</a> to get this jQuery sample project as a zip file.</p>
+<p>The download page has <a href="download.html#samplejquery">this jQuery sample project as a zip file</a>.</p>
 </div>
