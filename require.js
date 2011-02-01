@@ -254,7 +254,7 @@ var require, define;
             if (prefix) {
                 prefix = normalize(prefix, parentName);
                 //Allow simpler mappings for some plugins
-                prefix = requirePlugins[prefix] || prefix;
+                prefix = prefix || requirePlugins[prefix];
             }
 
             //Account for relative paths if there is a base name.
