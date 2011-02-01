@@ -10,19 +10,30 @@
  * via the x script that is a sibling to it.
  */
 
-/*jslint regexp: false, nomen: false, plusplus: false */
+/*jslint strict: false */
 /*global load: true, process: false, Packages: false, require: true */
-"use strict";
 
-(function () {
+var console;
+(function (args, loadFunc) {
 
-    var requireBuildPath, fileName, env, fs,
-        load = typeof load !== 'undefined' ? load : null;
+    var requireBuildPath, fileName, env, fs, exec,
+        load = typeof loadFunc !== 'undefined' ? loadFunc : null;
 
     if (typeof Packages !== 'undefined') {
         env = 'rhino';
-        requireBuildPath = arguments[0];
-        fileName = arguments[1];
+        requireBuildPath = args[0];
+        fileName = args[1];
+        exec = function (string, name) {
+            return eval(string);
+        };
+
+        if (typeof console === 'undefined') {
+            console = {
+                log: function () {
+                    print.apply(undefined, arguments);
+                }
+            };
+        }
     } else if (typeof process !== 'undefined') {
         env = 'node';
 
@@ -36,6 +47,9 @@
             return process.compile(fs.readFileSync(path, 'utf8'), path);
         };
 
+        exec = function (string, name) {
+            return process.compile(string, name);
+        }
         requireBuildPath = process.argv[2];
         fileName = process.argv[3];
     }
@@ -50,13 +64,14 @@
 
     load(requireBuildPath + 'require.js');
     load(requireBuildPath + 'require/' + env + '.js');
-    process.compile("require({" +
+    exec("require({" +
         "baseUrl: '" + requireBuildPath + "build/jslib/'," +
         "paths: {" +
         "    require: '../../require'" +
-        "}" +
+        "}," +
+        "argsHasRequirePath: true" +
     "})", 'bootstrap');
 
     load(fileName);
 
-}());
+}((typeof Packages !== 'undefined' ? arguments : []), (typeof load !== 'undefined' ? load: undefined)));

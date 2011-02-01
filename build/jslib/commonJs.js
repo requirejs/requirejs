@@ -22,13 +22,10 @@ define(['env!env/file', 'uglifyjs/index'], function (file, uglify) {
         //like node where you want the work to happen without noise.
         useLog: true,
 
-        convertDir: function (commonJsPath, savePath, prefix) {
-            //Normalize prefix
-            prefix = prefix ? prefix + "/" : "";
-
+        convertDir: function (commonJsPath, savePath) {
             var fileList, i,
                 jsFileRegExp = /\.js$/,
-                fileName, moduleName, convertedFileName, fileContents;
+                fileName, convertedFileName, fileContents;
 
             //Get list of files to convert.
             fileList = file.getFilteredFileList(commonJsPath, /\w/, true);
@@ -59,10 +56,8 @@ define(['env!env/file', 'uglifyjs/index'], function (file, uglify) {
 
                     //Handle JS files.
                     if (jsFileRegExp.test(fileName)) {
-                        moduleName = fileName.replace(commonJsPath + "/", "").replace(/\.js$/, "");
-
                         fileContents = file.readFile(fileName);
-                        fileContents = commonJs.convert(prefix + moduleName, fileName, fileContents);
+                        fileContents = commonJs.convert(fileName, fileContents);
                         file.saveUtf8File(convertedFileName, fileContents);
                     } else {
                         //Just copy the file over.
@@ -101,9 +96,6 @@ define(['env!env/file', 'uglifyjs/index'], function (file, uglify) {
         /**
          * Does the actual file conversion.
          *
-         * @param {String} moduleName the name of the module to use for the
-         * define() call.
-         *
          * @param {String} fileName the name of the file.
          *
          * @param {String} fileContents the contents of a file :)
@@ -116,21 +108,17 @@ define(['env!env/file', 'uglifyjs/index'], function (file, uglify) {
          *
          * @returns {String} the converted contents
          */
-        convert: function (moduleName, fileName, fileContents, skipDeps) {
+        convert: function (fileName, fileContents, skipDeps) {
             //Strip out comments.
             try {
                 var deps = [], depName, match,
                     //Remove comments
-                    tempContents = commonJs.removeComments(fileContents, fileName),
-                    baseName = moduleName.split("/");
+                    tempContents = commonJs.removeComments(fileContents, fileName);
 
                 //First see if the module is not already RequireJS-formatted.
                 if (commonJs.defRegExp.test(tempContents) || commonJs.rjsRegExp.test(tempContents)) {
                     return fileContents;
                 }
-
-                //Set baseName to be one directory higher than moduleName.
-                baseName.pop();
 
                 //Reset the regexp to start at beginning of file. Do this
                 //since the regexp is reused across files.
@@ -140,9 +128,6 @@ define(['env!env/file', 'uglifyjs/index'], function (file, uglify) {
                     //Find dependencies in the code that was not in comments.
                     while ((match = commonJs.depRegExp.exec(tempContents))) {
                         depName = match[1];
-                        if (commonJs.useLog) {
-                            console.log("  " + depName);
-                        }
                         if (depName) {
                             deps.push('"' + depName + '"');
                         }
