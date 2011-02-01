@@ -845,6 +845,17 @@ var require, define;
             }, config);
         }
 
+        function callPluginSync(moduleMap) {
+            var ret; // this will be the return value
+
+            plugins[moduleMap.prefix].load(moduleMap.name, makeRequire(moduleMap.parentMap, true),
+            function (value) {
+                ret = value;
+            });
+
+            return ret;
+        }
+
         function loadPaused(dep) {
             //Renormalize dependency if its name was waiting on a plugin
             //to load, which as since loaded.
@@ -1082,7 +1093,7 @@ var require, define;
                     //Normalize module name, if it contains . or ..
                     moduleMap = makeModuleMap(moduleName, relModuleMap);
 
-                    ret = defined[moduleMap.fullName];
+                    ret = defined[moduleMap.fullName] || callPluginSync(moduleMap);
                     if (ret === undefined) {
                         return req.onError(new Error("require: module name '" +
                                     moduleMap.fullName +
