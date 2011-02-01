@@ -1,14 +1,13 @@
 /*jslint plusplus: false */
-/*global load: false, doh: false, require:false */
+/*global load: false, doh: false, define:false */
 
 "use strict";
 
-require(['parse'], function (parse) {
+define(['parse'], function (parse) {
 
-    doh.register(
-        "parse",
+    doh.register("parseRequire",
         [
-            function require(t) {
+            function parseRequire(t) {
                 var good1 = "require(['one', 'two'], function(){});",
                     good2 = "require({baseUrl: './'}, ['one', 'two']);",
                     bad1 = "require([foo, 'me'], function() {});",
@@ -18,9 +17,14 @@ require(['parse'], function (parse) {
                 t.is('require([ "one", "two" ]);', parse("good2", good2));
                 t.is(null, parse("bad1", bad1));
                 t.is(null, parse("bad2", bad2));
-            },
+            }
+        ]
+    );
+    doh.run();
 
-            function requireDef(t) {
+    doh.register('parseRequireDef',
+        [
+            function parseRequireDef(t) {
                 var good1 = "require.def('one', ['two', 'three'], function(){});",
                     good2 = "require.def('one', function(){});",
                     good3 = 'function baz(){ var foo = { bar: function() { require.def("one", ["two"], function(){}); } };}',
@@ -40,9 +44,14 @@ require(['parse'], function (parse) {
                 t.is(['require', 'exports', 'module', 'foo'], parse.getAnonDeps("goodAnon1", goodAnon1));
                 t.is(['require', 'exports', 'module', 'bar'], parse.getAnonDeps("goodAnon2", goodAnon2));
                 t.is(3, parse.getAnonDeps("emptyAnon1", emptyAnon1).length);
-            },
+            }
+        ]
+    );
+    doh.run();
 
-            function defineCall(t) {
+    doh.register('parseDefineCall',
+        [
+            function parseDefineCall(t) {
                 var good1 = "define('one', ['two', 'three'], function(){});",
                     good2 = "define('one', function(){});",
                     good3 = 'function baz(){ var foo = { bar: function() { define("one", ["two"], function(){}); } };}',
@@ -65,9 +74,14 @@ require(['parse'], function (parse) {
                 t.is(['require', 'exports', 'module', 'foo'], parse.getAnonDeps("goodAnon1", goodAnon1));
                 t.is(['require', 'exports', 'module', 'bar'], parse.getAnonDeps("goodAnon2", goodAnon2));
                 t.is(3, parse.getAnonDeps("emptyAnon1", emptyAnon1).length);
-            },
+            }
+        ]
+    );
+    doh.run();
 
-            function hasRequire(t) {
+    doh.register('parseHasRequire',
+        [
+            function parseHasRequire(t) {
                 var good1 = "var require; (function(){ require = function(){}; s = require.s = {};}());",
                     good2 = "var myGlobalRequire = (function () { var require = {}; (function(){ require = function(){}; s = require.s = {};}()); }());",
                     bad1 = "var require; function boom(){ var require = function(){}; }",

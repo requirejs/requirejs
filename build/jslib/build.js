@@ -11,9 +11,9 @@
 
 
 define([ 'lang', 'logger', 'env!env/file', 'parse', 'optimize', 'pragma',
-         'env!env/load'],
+         'env!env/load', 'requirePatch'],
 function (lang,   logger,   file,          parse,    optimize,   pragma,
-          load) {
+          load,           requirePatch) {
     var build, buildBaseConfig;
 
     buildBaseConfig = {
@@ -58,24 +58,17 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
             args.splice(0, 1);
         }
 
-        function doRun() {
-            //Remaining args are options to the build
-            cmdConfig = build.convertArrayToObject(args);
-            cmdConfig.buildFile = buildFile;
-            cmdConfig.requireBuildPath = requireBuildPath;
-            build._run(cmdConfig);
-        }
-
-        //Need to do this because requirePatch below messes with
-        //require.execCb, and will only execute the doRun callback if
-        //this property is true.
-        doRun.__requireJsBuild = true;
-
-        //Can now load the patches to require.js to allow it to be used for
-        //build generation. Do it here instead of as a dependency to this
-        //module because we want normal require behavior to load the build tool
+        //Can now run the patches to require.js to allow it to be used for
+        //build generation. Do it here instead because we want normal
+        //require behavior to load the build tool
         //then want to switch to build mode.
-        require({ context: 'build' }, ['requirePatch'], doRun);
+        requirePatch();
+
+        //Remaining args are options to the build
+        cmdConfig = build.convertArrayToObject(args);
+        cmdConfig.buildFile = buildFile;
+        cmdConfig.requireBuildPath = requireBuildPath;
+        build._run(cmdConfig);
     };
 
     build._run = function (cmdConfig) {
