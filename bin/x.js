@@ -10,23 +10,36 @@
  * via the x script that is a sibling to it.
  */
 
-/*jslint strict: false */
-/*global load: true, process: false, Packages: false, require: true */
+/*jslint strict: false, evil: true */
+/*global load: true, process: false, Packages: false, require: true
+  print: false */
 
 var console;
 (function (args, loadFunc) {
 
-    var requireBuildPath, fileName, env, fs, exec,
+    var fileName, env, fs, exec,
+        requireBuildPath = '',
+        jsSuffixRegExp = /\.js$/,
+        //This flag is turned to false by the distribution script,
+        //because a requireBuildPath is not needed since the scripts
+        //are inlined in this script.
+        useRequireBuildPath = true,
+        argOffset = useRequireBuildPath ? 0 : 1,
         load = typeof loadFunc !== 'undefined' ? loadFunc : null;
 
     if (typeof Packages !== 'undefined') {
         env = 'rhino';
-        requireBuildPath = args[0];
-        fileName = args[1];
+        if (useRequireBuildPath) {
+            requireBuildPath = args[0];
+        }
+        fileName = args[1 - argOffset];
+
         exec = function (string, name) {
             return eval(string);
         };
 
+        //Define a console.log for easier logging. Don't
+        //get fancy though.
         if (typeof console === 'undefined') {
             console = {
                 log: function () {
@@ -49,9 +62,13 @@ var console;
 
         exec = function (string, name) {
             return process.compile(string, name);
+        };
+
+        if (useRequireBuildPath) {
+            requireBuildPath = process.argv[2];
         }
-        requireBuildPath = process.argv[2];
-        fileName = process.argv[3];
+
+        fileName = process.argv[3 - argOffset];
     }
 
     //Make sure build path ends in a slash.
@@ -63,14 +80,31 @@ var console;
     requireBuildPath += '../';
 
     load(requireBuildPath + 'require.js');
-    load(requireBuildPath + 'require/' + env + '.js');
-    exec("require({" +
-        "baseUrl: '" + requireBuildPath + "build/jslib/'," +
-        "paths: {" +
-        "    require: '../../require'" +
-        "}," +
-        "argsHasRequirePath: true" +
-    "})", 'bootstrap');
+
+    //These are written out long-form so that they can be replaced by
+    //the distribution script.
+    if (env === 'rhino') {
+        load(requireBuildPath + 'require/rhino.js');
+    } else if (env === 'node') {
+        load(requireBuildPath + 'require/node.js');
+    }
+
+    if (useRequireBuildPath) {
+        exec("require({" +
+            "baseUrl: '" + requireBuildPath + "build/jslib/'," +
+            "paths: {" +
+            "    require: '../../require'" +
+            "}," +
+            "argsHasRequirePath: true" +
+        "})", 'bootstrap');
+    }
+
+    //Support a default file name to execute. Useful for hosted envs
+    //like Joyent where it defaults to a server.js as the only executed
+    //script.
+    if (!fileName || !jsSuffixRegExp.test(fileName)) {
+        fileName = 'main.js';
+    }
 
     load(fileName);
 

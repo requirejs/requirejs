@@ -1,12 +1,18 @@
 /**
+ * @license RequireJS Copyright (c) 2010, The Dojo Foundation All Rights Reserved.
+ * Available via the MIT or new BSD license.
+ * see: http://github.com/jrburke/requirejs for details
+ */
+
+/**
  * Run the tests in Node with this command:
- * node all-rhino.js
+ * node all-server.js
  *
  * Run the tests in Rhino with this command:
- * java -jar ../build/lib/rhino/js.jar all-rhino.js
+ * java -jar ../build/lib/rhino/js.jar all-server.js
  *
  * To run with debugger:
- * java -classpath ../build/lib/rhino/js.jar org.mozilla.javascript.tools.debugger.Main all-rhino.js *
+ * java -classpath ../build/lib/rhino/js.jar org.mozilla.javascript.tools.debugger.Main all-server.js
  */
 
 /*jslint strict: false, evil: true */

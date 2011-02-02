@@ -2,15 +2,20 @@ Release Notes
 --------
 * Node now supported
 * Rhino build is slower than before.
+* UglifyJS does not do dead code removal, so has() stuff not so useful.
+* Node adapter now assumes old node modules always on require.paths: em.com.
 
-
-
+- Switch to x for the node and rhino adapter.
 - Update documentation for new tools.
 
 - update to jQuery 1.5: or just put in the version detection? Talk to Alex.
 
+- Remove / from baseUrl examples.
+
 - .js removal from main packages config?
 - data-main change/baseUrl change?
+
+- coffeescript plugin
 
 - Consider patches in jetpack for:
   - removing scanning
@@ -20,6 +25,8 @@ Release Notes
 - data-main is not processed if a baseUrl has been set before calling require.js
   http://groups.google.com/group/requirejs/browse_thread/thread/8c5f6ad9d6329b36
 
+- Move up plugins, or move them to their own repo?
+
 - Update copyrights to 2011
 - How to use with Dojo page: http://trac.dojotoolkit.org/ticket/12200
 - Document that JSONP support only works with objects: https://github.com/jrburke/requirejs/issues/#issue/60
@@ -28,8 +35,6 @@ Release Notes
 - From Richard Backhouse: As an FYI I have been doing my own investigation of using UglifyJS for compression
 and one thing I found when trying to compress dojo 1.5 code was that I had ensure that "make_seqs"
 flag was set to false when calling ast_squeeze. If I left this flag set to true the code would not load.
-
-- Test has code branch removal with Uglify: it does not.
 
 - Support Node's "extensions" mechanism.
 
