@@ -1041,6 +1041,13 @@ var require, define;
                     requireWait = context.requireWait;
                     context.requireWait = false;
                     context.require(cfg.priority);
+                    //Trigger a resume right away, for the case when
+                    //the script with the priority load is done as part
+                    //of a data-main call. In that case the normal resume
+                    //call will not happen because the scriptCount will be
+                    //at 1, since the script for data-main is being processed.
+                    resume();
+                    //Restore previous state.
                     context.requireWait = requireWait;
                     config.priorityWait = cfg.priority;
                 }
