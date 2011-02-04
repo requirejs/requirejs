@@ -5,10 +5,6 @@ Release Notes
 * UglifyJS does not do dead code removal, so has() stuff not so useful.
 * Node adapter now assumes old node modules always on require.paths: em.com.
 
-
-- priority and data-main bug
-- order! plugin in a build, R not defined? Busticated
-
 - Switch to x for the node and rhino adapter.
 - Update documentation for new tools.
 
@@ -17,7 +13,13 @@ Release Notes
 
 - Remove / from baseUrl examples.
 
+- Update docs to mention r.js is rhino and node adapter?
+
 - "libs/static.lib.02", //kaaahhhhnnnn!!!
+- build jquery, but use allplugins file, specify an order dependency,
+  the build breaks because of partial order! plugin evaluation. Need to
+  discard plugin definitions that are partial and load a complete source of it.
+  *** This has implications for splitting out the plugins?
 
 - .js removal from main packages config?
 - data-main change/baseUrl change?

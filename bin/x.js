@@ -11,13 +11,13 @@
  */
 
 /*jslint strict: false, evil: true */
-/*global load: true, process: false, Packages: false, require: true
+/*global readFile: true, process: false, Packages: false, require: true
   print: false */
 
 var console;
-(function (args, loadFunc) {
+(function (args, readFileFunc) {
 
-    var fileName, env, fs, exec,
+    var fileName, env, fs, exec, rhinoContext,
         requireBuildPath = '',
         jsSuffixRegExp = /\.js$/,
         //This flag is turned to false by the distribution script,
@@ -25,17 +25,21 @@ var console;
         //are inlined in this script.
         useRequireBuildPath = true,
         argOffset = useRequireBuildPath ? 0 : 1,
-        load = typeof loadFunc !== 'undefined' ? loadFunc : null;
+        readFile = typeof readFileFunc !== 'undefined' ? readFileFunc : null;
 
     if (typeof Packages !== 'undefined') {
         env = 'rhino';
+
         if (useRequireBuildPath) {
             requireBuildPath = args[0];
         }
         fileName = args[1 - argOffset];
 
+        //Set up execution context.
+        rhinoContext = Packages.org.mozilla.javascript.ContextFactory.getGlobal().enterContext();
+
         exec = function (string, name) {
-            return eval(string);
+            return rhinoContext.evaluateString(this, string, name, 0, null);
         };
 
         //Define a console.log for easier logging. Don't
@@ -56,7 +60,7 @@ var console;
         this.nodeRequire = require;
         require = null;
 
-        load = function (path) {
+        readFile = function (path) {
             return process.compile(fs.readFileSync(path, 'utf8'), path);
         };
 
@@ -79,14 +83,14 @@ var console;
     //Actual base directory is up one directory from this script.
     requireBuildPath += '../';
 
-    load(requireBuildPath + 'require.js');
+    exec(readFile(requireBuildPath + 'require.js'), 'require.js');
 
     //These are written out long-form so that they can be replaced by
     //the distribution script.
     if (env === 'rhino') {
-        load(requireBuildPath + 'require/rhino.js');
+        exec(readFile(requireBuildPath + 'require/rhino.js'), 'rhino.js');
     } else if (env === 'node') {
-        load(requireBuildPath + 'require/node.js');
+        exec(readFile(requireBuildPath + 'require/node.js'), 'node.js');
     }
 
     if (useRequireBuildPath) {
@@ -106,6 +110,6 @@ var console;
         fileName = 'main.js';
     }
 
-    load(fileName);
+    exec(readFile(fileName), fileName);
 
-}((typeof Packages !== 'undefined' ? arguments : []), (typeof load !== 'undefined' ? load: undefined)));
+}((typeof Packages !== 'undefined' ? arguments : []), (typeof readFile !== 'undefined' ? readFile: undefined)));

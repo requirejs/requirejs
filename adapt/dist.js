@@ -33,11 +33,11 @@ function jsEscape(str) {
 
 var fs = require('fs'),
     contents = fs.readFileSync('../bin/x.js', 'utf8'),
-    loadRegExp = /load\(requireBuildPath \+ '([\w\/\.]+)'\)\;/g;
+    loadRegExp = /readFile\(requireBuildPath \+ '([\w\/\.]+)'\)/g;
 
 //Inline file contents
 contents = contents.replace(loadRegExp, function (match, fileName) {
-    return 'exec(' + jsEscape(fs.readFileSync('../' + fileName, 'utf8')) + ');';
+    return jsEscape(fs.readFileSync('../' + fileName, 'utf8'));
 });
 
 //Switch the behavior to "inlined mode"
