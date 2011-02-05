@@ -58,12 +58,12 @@ cp dist/jquery-require-sample.zip ../../../$version
 
 # Create node integration layer
 cd ../../
-cd build/convert/node
+cd adapt
 node dist.js
-mkdir ../../../../$version/node
-cp r.js ../../../../$version/node
-cp index.js ../../../../$version/node
-cd ../../../
+mkdir ../../$version/node
+cp r.js ../../$version/node
+cp index.js ../../$version/node
+cd ../
 
 # Minify any of the browser-based JS files
 cd ../$version/comments
