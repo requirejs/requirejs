@@ -34,40 +34,60 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
         return dirName;
     }
 
+
+    /**
+     * Main API entry point into the build. The args argument can either be
+     * an array of arguments (like the onese passed on a command-line),
+     * or it can be a JavaScript object that has the format of a build profile
+     * file.
+     *
+     * If it is an object, then in addition to the normal properties allowed in
+     * a build profile file, the object should contain one other property:
+     *
+     * requireBuildPath: a string that is the path to find require.js and the
+     * require/ directory. This should be a pristine require.js with only
+     * require.js contents (no plugins or jQuery).
+     *
+     * The object could also contain a "buildFile" property, which is a string
+     * that is the file path to a build profile that contains the rest
+     * of the build profile directives.
+     *
+     * This function does not return a status, it should throw an error if
+     * there is a problem completing the build.
+     */
     build = function (args) {
         var requireBuildPath, buildFile, cmdConfig;
 
-        if (!args || args.length < 2) {
-            logger.error("build.js directory/containing/build.js/ buildProfile.js\n" +
-                  "where buildProfile.js is the name of the build file (see example.build.js for hints on how to make a build file).");
-            return;
-        }
+        if (!args || lang.isArray(args)) {
+            if (!args || args.length < 2) {
+                logger.error("build.js directory/containing/build.js/ buildProfile.js\n" +
+                      "where buildProfile.js is the name of the build file (see example.build.js for hints on how to make a build file).");
+                return;
+            }
 
-        //Second argument should be the directory on where to find this script.
-        //This path should end in a slash.
-        requireBuildPath = args[0];
-        requireBuildPath = endsWithSlash(requireBuildPath);
+            //Second argument should be the directory on where to find this script.
+            //This path should end in a slash.
+            requireBuildPath = args[0];
+            requireBuildPath = endsWithSlash(requireBuildPath);
 
-        //Next args can include a build file path as well as other build args.
-        //build file path comes first. If it does not contain an = then it is
-        //a build file path. Otherwise, just all build args.
-        if (args[1].indexOf("=") === -1) {
-            buildFile = args[1];
-            args.splice(0, 2);
+            //Next args can include a build file path as well as other build args.
+            //build file path comes first. If it does not contain an = then it is
+            //a build file path. Otherwise, just all build args.
+            if (args[1].indexOf("=") === -1) {
+                buildFile = args[1];
+                args.splice(0, 2);
+            } else {
+                args.splice(0, 1);
+            }
+
+            //Remaining args are options to the build
+            cmdConfig = build.convertArrayToObject(args);
+            cmdConfig.buildFile = buildFile;
+            cmdConfig.requireBuildPath = requireBuildPath;
         } else {
-            args.splice(0, 1);
+            cmdConfig = args;
         }
 
-        //Can now run the patches to require.js to allow it to be used for
-        //build generation. Do it here instead because we want normal
-        //require behavior to load the build tool
-        //then want to switch to build mode.
-        requirePatch();
-
-        //Remaining args are options to the build
-        cmdConfig = build.convertArrayToObject(args);
-        cmdConfig.buildFile = buildFile;
-        cmdConfig.requireBuildPath = requireBuildPath;
         build._run(cmdConfig);
     };
 
@@ -77,6 +97,12 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
             prop, paths, i,
             baseConfig, config,
             modules, builtModule, srcPath, buildContext;
+
+        //Can now run the patches to require.js to allow it to be used for
+        //build generation. Do it here instead of at the top of the module
+        //because we want normal require behavior to load the build tool
+        //then want to switch to build mode.
+        requirePatch();
 
         config = build.createConfig(cmdConfig);
         paths = config.paths;

@@ -12,6 +12,11 @@
 define(function () {
     var lang = {
         backSlashRegExp: /\\/g,
+        ostring: Object.prototype.toString,
+
+        isArray: Array.isArray ? Array.isArray : function (it) {
+            return lang.ostring.call(it) === "[object Array]";
+        },
 
         /**
          * Simple function to mix in properties from source into target,
