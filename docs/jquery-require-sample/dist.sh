@@ -23,6 +23,7 @@ cp -r ../../../../require webapp/scripts
 
 # Copy over the build system for requirejs and basic require files, used by the build.
 mkdir requirejs
+mkdir requirejs/adapt
 mkdir requirejs/build
 mkdir requirejs/build/convert
 mkdir requirejs/build/convert/node
@@ -32,9 +33,9 @@ cp ../../../../build/example.build.js requirejs/build/example.build.js
 cp ../../../../build/build.bat requirejs/build/build.bat
 cp ../../../../build/build.js requirejs/build/build.js
 cp ../../../../build/build.sh requirejs/build/build.sh
-cp ../../../../build/jbuild.bat requirejs/build/jbuild.bat
-cp ../../../../build/jbuild.sh requirejs/build/jbuild.sh
-cp ../../../../build/convert/node/r.js requirejs/build/convert/node/r.js
+cp ../../../../build/buildj.bat requirejs/build/buildj.bat
+cp ../../../../build/buildj.sh requirejs/build/buildj.sh
+cp ../../../../adapt/r.js requirejs/adapt/r.js
 
 cp ../../../../require.js requirejs/
 cp -r ../../../../require requirejs/require

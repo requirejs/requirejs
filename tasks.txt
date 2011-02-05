@@ -22,6 +22,8 @@ Release Notes
 - .js removal from main packages config?
 - data-main change/baseUrl change?
 
+- Build the optimizer as its own project, at least enough to take out the
+  work from jquery-require-sample
 - Test build scripts on windows.
 
 - coffeescript plugin
