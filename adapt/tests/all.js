@@ -20,6 +20,8 @@
 /*global require: false, doh: false */
 'use strict';
 
+skipDohSetup = true;
+
 require({
     paths: {
         env: '../../build/jslib/env'

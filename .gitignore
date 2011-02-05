@@ -1,4 +1,5 @@
 .DS_Store
+adapt/r.js
 build/convert/build/
 build/convert/node/r.js
 build/convert/dojorequire/
