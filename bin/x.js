@@ -88,9 +88,9 @@ var console;
     //These are written out long-form so that they can be replaced by
     //the distribution script.
     if (env === 'rhino') {
-        exec(readFile(requireBuildPath + 'require/rhino.js'), 'rhino.js');
+        exec(readFile(requireBuildPath + 'adapt/rhino.js'), 'rhino.js');
     } else if (env === 'node') {
-        exec(readFile(requireBuildPath + 'require/node.js'), 'node.js');
+        exec(readFile(requireBuildPath + 'adapt/node.js'), 'node.js');
     }
 
     if (useRequireBuildPath) {

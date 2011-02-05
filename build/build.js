@@ -5,13 +5,9 @@
  */
 
 /*
- * This file will optimize files that can be loaded via require.js into one file.
- * This file needs Rhino to require, and if the Closure compiler is used to minify
- * files, Java 6 is required.
- *
- * Call this file like so:
- * java -jar path/to/js.jar build.js directory/containing/build.js/ build.js
- *
+ * Use the .sh or .bat build scripts to run this script. General use:
+ * executingEnv build.js directory/containing/build.js/ profile.build.js
+ * 
  * General use:
  *
  * Create a build.js file that has the build options you want and pass that
@@ -49,7 +45,7 @@ if (requireBuildPath.charAt(requireBuildPath.length - 1) !== "/") {
 if (env === 'rhino') {
     //Load up require.js
     load(requireBuildPath + '../require.js');
-    load(requireBuildPath + '../require/rhino.js');
+    load(requireBuildPath + '../adapt/rhino.js');
 }
 
 require({

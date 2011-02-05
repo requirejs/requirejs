@@ -22,6 +22,8 @@ Release Notes
 - .js removal from main packages config?
 - data-main change/baseUrl change?
 
+- Test build scripts on windows.
+
 - coffeescript plugin
 
 - Consider patches in jetpack for:
