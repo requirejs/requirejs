@@ -422,6 +422,8 @@ define({
 
 <p>This use of JSONP should be limited to JSONP services for initial application setup. If the JSONP service times out, it means other modules you define via define() may not get executed, so the error handling is not robust.</p>
 
+<p><strong>Only JSONP return values that are JSON objects are supported</strong>. A JSONP response that is an array, a string or a number will not work.</p>
+
 <p>This functionality should not be used for long-polling JSONP connections -- APIs that deal with real time streaming. Those kinds of APIs should do more script cleanup after receiving each response, and RequireJS will only fetch a JSONP URL once -- subsequent uses of the same URL as a dependency in a require() or define() call will get a cached value.</p>
 
 <p>Errors in loading a JSONP service are normally surfaced via timeouts for the service, since script tag loading does not give much detail into network problems. To detect errors, you can override require.onError() to get errors. The error object passed to the onerror function will contain two properties if it is a timeout issue:</p>
@@ -475,7 +477,7 @@ define({
 <pre><code>&lt;script type="text/javascript" src="scripts/require.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript"&gt;
   require({
-          baseUrl: "/another/path/",
+          baseUrl: "/another/path",
           paths: {
               "some": "some/v1.0"
           },
@@ -813,7 +815,7 @@ function (alpha,   omega,   cart,   store,   util) {
 &lt;script type="text/javascript"&gt;
 require({
       context: "version1",
-      baseUrl: "version1/"
+      baseUrl: "version1"
     },
     ["require", "alpha", "beta",],
     function(require, alpha, beta) {
@@ -833,7 +835,7 @@ require({
 
 require({
       context: "version2",
-      baseUrl: "version2/"
+      baseUrl: "version2"
     },
     ["require", "alpha", "beta"],
     function(require, alpha, beta) {
