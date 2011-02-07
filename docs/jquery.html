@@ -109,8 +109,7 @@
     baseUrl: "scripts",
     dir: "../../webapp-build",
     //Comment out the optimize line if you want
-    //the code minified by Closure Compiler using
-    //the "simple" optimizations mode
+    //the code minified by UglifyJS.
     optimize: "none",
 
     paths: {
@@ -126,7 +125,7 @@
 })
 </code></pre>
 
-<p>To use the build tool, you need Java 6 installed. Closure Compiler is used for the JavaScript minification step (if optimize: "none" is commented out), and it requires Java 6.</p>
+<p>To use the build tool, you need <a href="http://nodejs.org">Node</a> or Java 6 installed. These instructions assume Node is being used. See the <a href="optimization.html">Optimization page</a> for more information.</p>
 
 <p>To start the build, go to the <strong>webapp/scripts</strong> directory, execute the following command:</p>
 

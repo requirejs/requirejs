@@ -83,7 +83,7 @@ require(['logger', 'env!env/file', 'child_process'], function (logger, file, chi
 
                 //Adjust the path the home and main.css
                 homePath = htmlFile.replace(/\/[^\/]+$/, "").replace(/^\.\/dist-site\//, "");
-                if (!homePath || homePath === "./dist-site") {
+                if (!homePath || homePath === "dist-site") {
                     isTopPage = true;
                     homePath = "./";
                     cssPath = "main.css";
@@ -93,7 +93,7 @@ require(['logger', 'env!env/file', 'child_process'], function (logger, file, chi
                     isTopPage = false;
                     length = homePath.split("/").length;
                     homePath = "";
-                    for (j = 0; j < length; j++) {
+                    for (j = 0; j < length - 1; j++) {
                         homePath += "../";
                     }
                     cssPath = homePath + "main.css";

@@ -16,7 +16,7 @@
 <span class="note">Note: RequireJS comes with an optimization tool that does the following</span>
 
 <ul class="serif">
-<li>Combines related scripts together into build layers and minifies them via Google Closure.</li>
+<li>Combines related scripts together into build layers and minifies them via <a href="https://github.com/mishoo/UglifyJS">UglifyJS</a>  (the default) or <a href="http://code.google.com/closure/compiler/">Closure Compiler</a> (an option when using Java).</li>
 <li>Optimizes CSS by inlining CSS files referenced by @import and removing comments.</li>
 <li>Can add require.js and any of its plugins to any optimized build layer.</li>
 </ul>
@@ -30,7 +30,21 @@
 <span class="sectionMark">&sect; 1</span>
 </h2>
 
-<p>The optimization tool uses <a href="http://code.google.com/closure/compiler/">Google Closure Compiler</a> to do the code minification, and therefore requires <a href="http://java.com/">Java 6</a> to run.</p>
+<p>The optimization tool can be run using either Node or using Java with Rhino. The requirements for each option:<p>
+
+<ul>
+   <li><strong>Node:</strong> (preferred) <a href="http://nodejs.org">Node</a> 0.2.6 or later.</li>
+   <li><strong>Java:</strong> <a href="http://java.com/">Java 1.6</a> or later.</li>
+</ul>
+
+<p>Node is the preferred execution environment. The optimization tool runs <strong>much faster</strong> with Node.</p>
+
+<p>All the example commands in this page assume Node usage, and running on a Linux/OS X command line.</p>
+<ul>
+    <li>If Using Java, use <strong>buildj.sh</strong> instead of build.sh in the examples below.</li>
+    <li>If using Windows: use <strong>build.bat</strong> (Node) or <strong>buildj.bat</strong> (Java).</li>
+</ul>
+
 </div>
 
 <div class="section">
@@ -263,7 +277,9 @@ if (true) {
 }
 </code></pre>
 
-<p>Then, if you use the default <b>optimize</b> setting that uses Closure Compiler, Closure Compiler will optimize out the dead code branch! So you can do custom builds of your code that are optimized for a set of has() tests.</p>
+<p>Then, if you use the <b>optimize</b> setting that uses Closure Compiler (when run under Java), Closure Compiler will optimize out the dead code branch! So you can do custom builds of your code that are optimized for a set of has() tests.</p>
+
+<span class="note">The default optimize setting, "uglify", does <strong>not</strong> do dead code branch removal at this time. It is hoped that UglifyJS will implement that feature at some point.</span>
 
 </div>
 
