@@ -16,6 +16,7 @@ var require, define;
         commentRegExp = /(\/\*([\s\S]*?)\*\/|\/\/(.*)$)/mg,
         cjsRequireRegExp = /require\(["']([^'"\s]+)["']\)/g,
         currDirRegExp = /^\.\//,
+        mainJsRegExp = /\.js$/,
         ostring = Object.prototype.toString,
         ap = Array.prototype,
         aps = ap.slice,
@@ -96,8 +97,13 @@ var require, define;
                 name: pkgObj.name,
                 location: location || pkgObj.name,
                 lib: pkgObj.lib || "lib",
-                //Remove leading dot in main, so main paths are normalized.
-                main: (pkgObj.main || "lib/main").replace(currDirRegExp, '')
+                //Remove leading dot in main, so main paths are normalized,
+                //and remove any trailing .js, since different package
+                //envs have different conventions: some use a module name,
+                //some use a file name.
+                main: (pkgObj.main || "lib/main")
+                      .replace(currDirRegExp, '')
+                      .replace(mainJsRegExp, '')
             };
         }
     }

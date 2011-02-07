@@ -33,7 +33,7 @@ require({
             },
             {
                 name: 'funky',
-                main: 'index'
+                main: 'index.js'
             },
             {
                 name: 'baz',
