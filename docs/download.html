@@ -81,9 +81,9 @@
 </div>
 
 <div class="subSection">
-<h4><a name="node">RequireJS adapter for Node</a></h4>
+<h4><a name="node">RequireJS adapter for Node and Rhino</a></h4>
 
-<p><strong><a href="http://requirejs.org/docs/release/0.22.0/node/r.js">r.js</a></strong>: use this file if you want to code to the RequireJS module format in Node. The <a href="node.html">Node instructions</a> explain how to use it. It includes all the code needed for RequireJS to function with Node.</p>
+<p><strong><a href="http://requirejs.org/docs/release/0.22.0/r.js">r.js</a></strong>: use this file if you want to code to the RequireJS module format in Node. The <a href="node.html">Node instructions</a> explain how to use it. It includes all the code needed for RequireJS to function with Node.</p>
 
 <p><strong><a href="http://requirejs.org/docs/release/0.22.0/node/index.js">index.js</a></strong>: the standard HTTP server-based Hello World app for Node, but coded to work with the r.js adapter. Download it in the same directory as r.js and then run this command:</p>
 
@@ -91,6 +91,12 @@
 </code></pre>
 
 <p>Then you can go to http://127.0.0.1:8000/ and see "Hello World" printed after about 2 seconds.</p>
+
+<p>The r.js adapter also runs under Rhino. Use it like so, where main.js is your application's top level file:</p>
+
+<pre><code>java -jar path/to/rhino/js.jar r.js main.js
+</code></pre>
+
 </div>
 
 <div class="subSection">

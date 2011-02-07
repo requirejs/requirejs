@@ -871,12 +871,14 @@ require({
 
 <h3><a name="rhino">Rhino Support</a><span class="sectionMark">&sect; 5.5</span></h3>
 
-<p>RequireJS can be used in Rhino, just be sure to load require.js and require/rhino.js before doing any require calls:</p>
+<p>RequireJS can be used in Rhino via the <a href="download.html#node">r.js adapter</a>. Run it like so:</p>
 
-<pre><code>load("requirejs/require.js");
-load("requirejs/require/rhino.js");
+<pre><code>java -jar path/to/rhino/js.jar r.js main.js
+</code></pre>
 
-//Set up any config values, baseUrl is required so module names
+<p>Where main.js has contents that look like this:</p>
+
+<pre><code>//Set up any config values, baseUrl is required so module names
 //will map correctly to paths.
 require({
     baseUrl: 'path/to/scripts'
@@ -886,5 +888,5 @@ require({
 require(['startingscript']);
 </code></pre>
 
-<p>You can see an example of RequireJS working in Rhino by looking at <a href="http://github.com/jrburke/requirejs/blob/master/tests/all-rhino.js">tests/all-rhino.js</a>. The test file is a bit different from above since each test sets its own baseUrl.</p>
+<p>You can see an example of RequireJS working in Rhino by looking at <a href="http://github.com/jrburke/requirejs/blob/master/adapt/tests/all.js">adapt/tests/all.js</a>.</p>
 </div>

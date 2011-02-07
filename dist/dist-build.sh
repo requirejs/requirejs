@@ -61,7 +61,7 @@ cd ../../
 cd adapt
 node dist.js
 mkdir ../../$version/node
-cp r.js ../../$version/node
+cp r.js ../../$version/
 cp index.js ../../$version/node
 cd ../
 

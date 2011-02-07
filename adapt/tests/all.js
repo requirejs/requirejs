@@ -20,6 +20,7 @@
 /*global require: false, doh: false */
 'use strict';
 
+//Special global flag used by DOH.
 skipDohSetup = true;
 
 require({

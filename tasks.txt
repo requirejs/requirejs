@@ -6,7 +6,6 @@ Release Notes
 * Node adapter now assumes old node modules always on require.paths: em.com.
 
 - Update AMD page to mention require scanning means only do them at the top.
-- Update docs to mention r.js is rhino and node adapter?
 
 - Test on Node 0.3, adjust optimization docs if special considerations.
 
