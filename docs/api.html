@@ -229,14 +229,30 @@ define(["my/cart", "my/inventory"],
 
 <h4><a name="modulenotes">Other Module Notes</a><span class="sectionMark">&sect; 1.2.6</span></h4>
 
-<p>Only one module should be defined per JavaScript file, given the nature of the module name-to-file-path lookup algorithm. Multiple modules will be grouped into optimized files by the <a href="optimization.html">optimization tool</a>, but you should only use the optimization tool to place more than one module in a file.</p>
+<p><strong>One module per file.</strong>: Only one module should be defined per JavaScript file, given the nature of the module name-to-file-path lookup algorithm. Multiple modules will be grouped into optimized files by the <a href="optimization.html">optimization tool</a>, but you should only use the optimization tool to place more than one module in a file.</p>
 
-<p>If you need to work with a module you already loaded via a require(["module/name"], function(){}) call in the JavaScript console, then you can use  the require() form that just uses the string name of the module to fetch it:</p>
+<p><strong>Relative module names inside define()</strong>: For require("./relative/name") calls that can happen inside a define() function call, be sure to ask for "require" as a dependency, so that the relative name is resolved correctly:</p>
+
+<pre><code>define(["require", "./relative/name"], function(require) {
+    var mod = require("./relative/name");
+});
+</code></pre>
+
+<p>Or better yet, use the shortened syntax that is available for use with <a href="commonjs.html">translating CommonJS</a> modules:</p>
+
+<pre><code>define(function(require) {
+    var mod = require("./relative/name");
+});
+</code></pre>
+
+<p>This form will use Function.prototype.toString() to find the require() calls, and add them to the dependency array, along with "require", so the code will work correctly with relative paths.</p>
+
+<p><strong>Console debugging</strong>: If you need to work with a module you already loaded via a require(["module/name"], function(){}) call in the JavaScript console, then you can use  the require() form that just uses the string name of the module to fetch it:</p>
 
 <pre><code>require("module/name").callSomeFunction()
 </code></pre>
 
-<p>Note this only works if "module/name" was previously loaded via the async version of require: require(["module/name"]).</p>
+<p>Note this only works if "module/name" was previously loaded via the async version of require: require(["module/name"]). If using a relative path, like './module/name', those only work inside define</p>
 </div>
 
 <div class="subSection">
