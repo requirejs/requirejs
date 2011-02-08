@@ -4,6 +4,10 @@ Release Notes
 * Rhino build is slower than before.
 * UglifyJS does not do dead code removal, so has() stuff not so useful.
 * Node adapter now assumes old node modules always on require.paths: em.com.
+* baseUrlMatch is now gone.
+* new baseUrl rules: no longer relative to require.js. It is relative to page,
+  but then if a data-main is found, that directory for that data-main is used.
+  Explicit setting of baseUrl trumps all.
 
 - Test on Node 0.3, adjust optimization docs if special considerations.
 
@@ -16,9 +20,6 @@ Release Notes
   the build breaks because of partial order! plugin evaluation. Need to
   discard plugin definitions that are partial and load a complete source of it.
   *** This has implications for splitting out the plugins?
-
-- data-main change/baseUrl change?
-   - baseUrlMatch is no longer needed?
 
 - Build the optimizer as its own project, at least enough to take out the
   work from jquery-require-sample

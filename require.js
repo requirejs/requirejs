@@ -16,7 +16,7 @@ var require, define;
         commentRegExp = /(\/\*([\s\S]*?)\*\/|\/\/(.*)$)/mg,
         cjsRequireRegExp = /require\(["']([^'"\s]+)["']\)/g,
         currDirRegExp = /^\.\//,
-        mainJsRegExp = /\.js$/,
+        jsSuffixRegExp = /\.js$/,
         ostring = Object.prototype.toString,
         ap = Array.prototype,
         aps = ap.slice,
@@ -45,7 +45,7 @@ var require, define;
             "order": "require/order"
         },
         req, cfg = {}, currentlyAddingScript, s, head, baseElement, scripts, script,
-        rePkg, src, m, dataMain, i, scrollIntervalId, setReadyState, ctx;
+        src, subPath, mainScript, dataMain, i, scrollIntervalId, setReadyState, ctx;
 
     function isFunction(it) {
         return ostring.call(it) === "[object Function]";
@@ -103,7 +103,7 @@ var require, define;
                 //some use a file name.
                 main: (pkgObj.main || "lib/main")
                       .replace(currDirRegExp, '')
-                      .replace(mainJsRegExp, '')
+                      .replace(jsSuffixRegExp, '')
             };
         }
     }
@@ -1632,31 +1632,10 @@ var require, define;
         return null;
     };
 
-
-    //Determine what baseUrl should be if not already defined via a require config object
-    s.baseUrl = cfg.baseUrl;
-    if (isBrowser && (!s.baseUrl || !head)) {
+    //Look for a data-main script attribute, which could also adjust the baseUrl.
+    if (isBrowser) {
         //Figure out baseUrl. Get it from the script tag with require.js in it.
         scripts = document.getElementsByTagName("script");
-        if (cfg.baseUrlMatch) {
-            rePkg = cfg.baseUrlMatch;
-        } else {
-            //>>includeStart("jquery", pragmas.jquery);
-            rePkg = /(requireplugins-|require-)?jquery[\-\d\.]*(min)?\.js(\W|$)/i;
-            //>>includeEnd("jquery");
-
-            //>>includeStart("dojoConvert", pragmas.dojoConvert);
-            rePkg = /dojo\.js(\W|$)/i;
-            //>>includeEnd("dojoConvert");
-
-            //>>excludeStart("dojoConvert", pragmas.dojoConvert);
-
-            //>>excludeStart("jquery", pragmas.jquery);
-            rePkg = /(allplugins-)?require\.js(\W|$)/i;
-            //>>excludeEnd("jquery");
-
-            //>>excludeEnd("dojoConvert");
-        }
 
         for (i = scripts.length - 1; i > -1 && (script = scripts[i]); i--) {
             //Set the "head" where we can append children by
@@ -1665,35 +1644,34 @@ var require, define;
                 head = script.parentNode;
             }
 
-
             //Look for a data-main attribute to set main script for the page
-            //to load.
-            if (!dataMain && (dataMain = script.getAttribute('data-main'))) {
+            //to load. If it is there, the path to data main becomes the
+            //baseUrl, if it is not already set.
+            if ((dataMain = script.getAttribute('data-main'))) {
+                if (!cfg.baseUrl) {
+                    //Pull off the directory of data-main for use as the
+                    //baseUrl.
+                    src = dataMain.split('/');
+                    mainScript = src.pop();
+                    subPath = src.length ? src.join('/')  + '/' : './';
+
+                    //Set final config.
+                    cfg.baseUrl = subPath;
+                    //Strip off any trailing .js since dataMain is now
+                    //like a module name.
+                    dataMain = mainScript.replace(jsSuffixRegExp, '');
+                }
+
+                //Put the data-main script in the files to load.
                 cfg.deps = cfg.deps ? cfg.deps.concat(dataMain) : [dataMain];
 
-                //Favor using data-main tag as the base URL instead of
-                //trying to pattern-match src values.
-                if (!cfg.baseUrl && (src = script.src)) {
-                    src = src.split('/');
-                    src.pop();
-                    //Make sure current config gets the value.
-                    s.baseUrl = cfg.baseUrl = src.length ? src.join('/') : './';
-                }
-            }
-
-            //Using .src instead of getAttribute to get an absolute URL.
-            //While using a relative URL will be fine for script tags, other
-            //URLs used for text! resources that use XHR calls might benefit
-            //from an absolute URL.
-            if (!s.baseUrl && (src = script.src)) {
-                m = src.match(rePkg);
-                if (m) {
-                    s.baseUrl = src.substring(0, m.index);
-                    break;
-                }
+                break;
             }
         }
     }
+
+    //Set baseUrl based on config.
+    s.baseUrl = cfg.baseUrl;
 
     //****** START page load functionality ****************
     /**
