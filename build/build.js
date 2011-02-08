@@ -7,53 +7,34 @@
 /*
  * Use the .sh or .bat build scripts to run this script. General use:
  * executingEnv build.js directory/containing/build.js/ profile.build.js
- * 
+ *
  * General use:
  *
  * Create a build.js file that has the build options you want and pass that
  * build file to this file to do the build. See example.build.js for more information.
  */
 
-/*jslint regexp: false, nomen: false, plusplus: false */
-/*global load: false, print: false, quit: false, logger: false,
-  fileUtil: false, lang: false, pragma: false, optimize: false, build: false,
-  java: false, Packages: false */
-
+/*jslint */
+/*global require: false */
 "use strict";
 
-var requireBuildPath, env;
-if (typeof Packages !== 'undefined') {
-    env = 'rhino';
-    requireBuildPath = arguments[0];
-} else if (typeof process !== 'undefined') {
-    env = 'node';
-    requireBuildPath = process.argv[3];
-    //Account for debug being passed to r.js
-    if (requireBuildPath.indexOf('build.js') !== -1) {
-        requireBuildPath = process.argv[4];
-    }
-} else if (typeof window !== "undefined" && navigator && document) {
-    env = 'browser';
-    requireBuildPath = require.s.baseUrl;
-}
-
-//Make sure build path ends in a slash.
-if (requireBuildPath.charAt(requireBuildPath.length - 1) !== "/") {
-    requireBuildPath += "/";
-}
-
-if (env === 'rhino') {
-    //Load up require.js
-    load(requireBuildPath + '../require.js');
-    load(requireBuildPath + '../adapt/rhino.js');
-}
-
 require({
-    baseUrl: requireBuildPath + 'jslib/',
+    baseUrl: require.s.contexts._.config.baseUrl,
     //Use a separate context than the default context so that the
     //build can use the default context.
     context: 'build'
 },       ['env!env/args', 'build'],
 function (args,            build) {
-    build(args);
+    //Take off the first argument since it is for
+    //are a path inside requirejs for use by the bootstrap.
+    var buildArgs = args.slice(1),
+        rjsBuildDir = buildArgs[0];
+
+    //The second arg is the full path for this script. The
+    //directory portion is the only part needed though, so adjust it.
+    rjsBuildDir = rjsBuildDir.split('/');
+    rjsBuildDir.pop();
+    buildArgs[0] = rjsBuildDir.length ? rjsBuildDir.join('/') : '.';
+
+    build(buildArgs);
 });

@@ -27,6 +27,7 @@ mkdir requirejs/adapt
 mkdir requirejs/build
 mkdir requirejs/build/convert
 mkdir requirejs/build/convert/node
+cp -r ../../../../bin requirejs/bin
 cp -r ../../../../build/jslib requirejs/build/jslib
 cp -r ../../../../build/lib requirejs/build/lib
 cp ../../../../build/example.build.js requirejs/build/example.build.js

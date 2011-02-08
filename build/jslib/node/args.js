@@ -12,14 +12,5 @@ define(function () {
     //Do not return the "node" or "r.js" arguments
     var args = process.argv.slice(2);
 
-    //Account for "debug" passed for r.js.
-    if (args[0] === 'debug') {
-        args.shift();
-    }
-
-    //Take off the script name argument, since the rhino branch does
-    //not have it.
-    args.shift();
-
     return args;
 });
