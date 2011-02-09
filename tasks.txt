@@ -27,6 +27,8 @@ Release Notes
 
 - coffeescript plugin
 
+- plugins in excludeShallow do not work, are not excluded. For example text! one.
+
 - Update AMD page to mention require scanning means only do them at the top.
 
 - Consider patches in jetpack for:
@@ -34,12 +36,8 @@ Release Notes
   - add amd object
   - add plugins?
 
-- data-main is not processed if a baseUrl has been set before calling require.js
-  http://groups.google.com/group/requirejs/browse_thread/thread/8c5f6ad9d6329b36
-
 - Move up plugins, or move them to their own repo?
 
-- Update copyrights to 2011
 - How to use with Dojo page: http://trac.dojotoolkit.org/ticket/12200
 
 - From Richard Backhouse: As an FYI I have been doing my own investigation of using UglifyJS for compression
