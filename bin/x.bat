@@ -1,2 +1,2 @@
 set MYDIR=%~dp0
-node %MYDIR%\x.js %MYDIR% %*
+node %MYDIR%x.js %MYDIR% %*
