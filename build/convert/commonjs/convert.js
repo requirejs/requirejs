@@ -5,10 +5,8 @@
  * ../../../bin/x convert.js path/to/commonjs/modules output/dir
  *
  */
-/*jslint  */
+/*jslint strict: false */
 /*global require: false */
-
-"use strict";
 
 require(['env!env/args', 'commonJs', 'env!env/print'],
 function (args,           commonJs,   print) {

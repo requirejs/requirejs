@@ -4,10 +4,8 @@
  * see: http://github.com/jrburke/requirejs for details
  */
 
-/*jslint  */
+/*jslint strict: false */
 /*global define: false, java: false, Packages: false */
-
-"use strict";
 
 define(['logger'], function (logger) {
 

@@ -14,9 +14,8 @@
  * build file to this file to do the build. See example.build.js for more information.
  */
 
-/*jslint */
+/*jslint strict: false */
 /*global require: false */
-"use strict";
 
 require({
     baseUrl: require.s.contexts._.config.baseUrl,

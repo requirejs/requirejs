@@ -4,8 +4,7 @@
  * see: http://github.com/jrburke/requirejs for details
  */
 
-'use strict';
-/*jslint */
+/*jslint strict: false */
 /*global Packages: false, process: false, window: false, navigator: false,
   document: false, define: false */
 

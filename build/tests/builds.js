@@ -1,7 +1,5 @@
-/*jslint plusplus: false, nomen: false */
+/*jslint plusplus: false, nomen: false, strict: false */
 /*global define: false, require: false, doh: false */
-
-"use strict";
 
 define(['build', 'env!env/file'], function (build, file) {
     //Remove any old builds

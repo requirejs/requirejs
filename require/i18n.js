@@ -3,9 +3,8 @@
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/requirejs for details
  */
-/*jslint regexp: false, nomen: false, plusplus: false */
+/*jslint regexp: false, nomen: false, plusplus: false, strict: false */
 /*global require: false, navigator: false, define: false */
-"use strict";
 
 /**
  * This plugin handles i18n! prefixed modules. It does the following:

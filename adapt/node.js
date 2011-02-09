@@ -4,8 +4,7 @@
  * see: http://github.com/jrburke/requirejs for details
  */
 
-"use strict";
-/*jslint regexp: false */
+/*jslint regexp: false, strict: false */
 /*global require: false, define: false, nodeRequire: true, process: false */
 
 /**

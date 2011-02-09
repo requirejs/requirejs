@@ -3,8 +3,8 @@
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/requirejs for details
  */
-'use strict';
-/*jslint nomen: false */
+
+/*jslint nomen: false, strict: false */
 /*global define: false */
 
 define(['env!env/print'], function (print) {

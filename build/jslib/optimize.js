@@ -4,10 +4,8 @@
  * see: http://github.com/jrburke/requirejs for details
  */
 
-/*jslint plusplus: false, nomen: false, regexp: false */
+/*jslint plusplus: false, nomen: false, regexp: false, strict: false */
 /*global define: false */
-
-"use strict";
 
 define([ 'lang', 'logger', 'env!env/optimize', 'env!env/file', 'uglifyjs/index'],
 function (lang,   logger,   envOptimize,        file,           uglify) {

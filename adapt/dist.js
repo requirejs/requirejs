@@ -12,9 +12,8 @@
  * node dist.js
  */
 
-/*jslint */
+/*jslint strict: false */
 /*global require: false */
-'use strict';
 
 /**
  * Escapes a string so it is safe as a JS string

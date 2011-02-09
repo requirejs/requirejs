@@ -4,8 +4,7 @@
  * see: http://github.com/jrburke/requirejs for details
  */
 
-'use strict';
-/*jslint plusplus: false, octal:false */
+/*jslint plusplus: false, octal:false, strict: false */
 /*global define: false */
 
 define(['fs', 'path'], function (fs, path) {

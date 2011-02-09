@@ -4,9 +4,8 @@
  * see: http://github.com/jrburke/requirejs for details
  */
 
-/*jslint plusplus: false, regexp: false */
+/*jslint plusplus: false, regexp: false, strict: false */
 /*global define: false, console: false */
-"use strict";
 
 define(['env!env/file', 'uglifyjs/index'], function (file, uglify) {
     var commonJs = {

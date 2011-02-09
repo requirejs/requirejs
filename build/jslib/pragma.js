@@ -4,10 +4,8 @@
  * see: http://github.com/jrburke/requirejs for details
  */
 
-/*jslint regexp: false */
+/*jslint regexp: false, strict: false  */
 /*global define: false */
-
-"use strict";
 
 define(function () {
 

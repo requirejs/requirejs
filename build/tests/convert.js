@@ -1,7 +1,5 @@
-/*jslint plusplus: false */
+/*jslint plusplus: false, strict: false */
 /*global doh: false, define: false */
-
-"use strict";
 
 define(['commonJs'], function (commonJs) {
     doh.register(

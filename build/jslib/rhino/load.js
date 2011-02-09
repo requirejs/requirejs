@@ -4,8 +4,7 @@
  * see: http://github.com/jrburke/requirejs for details
  */
 
-'use strict';
-/*jslint  */
+/*jslint strict: false */
 /*global define: false, load: false */
 
 define(function () {

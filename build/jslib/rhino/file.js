@@ -5,9 +5,8 @@
  */
 //Helper functions to deal with file I/O.
 
-/*jslint plusplus: false */
+/*jslint plusplus: false, strict: false */
 /*global java: false, define: false */
-"use strict";
 
 define(function () {
     var file = {

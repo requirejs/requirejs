@@ -4,9 +4,8 @@
     <title>Script Load Interactive Test</title>
     <script src="../common.js"></script>
     <script>
-    /*jslint plusplus: false */
+    /*jslint plusplus: false, strict: false */
     /*global log: false, dumpLogs: false */
-    'use strict';
     //cache bust?
     var noCache = location.href.indexOf("nocache") !== -1;
 
@@ -54,7 +53,7 @@
             name: script.getAttribute('data-name').replace(/\.js$/, ''),
             obj: func()
         });
-        
+
         if (loadedScripts.length === 9) {
             report();
         }
@@ -66,7 +65,7 @@
             if (!useInteractive) {
                 finishScript(node, waitingFunc);
             }
-    
+
             //Clean up
             if (node.removeEventListener) {
                 node.removeEventListener("load", onTestScriptLoad, false);
@@ -85,7 +84,7 @@
         node.type = "text/javascript";
         node.charset = "utf-8";
         node.setAttribute("data-name", name);
-    
+
         //Set up load listener.
         if (node.addEventListener) {
             node.addEventListener("load", onTestScriptLoad, false);
@@ -95,7 +94,7 @@
             node.attachEvent("onreadystatechange", onTestScriptLoad);
         }
         currentlyAddingScript = node;
-    
+
         document.getElementsByTagName("head")[0].appendChild(node);
         currentlyAddingScript = null;
     }
@@ -129,7 +128,7 @@
             waitingFunc = func;
         }
     }
-  
+
     //Do appendChilds
     loadUrls();
 

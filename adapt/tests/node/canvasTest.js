@@ -2,8 +2,7 @@
 //npm install canvas
 //npm install express
 
-'use strict';
-/*jslint */
+/*jslint strict: false */
 /*global require: false, console: false */
 
 var Canvas = require('canvas'),

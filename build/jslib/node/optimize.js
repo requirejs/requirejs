@@ -4,9 +4,7 @@
  * see: http://github.com/jrburke/requirejs for details
  */
 
-/*jslint */
+/*jslint strict: false */
 /*global define: false */
-
-"use strict";
 
 define({});

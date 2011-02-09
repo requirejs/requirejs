@@ -4,9 +4,8 @@
  * see: http://github.com/jrburke/requirejs for details
  */
 
-/*jslint */
+/*jslint strict: false */
 /*global Packages: false */
-"use strict";
 
 var commandLine = {};
 (function () {

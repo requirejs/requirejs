@@ -1,8 +1,5 @@
 //Example layer file.
 
-"use strict";
-/*global require: false */
-
 require.def("alpha",
     ["beta", "gamma"],
     function (beta, gamma) {
@@ -32,4 +29,3 @@ define("gamma",
         };
     }
 );
-

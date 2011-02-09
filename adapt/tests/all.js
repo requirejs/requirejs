@@ -16,9 +16,8 @@
  * java -classpath ../../build/lib/rhino/js.jar org.mozilla.javascript.tools.debugger.Main ../r.js all.js
  */
 
-/*jslint */
+/*jslint strict: false */
 /*global require: false, doh: false */
-'use strict';
 
 //Special global flag used by DOH.
 skipDohSetup = true;

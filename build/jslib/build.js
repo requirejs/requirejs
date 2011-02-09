@@ -4,10 +4,8 @@
  * see: http://github.com/jrburke/requirejs for details
  */
 
-/*jslint regexp: false, plusplus: false, nomen: false */
+/*jslint regexp: false, plusplus: false, nomen: false, strict: false  */
 /*global define: false, require: false */
-
-"use strict";
 
 
 define([ 'lang', 'logger', 'env!env/file', 'parse', 'optimize', 'pragma',

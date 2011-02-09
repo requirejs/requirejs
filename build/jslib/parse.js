@@ -4,10 +4,9 @@
  * see: http://github.com/jrburke/requirejs for details
  */
 
-/*jslint plusplus: false */
+/*jslint plusplus: false, strict: false */
 /*global define: false */
 
-"use strict";
 define(['uglifyjs/index'], function (uglify) {
     var parser = uglify.parser,
         processor = uglify.uglify,

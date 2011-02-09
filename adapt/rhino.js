@@ -4,7 +4,7 @@
  * see: http://github.com/jrburke/requirejs for details
  */
 
-"use strict";
+/*jslint strict: false */
 /*global require: false, java: false, load: false */
 
 (function () {

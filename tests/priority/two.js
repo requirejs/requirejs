@@ -1,8 +1,5 @@
 //Example layer file.
 
-"use strict";
-/*global require: false */
-
 require.def("gamma",
     ["theta", "epsilon"],
     function (theta, epsilon) {

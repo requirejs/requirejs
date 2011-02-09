@@ -1,7 +1,5 @@
-/*jslint plusplus: false */
+/*jslint plusplus: false, strict: false  */
 /*global load: false, doh: false, require:false */
-
-"use strict";
 
 define(['require', 'parse'], function (require, parse) {
 

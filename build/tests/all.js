@@ -9,10 +9,8 @@
  * ../../bin/x all.js
  */
 
-/*jslint plusplus: false */
+/*jslint plusplus: false, strict: false */
 /*global require: false, doh: false, skipDohSetup: true */
-
-"use strict";
 
 //A hack to doh to avoid dojo setup stuff in doh/runner.js
 skipDohSetup = true;

@@ -7,9 +7,8 @@
  * This file patches require.js to communicate with the build system.
  */
 
-/*jslint nomen: false, plusplus: false, regexp: false */
+/*jslint nomen: false, plusplus: false, regexp: false, strict: false */
 /*global require: false, define: true */
-"use strict";
 
 //NOT asking for require as a dependency since the goal is to modify the
 //global require below

@@ -1,7 +1,5 @@
-/*jslint plusplus: false */
+/*jslint plusplus: false, strict: false */
 /*global load: false, doh: false, define:false */
-
-"use strict";
 
 define(['parse'], function (parse) {
 

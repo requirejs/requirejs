@@ -11,10 +11,8 @@ To run this file, use x (assumes Node installed):
 
 */
 
-/*jslint regexp: false, nomen: false, plusplus: false */
+/*jslint regexp: false, nomen: false, plusplus: false, strict: false */
 /*global require: false */
-
-"use strict";
 
 require(['logger', 'env!env/file', 'child_process'], function (logger, file, child_process) {
 

@@ -1,6 +1,5 @@
-/*jslint plusplus: false */
+/*jslint plusplus: false, strict: false */
 /*global define: false */
-"use strict";
 
 /**
  * An override for the jslib/parse.js to convert stealjs calls into

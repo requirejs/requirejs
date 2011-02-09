@@ -46,8 +46,6 @@ flag was set to false when calling ast_squeeze. If I left this flag set to true 
 
 - Support Node's "extensions" mechanism.
 
-- Don't put use strict at the top of files? https://github.com/jrburke/requirejs/issues#issue/61
-
 - Build with requireplugins-jquery.js uses bad definition for require/text, probably other plugins. Use a jqueryStub.js
   for builds that need it with plain define, and allow the build system to load
   the plugins. A problem, since previously built layers with plugins in them
