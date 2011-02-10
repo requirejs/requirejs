@@ -76,6 +76,7 @@ var console;
     }
 
     //Make sure build path ends in a slash.
+    requireBuildPath = requireBuildPath.replace(/\\/g, '/');
     if (requireBuildPath.charAt(requireBuildPath.length - 1) !== "/") {
         requireBuildPath += "/";
     }

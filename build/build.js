@@ -27,7 +27,7 @@ function (args,            build) {
     //Take off the first argument since it is for
     //are a path inside requirejs for use by the bootstrap.
     var buildArgs = args.slice(1),
-        rjsBuildDir = buildArgs[0];
+        rjsBuildDir = buildArgs[0].replace(/\\/g, '/');
 
     //The second arg is the full path for this script. The
     //directory portion is the only part needed though, so adjust it.
