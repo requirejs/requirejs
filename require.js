@@ -392,7 +392,7 @@ var require, define;
         function updateNormalizedNames(pluginName) {
 
             var oldFullName, oldModuleMap, moduleMap, fullName, callbacks,
-                i, j, k, depArray,
+                i, j, k, depArray, existingCallbacks,
                 maps = normalizedWaiting[pluginName];
 
             if (maps) {
@@ -401,10 +401,21 @@ var require, define;
                     moduleMap = makeModuleMap(oldModuleMap.originalName, oldModuleMap.parentMap);
                     fullName = moduleMap.fullName;
                     callbacks = managerCallbacks[oldFullName];
+                    existingCallbacks = managerCallbacks[fullName];
 
                     if (fullName !== oldFullName) {
+                        //Update the specified object.
+                        delete specified[oldFullName];
+                        specified[fullName] = true;
+
                         //Update managerCallbacks to use the correct normalized name.
-                        managerCallbacks[fullName] = callbacks;
+                        //If there are already callbacks for the normalized name,
+                        //just add to them.
+                        if (existingCallbacks) {
+                            managerCallbacks[fullName] = existingCallbacks.concat(callbacks);
+                        } else {
+                            managerCallbacks[fullName] = callbacks;
+                        }
                         delete managerCallbacks[oldFullName];
 
                         //In each manager callback, update the normalized name in the depArray.
@@ -815,8 +826,8 @@ var require, define;
             var name = dep.name,
                 fullName = dep.fullName;
 
-            //Do not bother if plugin is already defined.
-            if (fullName in defined) {
+            //Do not bother if plugin is already defined or being loaded.
+            if (fullName in defined || fullName in loaded) {
                 return;
             }
 

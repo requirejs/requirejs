@@ -9,6 +9,8 @@ Release Notes
   but then if a data-main is found, that directory for that data-main is used.
   Explicit setting of baseUrl trumps all.
 
+- Doc that paths are relative to baseUrl, but if start with / or have protocol used as-is.
+
 - Test on Node 0.3, adjust optimization docs if special considerations.
 
 - Test build scripts on windows.

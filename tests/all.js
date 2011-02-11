@@ -43,6 +43,11 @@ doh.registerUrl("i18nlocale", "../i18n/i18n.html?locale=en-us-surfer");
 //Fail in PS3
 doh.registerUrl("i18nbundle", "../i18n/i18n.html?bundle=i18n!nls/en-us-surfer/colors");
 
+//Probably fail in PS3
+doh.registerUrl("i18ncommon", "../i18n/common.html");
+doh.registerUrl("i18ncommonlocale", "../i18n/common.html?locale=en-us-surfer");
+
+
 doh.registerUrl("paths", "../paths/paths.html");
 
 doh.registerUrl("layers", "../layers/layers.html", 10000);
