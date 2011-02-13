@@ -169,27 +169,23 @@ function (lang,   logger,   envOptimize,        file,           uglify) {
          */
         cssFile: function (fileName, outFileName, config) {
             //Read in the file. Make sure we have a JS string.
-            var originalFileContents = file.readFile(fileName),
-                fileContents = flattenCss(fileName, originalFileContents, config.cssImportIgnore),
-                startIndex, endIndex;
-
-            //Do comment removal.
+            var originalFileContents = fileUtil.readFile(fileName),
+                fileContents = flattenCss(fileName, originalFileContents, config.cssImportIgnore);
+            
             try {
-                startIndex = -1;
-                //Get rid of comments.
-                while ((startIndex = fileContents.indexOf("/*")) !== -1) {
-                    endIndex = fileContents.indexOf("*/", startIndex + 2);
-                    if (endIndex === -1) {
-                        throw "Improper comment in CSS file: " + fileName;
-                    }
-                    fileContents = fileContents.substring(0, startIndex) + fileContents.substring(endIndex + 2, fileContents.length);
-                }
+                //Get rid of comments.              
+                fileContents = fileContents.replace(/\/\*[\s\S]+?(?:\*\/)/g, ""); //everything between "/* */" (comments)
+                
+                //Get rid of unnecessary chars
+                fileContents = fileContents.replace(/\t+/g, ""); //tabs
+                fileContents = fileContents.replace(/ {2,}/g, " "); //multiple spaces
+                fileContents = fileContents.replace(/ ?([,\{\};\:]) ?/g, "$1"); //spaces around ",;{}:" (should come after multiple spaces regexp)
+                fileContents = fileContents.replace(/;\}/g, "}"); //";" just before "}"
+                fileContents = fileContents.replace(/(\:|\,| |\(|\-)0\./g, "$1."); //remove leading zero on fractional number smaller than 1
+                
                 //Get rid of newlines.
                 if (config.optimizeCss.indexOf(".keepLines") === -1) {
-                    fileContents = fileContents.replace(/[\r\n]/g, "");
-                    fileContents = fileContents.replace(/\s+/g, " ");
-                    fileContents = fileContents.replace(/\{\s/g, "{");
-                    fileContents = fileContents.replace(/\s\}/g, "}");
+                    fileContents = fileContents.replace(/\r?\n/g, ""); //new lines
                 } else {
                     //Remove multiple empty lines.
                     fileContents = fileContents.replace(/(\r\n)+/g, "\r\n");
