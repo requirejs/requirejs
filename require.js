@@ -404,9 +404,12 @@ var require, define;
                     existingCallbacks = managerCallbacks[fullName];
 
                     if (fullName !== oldFullName) {
-                        //Update the specified object.
-                        delete specified[oldFullName];
-                        specified[fullName] = true;
+                        //Update the specified object, but only if it is already
+                        //in there. In sync environments, it may not be yet.
+                        if (oldFullName in specified) {
+                            delete specified[oldFullName];
+                            specified[fullName] = true;
+                        }
 
                         //Update managerCallbacks to use the correct normalized name.
                         //If there are already callbacks for the normalized name,
