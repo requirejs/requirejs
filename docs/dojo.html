@@ -16,12 +16,12 @@
 <span class="sectionMark">&sect; 1</span>
 </h2>
 
-<p>Ben Hockey has set up a nice template project for getting started with Dojo+RequireJS. The directions are fairly straightforward. Some notes:</p>
+<p>Ben Hockey has set up <a href="https://github.com/neonstalwart/dojo-requirejs-template">a nice template project</a> for getting started with Dojo+RequireJS. The directions are fairly straightforward. Some notes:</p>
 <ul>
     <li>The RequireJS i18n plugin does not support the equivalent of the djConfig.localeList. A future version of the RequireJS i18n plugin should support it.</li>
-    <li>Dojox does not have it's own package config set up because not all of its modules have been converted to understand AMD syntax. Ben suggests one of two options if you want to use the modules in dojox that work with define (you need to inspect the modules yourself to see if they support AMD loading):
+    <li>Dojox does not have it's own package config set up because not all of its modules have been converted to understand AMD syntax. Ben suggests one of two options if you want to use some modules in dojox (you need to inspect the modules yourself to see if they support AMD loading):
     <ul>
-        <li>Add a file similar to dijit/lib/main.js which returns the dojox object rather than the dijit object.
+        <li>Add a file similar to dijit/lib/main.js which returns the dojox object rather than the dijit object.</li>
         <li>Instead of using it like a package, just add a [baseUrl]/dojox.js with contents similar to dijit/lib/main.js</li>
     </ul></li>
 </ul>
