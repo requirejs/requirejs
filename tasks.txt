@@ -29,10 +29,6 @@ flag was set to false when calling ast_squeeze. If I left this flag set to true 
 Bugs to work on
 ------------------
 
-- Doc that paths are relative to baseUrl, but if start with / or have protocol used as-is.
-- Update info on path resolution, fix Configuration Options link on page.
-- Ates doc email.
-
 - Test on Node 0.3, adjust optimization docs if special considerations.
 
 - Test build scripts on windows.

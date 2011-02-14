@@ -78,7 +78,7 @@
 
 <p>Files that end in ".js" are assumed to just be plain JS files that do not use the RequireJS module syntax, and therefore do not use the module-to-path algorithm used for looking up dot-notation modules, like "some/module" above.</p>
 
-<p>See the <strong>Configuration Options</strong> section for information on changing the lookup paths used for dependencies.</p>
+<p>See the <a href="#config">Configuration Options</a> section for information on changing the lookup paths used for dependencies.</p>
 
 <p>While you can use require() inside a script tag in an HTML file, it is strongly encouraged to place the work in a file that is loaded by RequireJS. This allows for easier optimization via the optimization tool, and there is a shorthand that can be used in the HTML for this pattern. The above example would be structured like this:</p>
 
@@ -340,7 +340,7 @@ define({
 });
 </code></pre>
 
-<p>RequireJS will use the browser's navigator.language or navigator.userLanguage property to determine what locale values to use for my/nls/colors, so your app does not have to change. If you prefer to set the locale, you can use the locale: configuration parameter (see the <strong>Configuration options</strong> section).</p>
+<p>RequireJS will use the browser's navigator.language or navigator.userLanguage property to determine what locale values to use for my/nls/colors, so your app does not have to change. If you prefer to set the locale, you can use the locale: configuration parameter (see the <a href="#config">Configuration options</a> section).</p>
 
 <p><strong>Note</strong> that RequireJS will always use a lowercase version of the locale, to avoid case issues, so all of the directories and files on disk for i18n bundles should use lowercase locales.</p>
 
@@ -539,7 +539,7 @@ define({
 
 <p>The baseUrl can be a URL on a different domain as the page that will load require.js. RequireJS script loading works across domains. The only restriction is on text content loaded by text! plugins: those paths should be on the same domain as the page, at least during development. The optimization tool will inline text! plugin resources so after using the optimization tool, you can use resources that reference text! plugin resources from another domain.</p>
 
-<p><strong>paths</strong>: path mappings for module names not found directly under baseUrl. The path settings are assumed to be relative to baseUrl. Using the above sample config, "some/module"'s script tag will be src="/another/path/some/v1.0/module.js". The path that is used for a module name should <strong>not</strong> include the .js extension, since the path mapping could be for a directory. The path mapping code will automatically add the .js extension when mapping the module name to a path.</p>
+<p><strong>paths</strong>: path mappings for module names not found directly under baseUrl. The path settings are assumed to be relative to baseUrl, unless the paths setting starts with a "/" or has a URL protocol in it ("like http:"). In those cases, the path is determined relative to baseUrl. Using the above sample config, "some/module"'s script tag will be src="/another/path/some/v1.0/module.js". The path that is used for a module name should <strong>not</strong> include the .js extension, since the path mapping could be for a directory. The path mapping code will automatically add the .js extension when mapping the module name to a path.</p>
 
 <p><strong>packagePaths</strong>: configures module name prefixes to map to CommonJS packages. See the <a href="#packages">packages topic</a> for more information. Related to <strong>packages</strong> config option.</p>
 
@@ -820,7 +820,7 @@ function (alpha,   omega,   cart,   store,   util) {
 
 <h3><a name="multiversion">Multiversion Support</a><span class="sectionMark">&sect; 5.2</span></h3>
 
-<p>As mentioned in <strong>Configuration Options</strong>, multiple versions of a module can be loaded in a page by using different "context" configuration options. Here is an example that loads two different versions of the alpha and beta modules (this example is taken from one of the test files):</p>
+<p>As mentioned in <a href="#config">Configuration Options</a>, multiple versions of a module can be loaded in a page by using different "context" configuration options. Here is an example that loads two different versions of the alpha and beta modules (this example is taken from one of the test files):</p>
 
 <pre><code>&lt;script type="text/javascript" src="../require.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript"&gt;
