@@ -37,6 +37,8 @@ cp ../../../../build/build.sh requirejs/build/build.sh
 cp ../../../../build/buildj.bat requirejs/build/buildj.bat
 cp ../../../../build/buildj.sh requirejs/build/buildj.sh
 cp ../../../../adapt/r.js requirejs/adapt/r.js
+cp ../../../../adapt/node.js requirejs/adapt/node.js
+cp ../../../../adapt/rhino.js requirejs/adapt/rhino.js
 
 cp ../../../../require.js requirejs/
 cp -r ../../../../require requirejs/require

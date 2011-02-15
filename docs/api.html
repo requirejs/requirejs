@@ -71,7 +71,7 @@
 <p>The dependencies above, ["some/module", "a.js", "b.js"], will be loaded via script tags that have the following src values:</p>
 
 <ul>
-<li>scripts/some/module.js</li>
+<li>some/module.js</li>
 <li>a.js (in the same directory as the HTML page that has the above HTML snippet)</li>
 <li>b.js (in the same directory as the HTML page that has the above HTML snippet)</li>
 </ul>
@@ -82,8 +82,10 @@
 
 <p>While you can use require() inside a script tag in an HTML file, it is strongly encouraged to place the work in a file that is loaded by RequireJS. This allows for easier optimization via the optimization tool, and there is a shorthand that can be used in the HTML for this pattern. The above example would be structured like this:</p>
 
-<pre><code>&lt;script data-main="main" src="scripts/require.js"&gt;&lt;/script&gt;
+<pre><code>&lt;script data-main="scripts/main" src="scripts/require.js"&gt;&lt;/script&gt;
 </code></pre>
+
+<span class="note">The path rules used for data-main changed in RequireJS 0.23. Before that version, data-main="main" for the above example.</span>
 
 <p>The data-main attribute tells RequireJS to take the value of the data-main attribute and treat it like a require([]) call. So, in this case, it would load scripts/main.js, and that file should have the top-level require call:</p>
 
@@ -92,6 +94,14 @@ require(["some/module", "a.js", "b.js"], function(someModule) {
     //...
 });
 </code></pre>
+
+<p>The directory that contains the data-main script also then becomes the root URL value (or <strong>baseUrl</strong> in the RequireJS terms) to find other scripts that use the <strong>module naming scheme</strong>, the scheme that does not end a ".js" extension. In this example "some/module" is using the module naming scheme, where "a.js" and "b.js" are not.</p>
+
+<p>Since data-main was used, and main.js is in the scripts directory, the baseUrl for RequireJS becomes the <strong>scripts</strong> directory. The <strong>"some/module"</strong> script would map to a path relative to the scripts directory. So it would be found at <strong>scripts/some/module.js</strong>.</p>
+
+<p>Note how this is different from the first example where "some/module" was found at some/module.js. If data-main is not used and an explicit baseUrl value is not passed in the <a href="#config">RequireJS configuration</a>, then then the default baseUrl is the directory containing the HTML page that loads RequireJS.</p>
+
+<p>Script names that are just regular paths ending in ".js", start with a "/" or have a protocol in them are always mapped relative to the HTML page instead of relative to baseUrl, just like HTML &lt;script&gt; src="" values. You can use the "module naming scheme" even if the script does not define a module, it is just means the path will be relative to baseUrl in that case.</p>
 
 <h3>
 <a name="define">Define a Module</a>
@@ -699,7 +709,7 @@ define({
 
 <p><strong>project.html</strong> will have a script tag like this:</p>
 
-<pre><code>&lt;script data-main="main" src="scripts/require.js"&gt;&lt;/script&gt;
+<pre><code>&lt;script data-main="scripts/main" src="scripts/require.js"&gt;&lt;/script&gt;
 </code></pre>
 
 <p>This will instruct require.js to load scripts/main.js. <strong>main.js</strong> uses the <strong>packagePaths</strong> config option to set up the location of the the third party packages, where "packages" is used to set up packages that are relative to require.js, which in this case are the source packages "cart" and "store":</p>

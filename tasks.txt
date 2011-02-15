@@ -8,6 +8,7 @@ Release Notes
 * new baseUrl rules: no longer relative to require.js. It is relative to page,
   but then if a data-main is found, that directory for that data-main is used.
   Explicit setting of baseUrl trumps all.
+  --> Affects the jquery sample project!
 
 * jquery readywait
 * multiple dependencies on same plugin resource.
