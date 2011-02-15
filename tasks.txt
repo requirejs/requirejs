@@ -29,11 +29,7 @@ flag was set to false when calling ast_squeeze. If I left this flag set to true 
 Bugs to work on
 ------------------
 
-- Test on Node 0.3, adjust optimization docs if special considerations.
-
 - Test build scripts on windows.
-
-- "dojo with requirejs":  https://github.com/neonstalwart/dojo-requirejs-template
 
 - plugins in excludeShallow do not work, are not excluded. For example text! one.
 
@@ -44,7 +40,6 @@ Bugs to work on
   can cause a problem.
 
 - replacement for modify that intercepts callbacks, holds off until another module loads them?
-
 
 - coffeescript plugin
 - Support Node's "extensions" mechanism.

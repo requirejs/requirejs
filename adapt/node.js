@@ -16,7 +16,8 @@
 (function () {
     var req = nodeRequire,
         fs = req('fs'),
-        path = req('path');
+        path = req('path'),
+        vm = req('vm');
 
     //Clear out the global set by x.js
     nodeRequire = null;
@@ -63,7 +64,7 @@
 
         if (path.existsSync(url)) {
             contents = fs.readFileSync(url, 'utf8');
-            process.compile(contents, url);
+            vm.runInThisContext(contents, url);
         } else {
             define(function () {
                 return req(moduleName);
