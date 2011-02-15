@@ -62,7 +62,7 @@ cd adapt
 node dist.js
 mkdir ../../$version/node
 cp r.js ../../$version/
-cp index.js ../../$version/node
+cp tests/node/index.js ../../$version/node
 cd ../
 
 # Minify any of the browser-based JS files

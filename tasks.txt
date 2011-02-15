@@ -12,7 +12,8 @@ Release Notes
 
 * jquery readywait
 * multiple dependencies on same plugin resource.
-
+* jquery 1.5 update waiting
+* env plugin
 
 Next release
 --------------
