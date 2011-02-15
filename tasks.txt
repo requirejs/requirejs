@@ -9,6 +9,9 @@ Release Notes
   but then if a data-main is found, that directory for that data-main is used.
   Explicit setting of baseUrl trumps all.
 
+* jquery readywait
+* multiple dependencies on same plugin resource.
+
 
 Next release
 --------------

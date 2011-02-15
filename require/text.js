@@ -88,44 +88,46 @@
         };
     }
 
-    define({
-        load: function (name, req, onLoad, config) {
-            //Name has format: some.module.filext!strip
-            //The strip part is optional.
-            //if strip is present, then that means only get the string contents
-            //inside a body tag in an HTML string. For XML/SVG content it means
-            //removing the <?xml ...?> declarations so the content can be inserted
-            //into the current doc without problems.
+    define(function () {
+        return {
+            load: function (name, req, onLoad, config) {
+                //Name has format: some.module.filext!strip
+                //The strip part is optional.
+                //if strip is present, then that means only get the string contents
+                //inside a body tag in an HTML string. For XML/SVG content it means
+                //removing the <?xml ...?> declarations so the content can be inserted
+                //into the current doc without problems.
 
-            var strip = false, url, index = name.indexOf("."),
-                modName = name.substring(0, index),
-                ext = name.substring(index + 1, name.length);
+                var strip = false, url, index = name.indexOf("."),
+                    modName = name.substring(0, index),
+                    ext = name.substring(index + 1, name.length);
 
-            index = ext.indexOf("!");
-            if (index !== -1) {
-                //Pull off the strip arg.
-                strip = ext.substring(index + 1, ext.length);
-                strip = strip === "strip";
-                ext = ext.substring(0, index);
-            }
-
-            //Load the text.
-            url = req.nameToUrl(modName, "." + ext);
-            require.fetchText(url, function (text) {
-                text = strip ? require.textStrip(text) : text;
-                if (config.isBuild && config.inlineText) {
-                    buildMap[name] = text;
+                index = ext.indexOf("!");
+                if (index !== -1) {
+                    //Pull off the strip arg.
+                    strip = ext.substring(index + 1, ext.length);
+                    strip = strip === "strip";
+                    ext = ext.substring(0, index);
                 }
-                onLoad(text);
-            });
-        },
 
-        write: function (pluginName, moduleName, write) {
-            if (moduleName in buildMap) {
-                var text = require.jsEscape(buildMap[moduleName]);
-                write("define('" + pluginName + "!" + moduleName  +
-                      "', function () { return '" + text + "';});\n");
+                //Load the text.
+                url = req.nameToUrl(modName, "." + ext);
+                require.fetchText(url, function (text) {
+                    text = strip ? require.textStrip(text) : text;
+                    if (config.isBuild && config.inlineText) {
+                        buildMap[name] = text;
+                    }
+                    onLoad(text);
+                });
+            },
+
+            write: function (pluginName, moduleName, write) {
+                if (moduleName in buildMap) {
+                    var text = require.jsEscape(buildMap[moduleName]);
+                    write("define('" + pluginName + "!" + moduleName  +
+                          "', function () { return '" + text + "';});\n");
+                }
             }
-        }
+        };
     });
 }());
