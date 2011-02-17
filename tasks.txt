@@ -1,15 +1,3 @@
-Release Notes
---------
-* Node now supported, and is the default. build.sh is now Node based. If wanting Java, buildj.sh
-* Rhino build is slower than before.
-* UglifyJS does not do dead code removal, so has() stuff not so useful.
-* Node adapter now assumes old node modules always on require.paths: em.com.
-* baseUrlMatch is now gone.
-* new baseUrl rules: no longer relative to require.js. It is relative to page,
-  but then if a data-main is found, that directory for that data-main is used.
-  Explicit setting of baseUrl trumps all.
-
-
 Next release
 --------------
 - update to jQuery 1.5.1 when released
@@ -29,15 +17,7 @@ flag was set to false when calling ast_squeeze. If I left this flag set to true 
 Bugs to work on
 ------------------
 
-- Doc that paths are relative to baseUrl, but if start with / or have protocol used as-is.
-- Update info on path resolution, fix Configuration Options link on page.
-- Ates doc email.
-
-- Test on Node 0.3, adjust optimization docs if special considerations.
-
 - Test build scripts on windows.
-
-- "dojo with requirejs":  https://github.com/neonstalwart/dojo-requirejs-template
 
 - plugins in excludeShallow do not work, are not excluded. For example text! one.
 
@@ -48,7 +28,6 @@ Bugs to work on
   can cause a problem.
 
 - replacement for modify that intercepts callbacks, holds off until another module loads them?
-
 
 - coffeescript plugin
 - Support Node's "extensions" mechanism.

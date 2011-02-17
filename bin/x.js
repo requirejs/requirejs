@@ -17,7 +17,7 @@
 var console;
 (function (args, readFileFunc) {
 
-    var fileName, env, fs, exec, rhinoContext,
+    var fileName, env, fs, vm, exec, rhinoContext,
         requireBuildPath = '',
         jsSuffixRegExp = /\.js$/,
         //This flag is turned to false by the distribution script,
@@ -57,15 +57,16 @@ var console;
         //Get the fs module via Node's require before it
         //gets replaced. Used in require/node.js
         fs = require('fs');
+        vm = require('vm');
         this.nodeRequire = require;
         require = null;
 
         readFile = function (path) {
-            return process.compile(fs.readFileSync(path, 'utf8'), path);
+            return fs.readFileSync(path, 'utf8');
         };
 
         exec = function (string, name) {
-            return process.compile(string, name);
+            return vm.runInThisContext(string, name);
         };
 
         if (useRequireBuildPath) {

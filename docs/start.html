@@ -76,13 +76,15 @@
         &lt;title&gt;My Sample Project&lt;/title&gt;
         &lt;!-- data-main attribute tells require.js to load
              scripts/main.js after require.js loads. --&gt;
-        &lt;script data-main="main" src="scripts/require.js"&gt;&lt;/script&gt;
+        &lt;script data-main="scripts/main" src="scripts/require.js"&gt;&lt;/script&gt;
     &lt;/head&gt;
     &lt;body&gt;
         &lt;h1&gt;My Sample Project&lt;/h1&gt;
     &lt;/body&gt;
 &lt;/html&gt;
 </code></pre>
+
+<span class="note">The path rules used for data-main changed in RequireJS 0.23. Before that version, data-main="main" for the above example.</span>
 
 <p>Inside of main.js, you can use require() to load any other scripts you need to run:</p>
 

@@ -26,18 +26,14 @@
 
 <div class="section">
 <h2>
-<a name="2">Can I use server modules already written in the CommonJS module format?</a>
+<a name="2">Can I use Node modules already written in the CommonJS module format?</a>
 <span class="sectionMark">&sect; 2</span></h2>
 
-<p>Yes! The Node adapter for RequireJS, called r.js, automatically converts CommonJS modules on the fly to a format usable by RequireJS, as they are loaded, so you can use your existing Node-based modules without having to hand-modify them.</p>
+<p>Yes! The Node adapter for RequireJS, called r.js, will use Node's implementation of require and Node's search paths if the module is not found with the configuration used by RequireJS, so you can continue to use your existing Node-based modules without having to do changes to them.</p>
 
-<p>However, the top most app file, the one you pass to Node on startup, needs to be coded to the RequireJS API. That file is evaluated as-is, no automatic format conversion.</p>
+<p>However, the top most app file, the one you pass to r.js on startup, needs to be coded to the RequireJS API.</p>
 
-<p>You can use modules installed by <a href="http://npmjs.org/">npm</a>, or use the <a href="api.html#config">Configuration Options</a> for RequireJS in your top level app file to configure paths, package pages, and even a different baseUrl for your modules.</p>
-
-<p>RequireJS will use its configuration first to find modules, then use require.paths to search for the module, then if it is not found, it will look in the internal cache of modules built into Node.</p>
-
-<p>RequireJS does not support require.main and the module free variable only contains an <strong>id</strong> property. It does not define a require.async method, since require() in RequireJS can accept equivalent arguments.</p>
+<p>RequireJS will use its <a href="api.html#config">Configuration Options</a> first to find modules. If RequireJS cannot find the module with its configuration, it is assumed to be a module that uses Node's type of modules and configuration. So, only configure module locations with RequireJS if they use the RequireJS API. For modules that expect Node's APIs and configuration/paths, just install them with a Node package manager, like <a href="http://npmjs.org/">npm</a>, and do not configure their locations with RequireJS.</p>
 
 <p>Even though RequireJS is an asynchronous loader in the browser, the RequireJS Node adapter loads modules synchronously in the Node environment to match the default loading behavior in Node.</p>
 
@@ -62,12 +58,7 @@
 
 <p>If you want to try a sample app that works with r.js, see the index.js Hello World app on <a href="download.html#node">the download page</a>.</p>
 
-<p>If you get a load failure, you can pass <strong>debug</strong> after r.js to get some information on what modules were attempted to be loaded and from what location:</p>
-
-<pre><code>node path/to/r.js debug myNodeApp.js
-</code></pre>
-
-<p>If you find you have a problem, and want to report it, use the <a href="http://github.com/jrburke/requirejs/issues">RequireJS GitHub Issues page</a>. If you can attach the output of the <strong>debug</strong> run, that would be helpful.</p>
+<p>If you find you have a problem, and want to report it, use the <a href="http://github.com/jrburke/requirejs/issues">RequireJS GitHub Issues page</a>.</p>
 
 <p>If you want to discuss the RequireJS-Node integration, you can use the <a href="http://groups.google.com/group/requirejs">RequireJS Group</a>.</p>
 </div>

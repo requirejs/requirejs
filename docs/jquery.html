@@ -48,7 +48,7 @@
 &lt;html&gt;
     &lt;head&gt;
         &lt;title&gt;jQuery+RequireJS Sample Page&lt;/title&gt;
-        &lt;script data-main="main" src="scripts/require-jquery.js"&gt;&lt;/script&gt;
+        &lt;script data-main="scripts/main" src="scripts/require-jquery.js"&gt;&lt;/script&gt;
     &lt;/head&gt;
     &lt;body&gt;
         &lt;h1&gt;jQuery+RequireJS Sample Page&lt;/h1&gt;
@@ -56,7 +56,9 @@
 &lt;/html&gt;
 </code></pre>
 
-<p>The data-main attribute on the script tag for require.js tells RequireJS to load the scripts/main.js file. RequireJS will load any dependency that is passed to require() without a ".js" file from the same directory as require.js. If you feel more comfortable specifying the whole path, you can also do the following:</p>
+<span class="note">The path rules used for data-main changed in RequireJS 0.23. Before that version, data-main="main" for the above example.</span>
+
+<p>The data-main attribute on the script tag for require.js tells RequireJS to load the scripts/main.js file. RequireJS will load any dependency that is passed to require() without a ".js" file from the same directory as the one used for data-main. If you feel more comfortable specifying the whole path, you can also do the following:</p>
 
 <pre><code>&lt;script data-main="scripts/main.js" src="scripts/require-jquery.js"&gt;&lt;/script&gt;
 </code></pre>

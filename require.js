@@ -1,5 +1,5 @@
 /** vim: et:ts=4:sw=4:sts=4
- * @license RequireJS 0.22.0+ Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
+ * @license RequireJS 0.23.0 Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/requirejs for details
  */
@@ -11,7 +11,7 @@
 var require, define;
 (function () {
     //Change this version number for each release.
-    var version = "0.22.0+",
+    var version = "0.23.0",
         commentRegExp = /(\/\*([\s\S]*?)\*\/|\/\/(.*)$)/mg,
         cjsRequireRegExp = /require\(["']([^'"\s]+)["']\)/g,
         currDirRegExp = /^\.\//,
@@ -404,9 +404,12 @@ var require, define;
                     existingCallbacks = managerCallbacks[fullName];
 
                     if (fullName !== oldFullName) {
-                        //Update the specified object.
-                        delete specified[oldFullName];
-                        specified[fullName] = true;
+                        //Update the specified object, but only if it is already
+                        //in there. In sync environments, it may not be yet.
+                        if (oldFullName in specified) {
+                            delete specified[oldFullName];
+                            specified[fullName] = true;
+                        }
 
                         //Update managerCallbacks to use the correct normalized name.
                         //If there are already callbacks for the normalized name,

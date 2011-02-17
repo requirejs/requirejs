@@ -49,7 +49,7 @@ var skipDohSetup = true,
 
 //Load require with rhino extension
 load("../require.js");
-load("../require/" + env + ".js");
+load("../adapt/" + env + ".js");
 
 
 //Load the tests.

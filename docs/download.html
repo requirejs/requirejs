@@ -17,21 +17,27 @@
 </div>
 
 <div class="section">
-<h2><a name="latest">Latest Release: 0.22.0</a><span class="sectionMark">&sect; 1</span></h2>
+<h2><a name="latest">Latest Release: 0.23.0</a><span class="sectionMark">&sect; 1</span></h2>
 
 <ul>
-<li>A <a href="plugins.html">full plugin API</a> that supports also including plugin loaded artifacts in optimized builds.</li>
-<li><a href="node.html">Robust Node support</a>: now can use npm-installed modules, .node add-ons, and modules on require.paths.</li>
-<li>Support for <a href="optimization.html#hasjs">has.js optimizations</a> in the optimizer, including dead code branch removal via Closure Compiler.</a>
-<li><a href="https://github.com/jrburke/requirejs/commits/">Bug Fixes from 2010-12-21 through 2011-01-05</a>.</li>
+<li>Calculation of baseUrl changed. This affects the jQuery Sample project, which has been updated in this release. Instead of baseUrl defaulting to the directory containing require.js, it now defaults to the HTML page's directory. If data-main is used, then the directory used in that attribute becomes the baseUrl. Explicitly setting baseUrl in the configuration overrides the aforementioned defaults.</li>
+<li>The RequireJS optimizer now uses Node by default. So, build.sh/.bat are now Node-based. Java/Rhino is still supported via the buildj.sh/.bat scripts.</li>
+<li><a href="https://github.com/mishoo/UglifyJS">UglifyJS</a> is now the default minifier for the optimizer, since it works both in Node and in Rhino. However, UglifyJS does not do if/else dead code removal, so the <a href="optimization.html#hasjs">has() optimization</a> is not that great when using UglifyJS. Hopefully this will change in a future version of UglifyJS. If you want the full has() optimization, Closure Compiler can still be used, either by using buildj.sh to use Java/Rhino to do the optimization work, or by running Closure Compiler yourself after the optimizer runs.</li>
+<li>The behavior of the Node adapter, r.js has changed. It now assumes that any module found via the RequireJS config uses define() to define modules. If a module is not found via the RequireJS path config, r.js uses Node's native require() function and its pathing rules
+to find the module. This allows the most compatible use of npm-installed modules. However it means you <strong>should not</strong> include RequireJS configuration for npm-installed modules/packages.</li>
+<li>The r.js adapter now works in Node and Rhino.</li>
+<li>The config option, <strong>baseUrlMatch</strong> has been removed, since the data-main baseUrl rule mentioned above removes the need for it.</li>
+<li>Some important fixes around loader plugins: a fix to allow multiple modules to use the same plugin resources as a common dependency, and to allow loader plugins that use a define() function callback to work in the optimizer.</li>
+<li>A fix for the use of jQuery's readyWait capability when jQuery is detected and used as a module.</li>
+<li>Some directory shuffling related to making the rhino and node adapters the same for use in command line tools and in the r.js adapter.</li>
 </ul>
 
 <div class="subSection">
 <h4 class="hbox">
 <a name="requirejs">require.js</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/0.22.0/minified/require.js">Minified</a>
-<a class="download" href="http://requirejs.org/docs/release/0.22.0/comments/require.js">With Comments</a>
+<a class="download" href="http://requirejs.org/docs/release/0.23.0/minified/require.js">Minified</a>
+<a class="download" href="http://requirejs.org/docs/release/0.23.0/comments/require.js">With Comments</a>
 </h4>
 
 <p>All you need to start using require.js in the browser. Does not include i18n, text, order plugins or Node/Rhino support.</p>
@@ -41,8 +47,8 @@
 <h4 class="hbox">
 <a name="requirejsplugins">require.js with plugins</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/0.22.0/minified/allplugins-require.js">Minified</a>
-<a class="download" href="http://requirejs.org/docs/release/0.22.0/comments/allplugins-require.js">With Comments</a>
+<a class="download" href="http://requirejs.org/docs/release/0.23.0/minified/allplugins-require.js">Minified</a>
+<a class="download" href="http://requirejs.org/docs/release/0.23.0/comments/allplugins-require.js">With Comments</a>
 </h4>
 
 <p>require.js for use in the browser with the i18n, text, and order plugins included. </p>
@@ -52,8 +58,8 @@
 <h4 class="hbox">
 <a name="jqueryrequirejs">jQuery 1.4.4 with require()</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/0.22.0/minified/require-jquery-1.4.4.js">Minified</a>
-<a class="download" href="http://requirejs.org/docs/release/0.22.0/comments/require-jquery-1.4.4.js">With Comments</a>
+<a class="download" href="http://requirejs.org/docs/release/0.23.0/minified/require-jquery-1.4.4.js">Minified</a>
+<a class="download" href="http://requirejs.org/docs/release/0.23.0/comments/require-jquery-1.4.4.js">With Comments</a>
 </h4>
 
 <p>A build of jQuery with integrated require() support. <strong>Does not include</strong> the i18n, text, and order plugins.</p>
@@ -63,8 +69,8 @@
 <h4 class="hbox">
 <a name="jqueryrequirejsplugins">jQuery 1.4.4 with require() and plugins</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/0.22.0/minified/requireplugins-jquery-1.4.4.js">Minified</a>
-<a class="download" href="http://requirejs.org/docs/release/0.22.0/comments/requireplugins-jquery-1.4.4.js">With Comments</a>
+<a class="download" href="http://requirejs.org/docs/release/0.23.0/minified/requireplugins-jquery-1.4.4.js">Minified</a>
+<a class="download" href="http://requirejs.org/docs/release/0.23.0/comments/requireplugins-jquery-1.4.4.js">With Comments</a>
 </h4>
 
 <p>A build of jQuery with integrated require() support that includes the i18n, text, and order plugins.</p>
@@ -74,7 +80,7 @@
 <h4 class="hbox">
 <a name="samplejquery">Sample jQuery 1.4.4 project with require()</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/0.22.0/jquery-require-sample.zip">Download</a>
+<a class="download" href="http://requirejs.org/docs/release/0.23.0/jquery-require-sample.zip">Download</a>
 </h4>
 
 <p>A zip file containing a build of jQuery with integrated require() support, with an sample project included to show how it can be used when using jQuery.</p>
@@ -83,14 +89,20 @@
 <div class="subSection">
 <h4><a name="node">RequireJS adapter for Node and Rhino</a></h4>
 
-<p><strong><a href="http://requirejs.org/docs/release/0.22.0/r.js">r.js</a></strong>: use this file if you want to code to the RequireJS module format in Node. The <a href="node.html">Node instructions</a> explain how to use it. It includes all the code needed for RequireJS to function with Node.</p>
+<p><strong><a href="http://requirejs.org/docs/release/0.23.0/r.js">r.js</a></strong>: use this file if you want to code to the RequireJS module format in Node or Rhino.</p>
 
-<p><strong><a href="http://requirejs.org/docs/release/0.22.0/node/index.js">index.js</a></strong>: the standard HTTP server-based Hello World app for Node, but coded to work with the r.js adapter. Download it in the same directory as r.js and then run this command:</p>
+<p><strong>Use in Node</strong></p>
+
+<p>Requires Node 0.4.0 or higher. The <a href="node.html">Node instructions</a> explain how to use it. It includes all the code needed for RequireJS to function with Node.</p>
+
+<p><strong><a href="http://requirejs.org/docs/release/0.23.0/node/index.js">index.js</a></strong>: the standard HTTP server-based Hello World app for Node, but coded to work with the r.js adapter. Download it in the same directory as r.js and then run this command:</p>
 
 <pre><code>node r.js index.js
 </code></pre>
 
 <p>Then you can go to http://127.0.0.1:8000/ and see "Hello World" printed after about 2 seconds.</p>
+
+<p><strong>Use in Rhino</strong></p>
 
 <p>The r.js adapter also runs under Rhino. Use it like so, where main.js is your application's top level file:</p>
 
@@ -103,7 +115,7 @@
 <h4 class="hbox">
 <a name="optimizationtool">Optimization Tool / Full Source</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/0.22.0/requirejs-0.22.0.zip">Download</a></h4>
+<a class="download" href="http://requirejs.org/docs/release/0.23.0/requirejs-0.23.0.zip">Download</a></h4>
 
 <p>A zip file that is the optimization tool for RequireJS. It also includes the full source for require.js and its plugins.</p>
 
@@ -113,6 +125,15 @@
 </div>
 <div class="section">
 <h2><a name="previous">Previous releases</a><span class="sectionMark">&sect; 2</span></h2>
+
+<h3>0.22.0</h3>
+
+<ul>
+<li>A <a href="plugins.html">full plugin API</a> that supports also including plugin loaded artifacts in optimized builds.</li>
+<li><a href="node.html">Robust Node support</a>: now can use npm-installed modules, .node add-ons, and modules on require.paths.</li>
+<li>Support for <a href="optimization.html#hasjs">has.js optimizations</a> in the optimizer, including dead code branch removal via Closure Compiler.</a>
+<li><a href="https://github.com/jrburke/requirejs/commits/">Bug Fixes from 2010-12-21 through 2011-01-05</a>.</li>
+</ul>
 
 <h3>0.2.1 (should have been 0.21.0)</h3>
 

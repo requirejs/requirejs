@@ -33,7 +33,7 @@
 <p>The optimization tool can be run using either Node or using Java with Rhino. The requirements for each option:<p>
 
 <ul>
-   <li><strong>Node:</strong> (preferred) <a href="http://nodejs.org">Node</a> 0.2.6 or later.</li>
+   <li><strong>Node:</strong> (preferred) <a href="http://nodejs.org">Node</a> 0.4.0 or later.</li>
    <li><strong>Java:</strong> <a href="http://java.com/">Java 1.6</a> or later.</li>
 </ul>
 
@@ -41,7 +41,7 @@
 
 <p>All the example commands in this page assume Node usage, and running on a Linux/OS X command line.</p>
 <ul>
-    <li>If Using Java, use <strong>buildj.sh</strong> instead of build.sh in the examples below.</li>
+    <li>If Using Java, use <strong>buildj.sh</strong> instead of build.sh in the examples below. If you want to use Ant to drive the optimizer, [Miller Medeiros created a gist showing how](https://gist.github.com/825117).</li>
     <li>If using Windows: use <strong>build.bat</strong> (Node) or <strong>buildj.bat</strong> (Java).</li>
 </ul>
 
@@ -96,7 +96,7 @@
     &lt;head&gt;
         &lt;title&gt;My App&lt;/title&gt;
         &lt;link rel="stylesheet" type="text/css" href="css/main.css"&gt;
-        &lt;script data-main="main" src="scripts/require.js"&gt;&lt;/script&gt;
+        &lt;script data-main="scripts/main" src="scripts/require.js"&gt;&lt;/script&gt;
     &lt;/head&gt;
     &lt;body&gt;
         &lt;h1&gt;My App&lt;/h1&gt;

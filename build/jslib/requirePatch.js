@@ -28,6 +28,8 @@ function (file,           pragma,   parse) {
             pluginBuilderRegExp = /(["']?)pluginBuilder(["']?)\s*[=\:]\s*["']([^'"\s]+)["']/,
             oldDef;
 
+        require._plugins = {};
+
         /** Reset state for each build layer pass. */
         require._buildReset = function () {
             //Clear up the existing context.
@@ -88,8 +90,7 @@ function (file,           pragma,   parse) {
         //Override load so that the file paths can be collected.
         require.load = function (context, moduleName, url) {
             /*jslint evil: true */
-            var isPlugin = false,
-                contents, pluginBuilderMatch, builderName;
+            var contents, pluginBuilderMatch, builderName;
 
             //Adjust the URL if it was not transformed to use baseUrl.
             if (require.jsExtRegExp.test(moduleName)) {
@@ -132,13 +133,13 @@ function (file,           pragma,   parse) {
                     }
 
                     //plugins need to have their source evaled as-is.
-                    isPlugin = true;
+                    require._plugins[moduleName] = true;
                 }
 
                 //Parse out the require and define calls.
                 //Do this even for plugins in case they have their own
                 //dependencies that may be separate to how the pluginBuilder works.
-                if (!isPlugin) {
+                if (!require._plugins[moduleName]) {
                     contents = parse(url, contents);
                 }
 
@@ -157,7 +158,7 @@ function (file,           pragma,   parse) {
             context.loaded[moduleName] = true;
 
             //Get a handle on the pluginBuilder
-            if (isPlugin) {
+            if (require._plugins[moduleName]) {
                 require.pluginBuilders[moduleName] = context.defined[moduleName];
             }
         };
@@ -187,7 +188,7 @@ function (file,           pragma,   parse) {
                 layer.loadedFiles[url] = true;
                 layer.modulesWithNames[name] = true;
             }
-            if (cb.__requireJsBuild) {
+            if (cb.__requireJsBuild || require._plugins[name]) {
                 return cb.apply(null, args);
             }
             return undefined;
