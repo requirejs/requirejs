@@ -1,4 +1,3 @@
-.DS_Store
 adapt/r.js
 build/convert/build/
 build/convert/node/r.js
@@ -13,3 +12,13 @@ docs/jquery-require-sample/dist
 dist/dist-site/
 dist/dist-build/
 
+# IDE settings/configs
+.tmp*
+.project
+.settings/
+
+# icons
+.DS_Store?
+ehthumbs.db
+Icon?
+Thumbs.db
