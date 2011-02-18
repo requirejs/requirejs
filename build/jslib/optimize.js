@@ -170,17 +170,18 @@ function (lang,   logger,   envOptimize,        file,           uglify,         
         cssFile: function (fileName, outFileName, config) {
             //Read in the file. Make sure we have a JS string.
             var originalFileContents = file.readFile(fileName),
-                fileContents = flattenCss(fileName, originalFileContents, config.cssImportIgnore),
-                keepLines = (config.optimizeCss.indexOf(".keepLines") !== -1);
+                fileContents = flattenCss(fileName, originalFileContents, config.cssImportIgnore);
             
             try {
-                fileContents = cssmin(fileContents, config.lineBreakAt);
-                if(keepLines){
+                if(config.optimizeCss.indexOf("standard") === 0){
+                    fileContents = cssmin(fileContents, config.cssLineBreakAt);
                     //re-add line breaks
-                    fileContents = fileContents.replace(/[\{\}\;]/g, '$&\n'); //add line breaks after "{", ";", "}"
-                    fileContents = fileContents.replace(/\}/g, '\n$&\n'); //add line breaks around "}"
-                    fileContents = fileContents.replace(/[\n\r]+$/g, ''); //remove last line breaks                    
-                }
+                    if(config.optimizeCss.indexOf(".keepLines") !== -1){
+                        fileContents = fileContents.replace(/[\{\}\;]/g, "$&\n"); //add line breaks after "{", ";", "}"
+                        fileContents = fileContents.replace(/\}/g, "\n$&\n"); //add line breaks around "}"
+                        fileContents = fileContents.replace(/[\n\r]+$/g, ""); //remove line breaks before end of the document
+                    }
+               }
             } catch (e) {
                 fileContents = originalFileContents;
                 logger.error("Could not optimized CSS file: " + fileName + ", error: " + e);
