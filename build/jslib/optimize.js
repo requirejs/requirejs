@@ -174,16 +174,22 @@ function (lang,   logger,   envOptimize,        file,           uglify,         
                 keepLines = (config.optimizeCss.indexOf(".keepLines") !== -1);
             
             try {
+                //"save" line breaks
                 if(keepLines){
-                    fileContents = fileContents.replace(/\r?\n/g, "___REQUIREJS_KEEP_LINES___"); //"save" line breaks
+                    fileContents = fileContents.replace(/\r/g, "___REQUIREJS_KEEP_R___");
+                    fileContents = fileContents.replace(/\n/g, "___REQUIREJS_KEEP_N___");
                 }
                 //standard minification using YUI compressor
                 if(config.optimizeCss.indexOf("standard") === 0){
                     fileContents = cssmin(fileContents, config.cssLineBreakAt);
                 }
+                //"restore" line breaks
                 if(keepLines){
-                    fileContents = fileContents.replace(/___REQUIREJS_KEEP_LINES___/g, "\n"); //"restore" line breaks
-                    fileContents = fileContents.replace(/\n{3,}/g, "\n\n"); //remove multiple empty lines
+                    fileContents = fileContents.replace(/___REQUIREJS_KEEP_R___/g, "\r");
+                    fileContents = fileContents.replace(/___REQUIREJS_KEEP_N___/g, "\n");
+                    //remove multiple empty lines
+                    fileContents = fileContents.replace(/(\r\n){3,}/g, "\r\n\r\n");
+                    fileContents = fileContents.replace(/(\n){3,}/g, "\n\n");
                 }
             } catch (e) {
                 fileContents = originalFileContents;
