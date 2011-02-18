@@ -35,9 +35,24 @@ define(['build', 'env!env/file'], function (build, file) {
     doh.register("buildOneCssFile",
         [
             function buildOneCssFile(t) {
-                build(["..", "cssIn=css/sub/sub1.css", "out=builds/sub1.css"]);
+                build(["..", "cssIn=css/sub/sub1.css", "out=builds/sub1.css", "optimizeCss=standard"]);
 
-                t.is(nol(c("cssTestCompare.css")), nol(c("builds/sub1.css")));
+                t.is(c("cssTestCompare.css"), c("builds/sub1.css"));
+
+                //Reset require internal state for the contexts so future
+                //builds in these tests will work correctly.
+                require._buildReset();
+            }
+        ]
+    );
+    doh.run();
+    
+    doh.register("buildOneCssFileKeepLines",
+        [
+            function buildOneCssFile(t) {
+                build(["..", "cssIn=css/sub/sub1.css", "out=builds/sub1_2.css", "optimizeCss=standard.keepLines"]);
+
+                t.is(c("cssTestCompare-keepLines.css"), c("builds/sub1_2.css"));
 
                 //Reset require internal state for the contexts so future
                 //builds in these tests will work correctly.

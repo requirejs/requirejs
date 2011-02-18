@@ -6,7 +6,7 @@
 
 /**
  * Run the tests in Node with this command:
- * ../../bin/x all.js
+ * ../../bin/x runner-all.js
  */
 
 /*jslint plusplus: false, strict: false */
