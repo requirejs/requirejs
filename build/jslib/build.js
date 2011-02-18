@@ -20,7 +20,7 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
             pragmas: {},
             paths: {},
             optimize: "uglify",
-            optimizeCss: "standard.keepLines",
+            optimizeCss: "standard",
             inlineText: true,
             isBuild: true
         };

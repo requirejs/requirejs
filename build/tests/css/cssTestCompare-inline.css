@@ -1,13 +1,21 @@
-
+/* These are common styles */
 body {
     background: blue url(../common/img/body.png) bottom center;
 }
+
+/**
+ *
+ * This is the master css file.
+ *
+ */
 nav {
     color: red;
     background-image: url(../nav.png);
 }
+
+
 .sub {
     background: transparent url(../../img/sub.png);
-    
+    /*Some comment in here*/
     position: relative;
 }

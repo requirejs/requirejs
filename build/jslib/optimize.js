@@ -7,8 +7,8 @@
 /*jslint plusplus: false, nomen: false, regexp: false, strict: false */
 /*global define: false */
 
-define([ 'lang', 'logger', 'env!env/optimize', 'env!env/file', 'uglifyjs/index'],
-function (lang,   logger,   envOptimize,        file,           uglify) {
+define([ 'lang', 'logger', 'env!env/optimize', 'env!env/file', 'uglifyjs/index', 'yui_compressor/cssmin'],
+function (lang,   logger,   envOptimize,        file,           uglify,           cssmin) {
 
     var optimize,
         cssImportRegExp = /\@import\s+(url\()?\s*([^);]+)\s*(\))?([\w, ]*)(;)?/g,
@@ -169,27 +169,27 @@ function (lang,   logger,   envOptimize,        file,           uglify) {
          */
         cssFile: function (fileName, outFileName, config) {
             //Read in the file. Make sure we have a JS string.
-            var originalFileContents = fileUtil.readFile(fileName),
-                fileContents = flattenCss(fileName, originalFileContents, config.cssImportIgnore);
+            var originalFileContents = file.readFile(fileName),
+                fileContents = flattenCss(fileName, originalFileContents, config.cssImportIgnore),
+                keepLines = (config.optimizeCss.indexOf(".keepLines") !== -1);
             
             try {
-                //Get rid of comments.              
-                fileContents = fileContents.replace(/\/\*[\s\S]+?(?:\*\/)/g, ""); //everything between "/* */" (comments)
-                
-                //Get rid of unnecessary chars
-                fileContents = fileContents.replace(/\t+/g, ""); //tabs
-                fileContents = fileContents.replace(/ {2,}/g, " "); //multiple spaces
-                fileContents = fileContents.replace(/ ?([,\{\};\:]) ?/g, "$1"); //spaces around ",;{}:" (should come after multiple spaces regexp)
-                fileContents = fileContents.replace(/;\}/g, "}"); //";" just before "}"
-                fileContents = fileContents.replace(/(\:|\,| |\(|\-)0\./g, "$1."); //remove leading zero on fractional number smaller than 1
-                
-                //Get rid of newlines.
-                if (config.optimizeCss.indexOf(".keepLines") === -1) {
-                    fileContents = fileContents.replace(/\r?\n/g, ""); //new lines
-                } else {
-                    //Remove multiple empty lines.
-                    fileContents = fileContents.replace(/(\r\n)+/g, "\r\n");
-                    fileContents = fileContents.replace(/(\n)+/g, "\n");
+                //"save" line breaks
+                if(keepLines){
+                    fileContents = fileContents.replace(/\r/g, "___REQUIREJS_KEEP_R___");
+                    fileContents = fileContents.replace(/\n/g, "___REQUIREJS_KEEP_N___");
+                }
+                //standard minification using YUI compressor
+                if(config.optimizeCss.indexOf("standard") === 0){
+                    fileContents = cssmin(fileContents, config.cssLineBreakAt);
+                }
+                //"restore" line breaks
+                if(keepLines){
+                    fileContents = fileContents.replace(/___REQUIREJS_KEEP_R___/g, "\r");
+                    fileContents = fileContents.replace(/___REQUIREJS_KEEP_N___/g, "\n");
+                    //remove multiple empty lines
+                    fileContents = fileContents.replace(/(\r\n){3,}/g, "\r\n\r\n");
+                    fileContents = fileContents.replace(/(\n){3,}/g, "\n\n");
                 }
             } catch (e) {
                 fileContents = originalFileContents;

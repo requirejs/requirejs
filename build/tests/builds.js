@@ -37,7 +37,67 @@ define(['build', 'env!env/file'], function (build, file) {
             function buildOneCssFile(t) {
                 build(["..", "cssIn=css/sub/sub1.css", "out=builds/sub1.css"]);
 
-                t.is(nol(c("cssTestCompare.css")), nol(c("builds/sub1.css")));
+                t.is(c("css/cssTestCompare-standard.css"), c("builds/sub1.css"));
+
+                //Reset require internal state for the contexts so future
+                //builds in these tests will work correctly.
+                require._buildReset();
+            }
+        ]
+    );
+    doh.run();
+    
+    doh.register("buildOneCssFileInline",
+        [
+            function buildOneCssFile(t) {
+                build(["..", "cssIn=css/sub/sub1.css", "out=builds/sub1-inline.css", "optimizeCss=inline"]);
+
+                t.is(c("css/cssTestCompare-inline.css"), c("builds/sub1-inline.css"));
+
+                //Reset require internal state for the contexts so future
+                //builds in these tests will work correctly.
+                require._buildReset();
+            }
+        ]
+    );
+    doh.run();
+    
+    doh.register("buildOneCssFileStandardOptimization",
+        [
+            function buildOneCssFile(t) {
+                build(["..", "cssIn=css/sub/sub1.css", "out=builds/sub1-standard.css", "optimizeCss=standard"]);
+
+                t.is(c("css/cssTestCompare-standard.css"), c("builds/sub1-standard.css"));
+
+                //Reset require internal state for the contexts so future
+                //builds in these tests will work correctly.
+                require._buildReset();
+            }
+        ]
+    );
+    doh.run();
+    
+    doh.register("buildOneCssFileKeepLines",
+        [
+            function buildOneCssFile(t) {
+                build(["..", "cssIn=css/sub/sub1.css", "out=builds/sub1-keepLines.css", "optimizeCss=standard.keepLines"]);
+
+                t.is(c("css/cssTestCompare-keepLines.css"), c("builds/sub1-keepLines.css"));
+
+                //Reset require internal state for the contexts so future
+                //builds in these tests will work correctly.
+                require._buildReset();
+            }
+        ]
+    );
+    doh.run();
+    
+    doh.register("buildOneCssFileLineBreak",
+        [
+            function buildOneCssFile(t) {
+                build(["..", "cssIn=css/sub/sub1.css", "out=builds/sub1-lineBreak.css", "cssLineBreakAt=0"]);
+
+                t.is(c("css/cssTestCompare-lineBreak.css"), c("builds/sub1-lineBreak.css"));
 
                 //Reset require internal state for the contexts so future
                 //builds in these tests will work correctly.

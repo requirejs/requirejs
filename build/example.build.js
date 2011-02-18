@@ -53,12 +53,17 @@
     optimize: "uglify",
 
     //Allow CSS optimizations. Allowed values:
+    //- "inline": @import inlining.
     //- "standard": @import inlining, comment removal and line returns.
-    //Removing line returns may have problems in IE, depending on the type
-    //of CSS.
     //- "standard.keepLines": like "standard" but keeps line returns.
     //- "none": skip CSS optimizations.
     optimizeCss: "standard.keepLines",
+    
+    //Split long lines after a specific column.
+    //- setting to '0' will break lines after each CSS rule, setting to 500 
+    //  will break lines on the first rule after 500 chars.
+    //- this feature only works together with `optimizeCSS:"standard"`.
+    cssLineBreakAt : 550,
 
     //If optimizeCss is in use, a list of of files to ignore for the @import
     //inlining. The value of this option should be a comma separated list

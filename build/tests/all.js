@@ -7,6 +7,9 @@
 /**
  * Run the tests in Node with this command:
  * ../../bin/x all.js
+ * 
+ * Or run the tests in Rhino with this command:
+ * ../../bin/xj all.js
  */
 
 /*jslint plusplus: false, strict: false */
