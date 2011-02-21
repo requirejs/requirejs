@@ -3,6 +3,7 @@ Next release
 - update to jQuery 1.5.1 when released
   - Consider putting in the version detection?
 - Move up plugins, or move them to their own repo?
+  - Confirm that it fixes: https://github.com/jrburke/requirejs/issues#issue/72
 - build tool to rename require and define calls to other names?
 - Build the optimizer as its own project, at least enough to take out the
   work from jquery-require-sample
@@ -11,11 +12,23 @@ and one thing I found when trying to compress dojo 1.5 code was that I had ensur
 flag was set to false when calling ast_squeeze. If I left this flag set to true the code would not load.
 - localeList for i18n.js support, for better Dojo support.
 
+- Look for fetchText implementations, need to be in text plugin directly.
+- update docs to mention how to get the plugins by themselves?
+- Put the plugins on the download page? Or separate plugins wiki listing page?
 
+- Remove text and i18n plugins from r.js.
 
+- Test these
+* ../build.sh indexBuilder.build.js - confirm plugin write calls are done.
+* ../build.sh text.build.js - confirm plugin write calls are done.
+* ../build.sh i18n.build.js - confirm plugin required the nls/en-us-surfer/colors module.
+* ../build.sh order.build.js - confirm one, two, three are in order.
+* ../build.sh hasTestModule.build.js - confirm has replacements have been done.
 
 Bugs to work on
 ------------------
+
+- https://github.com/jrburke/requirejs/pull/71: process by 2/21
 
 - Test build scripts on windows.
 

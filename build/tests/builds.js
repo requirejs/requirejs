@@ -18,7 +18,7 @@ define(['build', 'env!env/file'], function (build, file) {
     build(["..", "name=require", "baseUrl=../..", "out=builds/require.js", "includeRequire=true", "optimize=none"]);
 
     //Do a build of the text plugin to get any pragmas processed.
-    build(["..", "name=require/text", "baseUrl=../..", "out=builds/text.js", "optimize=none"]);
+    build(["..", "name=text", "baseUrl=../..", "out=builds/text.js", "optimize=none"]);
 
     //Reset build state for next run.
     require._buildReset();
@@ -108,8 +108,8 @@ define(['build', 'env!env/file'], function (build, file) {
     doh.register("buildTextPluginIncluded",
         [
             function buildTextPluginIncluded(t) {
-                build(["..", "name=one", "include=require/text", "out=builds/oneText.js",
-                       "baseUrl=../../tests", "optimize=none"]);
+                build(["..", "name=one", "include=text", "out=builds/oneText.js",
+                       "baseUrl=../../tests", "paths.text=../text", "optimize=none"]);
 
                 t.is(nol(nol(c("../../tests/two.js") +
                          c("../../tests/one.js")) +

@@ -319,7 +319,17 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
                 value = value.split(",");
             }
 
-            result[prop] = value;
+            if (prop.indexOf("paths.") === 0) {
+                //Special handling of paths properties. paths.foo=bar is transformed
+                //to data.paths = {foo: 'bar'}
+                if (!result.paths) {
+                    result.paths = {};
+                }
+                prop = prop.substring("paths.".length, prop.length);
+                result.paths[prop] = value;
+            } else {
+                result[prop] = value;
+            }
         }
         return result; //Object
     };

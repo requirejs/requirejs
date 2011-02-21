@@ -19,7 +19,9 @@ rm -rf dist/
 cd ../../docs/jquery-require-sample/dist/jquery-require-sample
 
 # Copy over the RequireJS plugins.
-cp -r ../../../../require webapp/scripts
+cp ../../../../text.js webapp/scripts
+cp ../../../../i18n.js webapp/scripts
+cp ../../../../order.js webapp/scripts
 
 # Copy over the build system for requirejs and basic require files, used by the build.
 mkdir requirejs

@@ -1,7 +1,8 @@
 require({
         baseUrl: require.isBrowser ? "./" : "./anon/",
         paths: {
-            require: "../../require"
+            text: "../../text",
+            i18n: "../../i18n"
         }
     },
     ["require", "magenta", "red", "blue", "green", "yellow", "a", "c"],
