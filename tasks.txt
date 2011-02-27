@@ -10,14 +10,11 @@ Next release
 and one thing I found when trying to compress dojo 1.5 code was that I had ensure that "make_seqs"
 flag was set to false when calling ast_squeeze. If I left this flag set to true the code would not load.
 - localeList for i18n.js support, for better Dojo support.
-
-
-
+- Point to Miller's gist for ant integration: https://gist.github.com/825117
+- Put in error message with URL refs to faq page?
 
 Bugs to work on
 ------------------
-
-- Test build scripts on windows.
 
 - plugins in excludeShallow do not work, are not excluded. For example text! one.
 
