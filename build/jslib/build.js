@@ -156,8 +156,10 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
                 if (module.name) {
                     module._sourcePath = buildContext.nameToUrl(module.name);
                     //If the module does not exist, and this is not a "new" module layer,
-                    //as indicated by a true "create" property on the module, then throw an error.
-                    if (!file.exists(module._sourcePath) && !module.create) {
+                    //as indicated by a true "create" property on the module, and
+                    //it is not a plugin-loaded resource, then throw an error.
+                    if (!file.exists(module._sourcePath) && !module.create &&
+                        module.name.indexOf('!') === -1) {
                         throw new Error("ERROR: module path does not exist: " +
                                         module._sourcePath + " for module named: " + module.name +
                                         ". Path is relative to: " + file.absPath('.'));
