@@ -62,6 +62,7 @@ load("exports/exports-tests.js");
 load("anon/anon-tests.js");
 load("packages/packages-tests.js");
 load("plugins/sync-tests.js");
+load("plugins/fromText/fromText-tests.js");
 
 //Print out the final report
 doh.run();

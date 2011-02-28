@@ -102,6 +102,46 @@ define({
 });
 </code></pre>
 
+<p>Some plugins may need to evaluate some JavaScript that was retrieved as text. To evaluate the JavaScript correctly, particularly if it contains require() or define() calls, there is a function off the load() argument, <strong>load.fromText()</strong>, that can be used to evaluate the JavaScript. eval() is used by RequireJS to evaluate that JavaScript.</p>
+
+<p>Arguments for load.fromText():</p>
+
+<ul>
+    <li><b>name</b>: String. The name of the module being loaded. Useful for anonymous module calls. Always pass a value. You can use the file path that was used to retrieve the text if there is no matching module name for the text.</li>
+    <li><b>text</b>: String. The string of JavaScript to evaluate..</li>
+</ul>
+
+<p>An example plugin's load function that uses load.fromText():</p>
+
+<pre><code>
+define({
+    load: function (name, req, load, config) {
+        var url = req.toUrl(name + '.customFileExtension'),
+            text;
+
+        //Use a method to load the text (provide elsewhere)
+        //by the plugin
+        fetchText(url, function (text) {
+            //Transform the text as appropriate for
+            //the plugin by using a transform()
+            //method provided elsewhere in the plugin.
+            text = transform(text);
+
+            //Have RequireJS execute the JavaScript within
+            //the correct environment/context.
+            load.fromText(name, text);
+
+            //Now get a handle on the evaluated module,
+            //to return that value for this plugin-loaded
+            //resource
+            req([name], function (value) {
+                load(value);
+            });
+        });
+    }
+});
+</code></pre>
+
 <h3>
 <a name="apinormalize">normalize: function (name, normalize)</a>
 <span class="sectionMark">&sect; 3.2</span>
@@ -224,5 +264,3 @@ write: function (pluginName, moduleName, write) {
 </ul>
 
 </div>
-
-

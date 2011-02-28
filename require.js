@@ -827,7 +827,8 @@ var require, define;
 
         function callPlugin(pluginName, dep) {
             var name = dep.name,
-                fullName = dep.fullName;
+                fullName = dep.fullName,
+                load;
 
             //Do not bother if plugin is already defined or being loaded.
             if (fullName in defined || fullName in loaded) {
@@ -843,10 +844,7 @@ var require, define;
                 loaded[fullName] = false;
             }
 
-            //Use parentName here since the plugin's name is not reliable,
-            //could be some weird string with no path that actually wants to
-            //reference the parentName's path.
-            plugins[pluginName].load(name, makeRequire(dep.parentMap, true), function (ret) {
+            load = function (ret) {
                 //Allow the build process to register plugin-loaded dependencies.
                 if (require.onPluginLoad) {
                     require.onPluginLoad(context, pluginName, name, ret);
@@ -861,7 +859,36 @@ var require, define;
                     }
                 });
                 loaded[fullName] = true;
-            }, config);
+            };
+
+            //Allow plugins to load other code without having to know the
+            //context or how to "complete" the load.
+            load.fromText = function (moduleName, text) {
+                /*jslint evil: true */
+                var hasInteractive = useInteractive;
+
+                //Indicate a the module is in process of loading.
+                context.loaded[moduleName] = false;
+                context.scriptCount += 1;
+
+                //Turn off interactive script matching for IE for any define
+                //calls in the text, then turn it back on at the end.
+                if (hasInteractive) {
+                    useInteractive = false;
+                }
+                eval(text);
+                if (hasInteractive) {
+                    useInteractive = true;
+                }
+
+                //Support anonymous modules.
+                context.completeLoad(moduleName);
+            };
+
+            //Use parentName here since the plugin's name is not reliable,
+            //could be some weird string with no path that actually wants to
+            //reference the parentName's path.
+            plugins[pluginName].load(name, makeRequire(dep.parentMap, true), load, config);
         }
 
         function loadPaused(dep) {

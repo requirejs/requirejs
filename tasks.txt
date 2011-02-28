@@ -2,6 +2,7 @@ Next release
 --------------
 - update to jQuery 1.5.1 when released
   - Consider putting in the version detection?
+- Allow specifying the use of a plugin in the data-main property.
 - Move up plugins, or move them to their own repo?
 - build tool to rename require and define calls to other names?
 - Build the optimizer as its own project, at least enough to take out the
