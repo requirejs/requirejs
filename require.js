@@ -981,6 +981,10 @@ var require, define;
                 //Reset paused list
                 context.paused = [];
 
+                var aggregator = context.config.aggregator;
+                if (p.length > 1 && aggregator && aggregator.loadPaused)
+                	p = aggregator.loadPaused(context, p) || p;
+                
                 for (i = 0; (args = p[i]); i++) {
                     loadPaused(args);
                 }
