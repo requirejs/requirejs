@@ -582,7 +582,7 @@ var require, define;
                     }
                 },
                 i, depArg, depName, cjsMod;
-
+            
             if (fullName) {
                 //If module already defined for context, or already loaded,
                 //then leave.
@@ -1014,6 +1014,7 @@ var require, define;
                 	var canHandle = [];
                 	p = aggregator.aggregateDeps(context, p, canHandle) || p;
                 	loadPaused(canHandle);
+                	context.pausedCount -= canHandle.length;
                 }
 
                 for (i = 0; (args = p[i]); i++) {
@@ -1229,7 +1230,7 @@ var require, define;
 	                        args[0] = moduleName;
 	                        break;
 	                    } else if (args[0] === moduleName) {
-	                    	callDefMain(args);
+	                    	
 	                        break;
 	                    } else {
 	                        //Some other named require.def call, most likely the result
@@ -1238,8 +1239,10 @@ var require, define;
 	                        args = null;
 	                    }
 	                }
-	                
-	                if (!args) {
+	                if (args) {
+	                	callDefMain(args);
+	                }
+	                else {
                         //A script that does not call define(), so just simulate
                         //the call for it. Special exception for jQuery dynamic load.
                         callDefMain([moduleName, [],
