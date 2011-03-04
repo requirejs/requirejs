@@ -894,54 +894,78 @@ var require, define;
         function loadPaused(dep) {
             //Renormalize dependency if its name was waiting on a plugin
             //to load, which as since loaded.
-            if (dep.prefix && dep.name.indexOf('__$p') === 0 && defined[dep.prefix]) {
-                dep = makeModuleMap(dep.originalName, dep.parentMap);
-            }
-
-            var pluginName = dep.prefix,
-                fullName = dep.fullName;
-
-            //Do not bother if the dependency has already been specified.
-            if (specified[fullName] || fullName in defined) {
-                return;
-            } else {
-                specified[fullName] = true;
-            }
-
-            if (pluginName) {
-                //If plugin not loaded, wait for it.
-                //set up callback list. if no list, then register
-                //managerCallback for that plugin.
-                if (defined[pluginName]) {
-                    callPlugin(pluginName, dep);
-                } else {
-                    if (!pluginsQueue[pluginName]) {
-                        pluginsQueue[pluginName] = [];
-                        (managerCallbacks[pluginName] ||
-                        (managerCallbacks[pluginName] = [])).push({
-                            onDep: function (name, value) {
-                                if (name === pluginName) {
-                                    var i, oldModuleMap, ary = pluginsQueue[pluginName];
-
-                                    //Now update all queued plugin actions.
-                                    for (i = 0; i < ary.length; i++) {
-                                        oldModuleMap = ary[i];
-                                        //Update the moduleMap since the
-                                        //module name may be normalized
-                                        //differently now.
-                                        callPlugin(pluginName,
-                                                   makeModuleMap(oldModuleMap.originalName, oldModuleMap.parentMap));
-                                    }
-                                    delete pluginsQueue[pluginName];
-                                }
-                            }
-                        });
-                    }
-                    pluginsQueue[pluginName].push(dep);
+        	var deps = dep.length ? dep : [dep],
+        	filtered = [],
+        	filteredNames = [],
+        	n = 0,
+        	pluginName,
+            fullName;
+        	
+        	for (var i = 0; dep = deps[i]; i++) {
+        		if (dep.prefix && dep.name.indexOf('__$p') === 0 && defined[dep.prefix]) {
+        			deps[i] = dep = makeModuleMap(dep.originalName, dep.parentMap);
                 }
-            } else {
-                req.load(context, fullName, dep.url);
-            }
+        		
+                fullName = dep.fullName;
+       		
+        		//Do not bother if the dependency has already been specified.
+                if (!specified[fullName] && !(fullName in defined)) {
+                    specified[fullName] = true;
+                    filtered[n] = dep;
+                    filteredNames[n++] = fullName;
+                }
+        	}
+        	
+        	if (filtered.length > 1) { // use aggregation service
+        		var urlFetched = context.urlFetched,
+                loaded = context.loaded;
+        		for (var i = 0; dep = filtered[i]; i++) {
+        			loaded[dep.fullName] = false;
+        			urlFetched[dep.url] = true;
+        		}
+        		req.load(context, filteredNames.join(','), context.config.aggregator.getUrl(context, filtered));
+        	}
+        	else if (filtered.length == 1){
+        		dep = filtered[0];
+        		
+        		pluginName = dep.prefix;
+                fullName = dep.fullName;
+                
+	            if (pluginName) {
+	                //If plugin not loaded, wait for it.
+	                //set up callback list. if no list, then register
+	                //managerCallback for that plugin.
+	                if (defined[pluginName]) {
+	                    callPlugin(pluginName, dep);
+	                } else {
+	                    if (!pluginsQueue[pluginName]) {
+	                        pluginsQueue[pluginName] = [];
+	                        (managerCallbacks[pluginName] ||
+	                        (managerCallbacks[pluginName] = [])).push({
+	                            onDep: function (name, value) {
+	                                if (name === pluginName) {
+	                                    var i, oldModuleMap, ary = pluginsQueue[pluginName];
+	
+	                                    //Now update all queued plugin actions.
+	                                    for (i = 0; i < ary.length; i++) {
+	                                        oldModuleMap = ary[i];
+	                                        //Update the moduleMap since the
+	                                        //module name may be normalized
+	                                        //differently now.
+	                                        callPlugin(pluginName,
+	                                                   makeModuleMap(oldModuleMap.originalName, oldModuleMap.parentMap));
+	                                    }
+	                                    delete pluginsQueue[pluginName];
+	                                }
+	                            }
+	                        });
+	                    }
+	                    pluginsQueue[pluginName].push(dep);
+	                }
+	            } else {
+	                req.load(context, fullName, dep.url);
+	            }
+        	}
         }
 
         /**
@@ -981,13 +1005,21 @@ var require, define;
                 //Reset paused list
                 context.paused = [];
 
-                var aggregator = context.config.aggregator;
-                if (p.length > 1 && aggregator && aggregator.loadPaused)
-                	p = aggregator.loadPaused(context, p) || p;
                 
+                // The aggregateDeps method is expected to fill in the canHandle array with all the dependencies
+                // it can aggregate from the array passed in to it.  It is also expected to return the pruned original 
+                // dependancy array leaving only what it cannot aggregate.
+                var aggregator = context.config.aggregator;
+                if (p.length > 1 && aggregator && aggregator.aggregateDeps) {
+                	var canHandle = [];
+                	p = aggregator.aggregateDeps(context, p, canHandle) || p;
+                	loadPaused(canHandle);
+                }
+
                 for (i = 0; (args = p[i]); i++) {
                     loadPaused(args);
                 }
+                
                 //Move the start time for timeout forward.
                 context.startTime = (new Date()).getTime();
                 context.pausedCount -= p.length;
@@ -1188,38 +1220,41 @@ var require, define;
 
                 context.takeGlobalQueue();
 
-                while (defQueue.length) {
-                    args = defQueue.shift();
-
-                    if (args[0] === null) {
-                        args[0] = moduleName;
-                        break;
-                    } else if (args[0] === moduleName) {
-                        //Found matching require.def call for this script!
-                        break;
-                    } else {
-                        //Some other named require.def call, most likely the result
-                        //of a build layer that included many require.def calls.
-                        callDefMain(args);
-                        args = null;
+                var moduleNames = moduleName instanceof Array ? moduleName : [moduleName];
+                for (var i = 0; moduleName = moduleNames[i]; i++) {
+	                while (defQueue.length) {
+	                    args = defQueue.shift();
+	
+	                    if (args[0] === null) {
+	                        args[0] = moduleName;
+	                        break;
+	                    } else if (args[0] === moduleName) {
+	                    	callDefMain(args);
+	                        break;
+	                    } else {
+	                        //Some other named require.def call, most likely the result
+	                        //of a build layer that included many require.def calls.
+	                        callDefMain(args);
+	                        args = null;
+	                    }
+	                }
+	                
+	                if (!args) {
+                        //A script that does not call define(), so just simulate
+                        //the call for it. Special exception for jQuery dynamic load.
+                        callDefMain([moduleName, [],
+                                    moduleName === "jquery" && typeof jQuery !== "undefined" ?
+                                    function () {
+                                        return jQuery;
+                                    } : null]);
                     }
-                }
-                if (args) {
-                    callDefMain(args);
-                } else {
-                    //A script that does not call define(), so just simulate
-                    //the call for it. Special exception for jQuery dynamic load.
-                    callDefMain([moduleName, [],
-                                moduleName === "jquery" && typeof jQuery !== "undefined" ?
-                                function () {
-                                    return jQuery;
-                                } : null]);
-                }
 
-                //Mark the script as loaded. Note that this can be different from a
-                //moduleName that maps to a require.def call. This line is important
-                //for traditional browser scripts.
-                loaded[moduleName] = true;
+                    //Mark the script as loaded. Note that this can be different from a
+                    //moduleName that maps to a require.def call. This line is important
+                    //for traditional browser scripts.
+                    loaded[moduleName] = true;
+                }
+                
 
                 //If a global jQuery is defined, check for it. Need to do it here
                 //instead of main() since stock jQuery does not register as
@@ -1578,10 +1613,11 @@ var require, define;
             //Reset interactive script so a script node is not held onto for
             //to long.
             interactiveScript = null;
-
+            
             //Pull out the name of the module and the context.
             contextName = node.getAttribute("data-requirecontext");
             moduleName = node.getAttribute("data-requiremodule");
+            moduleName = moduleName.indexOf(',') == -1 ? moduleName : moduleName.split(',');
             context = contexts[contextName];
 
             contexts[contextName].completeLoad(moduleName);
