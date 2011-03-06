@@ -592,14 +592,9 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
     build.flattenModule = function (module, layer, config) {
         var buildFileContents = "", requireContents = "",
             context = require.s.contexts._,
-            //This regexp is not bullet-proof, and it has one optional part to
-            //avoid issues with some Dojo transition modules that use a
-            //define(\n//begin v1.x content
-            //for a comment.
-            anonDefRegExp = /(require\s*\.\s*def|define)\s*\(\s*(\/\/[^\n\r]*[\r\n])?(\[|f|\{)/,
-            prop, path, reqIndex, fileContents, currContents,
-            i, moduleName, specified, deps, includeRequire,
-            parts, builder;
+            path, reqIndex, fileContents, currContents,
+            i, moduleName, includeRequire,
+            parts, builder, writeApi;
 
         //Use override settings, particularly for pragmas
         if (module.override) {
@@ -643,37 +638,19 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
             builder = parts.prefix && require.pluginBuilders[parts.prefix];
             if (builder) {
                 if (builder.write) {
-                    builder.write(parts.prefix, parts.name, function (input) {
+                    writeApi = function (input) {
                         fileContents += input;
-                    });
+                    };
+                    writeApi.asModule = function (moduleName, input) {
+                        fileContents += build.toTransport(moduleName, path, input, layer);
+                    };
+                    builder.write(parts.prefix, parts.name, writeApi);
                 }
             } else {
                 //Add the contents but remove any pragmas.
                 currContents = pragma.process(path, file.readFile(path), config);
 
-                //If anonymous module, insert the module name.
-                currContents = currContents.replace(anonDefRegExp, function (match, callName, possibleComment, suffix) {
-                    layer.modulesWithNames[moduleName] = true;
-
-                    //Look for CommonJS require calls inside the function if this is
-                    //an anonymous define/require.def call that just has a function registered.
-                    deps = null;
-                    if (suffix.indexOf('f') !== -1) {
-                        deps = parse.getAnonDeps(path, currContents);
-
-                        if (deps.length) {
-                            deps = deps.map(function (dep) {
-                                return "'" + dep + "'";
-                            });
-                        } else {
-                            deps = null;
-                        }
-                    }
-
-                    return "define('" + moduleName + "'," +
-                           (deps ? ('[' + deps.toString() + '],') : '') +
-                           suffix;
-                });
+                currContents = build.toTransport(moduleName, path, currContents, layer);
 
                 fileContents += currContents;
             }
@@ -696,6 +673,39 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
             text: fileContents,
             buildText: buildFileContents
         };
+    };
+
+    //This regexp is not bullet-proof, and it has one optional part to
+    //avoid issues with some Dojo transition modules that use a
+    //define(\n//begin v1.x content
+    //for a comment.
+    build.anonDefRegExp = /(require\s*\.\s*def|define)\s*\(\s*(\/\/[^\n\r]*[\r\n])?(\[|f|\{)/;
+
+    build.toTransport = function (moduleName, path, contents, layer) {
+        //If anonymous module, insert the module name.
+        return contents.replace(build.anonDefRegExp, function (match, callName, possibleComment, suffix) {
+            layer.modulesWithNames[moduleName] = true;
+
+            //Look for CommonJS require calls inside the function if this is
+            //an anonymous define/require.def call that just has a function registered.
+            var deps = null;
+            if (suffix.indexOf('f') !== -1) {
+                deps = parse.getAnonDeps(path, contents);
+
+                if (deps.length) {
+                    deps = deps.map(function (dep) {
+                        return "'" + dep + "'";
+                    });
+                } else {
+                    deps = null;
+                }
+            }
+
+            return "define('" + moduleName + "'," +
+                   (deps ? ('[' + deps.toString() + '],') : '') +
+                   suffix;
+        });
+
     };
 
     return build;

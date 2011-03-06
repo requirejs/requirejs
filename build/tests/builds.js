@@ -120,4 +120,24 @@ define(['build', 'env!env/file'], function (build, file) {
         ]
     );
     doh.run();
+
+    doh.register("buildPluginAsModule",
+        [
+            function buildPluginAsModule(t) {
+                build(["..", "name=refine!a", "out=builds/refineATest.js",
+                       "baseUrl=../../tests/plugins/fromText",
+                       "excludeShallow=require/text,refine",
+                       "paths.require=../../../require", "optimize=none"]);
+
+                t.is(nol(nol(c("../../tests/plugins/fromText/a.refine")
+                             .replace(/refine/g, 'define')))
+                             .replace(/define\(\{/, "define('refine!a',{"),
+                         nol(c("builds/refineATest.js")));
+
+                require._buildReset();
+            }
+
+        ]
+    );
+    doh.run();
 });

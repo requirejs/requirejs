@@ -2,6 +2,7 @@ Next release
 --------------
 - update to jQuery 1.5.1 when released
   - Consider putting in the version detection?
+- Make sure node execution uses directory of the top js file as the baseUrl, not the current working directory.
 - Allow specifying the use of a plugin in the data-main property.
 - Move up plugins, or move them to their own repo?
 - build tool to rename require and define calls to other names?
@@ -13,6 +14,11 @@ flag was set to false when calling ast_squeeze. If I left this flag set to true 
 - localeList for i18n.js support, for better Dojo support.
 - Point to Miller's gist for ant integration: https://gist.github.com/825117
 - Put in error message with URL refs to faq page?
+  - one candidate: mismatched require.def calls: happens when loading some modules/scripts with inline script tags that include a named module,
+    but later the anonymous version is loaded: so the named one is in a built file.
+- Doc that r.js finds relative path entries if not in the config explicitly.
+- Doc require.toUrl and anything else expected on parentRequire in plugins.
+- use setimeout for the data-main require? to assist cases where require.js contains all the code for the page?
 
 Bugs to work on
 ------------------
