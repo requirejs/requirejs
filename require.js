@@ -894,7 +894,7 @@ var require, define;
         function loadPaused(dep) {
             //Renormalize dependency if its name was waiting on a plugin
             //to load, which as since loaded.
-        	var deps = dep.length ? dep : [dep],
+        	var deps = dep instanceof Array ? dep : [dep],
         	filtered = [],
         	filteredNames = [],
         	n = 0,
