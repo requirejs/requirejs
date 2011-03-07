@@ -1257,6 +1257,8 @@ var require, define;
                     //for traditional browser scripts.
                     loaded[moduleName] = true;
                 }
+                if (moduleNames.length > 1)
+                	loaded[moduleNames.join(',')] = true;
                 
 
                 //If a global jQuery is defined, check for it. Need to do it here
