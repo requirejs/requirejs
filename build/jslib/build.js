@@ -534,16 +534,23 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
      * be in the flattened module.
      */
     build.traceDependencies = function (module, config) {
-        var include, override, layer,
-            context = require.s.contexts._,
-            baseConfig = context.config;
+        var include, override, layer, context, baseConfig, oldContext;
 
         //Reset some state set up in requirePatch.js, and clean up require's
         //current context.
-        require._buildReset();
+        oldContext = require._buildReset();
 
-        //Put back basic config
-        require(baseConfig);
+        //Grab the reset layer and context after the reset, but keep the
+        //old config to reuse in the new context.
+        baseConfig = oldContext.config;
+        layer = require._layer;
+        context = layer.context;
+
+        //Put back basic config, use a fresh object for it.
+        //WARNING: probably not robust for paths and packages/packagePaths,
+        //since those property's objects can be modified. But for basic
+        //config clone it works out.
+        require(lang.delegate(baseConfig));
 
         logger.trace("\nTracing dependencies for: " + (module.name || module.out));
         include = module.name && !module.create ? [module.name] : [];
@@ -561,10 +568,7 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
         //Figure out module layer dependencies by calling require to do the work.
         require(include);
 
-        //Pull out the layer dependencies. Do not use the old context
-        //but grab the latest value from inside require() since it was reset
-        //since our last context reference.
-        layer = require._layer;
+        //Pull out the layer dependencies.
         layer.specified = context.specified;
 
         //Reset config
@@ -591,7 +595,7 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
      */
     build.flattenModule = function (module, layer, config) {
         var buildFileContents = "", requireContents = "",
-            context = require.s.contexts._,
+            context = layer.context,
             path, reqIndex, fileContents, currContents,
             i, moduleName, includeRequire,
             parts, builder, writeApi;
@@ -635,7 +639,7 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
             //Figure out if the module is a result of a build plugin, and if so,
             //then delegate to that plugin.
             parts = context.makeModuleMap(moduleName);
-            builder = parts.prefix && require.pluginBuilders[parts.prefix];
+            builder = parts.prefix && context.pluginBuilders[parts.prefix];
             if (builder) {
                 if (builder.write) {
                     writeApi = function (input) {

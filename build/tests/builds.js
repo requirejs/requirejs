@@ -126,7 +126,7 @@ define(['build', 'env!env/file'], function (build, file) {
             function buildPluginAsModule(t) {
                 build(["..", "name=refine!a", "out=builds/refineATest.js",
                        "baseUrl=../../tests/plugins/fromText",
-                       "excludeShallow=require/text,refine",
+                       "exclude=require/text,refine",
                        "paths.require=../../../require", "optimize=none"]);
 
                 t.is(nol(nol(c("../../tests/plugins/fromText/a.refine")

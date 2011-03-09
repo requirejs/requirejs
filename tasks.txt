@@ -1,9 +1,13 @@
+Release Notes 0.24
+-------------------
+
+
+
 Next release
 --------------
 - update to jQuery 1.5.1 when released
   - Consider putting in the version detection?
 - Make sure node execution uses directory of the top js file as the baseUrl, not the current working directory.
-- Allow specifying the use of a plugin in the data-main property.
 - Move up plugins, or move them to their own repo?
 - build tool to rename require and define calls to other names?
 - Build the optimizer as its own project, at least enough to take out the
@@ -18,7 +22,7 @@ flag was set to false when calling ast_squeeze. If I left this flag set to true 
     but later the anonymous version is loaded: so the named one is in a built file.
 - Doc that r.js finds relative path entries if not in the config explicitly.
 - Doc require.toUrl and anything else expected on parentRequire in plugins.
-- use setimeout for the data-main require? to assist cases where require.js contains all the code for the page?
+- Update example.build.js: https://github.com/jrburke/requirejs/issues/77
 
 Bugs to work on
 ------------------
@@ -34,7 +38,6 @@ Bugs to work on
 - replacement for modify that intercepts callbacks, holds off until another module loads them?
 
 - coffeescript plugin
-- Support Node's "extensions" mechanism.
 
 - File bug for UglifyJS on dead code removal.
 
@@ -45,6 +48,7 @@ Bugs to work on
   - add amd object
   - add plugins?
 
+- Allow specifying the use of a plugin in the data-main property? gets weird for built cases.
 
 - building with packages.build.js, the alpha/replace path mapping does not work out?
 
