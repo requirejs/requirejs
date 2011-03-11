@@ -9,7 +9,6 @@ Next release
   - Consider putting in the version detection?
   - Use priority config instead, make it generic?
   - Make it clear in docs somewhere how jquery and requirejs integrate.
-- Switch attachEvent behavior for IE9.
 - Make sure node execution uses directory of the top js file as the baseUrl, not the current working directory.
 - Move up plugins, or move them to their own repo?
 - build tool to rename require and define calls to other names?
