@@ -910,6 +910,11 @@ var require, define;
                 specified[fullName] = true;
             }
 
+            //Allow a combo service to handle the dependency.
+            if (config.combo && config.combo.add(dep.prefix, dep.name, dep.url, config)) {
+                return;
+            }
+
             if (pluginName) {
                 //If plugin not loaded, wait for it.
                 //set up callback list. if no list, then register
@@ -986,6 +991,11 @@ var require, define;
                 for (i = 0; (args = p[i]); i++) {
                     loadPaused(args);
                 }
+
+                if (config.combo) {
+                    config.combo.done(context.require, config);
+                }
+
                 //Move the start time for timeout forward.
                 context.startTime = (new Date()).getTime();
                 context.pausedCount -= p.length;
