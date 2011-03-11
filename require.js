@@ -400,7 +400,9 @@ var require, define;
                     oldFullName = oldModuleMap.fullName;
                     moduleMap = makeModuleMap(oldModuleMap.originalName, oldModuleMap.parentMap);
                     fullName = moduleMap.fullName;
-                    callbacks = managerCallbacks[oldFullName];
+                    //Callbacks could be undefined if the same plugin!name was
+                    //required twice in a row, so use empty array in that case.
+                    callbacks = managerCallbacks[oldFullName] || [];
                     existingCallbacks = managerCallbacks[fullName];
 
                     if (fullName !== oldFullName) {
