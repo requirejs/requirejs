@@ -972,23 +972,22 @@ var require, define;
                 }
             }
 
-            //Skip the resume if current context is in priority wait.
-            if (config.priorityWait && !isPriorityDone()) {
-                return undefined;
-            }
+            //Skip the resume of paused dependencies
+            //if current context is in priority wait.
+            if (!config.priorityWait || isPriorityDone()) {
+                while (context.paused.length) {
+                    p = context.paused;
+                    context.pausedCount += p.length;
+                    //Reset paused list
+                    context.paused = [];
 
-            while (context.paused.length) {
-                p = context.paused;
-                context.pausedCount += p.length;
-                //Reset paused list
-                context.paused = [];
-
-                for (i = 0; (args = p[i]); i++) {
-                    loadPaused(args);
+                    for (i = 0; (args = p[i]); i++) {
+                        loadPaused(args);
+                    }
+                    //Move the start time for timeout forward.
+                    context.startTime = (new Date()).getTime();
+                    context.pausedCount -= p.length;
                 }
-                //Move the start time for timeout forward.
-                context.startTime = (new Date()).getTime();
-                context.pausedCount -= p.length;
             }
 
             //Only check if loaded when resume depth is 1. It is likely that
