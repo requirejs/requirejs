@@ -1,21 +1,12 @@
 Release Notes 0.24
 -------------------
 * jQuery 1.5.1 included in sample project.
-* No more bundled RequireJS and jQuery file.
+* No more bundled RequireJS and jQuery file, easier to swap out jQuery.
 
 
-
-Next release
---------------
+- Test on windows node, build in cygwin.
 - Make sure node execution uses directory of the top js file as the baseUrl, not the current working directory.
 - Move up plugins, or move them to their own repo?
-- build tool to rename require and define calls to other names?
-- Build the optimizer as its own project, at least enough to take out the
-  work from jquery-require-sample
-- Confirm: From Richard Backhouse: As an FYI I have been doing my own investigation of using UglifyJS for compression
-and one thing I found when trying to compress dojo 1.5 code was that I had ensure that "make_seqs"
-flag was set to false when calling ast_squeeze. If I left this flag set to true the code would not load.
-- localeList for i18n.js support, for better Dojo support.
 - Point to Miller's gist for ant integration: https://gist.github.com/825117
 - Put in error message with URL refs to faq page?
   - one candidate: mismatched require.def calls: happens when loading some modules/scripts with inline script tags that include a named module,
@@ -30,6 +21,17 @@ flag was set to false when calling ast_squeeze. If I left this flag set to true 
   for builds that need it with plain define, and allow the build system to load
   the plugins. A problem, since previously built layers with plugins in them
   can cause a problem.
+
+Next release
+--------------
+- build tool to rename require and define calls to other names?
+- Build the optimizer as its own project, at least enough to take out the
+  work from jquery-require-sample
+- localeList for i18n.js support, for better Dojo support.
+- Confirm: From Richard Backhouse: As an FYI I have been doing my own investigation of using UglifyJS for compression
+and one thing I found when trying to compress dojo 1.5 code was that I had ensure that "make_seqs"
+flag was set to false when calling ast_squeeze. If I left this flag set to true the code would not load.
+
 
 Bugs to work on
 ------------------
