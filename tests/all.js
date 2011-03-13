@@ -71,6 +71,7 @@ doh.registerUrl("exports", "../exports/exports.html");
 
 
 doh.registerUrl("priority", "../priority/priority.html");
+doh.registerUrl("priorityOptimized", "../priority/priorityOptimized.html");
 doh.registerUrl("priorityWithDeps", "../priority/priorityWithDeps/priorityWithDeps.html");
 doh.registerUrl("prioritySingleCall", "../priority/prioritySingleCall.html");
 

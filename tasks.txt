@@ -6,7 +6,6 @@ Release Notes 0.24
 Next release
 --------------
 - update to jQuery 1.5.1 when released
-  - Consider putting in the version detection?
   - Use priority config instead, make it generic?
   - Make it clear in docs somewhere how jquery and requirejs integrate.
 - Make sure node execution uses directory of the top js file as the baseUrl, not the current working directory.
@@ -25,10 +24,6 @@ flag was set to false when calling ast_squeeze. If I left this flag set to true 
 - Doc that r.js finds relative path entries if not in the config explicitly.
 - Doc require.toUrl and anything else expected on parentRequire in plugins.
 - Update example.build.js: https://github.com/jrburke/requirejs/issues/77
-
-Bugs to work on
-------------------
-
 - plugins in excludeShallow do not work, are not excluded. For example text! one.
 
 - "libs/static.lib.02", //kaaahhhhnnnn!!!
@@ -36,6 +31,10 @@ Bugs to work on
   for builds that need it with plain define, and allow the build system to load
   the plugins. A problem, since previously built layers with plugins in them
   can cause a problem.
+
+Bugs to work on
+------------------
+
 
 - replacement for modify that intercepts callbacks, holds off until another module loads them?
 

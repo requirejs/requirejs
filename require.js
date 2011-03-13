@@ -904,7 +904,7 @@ var require, define;
                 fullName = dep.fullName;
 
             //Do not bother if the dependency has already been specified.
-            if (specified[fullName] || fullName in defined) {
+            if (specified[fullName] || loaded[fullName]) {
                 return;
             } else {
                 specified[fullName] = true;
@@ -1080,20 +1080,28 @@ var require, define;
 
                 //If priority loading is in effect, trigger the loads now
                 if (cfg.priority) {
-                    //Create a separate config property that can be
-                    //easily tested for config priority completion.
-                    //Do this instead of wiping out the config.priority
-                    //in case it needs to be inspected for debug purposes later.
                     //Hold on to requireWait value, and reset it after done
                     requireWait = context.requireWait;
+
+                    //Allow tracing some require calls to allow the fetching
+                    //of the priority config.
                     context.requireWait = false;
+
+                    //But first, call resume to register any defined modules that may
+                    //be in a data-main built file before the priority config
+                    //call. Also grab any waiting define calls for this context.
+                    context.takeGlobalQueue();
+                    resume();
+
                     context.require(cfg.priority);
+
                     //Trigger a resume right away, for the case when
                     //the script with the priority load is done as part
                     //of a data-main call. In that case the normal resume
                     //call will not happen because the scriptCount will be
                     //at 1, since the script for data-main is being processed.
                     resume();
+
                     //Restore previous state.
                     context.requireWait = requireWait;
                     config.priorityWait = cfg.priority;
