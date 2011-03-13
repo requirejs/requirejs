@@ -97,11 +97,7 @@ var console;
 
     if (useRequireBuildPath) {
         exec("require({" +
-            "baseUrl: '" + requireBuildPath + "build/jslib/'," +
-            "paths: {" +
-            "    require: '../../require'" +
-            "}," +
-            "argsHasRequirePath: true" +
+            "baseUrl: '" + requireBuildPath + "build/jslib/'" +
         "})", 'bootstrap');
     }
 

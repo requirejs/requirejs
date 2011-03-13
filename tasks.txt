@@ -6,7 +6,6 @@ Release Notes 0.24
 
 - update docs to mention how to get the plugins by themselves?
 - Put the plugins on the download page? Or separate plugins wiki listing page?
-- Remove text and i18n plugins from r.js.
 
 - Plugins cannot have dependencies in a build, and should not be modules that are already combined with other
   modules.
