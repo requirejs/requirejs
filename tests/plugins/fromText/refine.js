@@ -6,11 +6,11 @@
     //Load the text plugin, so that the XHR calls can be made.
     var buildMap = {};
 
-    define(['require/text'], function (text) {
+    define(['text'], function (text) {
         return {
             load: function (name, parentRequire, load, config) {
                 var url = parentRequire.toUrl(name + '.refine');
-                require.fetchText(url, function (text) {
+                text.get(url, function (text) {
                     text = text.replace(/refine/g, 'define');
 
                     if (config.isBuild) {

@@ -5,7 +5,8 @@
  */
 /*jslint regexp: false, nomen: false, plusplus: false, strict: false */
 /*global require: false, XMLHttpRequest: false, ActiveXObject: false,
-  define: false */
+  define: false, window: false, process: false, Packages: false,
+  java: false */
 
 (function () {
     var progIds = ['Msxml2.XMLHTTP', 'Microsoft.XMLHTTP', 'Msxml2.XMLHTTP.4.0'],
@@ -13,83 +14,125 @@
         bodyRegExp = /<body[^>]*>\s*([\s\S]+)\s*<\/body>/im,
         buildMap = [];
 
-    if (!require.textStrip) {
-        require.textStrip = function (text) {
-            //Strips <?xml ...?> declarations so that external SVG and XML
-            //documents can be added to a document without worry. Also, if the string
-            //is an HTML document, only the part inside the body tag is returned.
-            if (text) {
-                text = text.replace(xmlRegExp, "");
-                var matches = text.match(bodyRegExp);
-                if (matches) {
-                    text = matches[1];
+    define(function () {
+        var text, get, fs;
+
+        if (typeof window !== "undefined" && window.navigator && window.document) {
+            get = function (url, callback) {
+                var xhr = text.createXhr();
+                xhr.open('GET', url, true);
+                xhr.onreadystatechange = function (evt) {
+                    //Do not explicitly handle errors, those should be
+                    //visible via console output in the browser.
+                    if (xhr.readyState === 4) {
+                        callback(xhr.responseText);
+                    }
+                };
+                xhr.send(null);
+            };
+        } else if (typeof process !== "undefined" &&
+                 process.versions &&
+                 !!process.versions.node) {
+            //Using special require.nodeRequire, something added by r.js.
+            fs = require.nodeRequire('fs');
+
+            get = function (url, callback) {
+                callback(fs.readFileSync(url, 'utf8'));
+            };
+        } else if (typeof Packages !== 'undefined') {
+            //Why Java, why is this so awkward?
+            get = function (url, callback) {
+                var encoding = "utf-8",
+                    file = new java.io.File(url),
+                    lineSeparator = java.lang.System.getProperty("line.separator"),
+                    input = new java.io.BufferedReader(new java.io.InputStreamReader(new java.io.FileInputStream(file), encoding)),
+                    stringBuffer, line,
+                    content = '';
+                try {
+                    stringBuffer = new java.lang.StringBuffer();
+                    line = input.readLine();
+
+                    // Byte Order Mark (BOM) - The Unicode Standard, version 3.0, page 324
+                    // http://www.unicode.org/faq/utf_bom.html
+
+                    // Note that when we use utf-8, the BOM should appear as "EF BB BF", but it doesn't due to this bug in the JDK:
+                    // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4508058
+                    if (line && line.length() && line.charAt(0) === 0xfeff) {
+                        // Eat the BOM, since we've already found the encoding on this file,
+                        // and we plan to concatenating this buffer with others; the BOM should
+                        // only appear at the top of a file.
+                        line = line.substring(1);
+                    }
+
+                    stringBuffer.append(line);
+
+                    while ((line = input.readLine()) !== null) {
+                        stringBuffer.append(lineSeparator);
+                        stringBuffer.append(line);
+                    }
+                    //Make sure we return a JavaScript string and not a Java string.
+                    content = String(stringBuffer.toString()); //String
+                } finally {
+                    input.close();
                 }
-            } else {
-                text = "";
-            }
-            return text;
-        };
-    }
+                callback(content);
+            };
+        }
 
-    if (!require.jsEscape) {
-        require.jsEscape = function (text) {
-            return text.replace(/(['\\])/g, '\\$1')
-                .replace(/[\f]/g, "\\f")
-                .replace(/[\b]/g, "\\b")
-                .replace(/[\n]/g, "\\n")
-                .replace(/[\t]/g, "\\t")
-                .replace(/[\r]/g, "\\r");
-        };
-    }
+        text = {
+            strip: function (text) {
+                //Strips <?xml ...?> declarations so that external SVG and XML
+                //documents can be added to a document without worry. Also, if the string
+                //is an HTML document, only the part inside the body tag is returned.
+                if (text) {
+                    text = text.replace(xmlRegExp, "");
+                    var matches = text.match(bodyRegExp);
+                    if (matches) {
+                        text = matches[1];
+                    }
+                } else {
+                    text = "";
+                }
+                return text;
+            },
 
-    //Upgrade require to add some methods for XHR handling. But it could be that
-    //this require is used in a non-browser env, so detect for existing method
-    //before attaching one.
-    if (!require.getXhr) {
-        require.getXhr = function () {
-            //Would love to dump the ActiveX crap in here. Need IE 6 to die first.
-            var xhr, i, progId;
-            if (typeof XMLHttpRequest !== "undefined") {
-                return new XMLHttpRequest();
-            } else {
-                for (i = 0; i < 3; i++) {
-                    progId = progIds[i];
-                    try {
-                        xhr = new ActiveXObject(progId);
-                    } catch (e) {}
+            jsEscape: function (text) {
+                return text.replace(/(['\\])/g, '\\$1')
+                    .replace(/[\f]/g, "\\f")
+                    .replace(/[\b]/g, "\\b")
+                    .replace(/[\n]/g, "\\n")
+                    .replace(/[\t]/g, "\\t")
+                    .replace(/[\r]/g, "\\r");
+            },
 
-                    if (xhr) {
-                        progIds = [progId];  // so faster next time
-                        break;
+            createXhr: function () {
+                //Would love to dump the ActiveX crap in here. Need IE 6 to die first.
+                var xhr, i, progId;
+                if (typeof XMLHttpRequest !== "undefined") {
+                    return new XMLHttpRequest();
+                } else {
+                    for (i = 0; i < 3; i++) {
+                        progId = progIds[i];
+                        try {
+                            xhr = new ActiveXObject(progId);
+                        } catch (e) {}
+
+                        if (xhr) {
+                            progIds = [progId];  // so faster next time
+                            break;
+                        }
                     }
                 }
-            }
 
-            if (!xhr) {
-                throw new Error("require.getXhr(): XMLHttpRequest not available");
-            }
-
-            return xhr;
-        };
-    }
-
-    if (!require.fetchText) {
-        require.fetchText = function (url, callback) {
-            var xhr = require.getXhr();
-            xhr.open('GET', url, true);
-            xhr.onreadystatechange = function (evt) {
-                //Do not explicitly handle errors, those should be
-                //visible via console output in the browser.
-                if (xhr.readyState === 4) {
-                    callback(xhr.responseText);
+                if (!xhr) {
+                    throw new Error("require.getXhr(): XMLHttpRequest not available");
                 }
-            };
-            xhr.send(null);
-        };
-    }
 
-    define(function () {
-        return {
+                return xhr;
+            },
+
+            get: get,
+
             load: function (name, req, onLoad, config) {
                 //Name has format: some.module.filext!strip
                 //The strip part is optional.
@@ -112,22 +155,24 @@
 
                 //Load the text.
                 url = req.nameToUrl(modName, "." + ext);
-                require.fetchText(url, function (text) {
-                    text = strip ? require.textStrip(text) : text;
+                text.get(url, function (textContent) {
+                    textContent = strip ? text.strip(textContent) : textContent;
                     if (config.isBuild && config.inlineText) {
-                        buildMap[name] = text;
+                        buildMap[name] = textContent;
                     }
-                    onLoad(text);
+                    onLoad(textContent);
                 });
             },
 
             write: function (pluginName, moduleName, write) {
                 if (moduleName in buildMap) {
-                    var text = require.jsEscape(buildMap[moduleName]);
+                    var text = text.jsEscape(buildMap[moduleName]);
                     write("define('" + pluginName + "!" + moduleName  +
                           "', function () { return '" + text + "';});\n");
                 }
             }
         };
+
+        return text;
     });
 }());

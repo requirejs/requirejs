@@ -180,12 +180,6 @@ function (file,           pragma,   parse) {
             layer.modulesWithNames[registeredName] = true;
         };
 
-        //Override a method provided by require/text.js for loading text files as
-        //dependencies.
-        require.fetchText = function (url, callback) {
-            callback(file.readFile(url));
-        };
-
         //Marks the module as part of the loaded set, and puts
         //it in the right position for output in the build layer,
         //since require() already did the dependency checks and should have

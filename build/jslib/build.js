@@ -488,13 +488,6 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
             }
         }
 
-        //Make sure paths has a setting for require, so support plugins
-        //can be loaded for the build.
-        paths = config.paths;
-        if (!paths.require) {
-            paths.require = file.absPath(config.requireUrl.substring(0, config.requireUrl.lastIndexOf("/")) + "/require");
-        }
-
         return config;
     };
 

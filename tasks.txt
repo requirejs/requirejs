@@ -4,6 +4,18 @@ Release Notes 0.24
 * No more bundled RequireJS and jQuery file, easier to swap out jQuery.
 
 
+- update docs to mention how to get the plugins by themselves?
+- Put the plugins on the download page? Or separate plugins wiki listing page?
+- Remove text and i18n plugins from r.js.
+- Test these
+* ../build.sh indexBuilder.build.js - confirm plugin write calls are done.
+* ../build.sh text.build.js - confirm plugin write calls are done.
+* ../build.sh i18n.build.js - confirm plugin required the nls/en-us-surfer/colors module.
+* ../build.sh order.build.js - confirm one, two, three are in order.
+* ../build.sh hasTestModule.build.js - confirm has replacements have been done.
+
+
+
 - Test on windows node, build in cygwin.
 - Make sure node execution uses directory of the top js file as the baseUrl, not the current working directory.
 - Move up plugins, or move them to their own repo?
@@ -31,17 +43,6 @@ Next release
 - Confirm: From Richard Backhouse: As an FYI I have been doing my own investigation of using UglifyJS for compression
 and one thing I found when trying to compress dojo 1.5 code was that I had ensure that "make_seqs"
 flag was set to false when calling ast_squeeze. If I left this flag set to true the code would not load.
-
-- Look for fetchText implementations, need to be in text plugin directly.
-- update docs to mention how to get the plugins by themselves?
-- Put the plugins on the download page? Or separate plugins wiki listing page?
-- Remove text and i18n plugins from r.js.
-- Test these
-* ../build.sh indexBuilder.build.js - confirm plugin write calls are done.
-* ../build.sh text.build.js - confirm plugin write calls are done.
-* ../build.sh i18n.build.js - confirm plugin required the nls/en-us-surfer/colors module.
-* ../build.sh order.build.js - confirm one, two, three are in order.
-* ../build.sh hasTestModule.build.js - confirm has replacements have been done.
 
 Bugs to work on
 ------------------
