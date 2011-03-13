@@ -665,7 +665,18 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
             //after the module is processed.
             //If we have a name, but no defined module, then add in the placeholder.
             if (moduleName && !layer.modulesWithNames[moduleName] && !config.skipModuleInsertion) {
-                fileContents += 'define("' + moduleName + '", function(){});\n';
+                //If including jquery, register the module correctly, otherwise
+                //register an empty function. For jquery, make sure jQuery is
+                //a real object, and perhaps not some other file mapping, like
+                //to zepto.
+                if (moduleName === 'jquery') {
+                    fileContents += '\n(function () {\n' +
+                                   'var jq = typeof jQuery !== "undefined" && jQuery;\n' +
+                                   'define("jquery", [], function () { return jq; });\n' +
+                                   '}());\n'
+                } else {
+                    fileContents += 'define("' + moduleName + '", function(){});\n';
+                }
             }
         }
 

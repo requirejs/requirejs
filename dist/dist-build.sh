@@ -13,8 +13,6 @@ fi
 
 myDir=`cd \`dirname "$0"\`; pwd`
 
-jqueryName=jquery-1.4.4.js
-
 # Setup a build directory
 rm -rf ../../requirejs-build
 mkdir ../../requirejs-build
@@ -39,19 +37,8 @@ sed -i '' 's/\/\*jslint/\/\*jslint white\: false\,/' allplugins-require.js
 cp require.js ../../../../$version/comments/require.js
 cp allplugins-require.js ../../../../$version/comments/allplugins-require.js
 
-
-# Build jquery options
-cd ../../jquery
-../build.sh require-jquery.build.js
-../build.sh requireplugins-jquery.build.js
-
-sed -i '' 's/\/\*jslint/\/\*jslint white\: false\,/' dist/require-jquery.js
-sed -i '' 's/\/\*jslint/\/\*jslint white\: false\,/' dist/requireplugins-jquery.js
-mv dist/require-jquery.js ../../../$version/comments/require-$jqueryName
-mv dist/requireplugins-jquery.js ../../../$version/comments/requireplugins-$jqueryName
-
 # Build the sample jQuery project
-cd ../../
+cd ../../../
 cd docs/jquery-require-sample
 ./dist.sh
 cp dist/jquery-require-sample.zip ../../../$version
@@ -69,7 +56,5 @@ cd ../
 cd ../$version/comments
 java -jar ../../requirejs-$version/build/lib/closure/compiler.jar --js require.js --js_output_file ../minified/require.js
 java -jar ../../requirejs-$version/build/lib/closure/compiler.jar --js allplugins-require.js --js_output_file ../minified/allplugins-require.js
-java -jar ../../requirejs-$version/build/lib/closure/compiler.jar --js require-$jqueryName --js_output_file ../minified/require-$jqueryName
-java -jar ../../requirejs-$version/build/lib/closure/compiler.jar --js requireplugins-$jqueryName --js_output_file ../minified/requireplugins-$jqueryName
 
 cd ../../../
