@@ -85,8 +85,7 @@
     //is evaluated to see if the code between the Start and End pragma
     //lines should be included or excluded.
     pragmas: {
-        //Indicates require will be included with jquery.
-        jquery: true
+        fooExclude: true
     },
 
     //Skip processing for pragmas.

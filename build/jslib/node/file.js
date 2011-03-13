@@ -17,11 +17,13 @@ define(['fs', 'path'], function (fs, path) {
 
     function mkFullDir(dir) {
         var parts = dir.split('/'),
-            currDir = '';
+            currDir = dir.indexOf('/') === 0 ? '/' : '',
+            first = true;
         parts.forEach(function (part) {
-            currDir += (currDir || !part ? '/' : '') + part;
-
             //First part may be empty string if path starts with a slash.
+            currDir += (!first ? '/' : '') + part;
+            first = false;
+
             if (part) {
                 mkDir(currDir);
             }

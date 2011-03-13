@@ -11,12 +11,8 @@ cd dist/jquery-require-sample
 # Copy the sample files.
 cp -r ../../webapp ./webapp
 
-# Do a build of requirejs with jquery
-cd ../../../../build/jquery
-../build.sh require-jquery.build.js
-cp dist/require-jquery.js ../../docs/jquery-require-sample/dist/jquery-require-sample/webapp/scripts/require-jquery.js
-rm -rf dist/
-cd ../../docs/jquery-require-sample/dist/jquery-require-sample
+# Copy over require.js
+cp ../../../../require.js webapp/scripts/require.js
 
 # Copy over the RequireJS plugins.
 cp ../../../../text.js webapp/scripts

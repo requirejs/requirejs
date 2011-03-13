@@ -89,4 +89,4 @@ define(['logger'], function (logger) {
     };
 
     return optimize;
-}());
+});
