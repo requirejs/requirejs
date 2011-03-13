@@ -6,10 +6,17 @@
         <li class="hbox"><a href="#requirejs">require.js</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.1</span></li>
         <li class="hbox"><a href="#requirejsplugins">require.js with plugins</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2</span></li>
         <li class="hbox"><a href="#samplejquery">Sample jQuery 1.5.1 project with require()</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.3</span></li>
-        <li class="hbox"><a href="#node">RequireJS adapter for Node</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.4</span></li>
+        <li class="hbox"><a href="#node">RequireJS adapter for Node and Rhino</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.4</span></li>
         <li class="hbox"><a href="#optimizationtool">Optimization Tool / Full Source</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.5</span></li>
     </ul>
-    <li class="hbox"><a href="#previous">Previous Releases</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2</span></li>
+    <li class="hbox"><a href="#previous">Plugins</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2</span></li>
+    <ul>
+        <li class="hbox"><a href="#text">text</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2.1</span></li>
+        <li class="hbox"><a href="#order">order</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2.2</span></li>
+        <li class="hbox"><a href="#cs">cs (CoffeeScript)</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2.3</span></li>
+        <li class="hbox"><a href="#i18n">i18n</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2.4</span></li>
+    </ul>
+    <li class="hbox"><a href="#previous">Previous Releases</a><span class="spacer boxFlex"></span><span class="sect">&sect; 3</span></li>
 </ul>
 
 </div>
@@ -99,8 +106,59 @@ to find the module. This allows the most compatible use of npm-installed modules
 </div>
 
 </div>
+
+
 <div class="section">
-<h2><a name="previous">Previous releases</a><span class="sectionMark">&sect; 2</span></h2>
+<h2><a name="plugins">Plugins</a><span class="sectionMark">&sect; 2</span></h2>
+
+<p>These are useful loader plugins that have the same license terms as require.js itself. Download the plugin file and place it as a sibling to your "data-main" main.js script.</p>
+
+<div class="subSection">
+<h4 class="hbox">
+<a name="text">text</a>
+<span class="boxFlex"></span>
+<a class="download" href="http://requirejs.org/docs/release/0.23.0/minified/text.js">Minified</a>
+<a class="download" href="http://requirejs.org/docs/release/0.23.0/comments/text.js">With Comments</a>
+</h4>
+<p>Load text files and treat them as dependencies. Great for loading templates. The text strings can be inlined in an optimized build when the optimizer is used.</p>
+</div>
+
+<div class="subSection">
+<h4 class="hbox">
+<a name="order">order</a>
+<span class="boxFlex"></span>
+<a class="download" href="http://requirejs.org/docs/release/0.23.0/minified/order.js">Minified</a>
+<a class="download" href="http://requirejs.org/docs/release/0.23.0/comments/order.js">With Comments</a>
+</h4>
+<p>Load script in the order specified in the dependency array. Useful for existing scripts that have implied dependencies instead of calling define() to create modular code.</p>
+</div>
+
+
+<div class="subSection">
+<h4 class="hbox">
+<a name="cs">cs (CoffeeScript)</a>
+<span class="boxFlex"></span>
+<a class="download" href="http://requirejs.org/docs/release/0.23.0/minified/cs.js">Minified</a>
+<a class="download" href="http://requirejs.org/docs/release/0.23.0/comments/cs.js">With Comments</a>
+</h4>
+<p>Load files written in CoffeeScript. Works with the optimizer to allow inlining of the CoffeeScript-converted-to-JavaScript code in an optimized build. The best way to use CoffeeScript in the browser, but also works in Node and Rhino via the RequireJS adapter.</p>
+</div>
+
+
+<div class="subSection">
+<h4 class="hbox">
+<a name="i18n">i18n</a>
+<span class="boxFlex"></span>
+<a class="download" href="http://requirejs.org/docs/release/0.23.0/minified/i18n.js">Minified</a>
+<a class="download" href="http://requirejs.org/docs/release/0.23.0/comments/i18n.js">With Comments</a>
+</h4>
+<p>Load string bundles used in internationalization (i18n) that are made up of separate country/language/locale-specific bundles.</p>
+</div>
+
+</div>
+
+<div class="section">
+<h2><a name="previous">Previous releases</a><span class="sectionMark">&sect; 3</span></h2>
 
 <h3>0.22.0</h3>
 

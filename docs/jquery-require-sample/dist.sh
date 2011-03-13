@@ -14,11 +14,6 @@ cp -r ../../webapp ./webapp
 # Copy over require.js
 cp ../../../../require.js webapp/scripts/require.js
 
-# Copy over the RequireJS plugins.
-cp ../../../../text.js webapp/scripts
-cp ../../../../i18n.js webapp/scripts
-cp ../../../../order.js webapp/scripts
-
 # Copy over the build system for requirejs and basic require files, used by the build.
 mkdir requirejs
 mkdir requirejs/adapt
@@ -34,7 +29,6 @@ cp ../../../../build/build.js requirejs/build/build.js
 cp ../../../../build/build.sh requirejs/build/build.sh
 cp ../../../../build/buildj.bat requirejs/build/buildj.bat
 cp ../../../../build/buildj.sh requirejs/build/buildj.sh
-cp ../../../../adapt/r.js requirejs/adapt/r.js
 cp ../../../../adapt/node.js requirejs/adapt/node.js
 cp ../../../../adapt/rhino.js requirejs/adapt/rhino.js
 
