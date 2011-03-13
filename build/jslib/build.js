@@ -94,7 +94,8 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
             buildPaths, fileName, fileNames,
             prop, paths, i,
             baseConfig, config,
-            modules, builtModule, srcPath, buildContext;
+            modules, builtModule, srcPath, buildContext,
+            destPath;
 
         //Can now run the patches to require.js to allow it to be used for
         //build generation. Do it here instead of at the top of the module
@@ -131,8 +132,18 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
                             srcPath = config.baseUrl + srcPath;
                         }
 
-                        //Copy files to build area. Copy all files (the /\w/ regexp)
-                        file.copyDir(srcPath, config.dirBaseUrl + buildPaths[prop], /\w/, true);
+                        destPath = config.dirBaseUrl + buildPaths[prop];
+
+                        //If the srcPath is a directory, copy the whole directory.
+                        if (file.exists(srcPath) && file.isDirectory(srcPath)) {
+                            //Copy files to build area. Copy all files (the /\w/ regexp)
+                            file.copyDir(srcPath, destPath, /\w/, true);
+                        } else {
+                            //Try a .js extension
+                            srcPath += '.js';
+                            destPath += '.js';
+                            file.copyFile(srcPath, destPath);
+                        }
                     }
                 }
             }
@@ -393,7 +404,11 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
 
             //Load build file options.
             buildFileContents = file.readFile(buildFile);
-            buildFileConfig = eval("(" + buildFileContents + ")");
+            try {
+                buildFileConfig = eval("(" + buildFileContents + ")");
+            } catch(e) {
+                throw new Error("Build file " + buildFile + " is malformed: " + e);
+            }
             lang.mixin(config, buildFileConfig, true);
 
             //Re-apply the override config values, things like command line
@@ -676,7 +691,7 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
                     fileContents += '\n(function () {\n' +
                                    'var jq = typeof jQuery !== "undefined" && jQuery;\n' +
                                    'define("jquery", [], function () { return jq; });\n' +
-                                   '}());\n'
+                                   '}());\n';
                 } else {
                     fileContents += 'define("' + moduleName + '", function(){});\n';
                 }

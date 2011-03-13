@@ -80,24 +80,24 @@
         }
 
         text = {
-            strip: function (text) {
+            strip: function (content) {
                 //Strips <?xml ...?> declarations so that external SVG and XML
                 //documents can be added to a document without worry. Also, if the string
                 //is an HTML document, only the part inside the body tag is returned.
-                if (text) {
-                    text = text.replace(xmlRegExp, "");
-                    var matches = text.match(bodyRegExp);
+                if (content) {
+                    content = content.replace(xmlRegExp, "");
+                    var matches = content.match(bodyRegExp);
                     if (matches) {
-                        text = matches[1];
+                        content = matches[1];
                     }
                 } else {
-                    text = "";
+                    content = "";
                 }
-                return text;
+                return content;
             },
 
-            jsEscape: function (text) {
-                return text.replace(/(['\\])/g, '\\$1')
+            jsEscape: function (content) {
+                return content.replace(/(['\\])/g, '\\$1')
                     .replace(/[\f]/g, "\\f")
                     .replace(/[\b]/g, "\\b")
                     .replace(/[\n]/g, "\\n")
@@ -155,20 +155,20 @@
 
                 //Load the text.
                 url = req.nameToUrl(modName, "." + ext);
-                text.get(url, function (textContent) {
-                    textContent = strip ? text.strip(textContent) : textContent;
+                text.get(url, function (content) {
+                    content = strip ? text.strip(content) : content;
                     if (config.isBuild && config.inlineText) {
-                        buildMap[name] = textContent;
+                        buildMap[name] = content;
                     }
-                    onLoad(textContent);
+                    onLoad(content);
                 });
             },
 
             write: function (pluginName, moduleName, write) {
                 if (moduleName in buildMap) {
-                    var text = text.jsEscape(buildMap[moduleName]);
+                    var content = text.jsEscape(buildMap[moduleName]);
                     write("define('" + pluginName + "!" + moduleName  +
-                          "', function () { return '" + text + "';});\n");
+                          "', function () { return '" + content + "';});\n");
                 }
             }
         };

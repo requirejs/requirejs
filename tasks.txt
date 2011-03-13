@@ -7,15 +7,9 @@ Release Notes 0.24
 - update docs to mention how to get the plugins by themselves?
 - Put the plugins on the download page? Or separate plugins wiki listing page?
 - Remove text and i18n plugins from r.js.
-- Test these
-* ../build.sh indexBuilder.build.js - confirm plugin write calls are done.
-* ../build.sh text.build.js - confirm plugin write calls are done.
-* ../build.sh i18n.build.js - confirm plugin required the nls/en-us-surfer/colors module.
-* ../build.sh order.build.js - confirm one, two, three are in order.
-* ../build.sh hasTestModule.build.js - confirm has replacements have been done.
 
-
-
+- Plugins cannot have dependencies in a build, and should not be modules that are already combined with other
+  modules.
 - Test on windows node, build in cygwin.
 - Make sure node execution uses directory of the top js file as the baseUrl, not the current working directory.
 - Move up plugins, or move them to their own repo?
