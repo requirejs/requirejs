@@ -29,6 +29,11 @@
         "baz": "../another/path/baz"
     },
 
+    //Configure CommonJS packages. See http://requirejs.org/docs/api.html#packages
+    //for more information.
+    packagePaths: [],
+    packages: [],
+
     //The directory path to save the output. If not specified, then
     //the path will default to be a directory called "build" as a sibling
     //to the build file. All relative paths are relative to the build file.
@@ -51,6 +56,25 @@
     //in the minified files.
     //- "none": no minification will be done.
     optimize: "uglify",
+
+    //If using UglifyJS for script optimization, these config options can be
+    //used to pass configuration values to UglifyJS.
+    //See https://github.com/mishoo/UglifyJS for the possible values.
+    uglify: {
+        gen_codeOptions: {},
+        strict_semicolons: {},
+        do_toplevel: {},
+        ast_squeezeOptions: {}
+    },
+
+    //If using Closure Compiler for script optimization, these config options
+    //can be used to configure Closure Compiler. See the documentation for
+    //Closure compiler for more information.
+    closure: {
+        CompilerOptions: {},
+        CompilationLevel: 'SIMPLE_OPTIMIZATIONS',
+        loggingLevel: 'WARNING'
+    }
 
     //Allow CSS optimizations. Allowed values:
     //- "standard": @import inlining, comment removal and line returns.

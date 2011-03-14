@@ -7,15 +7,7 @@ Release Notes 0.24
 
 - Prep work for CoffeeScript plugin release, update download links in the download.html file.
 
-- Plugins cannot have dependencies in a build, and should not be modules that are already combined with other
-  modules.
-- typo from David.
 - Test on windows node, build in cygwin.
-- Point to Miller's gist for ant integration: https://gist.github.com/825117
-- Doc that r.js finds relative path entries if not in the config explicitly.
-- Doc require.toUrl and anything else expected on parentRequire in plugins.
-- Update example.build.js: https://github.com/jrburke/requirejs/issues/77
-
 
 Next release
 --------------
@@ -31,7 +23,7 @@ flag was set to false when calling ast_squeeze. If I left this flag set to true 
 - Put in error message with URL refs to faq page?
   - one candidate: mismatched require.def calls: happens when loading some modules/scripts with inline script tags that include a named module,
     but later the anonymous version is loaded: so the named one is in a built file.
-
+- Point to Miller's gist for ant integration: https://gist.github.com/825117
 - "libs/static.lib.02", //kaaahhhhnnnn!!!
 - Build with requireplugins-jquery.js uses bad definition for require/text, probably other plugins. Use a jqueryStub.js
   for builds that need it with plain define, and allow the build system to load
