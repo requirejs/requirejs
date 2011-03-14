@@ -6,9 +6,35 @@
     //Load the text plugin, so that the XHR calls can be made.
     var buildMap = {}, fetchText;
 
+    function createXhr() {
+        //Would love to dump the ActiveX crap in here. Need IE 6 to die first.
+        var xhr, i, progId;
+        if (typeof XMLHttpRequest !== "undefined") {
+            return new XMLHttpRequest();
+        } else {
+            for (i = 0; i < 3; i++) {
+                progId = progIds[i];
+                try {
+                    xhr = new ActiveXObject(progId);
+                } catch (e) {}
+
+                if (xhr) {
+                    progIds = [progId];  // so faster next time
+                    break;
+                }
+            }
+        }
+
+        if (!xhr) {
+            throw new Error("require.getXhr(): XMLHttpRequest not available");
+        }
+
+        return xhr;
+    }
+
     if (typeof window !== "undefined" && window.navigator && window.document) {
         fetchText = function (url, callback) {
-            var xhr = text.createXhr();
+            var xhr = createXhr();
             xhr.open('GET', url, true);
             xhr.onreadystatechange = function (evt) {
                 //Do not explicitly handle errors, those should be
