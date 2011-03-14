@@ -108,6 +108,17 @@ var console;
         fileName = 'main.js';
     }
 
+    if (!useRequireBuildPath) {
+        //Use the file name's directory as the baseUrl if available.
+        dir = fileName.replace(/\\/g, '/');
+        if (dir.indexOf('/') !== -1) {
+            dir = dir.split('/');
+            dir.pop();
+            dir.join('/');
+            exec("require({baseUrl: '" + dir + "'});");
+        }
+    }
+
     exec(readFile(fileName), fileName);
 
 }((typeof Packages !== 'undefined' ? arguments : []), (typeof readFile !== 'undefined' ? readFile: undefined)));
