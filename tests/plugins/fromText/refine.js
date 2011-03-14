@@ -1,10 +1,12 @@
 
-/*jslint strict: false */
-/*global define: false, require: false */
+/*jslint strict: false, plusplus: false */
+/*global define: false, require: false,  XMLHttpRequest: false, ActiveXObject: false,
+  window: false, Packages: false, java: false, process: false */
 
 (function () {
     //Load the text plugin, so that the XHR calls can be made.
-    var buildMap = {}, fetchText;
+    var buildMap = {}, fetchText, fs,
+        progIds = ['Msxml2.XMLHTTP', 'Microsoft.XMLHTTP', 'Msxml2.XMLHTTP.4.0'];
 
     function createXhr() {
         //Would love to dump the ActiveX crap in here. Need IE 6 to die first.

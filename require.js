@@ -6,7 +6,7 @@
 /*jslint strict: false, plusplus: false */
 /*global window: false, navigator: false, document: false, importScripts: false,
   jQuery: false, clearInterval: false, setInterval: false, self: false,
-  setTimeout: false */
+  setTimeout: false, opera: false */
 
 var require, define;
 (function () {
@@ -29,6 +29,8 @@ var require, define;
         readyRegExp = isBrowser && navigator.platform === 'PLAYSTATION 3' ?
                       /^complete$/ : /^(complete|loaded)$/,
         defContextName = "_",
+        //Oh the tragedy, detecting opera. See the usage of isOpera for reason.
+        isOpera = typeof opera !== "undefined" && opera.toString() === "[object Opera]",
         reqWaitIdPrefix = "_r@@",
         empty = {},
         contexts = {},
@@ -1585,7 +1587,7 @@ var require, define;
             //Clean up script binding. Favor detachEvent because of IE9
             //issue, see attachEvent/addEventListener comment elsewhere
             //in this file.
-            if (node.detachEvent) {
+            if (node.detachEvent && !isOpera) {
                 //Probably IE. If not it will throw an error, which will be
                 //useful to know.
                 node.detachEvent("onreadystatechange", req.onScriptLoad);
@@ -1632,8 +1634,11 @@ var require, define;
             //a subtle issue in its addEventListener and script onload firings
             //that do not match the behavior of all other browsers with
             //addEventListener support, which fire the onload event for a
-            //script right after the script execution.
-            if (node.attachEvent) {
+            //script right after the script execution. See:
+            //https://connect.microsoft.com/IE/feedback/details/648057/script-onload-event-is-not-fired-immediately-after-script-execution
+            //UNFORTUNATELY Opera implements attachEvent but does not follow the script
+            //script execution mode.
+            if (node.attachEvent && !isOpera) {
                 //Probably IE. IE (at least 6-8) do not fire
                 //script onload right after executing the script, so
                 //we cannot tie the anonymous require.def call to a name.
