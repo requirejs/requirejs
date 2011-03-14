@@ -1,13 +1,5 @@
-Release Notes 0.24
+Release Notes
 -------------------
-* jQuery 1.5.1 included in sample project.
-* No more bundled RequireJS and jQuery file, easier to swap out jQuery.
-* Plugins are no longer bundled with require.js or in sample jQuery project, separate download of each.
-* CoffeeScript plugin?
-
-- Prep work for CoffeeScript plugin release, update download links in the download.html file.
-
-- Test on windows node, build in cygwin.
 
 Next release
 --------------
