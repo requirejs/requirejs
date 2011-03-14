@@ -4,10 +4,9 @@
     <li class="hbox"><a href="#latest">Latest Release</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1</span></li>
     <ul>
         <li class="hbox"><a href="#requirejs">require.js</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.1</span></li>
-        <li class="hbox"><a href="#requirejsplugins">require.js with plugins</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2</span></li>
-        <li class="hbox"><a href="#samplejquery">Sample jQuery 1.5.1 project with require()</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.3</span></li>
-        <li class="hbox"><a href="#node">RequireJS adapter for Node and Rhino</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.4</span></li>
-        <li class="hbox"><a href="#optimizationtool">Optimization Tool / Full Source</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.5</span></li>
+        <li class="hbox"><a href="#samplejquery">Sample jQuery 1.5.1 project with require()</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2</span></li>
+        <li class="hbox"><a href="#node">RequireJS adapter for Node and Rhino</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.3</span></li>
+        <li class="hbox"><a href="#optimizationtool">Optimization Tool / Full Source</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.4</span></li>
     </ul>
     <li class="hbox"><a href="#previous">Plugins</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2</span></li>
     <ul>
@@ -45,18 +44,7 @@ to find the module. This allows the most compatible use of npm-installed modules
 <a class="download" href="http://requirejs.org/docs/release/0.23.0/comments/require.js">With Comments</a>
 </h4>
 
-<p>All you need to start using require.js in the browser. Does not include i18n, text, order plugins or Node/Rhino support.</p>
-</div>
-
-<div class="subSection">
-<h4 class="hbox">
-<a name="requirejsplugins">require.js with plugins</a>
-<span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/0.23.0/minified/allplugins-require.js">Minified</a>
-<a class="download" href="http://requirejs.org/docs/release/0.23.0/comments/allplugins-require.js">With Comments</a>
-</h4>
-
-<p>require.js for use in the browser with the i18n, text, and order plugins included. </p>
+<p>All you need to start using require.js in the browser.</p>
 </div>
 
 <div class="subSection">
@@ -120,7 +108,7 @@ to find the module. This allows the most compatible use of npm-installed modules
 <a class="download" href="http://requirejs.org/docs/release/0.23.0/minified/text.js">Minified</a>
 <a class="download" href="http://requirejs.org/docs/release/0.23.0/comments/text.js">With Comments</a>
 </h4>
-<p>Load text files and treat them as dependencies. Great for loading templates. The text strings can be inlined in an optimized build when the optimizer is used.</p>
+<p><a href="api.html#text">Load text files and treat them as dependencies</a>. Great for loading templates. The text strings can be inlined in an optimized build when the optimizer is used.</p>
 </div>
 
 <div class="subSection">
@@ -130,7 +118,7 @@ to find the module. This allows the most compatible use of npm-installed modules
 <a class="download" href="http://requirejs.org/docs/release/0.23.0/minified/order.js">Minified</a>
 <a class="download" href="http://requirejs.org/docs/release/0.23.0/comments/order.js">With Comments</a>
 </h4>
-<p>Load script in the order specified in the dependency array. Useful for existing scripts that have implied dependencies instead of calling define() to create modular code.</p>
+<p><a href="api.html#order">Load script in the order specified in the dependency array</a>. Useful for existing scripts that have implied dependencies instead of calling define() to create modular code.</p>
 </div>
 
 
@@ -141,7 +129,7 @@ to find the module. This allows the most compatible use of npm-installed modules
 <a class="download" href="http://requirejs.org/docs/release/0.23.0/minified/cs.js">Minified</a>
 <a class="download" href="http://requirejs.org/docs/release/0.23.0/comments/cs.js">With Comments</a>
 </h4>
-<p>Load files written in CoffeeScript. Works with the optimizer to allow inlining of the CoffeeScript-converted-to-JavaScript code in an optimized build. The best way to use CoffeeScript in the browser, but also works in Node and Rhino via the RequireJS adapter.</p>
+<p>Load files written in CoffeeScript. Works with the optimizer to allow inlining of the CoffeeScript-converted-to-JavaScript code in an optimized build. The best way to use CoffeeScript in the browser, but also works in Node and Rhino via the <a href="#node">RequireJS adapter</a>.</p>
 </div>
 
 
@@ -152,7 +140,7 @@ to find the module. This allows the most compatible use of npm-installed modules
 <a class="download" href="http://requirejs.org/docs/release/0.23.0/minified/i18n.js">Minified</a>
 <a class="download" href="http://requirejs.org/docs/release/0.23.0/comments/i18n.js">With Comments</a>
 </h4>
-<p>Load string bundles used in internationalization (i18n) that are made up of separate country/language/locale-specific bundles.</p>
+<p><a href="api.html#i18n">Load string bundles</a> used in internationalization (i18n) that are made up of separate country/language/locale-specific bundles.</p>
 </div>
 
 </div>

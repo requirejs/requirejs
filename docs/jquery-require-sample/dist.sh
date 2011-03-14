@@ -32,8 +32,7 @@ cp ../../../../build/buildj.sh requirejs/build/buildj.sh
 cp ../../../../adapt/node.js requirejs/adapt/node.js
 cp ../../../../adapt/rhino.js requirejs/adapt/rhino.js
 
-cp ../../../../require.js requirejs/
-cp -r ../../../../require requirejs/require
+cp ../../../../require.js requirejs
 cp ../../../../LICENSE requirejs/LICENSE
 
 # Start the build.

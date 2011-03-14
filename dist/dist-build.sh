@@ -28,17 +28,14 @@ mkdir $version/minified
 mkdir $version/comments
 mv requirejs-$version.zip $version
 
-# Build requirejs
-cd requirejs-$version/build/require
-./build.sh
-cd build
-sed -i '' 's/\/\*jslint/\/\*jslint white\: false\,/' require.js
-sed -i '' 's/\/\*jslint/\/\*jslint white\: false\,/' allplugins-require.js
-cp require.js ../../../../$version/comments/require.js
-cp allplugins-require.js ../../../../$version/comments/allplugins-require.js
+# Copy over basic script deliverables
+cd requirejs-$version
+cp require.js ../$version/comments/require.js
+cp text.js ../$version/comments/text.js
+cp order.js ../$version/comments/order.js
+cp i18n.js ../$version/comments/i18n.js
 
 # Build the sample jQuery project
-cd ../../../
 cd docs/jquery-require-sample
 ./dist.sh
 cp dist/jquery-require-sample.zip ../../../$version
@@ -55,6 +52,8 @@ cd ../
 # Minify any of the browser-based JS files
 cd ../$version/comments
 java -jar ../../requirejs-$version/build/lib/closure/compiler.jar --js require.js --js_output_file ../minified/require.js
-java -jar ../../requirejs-$version/build/lib/closure/compiler.jar --js allplugins-require.js --js_output_file ../minified/allplugins-require.js
+java -jar ../../requirejs-$version/build/lib/closure/compiler.jar --js text.js --js_output_file ../minified/text.js
+java -jar ../../requirejs-$version/build/lib/closure/compiler.jar --js order.js --js_output_file ../minified/order.js
+java -jar ../../requirejs-$version/build/lib/closure/compiler.jar --js i18n.js --js_output_file ../minified/i18n.js
 
 cd ../../../

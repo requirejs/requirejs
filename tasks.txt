@@ -5,15 +5,12 @@ Release Notes 0.24
 * Plugins are no longer bundled with require.js or in sample jQuery project, separate download of each.
 * CoffeeScript plugin?
 
-- Do builds of all plugins, update download page.
-- Prep work for CoffeeScript plugin release.
-- update docs to mention how to get the plugins by themselves?
+- Prep work for CoffeeScript plugin release, update download links in the download.html file.
 
 - Plugins cannot have dependencies in a build, and should not be modules that are already combined with other
   modules.
 - Test on windows node, build in cygwin.
 - Make sure node execution uses directory of the top js file as the baseUrl, not the current working directory.
-- Move up plugins, or move them to their own repo?
 - Point to Miller's gist for ant integration: https://gist.github.com/825117
 - Put in error message with URL refs to faq page?
   - one candidate: mismatched require.def calls: happens when loading some modules/scripts with inline script tags that include a named module,
@@ -35,6 +32,7 @@ Next release
 - Build the optimizer as its own project, at least enough to take out the
   work from jquery-require-sample
 - localeList for i18n.js support, for better Dojo support.
+- Minify the require.js files will UglifyJS.
 - Confirm: From Richard Backhouse: As an FYI I have been doing my own investigation of using UglifyJS for compression
 and one thing I found when trying to compress dojo 1.5 code was that I had ensure that "make_seqs"
 flag was set to false when calling ast_squeeze. If I left this flag set to true the code would not load.
