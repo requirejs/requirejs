@@ -74,7 +74,7 @@
         CompilerOptions: {},
         CompilationLevel: 'SIMPLE_OPTIMIZATIONS',
         loggingLevel: 'WARNING'
-    }
+    },
 
     //Allow CSS optimizations. Allowed values:
     //- "inline": @import inlining.
