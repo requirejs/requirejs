@@ -17,11 +17,13 @@ define(['fs', 'path'], function (fs, path) {
 
     function mkFullDir(dir) {
         var parts = dir.split('/'),
-            currDir = '';
+            currDir = '',
+            first = true;
         parts.forEach(function (part) {
-            currDir += (currDir || !part ? '/' : '') + part;
-
             //First part may be empty string if path starts with a slash.
+            currDir += part + '/';
+            first = false;
+
             if (part) {
                 mkDir(currDir);
             }
@@ -55,6 +57,14 @@ define(['fs', 'path'], function (fs, path) {
 
         normalize: function (fileName) {
             return path.normalize(fileName);
+        },
+
+        isFile: function (path) {
+            return fs.statSync(path).isFile();
+        },
+
+        isDirectory: function (path) {
+            return fs.statSync(path).isDirectory();
         },
 
         getFilteredFileList: function (/*String*/startDir, /*RegExp*/regExpFilters, /*boolean?*/makeUnixPaths) {

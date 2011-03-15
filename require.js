@@ -1,17 +1,17 @@
 /** vim: et:ts=4:sw=4:sts=4
- * @license RequireJS 0.23.0 Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
+ * @license RequireJS 0.24.0 Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/requirejs for details
  */
 /*jslint strict: false, plusplus: false */
 /*global window: false, navigator: false, document: false, importScripts: false,
   jQuery: false, clearInterval: false, setInterval: false, self: false,
-  setTimeout: false */
+  setTimeout: false, opera: false */
 
 var require, define;
 (function () {
     //Change this version number for each release.
-    var version = "0.23.0",
+    var version = "0.24.0",
         commentRegExp = /(\/\*([\s\S]*?)\*\/|\/\/(.*)$)/mg,
         cjsRequireRegExp = /require\(["']([^'"\s]+)["']\)/g,
         currDirRegExp = /^\.\//,
@@ -29,6 +29,8 @@ var require, define;
         readyRegExp = isBrowser && navigator.platform === 'PLAYSTATION 3' ?
                       /^complete$/ : /^(complete|loaded)$/,
         defContextName = "_",
+        //Oh the tragedy, detecting opera. See the usage of isOpera for reason.
+        isOpera = typeof opera !== "undefined" && opera.toString() === "[object Opera]",
         reqWaitIdPrefix = "_r@@",
         empty = {},
         contexts = {},
@@ -36,13 +38,6 @@ var require, define;
         interactiveScript = null,
         isDone = false,
         useInteractive = false,
-        //Default plugins that have remapped names, if no mapping
-        //already exists.
-        requirePlugins = {
-            "text": "require/text",
-            "i18n": "require/i18n",
-            "order": "require/order"
-        },
         req, cfg = {}, currentlyAddingScript, s, head, baseElement, scripts, script,
         src, subPath, mainScript, dataMain, i, scrollIntervalId, setReadyState, ctx;
 
@@ -258,8 +253,6 @@ var require, define;
 
             if (prefix) {
                 prefix = normalize(prefix, parentName);
-                //Allow simpler mappings for some plugins
-                prefix = requirePlugins[prefix] || prefix;
             }
 
             //Account for relative paths if there is a base name.
@@ -400,7 +393,9 @@ var require, define;
                     oldFullName = oldModuleMap.fullName;
                     moduleMap = makeModuleMap(oldModuleMap.originalName, oldModuleMap.parentMap);
                     fullName = moduleMap.fullName;
-                    callbacks = managerCallbacks[oldFullName];
+                    //Callbacks could be undefined if the same plugin!name was
+                    //required twice in a row, so use empty array in that case.
+                    callbacks = managerCallbacks[oldFullName] || [];
                     existingCallbacks = managerCallbacks[fullName];
 
                     if (fullName !== oldFullName) {
@@ -827,7 +822,8 @@ var require, define;
 
         function callPlugin(pluginName, dep) {
             var name = dep.name,
-                fullName = dep.fullName;
+                fullName = dep.fullName,
+                load;
 
             //Do not bother if plugin is already defined or being loaded.
             if (fullName in defined || fullName in loaded) {
@@ -843,10 +839,7 @@ var require, define;
                 loaded[fullName] = false;
             }
 
-            //Use parentName here since the plugin's name is not reliable,
-            //could be some weird string with no path that actually wants to
-            //reference the parentName's path.
-            plugins[pluginName].load(name, makeRequire(dep.parentMap, true), function (ret) {
+            load = function (ret) {
                 //Allow the build process to register plugin-loaded dependencies.
                 if (require.onPluginLoad) {
                     require.onPluginLoad(context, pluginName, name, ret);
@@ -861,7 +854,36 @@ var require, define;
                     }
                 });
                 loaded[fullName] = true;
-            }, config);
+            };
+
+            //Allow plugins to load other code without having to know the
+            //context or how to "complete" the load.
+            load.fromText = function (moduleName, text) {
+                /*jslint evil: true */
+                var hasInteractive = useInteractive;
+
+                //Indicate a the module is in process of loading.
+                context.loaded[moduleName] = false;
+                context.scriptCount += 1;
+
+                //Turn off interactive script matching for IE for any define
+                //calls in the text, then turn it back on at the end.
+                if (hasInteractive) {
+                    useInteractive = false;
+                }
+                eval(text);
+                if (hasInteractive) {
+                    useInteractive = true;
+                }
+
+                //Support anonymous modules.
+                context.completeLoad(moduleName);
+            };
+
+            //Use parentName here since the plugin's name is not reliable,
+            //could be some weird string with no path that actually wants to
+            //reference the parentName's path.
+            plugins[pluginName].load(name, makeRequire(dep.parentMap, true), load, config);
         }
 
         function loadPaused(dep) {
@@ -875,7 +897,7 @@ var require, define;
                 fullName = dep.fullName;
 
             //Do not bother if the dependency has already been specified.
-            if (specified[fullName] || fullName in defined) {
+            if (specified[fullName] || loaded[fullName]) {
                 return;
             } else {
                 specified[fullName] = true;
@@ -943,23 +965,22 @@ var require, define;
                 }
             }
 
-            //Skip the resume if current context is in priority wait.
-            if (config.priorityWait && !isPriorityDone()) {
-                return undefined;
-            }
+            //Skip the resume of paused dependencies
+            //if current context is in priority wait.
+            if (!config.priorityWait || isPriorityDone()) {
+                while (context.paused.length) {
+                    p = context.paused;
+                    context.pausedCount += p.length;
+                    //Reset paused list
+                    context.paused = [];
 
-            while (context.paused.length) {
-                p = context.paused;
-                context.pausedCount += p.length;
-                //Reset paused list
-                context.paused = [];
-
-                for (i = 0; (args = p[i]); i++) {
-                    loadPaused(args);
+                    for (i = 0; (args = p[i]); i++) {
+                        loadPaused(args);
+                    }
+                    //Move the start time for timeout forward.
+                    context.startTime = (new Date()).getTime();
+                    context.pausedCount -= p.length;
                 }
-                //Move the start time for timeout forward.
-                context.startTime = (new Date()).getTime();
-                context.pausedCount -= p.length;
             }
 
             //Only check if loaded when resume depth is 1. It is likely that
@@ -1052,20 +1073,28 @@ var require, define;
 
                 //If priority loading is in effect, trigger the loads now
                 if (cfg.priority) {
-                    //Create a separate config property that can be
-                    //easily tested for config priority completion.
-                    //Do this instead of wiping out the config.priority
-                    //in case it needs to be inspected for debug purposes later.
                     //Hold on to requireWait value, and reset it after done
                     requireWait = context.requireWait;
+
+                    //Allow tracing some require calls to allow the fetching
+                    //of the priority config.
                     context.requireWait = false;
+
+                    //But first, call resume to register any defined modules that may
+                    //be in a data-main built file before the priority config
+                    //call. Also grab any waiting define calls for this context.
+                    context.takeGlobalQueue();
+                    resume();
+
                     context.require(cfg.priority);
+
                     //Trigger a resume right away, for the case when
                     //the script with the priority load is done as part
                     //of a data-main call. In that case the normal resume
                     //call will not happen because the scriptCount will be
                     //at 1, since the script for data-main is being processed.
                     resume();
+
                     //Restore previous state.
                     context.requireWait = requireWait;
                     config.priorityWait = cfg.priority;
@@ -1555,13 +1584,15 @@ var require, define;
 
             contexts[contextName].completeLoad(moduleName);
 
-            //Clean up script binding.
-            if (node.removeEventListener) {
-                node.removeEventListener("load", req.onScriptLoad, false);
-            } else {
+            //Clean up script binding. Favor detachEvent because of IE9
+            //issue, see attachEvent/addEventListener comment elsewhere
+            //in this file.
+            if (node.detachEvent && !isOpera) {
                 //Probably IE. If not it will throw an error, which will be
                 //useful to know.
                 node.detachEvent("onreadystatechange", req.onScriptLoad);
+            } else {
+                node.removeEventListener("load", req.onScriptLoad, false);
             }
         }
     };
@@ -1599,18 +1630,24 @@ var require, define;
             node.setAttribute("data-requirecontext", contextName);
             node.setAttribute("data-requiremodule", moduleName);
 
-            //Set up load listener.
-            if (node.addEventListener) {
-                node.addEventListener("load", callback, false);
-            } else {
-                //Probably IE. If not it will throw an error, which will be
-                //useful to know. IE (at least 6-8) do not fire
+            //Set up load listener. Test attachEvent first because IE9 has
+            //a subtle issue in its addEventListener and script onload firings
+            //that do not match the behavior of all other browsers with
+            //addEventListener support, which fire the onload event for a
+            //script right after the script execution. See:
+            //https://connect.microsoft.com/IE/feedback/details/648057/script-onload-event-is-not-fired-immediately-after-script-execution
+            //UNFORTUNATELY Opera implements attachEvent but does not follow the script
+            //script execution mode.
+            if (node.attachEvent && !isOpera) {
+                //Probably IE. IE (at least 6-8) do not fire
                 //script onload right after executing the script, so
                 //we cannot tie the anonymous require.def call to a name.
                 //However, IE reports the script as being in "interactive"
                 //readyState at the time of the require.def call.
                 useInteractive = true;
                 node.attachEvent("onreadystatechange", callback);
+            } else {
+                node.addEventListener("load", callback, false);
             }
             node.src = url;
 

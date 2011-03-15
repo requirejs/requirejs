@@ -4,6 +4,10 @@
     dir: "builds/order",
     optimize: "none",
 
+    paths: {
+        "order": "../../order"
+    },
+
     modules: [
         {
             name: "foo",

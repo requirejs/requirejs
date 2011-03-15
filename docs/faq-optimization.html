@@ -22,7 +22,7 @@
 <p>However, if you have many pages in your web app, it may make more sense to optimize your scripts into a set of two or three optimized layers:</p>
 
 <ul>
-<li>One layer for common toolkit code, like require.js plus jQuery, Dojo, Prototype or MooTools (toolkit.js)</li>
+<li>One layer for common toolkit code, like jQuery, Dojo, Prototype or MooTools (toolkit.js). It may make sense to roll this layer in with the appcommon.js layer.</li>
 <li>One layer for common web app code (appcommon.js)</li>
 <li>One layer for page-specific code  (page.js)</li>
 </ul>
@@ -38,7 +38,7 @@
 
 <p>Script modules/files specified in the config's priority array will be downloaded in parallel before any other script dependencies are traced.</p>
 
-<p>This example uses the <a href="download.html#jqueryrequirejs">combined RequireJS+jQuery</a> file to demonstrate the approach:</p>
+<p>This example builds on the <a href="download.html#samplejquery">sample jQuery project</a> to demonstrate the approach:</p>
 
 <p>Assume the project has the following structure:</p>
 
@@ -50,7 +50,9 @@
 <li>page2.html</li>
 <li>scripts
 <ul>
-<li>require-jquery.js (used on both pages, "toolkit")</li>
+<li>require.js (the loader)</li>
+<li>appcommon.js (used on both pages, "appcommon")</li>
+<li>jquery.js (used on both pages, "appcommon")</li>
 <li>page1.js (lists the dependencies for page 1)</li>
 <li>page2.js (lists the dependencies for page 2)</li>
 <li>object.js (used on both pages, "appcommon")</li>
@@ -73,13 +75,11 @@
 &lt;html&gt;
     &lt;head&gt;
         &lt;title&gt;Page 1&lt;/title&gt;
-        &lt;script src="scripts/require-jquery.js"&gt;&lt;/script&gt;
+        &lt;script src="scripts/require.js"&gt;&lt;/script&gt;
         &lt;script&gt;
             require({
-                //Leave priority commented out in dev
-                //priority: ["appcommon", "page1"]
-            },
-            ["page1"]);
+                priority: ["appcommon", "page1"]
+            });
         &lt;/script&gt;
     &lt;/head&gt;
     &lt;body&gt;
@@ -87,14 +87,22 @@
 &lt;/html&gt;
 </code></pre>
 
-<p>with page1.js looking like this:</p>
+<p>with appcommon.js looking like this:</p>
 
-<pre><code>define("page1",
-    ["jquery", "object", "event", "widget", "Dialog", "Tabs"],
-    function ($, object, event, widget, Dialog, Tabs) {
-        ...
-    }
-);
+<pre><code>define(["jquery", "object", "event", "widget", "Dialog"],
+function () {
+    //Just an empty function, this is a place holder
+    //module that will be optimized to include the
+    //common depenendencies listed in this module's dependency array.
+});
+</code></pre>
+
+<p>and page1.js looking like this:</p>
+
+<pre><code>define([ "jquery", "object", "event", "widget", "Dialog", "Tabs"],
+function ($,        object,   event,   widget,   Dialog,   Tabs) {
+    ...
+});
 </code></pre>
 
 <p>page2.html and page2.js would look similar, except referencing "page2" instead of "page1" and using "Slider" instead of "Tabs" in page2.js.</p>
@@ -106,50 +114,23 @@
     baseUrl: "scripts",
     dir: "webapp-build",
     optimize: "none",
-    paths: {
-        "jquery": "require-jquery"
-    },
     modules: [
         {
-            name: "appcommon",
-            //Indicate we want to create a new file that did
-            //not exist in the source structure
-            create: true,
-            exclude: ["jquery"],
-            include: ["object", "event", "widget", "Dialog"]
+            name: "appcommon"
         },
         {
             name: "page1",
-            exclude: ["jquery", "appcommon"]
+            exclude: ["appcommon"]
         },
         {
             name: "page2",
-            exclude: ["jquery", "appcommon"]
+            exclude: ["appcommon"]
         }
     ]
 })
 </code></pre>
 
-<p>Once the build is run, it will generate the contents of <strong>webapp-build</strong> that look similar to <strong>webapp</strong>, except that the contents are optimized and there is a scripts/appcommon.js file now.</p>
+<p>Once the build is run, it will generate the contents of <strong>webapp-build</strong> that look similar to <strong>webapp</strong>, except that the contents are optimized. appcommon.js will contain the common modules, and page1.js will have all the modules page1 needs, excluding appcommon's modules and their nested dependencies.</p>
 
-<p>In the web-build/page1.html and webapp-build/page2.html, comment out the <strong>priority</strong> config option. page1.html example:</p>
-
-<pre><code>&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-    &lt;head&gt;
-        &lt;title&gt;Page 1&lt;/title&gt;
-        &lt;script src="scripts/require-jquery.js"&gt;&lt;/script&gt;
-        &lt;script&gt;
-            require({
-                priority: ["appcommon", "page1"]
-            },
-            ["page1"]);
-        &lt;/script&gt;
-    &lt;/head&gt;
-    &lt;body&gt;
-    &lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-
-<p>The <strong>priority</strong> config value tells RequireJS to load appcommon.js and page1.js in parallel before tracing dependencies. With those two files, along with require-jquery.js (which contains the jQuery definition), all the dependencies in the page will be loaded with three requests, with the appcommon.js and page1.js scripts being loaded asynchronously and in parallel.</p>
+<p>The <strong>priority</strong> config value tells RequireJS to load appcommon.js and page1.js in parallel and wait before both are loaded before tracing dependencies. With those two files, along with require.js, all the dependencies in the page will be loaded with three requests, with the appcommon.js and page1.js scripts being loaded asynchronously and in parallel.</p>
 </div>

@@ -108,7 +108,7 @@ require(["some/module", "a.js", "b.js"], function(someModule) {
 <span class="sectionMark">&sect; 1.2</span>
 </h3>
 
-<p>A module is different from a traditional script file in that it defines a well-scoped object that does not try to pollute the global namespace. It can explicitly list its dependencies and get a handle on those dependencies without needing to refer to global objects, but instead receive the dependencies as arguments to the function that defines the module. Modules in RequireJS are an extension of the <a href="http://www.adequatelygood.com/2010/3/JavaScript-Module-Pattern-In-Depth">Module Pattern</a>, with the benefit of not needing globals to refer to other modules.</p>
+<p>A module is different from a traditional script file in that it defines a well-scoped object that avoids polluting the global namespace. It can explicitly list its dependencies and get a handle on those dependencies without needing to refer to global objects, but instead receive the dependencies as arguments to the function that defines the module. Modules in RequireJS are an extension of the <a href="http://www.adequatelygood.com/2010/3/JavaScript-Module-Pattern-In-Depth">Module Pattern</a>, with the benefit of not needing globals to refer to other modules.</p>
 
 <p>The RequireJS syntax for modules allows them to be loaded as fast as possible, even out of order, but evaluated in the correct dependency order, and since global variables are not created, it makes it possible to <a href="#multiversion">load multiple versions of a module in a page</a>.</p>
 
@@ -293,7 +293,7 @@ define(["require", "A"],
 
 <p>RequireJS allows you to set up a basic module that has localized information without forcing you to provide all locale-specific information up front. It can be added over time, and only strings/values that change between locales can be defined in the locale-specific file.</p>
 
-<p>i18n bundle support is provided by the require/i18n.js plugin. It is automatically loaded when a module or dependency specifies the i18n! prefix (more info below).</p>
+<p>i18n bundle support is provided by the i18n.js plugin. It is automatically loaded when a module or dependency specifies the i18n! prefix (more info below). <a href="download.html#i18n">Download the plugin</a> and put it in the same directory as your app's main JS file.</p>
 
 <p>To define a bundle, put it in a directory called "nls" -- the i18n! plugin assumes a module name with "nls" in it indicates an i18n bundle. The "nls" marker in the name tells the i18n plugin where to expect the locale directories (they should be immediate children of the nls directory). If you wanted to provide a bundle of color names in your "my" set of modules, create the directory structure like so:</p>
 
@@ -398,7 +398,7 @@ define({
 
 <p>It is nice to build HTML using regular HTML tags, instead of building up DOM structures in script. However, there is no good way to embed HTML in a JavaScript file. The best that can be done is using a string of HTML, but that can be hard to manage, particularly for multi-line HTML.</p>
 
-<p>RequireJS has a plugin, require/text.js, that can help with this issue. It will automatically be loaded if the text! prefix is used for a dependency.</p>
+<p>RequireJS has a plugin, text.js, that can help with this issue. It will automatically be loaded if the text! prefix is used for a dependency. <a href="download.html#text">Download the plugin</a> and put it in the same directory as your app's main JS file.</p>
 
 <p>You can specify a text file resource as a dependency like so:</p>
 
@@ -463,7 +463,7 @@ define({
 
 <h3><a name="order">Load Scripts in a Specific Order</a><span class="sectionMark">&sect; 1.6</span></h3>
 
-<p>Normally RequireJS loads and evaluates scripts in an undetermined order. However, there are some traditional scripts that depend on being loaded in a specific order. For those cases you can use the <strong>order</strong> plugin:</p>
+<p>Normally RequireJS loads and evaluates scripts in an undetermined order. However, there are some traditional scripts that depend on being loaded in a specific order. For those cases you can use the <strong>order</strong> plugin. <a href="download.html#order">Download the plugin</a> and put it in the same directory as your app's main JS file. Example usage:</p>
 
 <pre><code>require(["order!one.js", "order!two.js", "order!three.js"], function () {
     //This callback is called after the three scripts finish loading.

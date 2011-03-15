@@ -12,7 +12,7 @@
     }
 
     //Register the plugin.
-    if (typeof define !== 'undefined') {
+    if (typeof define !== 'undefined' && define.amd) {
         define(['jquery'], plugin);
     } else if (typeof jQuery !== 'undefined') {
         plugin(jQuery);

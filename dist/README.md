@@ -5,17 +5,12 @@ This directory contains the tools that are used to build distributions of Requir
 When doing a release, do the following:
 
 * Update files to the new version number:
-    * require.js
+    * require.js, both places
+    * all plugins, both places
     * README.md
     * docs/download.md: check for nested paths too, add new release section
     * pre.html
     * post.html
-* Update integrated jQuery versioned-builds:
-    * Save a built jQuery to build/jquery
-    * Make sure to apply changes from previous converted jQuery to new one via examining diffs.
-    * Be sure to add /** * @license to the jQuery license block so that it survives google closure compiler.
-    * Update build/jquery/require-jquery.build.js and requireplugins-jquery.build.js to reference the new version of jQuery.
-    * Update dist/dist-build.sh to reference the right jQuery file.
 * Commit/push changes
 
 * Tag the tree:

@@ -28,23 +28,33 @@ function (file,           pragma,   parse) {
             pluginBuilderRegExp = /(["']?)pluginBuilder(["']?)\s*[=\:]\s*["']([^'"\s]+)["']/,
             oldDef;
 
-        require._plugins = {};
-
         /** Reset state for each build layer pass. */
         require._buildReset = function () {
+            var oldContext = require.s.contexts._;
+
             //Clear up the existing context.
             delete require.s.contexts._;
 
-            //These variables are not contextName-aware since the build should
-            //only have one context.
+            //Set up new context, so the layer object can hold onto it.
+            require({});
+
             layer = require._layer = {
                 buildPathMap: {},
                 buildFileToModule: {},
                 buildFilePaths: [],
                 loadedFiles: {},
                 modulesWithNames: {},
-                existingRequireUrl: ""
+                existingRequireUrl: "",
+                context: require.s.contexts._
             };
+
+            //Set up a per-context list of plugins/pluginBuilders.
+            layer.context.pluginBuilders = {};
+            layer.context._plugins = {};
+
+            //Return the previous context in case it is needed, like for
+            //the basic config object.
+            return oldContext;
         };
 
         require._buildReset();
@@ -84,8 +94,6 @@ function (file,           pragma,   parse) {
         require._fileExists = function (path) {
             return file.exists(path);
         };
-
-        require.pluginBuilders = {};
 
         //Override load so that the file paths can be collected.
         require.load = function (context, moduleName, url) {
@@ -133,13 +141,13 @@ function (file,           pragma,   parse) {
                     }
 
                     //plugins need to have their source evaled as-is.
-                    require._plugins[moduleName] = true;
+                    context._plugins[moduleName] = true;
                 }
 
                 //Parse out the require and define calls.
                 //Do this even for plugins in case they have their own
                 //dependencies that may be separate to how the pluginBuilder works.
-                if (!require._plugins[moduleName]) {
+                if (!context._plugins[moduleName]) {
                     contents = parse(url, contents);
                 }
 
@@ -158,8 +166,8 @@ function (file,           pragma,   parse) {
             context.loaded[moduleName] = true;
 
             //Get a handle on the pluginBuilder
-            if (require._plugins[moduleName]) {
-                require.pluginBuilders[moduleName] = context.defined[moduleName];
+            if (context._plugins[moduleName]) {
+                context.pluginBuilders[moduleName] = context.defined[moduleName];
             }
         };
 
@@ -172,12 +180,6 @@ function (file,           pragma,   parse) {
             layer.modulesWithNames[registeredName] = true;
         };
 
-        //Override a method provided by require/text.js for loading text files as
-        //dependencies.
-        require.fetchText = function (url, callback) {
-            callback(file.readFile(url));
-        };
-
         //Marks the module as part of the loaded set, and puts
         //it in the right position for output in the build layer,
         //since require() already did the dependency checks and should have
@@ -188,7 +190,7 @@ function (file,           pragma,   parse) {
                 layer.loadedFiles[url] = true;
                 layer.modulesWithNames[name] = true;
             }
-            if (cb.__requireJsBuild || require._plugins[name]) {
+            if (cb.__requireJsBuild || layer.context._plugins[name]) {
                 return cb.apply(null, args);
             }
             return undefined;

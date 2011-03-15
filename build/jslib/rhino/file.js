@@ -30,6 +30,14 @@ define(function () {
             return file.absPath(fileName);
         },
 
+        isFile: function (path) {
+            return (new java.io.File(path)).isFile();
+        },
+
+        isDirectory: function (path) {
+            return (new java.io.File(path)).isDirectory();
+        },
+
         /**
          * Gets the absolute file path as a string, normalized
          * to using front slashes for path separators.

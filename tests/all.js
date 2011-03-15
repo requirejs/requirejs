@@ -31,6 +31,7 @@ doh.registerUrl("urlfetch", "../urlfetch/urlfetch.html");
 doh.registerUrl("uniques", "../uniques/uniques.html");
 doh.registerUrl("multiversion", "../multiversion.html", 10000);
 doh.registerUrl("jquery", "../jquery/jquery.html");
+doh.registerUrl("jqueryPriority", "../jquery/jqueryPriority.html");
 
 //Next three tests fail in PS3
 doh.registerUrl("jqueryDynamic", "../jquery/jqueryDynamic.html");
@@ -56,6 +57,8 @@ doh.registerUrl("allplugins-text", "../layers/allplugins-text.html");
 doh.registerUrl("afterload", "../afterload.html", 10000);
 
 doh.registerUrl("pluginsSync", "../plugins/sync.html");
+doh.registerUrl("doublePluginCall", "../plugins/double.html");
+doh.registerUrl("pluginsFromText", "../plugins/fromText/fromText.html");
 doh.registerUrl("text", "../text/text.html");
 doh.registerUrl("textOnly", "../text/textOnly.html");
 doh.registerUrl("jsonp", "../jsonp/jsonp.html");
@@ -68,6 +71,7 @@ doh.registerUrl("exports", "../exports/exports.html");
 
 
 doh.registerUrl("priority", "../priority/priority.html");
+doh.registerUrl("priorityOptimized", "../priority/priorityOptimized.html");
 doh.registerUrl("priorityWithDeps", "../priority/priorityWithDeps/priorityWithDeps.html");
 doh.registerUrl("prioritySingleCall", "../priority/prioritySingleCall.html");
 

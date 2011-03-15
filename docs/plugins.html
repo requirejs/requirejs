@@ -22,7 +22,7 @@ Intro
 
 <p>RequireJS allows you to write loader plugins that can load different types of resources as dependencies, and even include the dependencies in optimized builds.</p>
 
-<p>Existing loader plugins are the text! and i18n! plugins. The text! plugin handles loading text, and the i18n plugin handles loading a JavaScript object that is made up from objects from a few different modules. The object contains localized strings.</p>
+<p>Examples of existing loader plugins are the <a href="api.html#text">text!</a> and <a href="api.html#i18n">i18n!</a> plugins. The text! plugin handles loading text, and the i18n plugin handles loading a JavaScript object that is made up from objects from a few different modules. The object contains localized strings.</p>
 </div>
 
 <div class="section">
@@ -31,7 +31,9 @@ Plugin Names
 <span class="sectionMark">&sect; 2</span>
 </h2>
 
-<p>Loader plugins are just another module, but they implement a specific API. You can reference your plugin by putting its module name before a ! in the dependency. For instance, if you create a plugin with the name "foo.js", you would use it like so:</p>
+<p>Loader plugins are just another module, but they implement a specific API. Loader plugins can also participate in the optimizer optimizations, allowing the resources they load to be inlined in an optimized build. However, when a plugin runs in the optimizer, it <strong>cannot</strong> have any dependencies (see the <a href="#apipluginbuilder">pluginBuilder</a> approach to make that easier).</p>
+
+<p>You can reference your plugin by putting its module name before a ! in the dependency. For instance, if you create a plugin with the name "foo.js", you would use it like so:</p>
 
 <pre><code>
 require(['foo!something/for/foo'], function (something) {
@@ -54,7 +56,7 @@ require(['bar/foo!something/for/foo'], function (something) {
 });
 </code></pre>
 
-<p>Note that the text!, i18n! and order! plugins are "special" in that you only need to use a name like "text" to refer to it, instead of its full module name, "require/text". This was done to support old code that was authored before the Plugin API was fully fleshed out. You can use their full module name if you prefer: "require/text!path/to/dialog.html".</p>
+<p>Note that before 0.24.0, the text!, i18n! and order! plugins were "special" in that you only need to use a name like "text" to refer to it, but the actual module name was "require/text". This was done to support old code that was authored before the Plugin API was fully fleshed out. That magic module name transformation is no longer done in 0.24.0 and greater.</p>
 
 </div>
 
@@ -84,7 +86,11 @@ API
 
 <ul>
     <li><b>name</b>: String. The name of the resource to load. This is the part after the ! separator in the name. So, if a module asks for 'foo!something/for/foo', the foo module's load function will receive 'something/for/foo' as the name.</li>
-    <li><b>parentRequire</b>: Function. A local "require" function to use to load other modules. It is suggested that you <b>do not</b> use the name "require" for this argument name to avoid any possible undesired behavior with the static analysis done by the optimizer when it looks for require() calls. The text! and i18n! plugins normally use "req" for this argument.</li>
+    <li><b>parentRequire</b>: Function. A local "require" function to use to load other modules. It is suggested that you <b>do not</b> use the name "require" for this argument name to avoid any possible undesired behavior with the static analysis done by the optimizer when it looks for require() calls. The text! and i18n! plugins normally use "req" for this argument. This require function has some utilities on it:
+    <ul>
+        <li><b>parentRequire.toUrl(moduleResource)</b>:where moduleResource is a path to a module and an extension. For instance "view/templates/main.html". It will return a full path to the resource, obeying any RequireJS configuration.</li>
+        <li><b>parentRequire.isDefined(moduleName)</b>: Returns true if the module has already been loaded and defined.</li>
+    </ul></li>
     <li><b>load</b>: Function. A function to call with the value for name. This tells the loader that the plugin is done loading the resource.</li>
     <li><b>config</b>: Object. A configuration object. This is a way for the optimizer and the web app to pass configuration information to the plugin. The i18n! plugin uses this to get the current current locale, if the web app wants to force a specific locale. The optimizer will set an <b>isBuild</b> property in the config to true if this plugin (or pluginBuilder) is being called as part of an optimizer build.</li>
 </ul>
@@ -97,6 +103,46 @@ define({
         //req has the same API as require().
         req([name], function (value) {
             load(value);
+        });
+    }
+});
+</code></pre>
+
+<p>Some plugins may need to evaluate some JavaScript that was retrieved as text. To evaluate the JavaScript correctly, particularly if it contains require() or define() calls, there is a function off the load() argument, <strong>load.fromText()</strong>, that can be used to evaluate the JavaScript. eval() is used by RequireJS to evaluate that JavaScript.</p>
+
+<p>Arguments for load.fromText():</p>
+
+<ul>
+    <li><b>name</b>: String. The name of the module being loaded. Useful for anonymous module calls. Always pass a value. You can use the file path that was used to retrieve the text if there is no matching module name for the text.</li>
+    <li><b>text</b>: String. The string of JavaScript to evaluate..</li>
+</ul>
+
+<p>An example plugin's load function that uses load.fromText():</p>
+
+<pre><code>
+define({
+    load: function (name, req, load, config) {
+        var url = req.toUrl(name + '.customFileExtension'),
+            text;
+
+        //Use a method to load the text (provide elsewhere)
+        //by the plugin
+        fetchText(url, function (text) {
+            //Transform the text as appropriate for
+            //the plugin by using a transform()
+            //method provided elsewhere in the plugin.
+            text = transform(text);
+
+            //Have RequireJS execute the JavaScript within
+            //the correct environment/context.
+            load.fromText(name, text);
+
+            //Now get a handle on the evaluated module,
+            //to return that value for this plugin-loaded
+            //resource
+            req([name], function (value) {
+                load(value);
+            });
         });
     }
 });
@@ -187,7 +233,7 @@ define(['index!2?./a:./b:./c'], function (indexResource) {
 <ul>
     <li><b>pluginName</b>: String. The <b>normalized</b> name for the plugin. Most plugins will not be authored with a name (they will be anonymous plugins) so it is useful to know the normalized name for the plugin module for use in the optimized file.</li>
     <li><b>name</b>: String. The <b>normalized</b> resource name.</li>
-    <li><b>write</b>: Function. A function to be called with a string of output to write to the optimized file.</li>
+    <li><b>write</b>: Function. A function to be called with a string of output to write to the optimized file. This function also contains a property function, <b>write.asModule(moduleName, text)</b>. asModule can be used to write out a module that may have an anonymous define call in there that needs name insertion or/and contains implicit require("") dependencies that need to be pulled out for the optimized file. asModule is useful for text transform plugins, like a CoffeeScript plugin.</li>
 </ul>
 
 <p>The text! plugin implements write, to write out a string value for the text file that it loaded. A snippet from that file:</p>
@@ -224,5 +270,3 @@ write: function (pluginName, moduleName, write) {
 </ul>
 
 </div>
-
-

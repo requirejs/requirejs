@@ -11,15 +11,8 @@ cd dist/jquery-require-sample
 # Copy the sample files.
 cp -r ../../webapp ./webapp
 
-# Do a build of requirejs with jquery
-cd ../../../../build/jquery
-../build.sh require-jquery.build.js
-cp dist/require-jquery.js ../../docs/jquery-require-sample/dist/jquery-require-sample/webapp/scripts/require-jquery.js
-rm -rf dist/
-cd ../../docs/jquery-require-sample/dist/jquery-require-sample
-
-# Copy over the RequireJS plugins.
-cp -r ../../../../require webapp/scripts
+# Copy over require.js
+cp ../../../../require.js webapp/scripts/require.js
 
 # Copy over the build system for requirejs and basic require files, used by the build.
 mkdir requirejs
@@ -36,12 +29,10 @@ cp ../../../../build/build.js requirejs/build/build.js
 cp ../../../../build/build.sh requirejs/build/build.sh
 cp ../../../../build/buildj.bat requirejs/build/buildj.bat
 cp ../../../../build/buildj.sh requirejs/build/buildj.sh
-cp ../../../../adapt/r.js requirejs/adapt/r.js
 cp ../../../../adapt/node.js requirejs/adapt/node.js
 cp ../../../../adapt/rhino.js requirejs/adapt/rhino.js
 
-cp ../../../../require.js requirejs/
-cp -r ../../../../require requirejs/require
+cp ../../../../require.js requirejs
 cp ../../../../LICENSE requirejs/LICENSE
 
 # Start the build.

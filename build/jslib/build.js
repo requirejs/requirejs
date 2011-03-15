@@ -94,7 +94,8 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
             buildPaths, fileName, fileNames,
             prop, paths, i,
             baseConfig, config,
-            modules, builtModule, srcPath, buildContext;
+            modules, builtModule, srcPath, buildContext,
+            destPath;
 
         //Can now run the patches to require.js to allow it to be used for
         //build generation. Do it here instead of at the top of the module
@@ -131,8 +132,18 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
                             srcPath = config.baseUrl + srcPath;
                         }
 
-                        //Copy files to build area. Copy all files (the /\w/ regexp)
-                        file.copyDir(srcPath, config.dirBaseUrl + buildPaths[prop], /\w/, true);
+                        destPath = config.dirBaseUrl + buildPaths[prop];
+
+                        //If the srcPath is a directory, copy the whole directory.
+                        if (file.exists(srcPath) && file.isDirectory(srcPath)) {
+                            //Copy files to build area. Copy all files (the /\w/ regexp)
+                            file.copyDir(srcPath, destPath, /\w/, true);
+                        } else {
+                            //Try a .js extension
+                            srcPath += '.js';
+                            destPath += '.js';
+                            file.copyFile(srcPath, destPath);
+                        }
                     }
                 }
             }
@@ -156,8 +167,10 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
                 if (module.name) {
                     module._sourcePath = buildContext.nameToUrl(module.name);
                     //If the module does not exist, and this is not a "new" module layer,
-                    //as indicated by a true "create" property on the module, then throw an error.
-                    if (!file.exists(module._sourcePath) && !module.create) {
+                    //as indicated by a true "create" property on the module, and
+                    //it is not a plugin-loaded resource, then throw an error.
+                    if (!file.exists(module._sourcePath) && !module.create &&
+                        module.name.indexOf('!') === -1) {
                         throw new Error("ERROR: module path does not exist: " +
                                         module._sourcePath + " for module named: " + module.name +
                                         ". Path is relative to: " + file.absPath('.'));
@@ -319,7 +332,17 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
                 value = value.split(",");
             }
 
-            result[prop] = value;
+            if (prop.indexOf("paths.") === 0) {
+                //Special handling of paths properties. paths.foo=bar is transformed
+                //to data.paths = {foo: 'bar'}
+                if (!result.paths) {
+                    result.paths = {};
+                }
+                prop = prop.substring("paths.".length, prop.length);
+                result.paths[prop] = value;
+            } else {
+                result[prop] = value;
+            }
         }
         return result; //Object
     };
@@ -381,7 +404,11 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
 
             //Load build file options.
             buildFileContents = file.readFile(buildFile);
-            buildFileConfig = eval("(" + buildFileContents + ")");
+            try {
+                buildFileConfig = eval("(" + buildFileContents + ")");
+            } catch(e) {
+                throw new Error("Build file " + buildFile + " is malformed: " + e);
+            }
             lang.mixin(config, buildFileConfig, true);
 
             //Re-apply the override config values, things like command line
@@ -476,13 +503,6 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
             }
         }
 
-        //Make sure paths has a setting for require, so support plugins
-        //can be loaded for the build.
-        paths = config.paths;
-        if (!paths.require) {
-            paths.require = file.absPath(config.requireUrl.substring(0, config.requireUrl.lastIndexOf("/")) + "/require");
-        }
-
         return config;
     };
 
@@ -532,16 +552,23 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
      * be in the flattened module.
      */
     build.traceDependencies = function (module, config) {
-        var include, override, layer,
-            context = require.s.contexts._,
-            baseConfig = context.config;
+        var include, override, layer, context, baseConfig, oldContext;
 
         //Reset some state set up in requirePatch.js, and clean up require's
         //current context.
-        require._buildReset();
+        oldContext = require._buildReset();
 
-        //Put back basic config
-        require(baseConfig);
+        //Grab the reset layer and context after the reset, but keep the
+        //old config to reuse in the new context.
+        baseConfig = oldContext.config;
+        layer = require._layer;
+        context = layer.context;
+
+        //Put back basic config, use a fresh object for it.
+        //WARNING: probably not robust for paths and packages/packagePaths,
+        //since those property's objects can be modified. But for basic
+        //config clone it works out.
+        require(lang.delegate(baseConfig));
 
         logger.trace("\nTracing dependencies for: " + (module.name || module.out));
         include = module.name && !module.create ? [module.name] : [];
@@ -559,10 +586,7 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
         //Figure out module layer dependencies by calling require to do the work.
         require(include);
 
-        //Pull out the layer dependencies. Do not use the old context
-        //but grab the latest value from inside require() since it was reset
-        //since our last context reference.
-        layer = require._layer;
+        //Pull out the layer dependencies.
         layer.specified = context.specified;
 
         //Reset config
@@ -589,15 +613,10 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
      */
     build.flattenModule = function (module, layer, config) {
         var buildFileContents = "", requireContents = "",
-            context = require.s.contexts._,
-            //This regexp is not bullet-proof, and it has one optional part to
-            //avoid issues with some Dojo transition modules that use a
-            //define(\n//begin v1.x content
-            //for a comment.
-            anonDefRegExp = /(require\s*\.\s*def|define)\s*\(\s*(\/\/[^\n\r]*[\r\n])?(\[|f|\{)/,
-            prop, path, reqIndex, fileContents, currContents,
-            i, moduleName, specified, deps, includeRequire,
-            parts, builder;
+            context = layer.context,
+            path, reqIndex, fileContents, currContents,
+            i, moduleName, includeRequire,
+            parts, builder, writeApi;
 
         //Use override settings, particularly for pragmas
         if (module.override) {
@@ -638,40 +657,22 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
             //Figure out if the module is a result of a build plugin, and if so,
             //then delegate to that plugin.
             parts = context.makeModuleMap(moduleName);
-            builder = parts.prefix && require.pluginBuilders[parts.prefix];
+            builder = parts.prefix && context.pluginBuilders[parts.prefix];
             if (builder) {
                 if (builder.write) {
-                    builder.write(parts.prefix, parts.name, function (input) {
+                    writeApi = function (input) {
                         fileContents += input;
-                    });
+                    };
+                    writeApi.asModule = function (moduleName, input) {
+                        fileContents += build.toTransport(moduleName, path, input, layer);
+                    };
+                    builder.write(parts.prefix, parts.name, writeApi);
                 }
             } else {
                 //Add the contents but remove any pragmas.
                 currContents = pragma.process(path, file.readFile(path), config);
 
-                //If anonymous module, insert the module name.
-                currContents = currContents.replace(anonDefRegExp, function (match, callName, possibleComment, suffix) {
-                    layer.modulesWithNames[moduleName] = true;
-
-                    //Look for CommonJS require calls inside the function if this is
-                    //an anonymous define/require.def call that just has a function registered.
-                    deps = null;
-                    if (suffix.indexOf('f') !== -1) {
-                        deps = parse.getAnonDeps(path, currContents);
-
-                        if (deps.length) {
-                            deps = deps.map(function (dep) {
-                                return "'" + dep + "'";
-                            });
-                        } else {
-                            deps = null;
-                        }
-                    }
-
-                    return "define('" + moduleName + "'," +
-                           (deps ? ('[' + deps.toString() + '],') : '') +
-                           suffix;
-                });
+                currContents = build.toTransport(moduleName, path, currContents, layer);
 
                 fileContents += currContents;
             }
@@ -682,7 +683,18 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
             //after the module is processed.
             //If we have a name, but no defined module, then add in the placeholder.
             if (moduleName && !layer.modulesWithNames[moduleName] && !config.skipModuleInsertion) {
-                fileContents += 'define("' + moduleName + '", function(){});\n';
+                //If including jquery, register the module correctly, otherwise
+                //register an empty function. For jquery, make sure jQuery is
+                //a real object, and perhaps not some other file mapping, like
+                //to zepto.
+                if (moduleName === 'jquery') {
+                    fileContents += '\n(function () {\n' +
+                                   'var jq = typeof jQuery !== "undefined" && jQuery;\n' +
+                                   'define("jquery", [], function () { return jq; });\n' +
+                                   '}());\n';
+                } else {
+                    fileContents += 'define("' + moduleName + '", function(){});\n';
+                }
             }
         }
 
@@ -694,6 +706,39 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
             text: fileContents,
             buildText: buildFileContents
         };
+    };
+
+    //This regexp is not bullet-proof, and it has one optional part to
+    //avoid issues with some Dojo transition modules that use a
+    //define(\n//begin v1.x content
+    //for a comment.
+    build.anonDefRegExp = /(require\s*\.\s*def|define)\s*\(\s*(\/\/[^\n\r]*[\r\n])?(\[|f|\{)/;
+
+    build.toTransport = function (moduleName, path, contents, layer) {
+        //If anonymous module, insert the module name.
+        return contents.replace(build.anonDefRegExp, function (match, callName, possibleComment, suffix) {
+            layer.modulesWithNames[moduleName] = true;
+
+            //Look for CommonJS require calls inside the function if this is
+            //an anonymous define/require.def call that just has a function registered.
+            var deps = null;
+            if (suffix.indexOf('f') !== -1) {
+                deps = parse.getAnonDeps(path, contents);
+
+                if (deps.length) {
+                    deps = deps.map(function (dep) {
+                        return "'" + dep + "'";
+                    });
+                } else {
+                    deps = null;
+                }
+            }
+
+            return "define('" + moduleName + "'," +
+                   (deps ? ('[' + deps.toString() + '],') : '') +
+                   suffix;
+        });
+
     };
 
     return build;

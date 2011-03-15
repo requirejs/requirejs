@@ -74,10 +74,4 @@
         //Support anonymous modules.
         context.completeLoad(moduleName);
     };
-
-    //Adapter to get text plugin to work.
-    require.fetchText = function (url, callback) {
-        callback(fs.readFileSync(url, 'utf8'));
-    };
-
 }());

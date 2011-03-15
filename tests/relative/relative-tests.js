@@ -1,7 +1,7 @@
 require({
         baseUrl: require.isBrowser ? "./" : "./relative/",
         paths: {
-            require: "../../require"
+            text: "../../text"
         }
     },
     ["require", "foo/bar/one"],

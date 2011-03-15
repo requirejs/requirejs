@@ -4,7 +4,7 @@ This is a list of things to test before doing a RequireJS release.
 
 ## Items in tests directory
 
-First build allplugins-require.js in build/require, since one test relies on an up-to-date version.
+First build allplugins-require.js in tests/layers, since one test relies on an up-to-date version.
 
 * All browsers: tests/doh/runner.html?testUrl=../all in all the browsers
 * Node: node all-server.js

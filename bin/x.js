@@ -97,11 +97,7 @@ var console;
 
     if (useRequireBuildPath) {
         exec("require({" +
-            "baseUrl: '" + requireBuildPath + "build/jslib/'," +
-            "paths: {" +
-            "    require: '../../require'" +
-            "}," +
-            "argsHasRequirePath: true" +
+            "baseUrl: '" + requireBuildPath + "build/jslib/'" +
         "})", 'bootstrap');
     }
 
@@ -110,6 +106,17 @@ var console;
     //script.
     if (!fileName || !jsSuffixRegExp.test(fileName)) {
         fileName = 'main.js';
+    }
+
+    if (!useRequireBuildPath) {
+        //Use the file name's directory as the baseUrl if available.
+        dir = fileName.replace(/\\/g, '/');
+        if (dir.indexOf('/') !== -1) {
+            dir = dir.split('/');
+            dir.pop();
+            dir.join('/');
+            exec("require({baseUrl: '" + dir + "'});");
+        }
     }
 
     exec(readFile(fileName), fileName);

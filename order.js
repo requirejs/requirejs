@@ -1,5 +1,5 @@
 /**
- * @license RequireJS order Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
+ * @license RequireJS order 0.24.0 Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/requirejs for details
  */
@@ -22,7 +22,7 @@
     //Test for document and window so that this file can be loaded in
     //a web worker/non-browser env. It will not make sense to use this
     //plugin in a non-browser env, but the file should not error out if included
-    //in the allplugins-require.js file, then loaded in a non-browser env.
+    //in a file, then loaded in a non-browser env.
     var supportsInOrderExecution = typeof document !== "undefined" &&
                                    typeof window !== "undefined" &&
                                    (document.createElement("script").async ||
@@ -85,6 +85,8 @@
     }
 
     define({
+        version: '0.24.0',
+
         load: function (name, req, onLoad, config) {
             var url = req.nameToUrl(name, null);
 

@@ -9,7 +9,7 @@
     var master = new doh.Deferred(),
         count = 0;
     doh.register(
-        "priority", 
+        "priority",
         [
             {
                 name: "priorityOrder",
@@ -20,13 +20,13 @@
             }
         ]
     );
-    doh.run();			
+    doh.run();
 
     require(
         {
             baseUrl: "./",
             paths: {
-                require: "../../require"
+                text: "../../text"
             },
             priority: ["order!leaf", "order!tree"]
         },
@@ -53,9 +53,9 @@
         for (i = scripts.length - 1; i > -1; i--) {
             doh.f(regExp.test(scripts[i].src));
         }
-        master.callback(true);		
+        master.callback(true);
     }
-    
+
     //Account for requiring this test with a version of require.js that
     //does not have require.ready built in.
     if (require.ready) {
