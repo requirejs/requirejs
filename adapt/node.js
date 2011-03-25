@@ -53,7 +53,7 @@
     };
 
     require.load = function (context, moduleName, url) {
-        var contents;
+        var contents, sandbox;
 
         //isDone is used by require.ready()
         require.s.isDone = false;
@@ -64,7 +64,14 @@
 
         if (path.existsSync(url)) {
             contents = fs.readFileSync(url, 'utf8');
-            vm.runInThisContext(contents, url);
+            sandbox = vm.createContext();
+            Object.getOwnPropertyNames(global).forEach(function (prop) {
+                sandbox[prop] = global[prop];
+            });
+            sandbox.require = require;
+            sandbox.__filename = fs.realpathSync(url);
+            sandbox.__dirname = path.dirname(sandbox.__filename);
+            vm.runInNewContext(contents, sandbox, url);
         } else {
             define(function () {
                 return req(moduleName);
