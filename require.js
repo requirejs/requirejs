@@ -810,7 +810,8 @@ var require, define;
                     forceExec(manager, {});
                 }
 
-                checkLoaded();
+                // Break out of recursion by using immediate timeout
+                setTimeout(checkLoaded, 0);
                 return undefined;
             }
 
