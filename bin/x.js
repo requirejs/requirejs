@@ -114,7 +114,7 @@ var console;
         if (dir.indexOf('/') !== -1) {
             dir = dir.split('/');
             dir.pop();
-            dir.join('/');
+            dir = dir.join('/');
             exec("require({baseUrl: '" + dir + "'});");
         }
     }
