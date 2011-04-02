@@ -35,11 +35,6 @@ cp text.js ../$version/comments/text.js
 cp order.js ../$version/comments/order.js
 cp i18n.js ../$version/comments/i18n.js
 
-# Build the sample jQuery project
-cd docs/jquery-require-sample
-./dist.sh
-cp dist/jquery-require-sample.zip ../../../$version
-
 # Create node integration layer
 cd ../../
 cd adapt

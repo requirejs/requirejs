@@ -28,8 +28,8 @@
 <li>Changes to jQuery integration:
     <ul>
         <li>jQuery 1.5.1 included in sample project.</li>
-        <li>No more bundled RequireJS and jQuery file. RequireJS includes special code to detect jQuery as a module, so the combined file is not necessary, and this approach makes it easier to swap in new versions of jQuery as they are released.</li>
-        <li>Because of that change, the jQuery sample project uses the new priority: config approach.</li>
+        <li><span style="text-decoration: line-through">No more bundled RequireJS and jQuery file. RequireJS includes special code to detect jQuery as a module, so the combined file is not necessary, and this approach makes it easier to swap in new versions of jQuery as they are released.</span> (Changed on April 1, 2011 back to the old integrated sample)</li>
+        <li><span style="text-decoration: line-through">Because of that change, the jQuery sample project uses the new priority: config approach.</span> (Changed on April 1, 2011 back to the old integrated sample)</li>
     </ul>
 <li>allplugins-require.js has been removed. Plugins are no longer bundled with require.js or in the sample jQuery project. There are separate download links to the existing plugins on the download page. Special treatment of these plugins has also been removed from the require.js source, so those plugins behave like any other loader plugin.</li>
 <li>There is now a <a href="#cs">CoffeScript plugin</a>. It makes it easy to code in CoffeeScript in the browser, it can participate in the optimizer optimizations, and it works in Node and Rhino. This is the best way to do cross-environment, modular CoffeeScript.</li>
@@ -49,9 +49,9 @@
 
 <div class="subSection">
 <h4 class="hbox">
-<a name="samplejquery">Sample RequireJS + jQuery 1.5.1 project</a>
+<a name="samplejquery">Sample RequireJS + jQuery 1.5.2 project</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/0.24.0/jquery-require-sample.zip">Download</a>
+<a class="download" href="http://requirejs.org/docs/release/jquery-require/jquery1.5.2/jquery-require-sample.zip">Download</a>
 </h4>
 
 <p>A zip file containing a sample project that uses jQuery and RequireJS.</p>

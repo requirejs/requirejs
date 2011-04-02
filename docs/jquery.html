@@ -5,7 +5,7 @@
         <a href="#1">Get RequireJS</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1</span>
     </li>
     <li class="hbox">
-        <a href="#2">Project Layout</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2</span>
+        <a href="#2">Set up your HTML page</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2</span>
     </li>
     <li class="hbox">
         <a href="#3">Feel the need for speed</a><span class="spacer boxFlex"></span><span class="sect">&sect; 3</span>
@@ -26,12 +26,18 @@
 <span class="sectionMark">&sect; 1</span>
 </h2>
 
-<p>First step is to <a href="download.html#samplejquery">download the sample jQuery+RequireJS project</a>. It contains all the files mentioned below.</p>
+<p>First step is to get RequireJS:</p>
+<ul>
+    <li><a href="download.html#samplejquery">download the sample project</a>.</li>
+</ul>
+
+<p>This sample project uses a combined jQuery+RequireJS file. If you prefer to not bundle jQuery with RequireJS, the <a href="https://github.com/jrburke/require-jquery">sample project's README</a> has an alternate way to use jQuery with RequireJS, but it requires consideration of more edge cases.</p>
+
 </div>
 
 <div class="section">
 <h2>
-<a name="2">Project Layout</a>
+<a name="2">Set up your HTML page</a>
 <span class="sectionMark">&sect; 2</span>
 </h2>
 
@@ -41,7 +47,7 @@
 &lt;html&gt;
     &lt;head&gt;
         &lt;title&gt;jQuery+RequireJS Sample Page&lt;/title&gt;
-        &lt;script data-main="scripts/main" src="scripts/require.js"&gt;&lt;/script&gt;
+        &lt;script data-main="scripts/main" src="scripts/require-jquery.js"&gt;&lt;/script&gt;
     &lt;/head&gt;
     &lt;body&gt;
         &lt;h1&gt;jQuery+RequireJS Sample Page&lt;/h1&gt;
@@ -53,22 +59,14 @@
 
 <p>The data-main attribute on the script tag for require.js tells RequireJS to load the scripts/main.js file. RequireJS will load any dependency that is passed to require() without a ".js" file from the same directory as the one used for data-main. If you feel more comfortable specifying the whole path, you can also do the following:</p>
 
-<pre><code>&lt;script data-main="scripts/main.js" src="scripts/require.js"&gt;&lt;/script&gt;
+<pre><code>&lt;script data-main="scripts/main.js" src="scripts/require-jquery.js"&gt;&lt;/script&gt;
 </code></pre>
 
-<p>What is in main.js? Calls to require() to load all the scripts you need and any init work you want to do for the page. This example main.js script loads two plugins, jquery.alpha.js and jquery.beta.js (not the names of real plugins, just an example). The plugins should be in the same directory as main.js:</p>
+<p>What is in main.js? A call to require() to load all the scripts you need and any init work you want to do for the page. This example main.js script loads two plugins, jquery.alpha.js and jquery.beta.js (not the names of real plugins, just an example). The plugins should be in the same directory as require-jquery.js:</p>
 
 <p>main.js:</p>
 
-<pre><code>//Configure RequireJS
-require({
-    //Load jQuery before any other scripts, since jQuery plugins normally
-    //assume jQuery is already loaded in the page.
-    priority: ['jquery']
-});
-
-//Load scripts.
-require(['jquery', 'jquery.alpha', 'jquery.beta'], function($) {
+<pre><code>require(["jquery", "jquery.alpha", "jquery.beta"], function($) {
     //the jquery.alpha.js and jquery.beta.js plugins have been loaded.
     $(function() {
         $('body').alpha().beta();
@@ -76,9 +74,7 @@ require(['jquery', 'jquery.alpha', 'jquery.beta'], function($) {
 });
 </code></pre>
 
-<p>The first require() call is passing <a href="api.html#config">a configuration object</a>, instructing require() to load "jquery" as a priority before tracing any other script dependencies. This is needed because jQuery plugins normally assume jQuery has already been loaded in the page before they run. If the <b>priority</b> configuration was not used to load jQuery, then the jquery.js file may load after one of the plugins, since RequireJS tries to load all scripts as fast as possible asynchronously. If you need ordered script execution, you can use the <a href="api.html#order">order! plugin</a>.
-
-<p>The second require() call loads modules needed for the page. In this call, "jquery" was referenced as a dependency. The require.js file has special code in it to register jQuery as a RequireJS module, and since it is registered as a module, you can get a handle on that module as the first argument to the function callback passed to require. In the above example, $ is used to reference the jQuery module.</p>
+<p>In the require() call, "jquery" was referenced as a dependency. The require-jquery.js file has special code in it to register jQuery as a RequireJS module, and since it is registered as a module, you can get a handle on that module as the first argument to the function callback passed to require. In the above example, $ is used to reference the jQuery module.</p>
 
 <p>Since jquery.alpha and jquery.beta are just plugins that augment jQuery, they do not return modules that you can reference as function arguments.</p>
 
@@ -102,13 +98,12 @@ require(['jquery', 'jquery.alpha', 'jquery.beta'], function($) {
 <li>requirejs/  (used for the build tools)</li>
 <li>webapp/app.html</li>
 <li>webapp/scripts/main.js</li>
-<li>webapp/scripts/require.js</li>
-<li>webapp/scripts/jquery.js</li>
+<li>webapp/scripts/require-jquery.js</li>
 <li>webapp/scripts/jquery.alpha.js</li>
 <li>webapp/scripts/jquery.beta.js</li>
 </ul>
 
-<p>Now, in the scripts directory, create a file called app.build.js with the following contents:</p>
+<p>Then, in the scripts directory that has require-jquery.js and main.js, create a file called app.build.js with the following contents:</p>
 
 <pre><code>({
     appDir: "../",
@@ -118,9 +113,14 @@ require(['jquery', 'jquery.alpha', 'jquery.beta'], function($) {
     //the code minified by UglifyJS.
     optimize: "none",
 
+    paths: {
+        "jquery": "require-jquery"
+    },
+
     modules: [
         {
-            name: "main"
+            name: "main",
+            exclude: ["jquery"]
         }
     ]
 })
@@ -140,5 +140,5 @@ require(['jquery', 'jquery.alpha', 'jquery.beta'], function($) {
 <pre><code>..\..\requirejs\build\build.bat app.build.js
 </code></pre>
 
-<p>Now, in the webapp-build directory, main.js will have the main.js contents, jquery.js, jquery.alpha.js and jquery.beta.js inlined. If you then load the app.html file in the webapp-build directory, you should not see any network requests for jquery.js, jquery.alpha.js and jquery.beta.js.</p>
+<p>Now, in the webapp-build directory, main.js will have the main.js contents, jquery.alpha.js and jquery.beta.js inlined. If you then load the app.html file in the webapp-build directory, you should not see any network requests for jquery.alpha.js and jquery.beta.js.</p>
 </div>
