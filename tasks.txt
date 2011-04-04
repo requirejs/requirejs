@@ -14,6 +14,7 @@ Next release
 - Fix commonjs/convert.sh script, does not work.
 - IE checkLoaded recursion? https://github.com/jrburke/requirejs/issues/82
 - use defined[fullName] in execCb as the this object: pull 84
+- Document in README the directory structure.
 
 - plugins in excludeShallow do not work, are not excluded. For example text! one.
 - "libs/static.lib.02", //kaaahhhhnnnn!!!
