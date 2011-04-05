@@ -13,7 +13,7 @@
  */
 
 /*jslint strict: false */
-/*global require: false */
+/*global require: false, process: false, console: false */
 
 /**
  * Escapes a string so it is safe as a JS string
@@ -31,6 +31,7 @@ function jsEscape(str) {
 }
 
 var fs = require('fs'),
+    child_process = require('child_process'),
     contents = fs.readFileSync('../bin/x.js', 'utf8'),
     loadRegExp = /readFile\(requireBuildPath \+ '([\w\/\.]+)'\)/g;
 
@@ -42,4 +43,29 @@ contents = contents.replace(loadRegExp, function (match, fileName) {
 //Switch the behavior to "inlined mode"
 contents = contents.replace(/useRequireBuildPath \= true/, 'useRequireBuildPath = false');
 
-fs.writeFileSync('r.js', contents, 'utf8');
+if (process.argv[2] === 'opto') {
+    //Build the optimizer into one file, opto.js
+    //Run the opto.build.js and insert the result into the built file.
+    child_process.exec('cd ../build/jslib && ../build.sh opto.build.js && cd ../../adapt',
+        function (error, stdout, stderr) {
+            if (error) {
+                console.log('Could not build opto: ' + error);
+                return;
+            }
+
+            var optoBuildFileName = '../build/jslib/optotext.js',
+                optoText = fs.readFileSync(optoBuildFileName, 'utf8');
+
+            //Inject the content into the final output.
+            contents = contents.replace('exec(readFile(fileName), fileName);', optoText);
+
+            fs.writeFileSync('opto.js', contents, 'utf8');
+
+            //Remove build output since no longer needed.
+            fs.unlinkSync(optoBuildFileName);
+
+        }
+    );
+} else {
+    fs.writeFileSync('r.js', contents, 'utf8');
+}
