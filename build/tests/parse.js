@@ -57,6 +57,8 @@ define(['parse'], function (parse) {
                     nested1 = "(function () {\nvar foo = {\nbar: 'baz'\n}\n\n define('foo', [], foo); \n }());",
                     bad1 = "define('one', [foo, 'me'], function() {});",
                     bad2 = "define('one', somevar)",
+                    bad3 = "function define(foo) { return foo };",
+                    bad4 = "define(a[0]);",
                     goodAnon1 = "define(function(){ var foo = require('foo'); });",
                     goodAnon2 = "define(function () { if (true) { callback(function () { require(\"bar\"); })}});",
                     emptyAnon1 = "define(function() { exports.name = 'empty'; });";
@@ -68,6 +70,9 @@ define(['parse'], function (parse) {
                 t.is('define("foo",[]);', parse("nested1", nested1));
                 t.is(null, parse("bad1", bad1));
                 t.is(null, parse("bad2", bad2));
+                t.is(null, parse("bad3", bad3));
+                t.is(null, parse("bad4", bad4));
+
 
                 t.is(['require', 'exports', 'module', 'foo'], parse.getAnonDeps("goodAnon1", goodAnon1));
                 t.is(['require', 'exports', 'module', 'bar'], parse.getAnonDeps("goodAnon2", goodAnon2));

@@ -152,7 +152,12 @@ function (file,           pragma,   parse) {
                 }
 
                 if (contents) {
-                    eval(contents);
+                    try {
+                        eval(contents);
+                    } catch (e) {
+                        throw new Error('requirePatch.js: eval of ' + url +
+                                        ' created error: ' + e);
+                    }
 
                     //Support anonymous modules.
                     context.completeLoad(moduleName);
