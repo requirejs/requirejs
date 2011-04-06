@@ -15,7 +15,6 @@ Next release
 - IE checkLoaded recursion? https://github.com/jrburke/requirejs/issues/82
 - Document in README the directory structure.
 
-- plugins in excludeShallow do not work, are not excluded. For example text! one.
 - "libs/static.lib.02", //kaaahhhhnnnn!!!
 - optimizer as a separate project?
 - Build the optimizer as its own project, at least enough to take out the

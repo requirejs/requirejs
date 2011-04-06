@@ -4,7 +4,7 @@
     paths: {
         text: "../../text"
     },
-    dir: "builds/text",
+    dir: "builds/textExclude",
     optimize: "none",
 
     modules: [
