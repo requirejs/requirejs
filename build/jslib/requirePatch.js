@@ -189,14 +189,14 @@ function (file,           pragma,   parse) {
         //it in the right position for output in the build layer,
         //since require() already did the dependency checks and should have
         //called this method already for those dependencies.
-        require.execCb = function (name, cb, args) {
+        require.execCb = function (name, cb, args, exports) {
             var url = name && layer.buildPathMap[name];
             if (url && !layer.loadedFiles[url]) {
                 layer.loadedFiles[url] = true;
                 layer.modulesWithNames[name] = true;
             }
             if (cb.__requireJsBuild || layer.context._plugins[name]) {
-                return cb.apply(null, args);
+                return cb.apply(exports, args);
             }
             return undefined;
         };

@@ -497,7 +497,7 @@ var require, define;
                     }
                 }
 
-                ret = req.execCb(fullName, manager.callback, args);
+                ret = req.execCb(fullName, manager.callback, args, defined[fullName]);
 
                 if (fullName) {
                     //If using exports and the function did not return a value,
@@ -1553,8 +1553,8 @@ var require, define;
      *
      * @private
      */
-    req.execCb = function (name, callback, args) {
-        return callback.apply(null, args);
+    req.execCb = function (name, callback, args, exports) {
+        return callback.apply(exports, args);
     };
 
     /**
