@@ -1,5 +1,6 @@
 Release Notes
 -------------------
+- exports and return use is stricter: if exports is in play, return value is ignored.
 
 Next release
 --------------
@@ -7,13 +8,11 @@ Next release
 - move urlFetched outside of load function and do the check before load.
 - replacement for modify that intercepts callbacks, holds off until another module loads them?
 - Set up official IE9 release VM
-- New jquery sample project approach.
 - localeList for i18n.js support, for better Dojo support.
-- Minify the require.js files will UglifyJS.
+- Minify the require.js files with UglifyJS.
 - Update docs: priority config options can only be plain JS dependencies, not plugin loaded ones.
 - Fix commonjs/convert.sh script, does not work.
 - IE checkLoaded recursion? https://github.com/jrburke/requirejs/issues/82
-- use defined[fullName] in execCb as the this object: pull 84
 - Document in README the directory structure.
 
 - plugins in excludeShallow do not work, are not excluded. For example text! one.

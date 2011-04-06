@@ -1,8 +1,8 @@
 require({
         baseUrl: require.isBrowser ? "./" : "./exports/"
     },
-    ["require", "vanilla", "funcSet", "assign", "assign2", "usethis"],
-    function(require, vanilla, funcSet, assign, assign2, usethis) {
+    ["require", "vanilla", "funcSet", "assign", "assign2", "usethis", "implicitModule"],
+    function(require, vanilla, funcSet, assign, assign2, usethis, implicitModule) {
         doh.register(
             "exports",
             [
@@ -12,6 +12,7 @@ require({
                     t.is("assign", assign);
                     t.is("assign2", assign2);
                     t.is("usethis", usethis.name);
+                    t.is("implicitModule", implicitModule());
                 }
             ]
         );
