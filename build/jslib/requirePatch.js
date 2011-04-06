@@ -181,6 +181,9 @@ function (file,           pragma,   parse) {
         require.onPluginLoad = function (context, pluginName, name, value) {
             var registeredName = pluginName + '!' + name;
             layer.buildFilePaths.push(registeredName);
+            //For plugins the real path is not knowable, use the name
+            //for both module to file and file to module mappings.
+            layer.buildPathMap[registeredName] = registeredName;
             layer.buildFileToModule[registeredName] = registeredName;
             layer.modulesWithNames[registeredName] = true;
         };

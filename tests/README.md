@@ -42,6 +42,7 @@ Try manual testing:
 
 * ../build.sh indexBuilder.build.js - confirm plugin write calls are done.
 * ../build.sh text.build.js - confirm plugin write calls are done.
+* ../build.sh textExclude.build.js - confirm that 'text!subwidget2.html' is excluded.
 * ../build.sh i18n.build.js - confirm plugin required the nls/en-us-surfer/colors module.
 * ../build.sh order.build.js - confirm one, two, three are in order.
 * ../build.sh hasTestModule.build.js - confirm has replacements have been done.
