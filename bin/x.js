@@ -12,18 +12,21 @@
 
 /*jslint strict: false, evil: true */
 /*global readFile: true, process: false, Packages: false, require: true
-  print: false */
+  print: false, console: false */
 
-var console;
-(function (args, readFileFunc) {
+var require, define;
+(function (console, args, readFileFunc) {
 
-    var fileName, env, fs, vm, exec, rhinoContext,
+    var fileName, env, fs, vm, exec, rhinoContext, dir,
         requireBuildPath = '',
         jsSuffixRegExp = /\.js$/,
         //This flag is turned to false by the distribution script,
         //because a requireBuildPath is not needed since the scripts
         //are inlined in this script.
         useRequireBuildPath = true,
+        //This flag is turned to true if the distribution script built this
+        //file as opto.js. Needed to update path args correctly in build.js
+        isOpto = false,
         argOffset = useRequireBuildPath ? 0 : 1,
         readFile = typeof readFileFunc !== 'undefined' ? readFileFunc : null;
 
@@ -92,6 +95,8 @@ var console;
     if (env === 'rhino') {
         exec(readFile(requireBuildPath + 'adapt/rhino.js'), 'rhino.js');
     } else if (env === 'node') {
+        require = this.require;
+        define = this.define;
         exec(readFile(requireBuildPath + 'adapt/node.js'), 'node.js');
     }
 
@@ -121,4 +126,6 @@ var console;
 
     exec(readFile(fileName), fileName);
 
-}((typeof Packages !== 'undefined' ? arguments : []), (typeof readFile !== 'undefined' ? readFile: undefined)));
+}((typeof console !== 'undefined' ? console : undefined),
+  (typeof Packages !== 'undefined' ? arguments : []),
+  (typeof readFile !== 'undefined' ? readFile : undefined)));

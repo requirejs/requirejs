@@ -59,6 +59,8 @@ if (process.argv[2] === 'opto') {
             //Inject the content into the final output.
             contents = contents.replace('exec(readFile(fileName), fileName);', optoText);
 
+            //Set the isOpto flag to true
+            contents = contents.replace('isOpto = false', 'isOpto = true');
             fs.writeFileSync('opto.js', contents, 'utf8');
 
             //Remove build output since no longer needed.

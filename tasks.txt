@@ -3,6 +3,9 @@ Release Notes
 
 Next release
 --------------
+
+- Removal of includeRequire option? Scrub all references, mention on list.
+
 - text plugins after a build load xdomain?
 - move urlFetched outside of load function and do the check before load.
 - replacement for modify that intercepts callbacks, holds off until another module loads them?

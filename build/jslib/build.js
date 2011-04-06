@@ -387,7 +387,6 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
                 cfg.requireBuildPath = config.requireBuildPath;
             }
         }
-        config.requireUrl = file.absPath(cfg.requireBuildPath + "../require.js");
 
         if (config.buildFile) {
             //A build file exists, load it to get more config.
@@ -612,7 +611,7 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
      * included in the flattened module text.
      */
     build.flattenModule = function (module, layer, config) {
-        var buildFileContents = "", requireContents = "",
+        var buildFileContents = "",
             context = layer.context,
             path, reqIndex, fileContents, currContents,
             i, moduleName, includeRequire,
@@ -629,19 +628,8 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
                              (config.dir ? module._buildPath.replace(config.dir, "") : module._buildPath) +
                              "\n----------------\n";
 
-        //If the file wants require.js added to the module, add it now
-        requireContents = "";
-        includeRequire = false;
-        if ("includeRequire" in module) {
-            includeRequire = module.includeRequire;
-        }
-        if (includeRequire) {
-            requireContents = pragma.process(config.requireUrl, file.readFile(config.requireUrl), config);
-            buildFileContents += "require.js\n";
-        }
-
         //If there was an existing file with require in it, hoist to the top.
-        if (!includeRequire && layer.existingRequireUrl) {
+        if (layer.existingRequireUrl) {
             reqIndex = layer.buildFilePaths.indexOf(layer.existingRequireUrl);
             if (reqIndex !== -1) {
                 layer.buildFilePaths.splice(reqIndex, 1);
@@ -697,10 +685,6 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
                 }
             }
         }
-
-        //Add the require file contents to the head of the file.
-        fileContents = (requireContents ? requireContents + "\n" : "") +
-                       fileContents;
 
         return {
             text: fileContents,

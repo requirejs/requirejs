@@ -66,7 +66,7 @@
             contents = fs.readFileSync(url, 'utf8');
             vm.runInThisContext(contents, url);
         } else {
-            define(function () {
+            define(moduleName, function () {
                 return req(moduleName);
             });
         }

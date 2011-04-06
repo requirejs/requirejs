@@ -24,16 +24,26 @@ require({
     context: 'build'
 },       ['env!env/args', 'build'],
 function (args,            build) {
-    //Take off the first argument since it is for
-    //are a path inside requirejs for use by the bootstrap.
-    var buildArgs = args.slice(1),
+    var buildArgs = args, rjsBuildDir;
+
+    if (typeof isOpto !== 'undefined' && isOpto) {
+        //Shift on a base path used to find optimizer modules. However,
+        //since this case is for opto.js that has them built in, just
+        //use some arbitrary path.
+        buildArgs.unshift('.');
+    } else {
+        //This is call was done via opto.js,
+        //so take off the first argument since it is for
+        //are a path inside requirejs for use by the bootstrap.
+        buildArgs = buildArgs.slice(1);
         rjsBuildDir = buildArgs[0].replace(/\\/g, '/');
 
-    //The second arg is the full path for this script. The
-    //directory portion is the only part needed though, so adjust it.
-    rjsBuildDir = rjsBuildDir.split('/');
-    rjsBuildDir.pop();
-    buildArgs[0] = rjsBuildDir.length ? rjsBuildDir.join('/') : '.';
+        //The second arg is the full path for this script. The
+        //directory portion is the only part needed though, so adjust it.
+        rjsBuildDir = rjsBuildDir.split('/');
+        rjsBuildDir.pop();
+        buildArgs[0] = rjsBuildDir.length ? rjsBuildDir.join('/') : '.';
+    }
 
     build(buildArgs);
 });
