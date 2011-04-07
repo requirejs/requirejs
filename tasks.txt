@@ -14,6 +14,7 @@ Next release
 - Fix commonjs/convert.sh script, does not work.
 - IE checkLoaded recursion? https://github.com/jrburke/requirejs/issues/82
 - Document in README the directory structure.
+- Support jQuery holdReady
 
 - "libs/static.lib.02", //kaaahhhhnnnn!!!
 - optimizer as a separate project?
