@@ -29,9 +29,10 @@ define(['parse'], function (parse) {
                     good4 = '(function (require) { require.def("one", function(){}); }(myGlobalRequire))',
                     bad1 = "require.def('one', [foo, 'me'], function() {});",
                     bad2 = "require.def('one', somevar)",
-                    goodAnon1 = "require.def(function(){ var foo = require('foo'); });",
-                    goodAnon2 = "require.def(function () { if (true) { callback(function () { require(\"bar\"); })}});",
-                    emptyAnon1 = "require.def(function() { exports.name = 'empty'; });";
+                    goodAnon1 = "require.def(function(require){ var foo = require('foo'); });",
+                    goodAnon2 = "require.def(function (require, exports, module) { if (true) { callback(function () { require(\"bar\"); })}});",
+                    goodAnon3 = "require.def(function(require, exports, module) { exports.name = 'empty'; });",
+                    emptyAnon1 = "require.def(function(){ return 'foo'; });";
 
                 t.is('define("one",[ "two", "three" ]);', parse("good1", good1));
                 t.is('define("one",function() {});', parse("good2", good2));
@@ -39,9 +40,10 @@ define(['parse'], function (parse) {
                 t.is('define("one",function() {});', parse("good4", good4));
                 t.is(null, parse("bad1", bad1));
                 t.is(null, parse("bad2", bad2));
-                t.is(['require', 'exports', 'module', 'foo'], parse.getAnonDeps("goodAnon1", goodAnon1));
+                t.is(['require', 'foo'], parse.getAnonDeps("goodAnon1", goodAnon1));
                 t.is(['require', 'exports', 'module', 'bar'], parse.getAnonDeps("goodAnon2", goodAnon2));
-                t.is(3, parse.getAnonDeps("emptyAnon1", emptyAnon1).length);
+                t.is(['require', 'exports', 'module'], parse.getAnonDeps("goodAnon3", goodAnon3));
+                t.is(0, parse.getAnonDeps("emptyAnon1", emptyAnon1).length);
             }
         ]
     );
@@ -59,9 +61,10 @@ define(['parse'], function (parse) {
                     bad2 = "define('one', somevar)",
                     bad3 = "function define(foo) { return foo };",
                     bad4 = "define(a[0]);",
-                    goodAnon1 = "define(function(){ var foo = require('foo'); });",
-                    goodAnon2 = "define(function () { if (true) { callback(function () { require(\"bar\"); })}});",
-                    emptyAnon1 = "define(function() { exports.name = 'empty'; });";
+                    goodAnon1 = "define(function(require){ var foo = require('foo'); });",
+                    goodAnon2 = "define(function (require, exports, module) { if (true) { callback(function () { require(\"bar\"); })}});",
+                    goodAnon3 = "define(function(require, exports, module) { exports.name = 'empty'; });",
+                    emptyAnon1 = "define(function(){ return 'foo'; });";
 
                 t.is('define("one",[ "two", "three" ]);', parse("good1", good1));
                 t.is('define("one",function() {});', parse("good2", good2));
@@ -73,10 +76,10 @@ define(['parse'], function (parse) {
                 t.is(null, parse("bad3", bad3));
                 t.is(null, parse("bad4", bad4));
 
-
-                t.is(['require', 'exports', 'module', 'foo'], parse.getAnonDeps("goodAnon1", goodAnon1));
+                t.is(['require', 'foo'], parse.getAnonDeps("goodAnon1", goodAnon1));
                 t.is(['require', 'exports', 'module', 'bar'], parse.getAnonDeps("goodAnon2", goodAnon2));
-                t.is(3, parse.getAnonDeps("emptyAnon1", emptyAnon1).length);
+                t.is(['require', 'exports', 'module'], parse.getAnonDeps("goodAnon3", goodAnon3));
+                t.is(0, parse.getAnonDeps("emptyAnon1", emptyAnon1).length);
             }
         ]
     );
