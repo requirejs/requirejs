@@ -714,7 +714,7 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
                         return "'" + dep + "'";
                     });
                 } else {
-                    deps = null;
+                    deps = [];
                 }
             }
 

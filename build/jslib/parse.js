@@ -136,15 +136,22 @@ define(['uglifyjs/index'], function (uglify) {
     parse.getAnonDeps = function (fileName, fileContents) {
         var astRoot = parser.parse(fileContents),
             deps = [],
-            defFunc = this.findAnonRequireDefCallback(astRoot);
+            defFunc = this.findAnonRequireDefCallback(astRoot),
+            funcArgLength;
 
         //Now look inside the def call's function for require calls.
         if (defFunc) {
             this.findRequireDepNames(defFunc, deps);
 
             //If no deps, still add the standard CommonJS require, exports, module,
-            //in that order, to the deps.
-            deps = ["require", "exports", "module"].concat(deps);
+            //in that order, to the deps, but only if specified as function args.
+            //In particular, if exports is used, it is favored over the return
+            //value of the function, so only add it if asked.
+            funcArgLength = defFunc[2] && defFunc[2].length;
+            if (funcArgLength) {
+                deps = (funcArgLength > 1 ? ["require", "exports", "module"] :
+                        ["require"]).concat(deps);
+            }
         }
 
         return deps;

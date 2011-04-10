@@ -497,23 +497,28 @@ var require, define;
                     }
                 }
 
-                ret = req.execCb(fullName, manager.callback, args);
+                ret = req.execCb(fullName, manager.callback, args, defined[fullName]);
 
                 if (fullName) {
-                    //If using exports and the function did not return a value,
-                    //and the "module" object for this definition function did not
-                    //define an exported value, then use the exports object.
-                    if (manager.usingExports && ret === undefined && (!manager.cjsModule || !("exports" in manager.cjsModule))) {
+                    //If exports is in play, favor that since it helps circular
+                    //dependencies. If setting exports via "module" is in play,
+                    //favor that but only if the value is different from default
+                    //exports value.
+                    if (manager.usingExports && manager.cjsModule &&
+                        manager.cjsModule.exports !== defined[fullName]) {
+                        ret = defined[fullName] = manager.cjsModule.exports;
+                    } else if (fullName in defined) {
+                        //This case is when usingExports is in play and
+                        //module.exports/setExports was not used. It could also
+                        //occur if the module was previously defined, but that
+                        //should not happen, checks for specified and defined
+                        //elsewhere should prevent that from happening. However,
+                        //if it does for some reason, only the original definition
+                        //will be used for integrity.
                         ret = defined[fullName];
                     } else {
-                        if (manager.cjsModule && "exports" in manager.cjsModule) {
-                            ret = defined[fullName] = manager.cjsModule.exports;
-                        } else {
-                            if (fullName in defined && !manager.usingExports) {
-                                return req.onError(new Error(fullName + " has already been defined"));
-                            }
-                            defined[fullName] = ret;
-                        }
+                        //Use the return value from the function.
+                        defined[fullName] = ret;
                     }
                 }
             } else if (fullName) {
@@ -622,7 +627,8 @@ var require, define;
                         //CommonJS module spec 1.1
                         manager.cjsModule = cjsMod = manager.deps[depName] = {
                             id: name,
-                            uri: name ? context.nameToUrl(name, null, relModuleMap) : undefined
+                            uri: name ? context.nameToUrl(name, null, relModuleMap) : undefined,
+                            exports: defined[fullName]
                         };
                         cjsMod.setExports = makeSetExports(cjsMod);
                     } else if (depName in defined && !(depName in waiting)) {
@@ -1508,12 +1514,11 @@ var require, define;
                     });
 
                 //May be a CommonJS thing even without require calls, but still
-                //could use exports, and such, so always add those as dependencies.
-                //This is a bit wasteful for RequireJS modules that do not need
-                //an exports or module object, but erring on side of safety.
+                //could use exports, and module. Avoid doing exports and module
+                //work though if it just needs require.
                 //REQUIRES the function to expect the CommonJS variables in the
                 //order listed below.
-                deps = ["require", "exports", "module"].concat(deps);
+                deps = (callback.length === 1 ? ["require"] : ["require", "exports", "module"]).concat(deps);
             }
         }
 
@@ -1553,8 +1558,8 @@ var require, define;
      *
      * @private
      */
-    req.execCb = function (name, callback, args) {
-        return callback.apply(null, args);
+    req.execCb = function (name, callback, args, exports) {
+        return callback.apply(exports, args);
     };
 
     /**

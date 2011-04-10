@@ -1,4 +1,4 @@
-define(function (require, module, exports) {
+define(function (require) {
     var b =  require("sub/b");
     return {
         name: "a",

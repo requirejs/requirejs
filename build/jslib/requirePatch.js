@@ -181,6 +181,9 @@ function (file,           pragma,   parse) {
         require.onPluginLoad = function (context, pluginName, name, value) {
             var registeredName = pluginName + '!' + name;
             layer.buildFilePaths.push(registeredName);
+            //For plugins the real path is not knowable, use the name
+            //for both module to file and file to module mappings.
+            layer.buildPathMap[registeredName] = registeredName;
             layer.buildFileToModule[registeredName] = registeredName;
             layer.modulesWithNames[registeredName] = true;
         };
@@ -189,14 +192,14 @@ function (file,           pragma,   parse) {
         //it in the right position for output in the build layer,
         //since require() already did the dependency checks and should have
         //called this method already for those dependencies.
-        require.execCb = function (name, cb, args) {
+        require.execCb = function (name, cb, args, exports) {
             var url = name && layer.buildPathMap[name];
             if (url && !layer.loadedFiles[url]) {
                 layer.loadedFiles[url] = true;
                 layer.modulesWithNames[name] = true;
             }
             if (cb.__requireJsBuild || layer.context._plugins[name]) {
-                return cb.apply(null, args);
+                return cb.apply(exports, args);
             }
             return undefined;
         };
