@@ -6,6 +6,7 @@ Next release
 --------------
 
 - Removal of includeRequire option? Scrub all references, mention on list.
+  - paths: {requireLib: "../../require"} to get require in it.
 
 - text plugins after a build load xdomain?
 - move urlFetched outside of load function and do the check before load.

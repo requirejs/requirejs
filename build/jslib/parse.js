@@ -224,7 +224,7 @@ define(['uglifyjs/index'], function (uglify) {
      * @returns {Boolean}
      */
     parse.nodeHasRequire = function (node) {
-        if (this.isRequireNode(node)) {
+        if (this.isDefineNode(node)) {
             return true;
         }
 
@@ -241,12 +241,13 @@ define(['uglifyjs/index'], function (uglify) {
     };
 
     /**
-     * Is the given node the actual definition of require()
+     * Is the given node the actual definition of define(). Actually uses
+     * the definition of define.amd to find require.
      * @param {Array} node
      * @returns {Boolean}
      */
-    parse.isRequireNode = function (node) {
-        //Actually look for the require.s = assignment, since
+    parse.isDefineNode = function (node) {
+        //Actually look for the define.amd = assignment, since
         //that is more indicative of RequireJS vs a plain require definition.
         var assign;
         if (!node) {
@@ -256,7 +257,7 @@ define(['uglifyjs/index'], function (uglify) {
         if (node[0] === 'assign' && node[1] === true) {
             assign = node[2];
             if (assign[0] === 'dot' && assign[1][0] === 'name' &&
-                assign[1][1] === 'require' && assign[2] === 's') {
+                assign[1][1] === 'define' && assign[2] === 'amd') {
                 return true;
             }
         }

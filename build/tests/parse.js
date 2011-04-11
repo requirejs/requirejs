@@ -88,10 +88,10 @@ define(['parse'], function (parse) {
     doh.register('parseHasRequire',
         [
             function parseHasRequire(t) {
-                var good1 = "var require; (function(){ require = function(){}; s = require.s = {};}());",
-                    good2 = "var myGlobalRequire = (function () { var require = {}; (function(){ require = function(){}; s = require.s = {};}()); }());",
-                    bad1 = "var require; function boom(){ var require = function(){}; }",
-                    bad2 = "(function(require) { require(); }(myvar));";
+                var good1 = "var require, define; (function(){ define = function(){}; define.amd = {};}());",
+                    good2 = "var myGlobalRequire = (function () { var define = {}; (function(){ define = function(){}; define.amd = {};}()); }());",
+                    bad1 = "var define; function boom(){ var define = function(){}; define.amd(); }",
+                    bad2 = "(function(define) { define(); }(myvar));";
 
                 t.is(true, parse.definesRequire("good1", good1));
                 t.is(true, parse.definesRequire("good2", good2));
