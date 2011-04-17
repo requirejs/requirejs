@@ -19,6 +19,7 @@ Next release
 - IE checkLoaded recursion? https://github.com/jrburke/requirejs/issues/82
 - Document in README the directory structure.
 - Support jQuery holdReady
+- Document config.jQuery support
 
 - "libs/static.lib.02", //kaaahhhhnnnn!!!
 - optimizer as a separate project?
