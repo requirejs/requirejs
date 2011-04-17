@@ -1159,6 +1159,10 @@ var require, define;
                 //then resume the dependency processing.
                 if (!context.requireWait) {
                     while (!context.scriptCount && context.paused.length) {
+                        //For built layers, there can be some defined
+                        //modules waiting for intake into the context,
+                        //in particular module plugins. Take them.
+                        //context.takeGlobalQueue();
                         resume();
                     }
                 }
