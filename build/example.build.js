@@ -136,10 +136,6 @@
         {
             name: "foo/bar/bop",
 
-            //Should the contents of require.js be included in the optimized module.
-            //Defaults to false.
-            includeRequire: true,
-
             //For build profiles that contain more than one modules entry,
             //allow overrides for the properties that set for the whole build,
             //for example a different set of pragmas for this module.

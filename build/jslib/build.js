@@ -445,10 +445,6 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
                 }
             ];
 
-            if (config.includeRequire) {
-                config.modules[0].includeRequire = true;
-            }
-
             //Does not have a build file, so set up some defaults.
             //Optimizing CSS should not be allowed, unless explicitly
             //asked for on command line. In that case the only task is
@@ -614,7 +610,7 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
         var buildFileContents = "",
             context = layer.context,
             path, reqIndex, fileContents, currContents,
-            i, moduleName, includeRequire,
+            i, moduleName,
             parts, builder, writeApi;
 
         //Use override settings, particularly for pragmas

@@ -7,8 +7,7 @@
     modules: [
         {
             name: "one",
-            include: ["dimple"],
-            includeRequire: true
+            include: ["dimple"]
         }
     ]
 })

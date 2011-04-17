@@ -14,19 +14,14 @@ define(['build', 'env!env/file'], function (build, file) {
         return contents.replace(/[\r\n]/g, "");
     }
 
-    //Do a build of require.js to get default pragmas processed.
-    build(["..", "name=require", "baseUrl=../..", "out=builds/require.js", "includeRequire=true", "optimize=none"]);
-
     //Do a build of the text plugin to get any pragmas processed.
     build(["..", "name=text", "baseUrl=../..", "out=builds/text.js", "optimize=none"]);
 
     //Reset build state for next run.
     require._buildReset();
 
-    var requirejs = c("builds/require.js"),
-        requireTextContents = c("builds/text.js"),
+    var requireTextContents = c("builds/text.js"),
         oneResult = [
-            requirejs,
             c("../../tests/two.js"),
             c("../../tests/one.js"),
             c("../../tests/dimple.js")
@@ -51,7 +46,7 @@ define(['build', 'env!env/file'], function (build, file) {
         [
             function buildOneJsFile(t) {
                 build(["..", "name=one", "include=dimple", "out=builds/outSingle.js",
-                       "baseUrl=../../tests", "includeRequire=true", "optimize=none"]);
+                       "baseUrl=../../tests", "optimize=none"]);
 
                 t.is(nol(oneResult), nol(c("builds/outSingle.js")));
 

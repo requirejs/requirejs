@@ -1,12 +1,11 @@
 Release Notes
 -------------------
 - exports and return use is stricter: if exports is in play, return value is ignored.
+- includeRequire is removed, use paths: {requireLib: "../../require"} to get require in it.
+  See the optimization.html for the requireLib example.
 
 Next release
 --------------
-
-- Removal of includeRequire option? Scrub all references, mention on list.
-  - paths: {requireLib: "../../require"} to get require in it.
 
 - text plugins after a build load xdomain?
 - move urlFetched outside of load function and do the check before load.
