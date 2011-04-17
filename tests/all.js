@@ -32,6 +32,8 @@ doh.registerUrl("uniques", "../uniques/uniques.html");
 doh.registerUrl("multiversion", "../multiversion.html", 10000);
 doh.registerUrl("jquery", "../jquery/jquery.html");
 doh.registerUrl("jqueryPriority", "../jquery/jqueryPriority.html");
+doh.registerUrl("jqueryVersion", "../jquery/jqueryVersion.html");
+doh.registerUrl("jqueryVersion2", "../jquery/jqueryVersion2.html");
 
 //Next three tests fail in PS3
 doh.registerUrl("jqueryDynamic", "../jquery/jqueryDynamic.html");

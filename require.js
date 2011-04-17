@@ -39,7 +39,8 @@ var require, define;
         isDone = false,
         useInteractive = false,
         req, cfg = {}, currentlyAddingScript, s, head, baseElement, scripts, script,
-        src, subPath, mainScript, dataMain, i, scrollIntervalId, setReadyState, ctx;
+        src, subPath, mainScript, dataMain, i, scrollIntervalId, setReadyState, ctx,
+        jQueryCheck;
 
     function isFunction(it) {
         return ostring.call(it) === "[object Function]";
@@ -585,8 +586,11 @@ var require, define;
 
             if (fullName) {
                 //If module already defined for context, or already loaded,
-                //then leave.
-                if (fullName in defined || loaded[fullName] === true) {
+                //then leave. Also leave if jQuery is registering but it does
+                //not match the desired version number in the config.
+                if (fullName in defined || loaded[fullName] === true ||
+                    (fullName === "jquery" && config.jQuery &&
+                     config.jQuery !== callback().fn.jquery)) {
                     return;
                 }
 
@@ -594,10 +598,13 @@ var require, define;
                 //as part of a layer, where onScriptLoad is not fired
                 //for those cases. Do this after the inline define and
                 //dependency tracing is done.
-                //Also check if auto-registry of jQuery needs to be skipped.
                 specified[fullName] = true;
                 loaded[fullName] = true;
-                context.jQueryDef = (fullName === "jquery");
+
+                //If module is jQuery set up delaying its dom ready listeners.
+                if (fullName === "jquery") {
+                    jQueryCheck(callback());
+                }
             }
 
             //Add the dependencies to the deps field, and register for callbacks
@@ -682,26 +689,37 @@ var require, define;
          * name of the global. If a jQuery is tracked for this context, then go
          * ahead and register it as a module too, if not already in process.
          */
-        function jQueryCheck(jqCandidate) {
+        jQueryCheck = function (jqCandidate) {
             if (!context.jQuery) {
                 var $ = jqCandidate || (typeof jQuery !== "undefined" ? jQuery : null);
-                if ($ && "readyWait" in $) {
-                    context.jQuery = $;
 
-                    //Manually create a "jquery" module entry if not one already
-                    //or in process.
-                    callDefMain(["jquery", [], function () {
-                        return jQuery;
-                    }]);
+                if ($) {
+                    //If a specific version of jQuery is wanted, make sure to only
+                    //use this jQuery if it matches.
+                    if (config.jQuery && $.fn.jquery !== config.jQuery) {
+                        return;
+                    }
 
-                    //Increment jQuery readyWait if ncecessary.
-                    if (context.scriptCount) {
-                        $.readyWait += 1;
-                        context.jQueryIncremented = true;
+                    if ("readyWait" in $) {
+                        context.jQuery = $;
+
+                        //Manually create a "jquery" module entry if not one already
+                        //or in process. Note this could trigger an attempt at
+                        //a second jQuery registration, but does no harm since
+                        //the first one wins, and it is the same value anyway.
+                        callDefMain(["jquery", [], function () {
+                            return jQuery;
+                        }]);
+
+                        //Increment jQuery readyWait if ncecessary.
+                        if (context.scriptCount) {
+                            $.readyWait += 1;
+                            context.jQueryIncremented = true;
+                        }
                     }
                 }
             }
-        }
+        };
 
         function forceExec(manager, traced) {
             if (manager.isDone) {
@@ -1548,7 +1566,8 @@ var require, define;
 
     define.amd = {
         multiversion: true,
-        plugins: true
+        plugins: true,
+        jQuery: true
     };
 
     /**
