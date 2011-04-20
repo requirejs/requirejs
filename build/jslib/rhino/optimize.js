@@ -83,7 +83,10 @@ define(['logger'], function (logger) {
             //Trigger the compiler
             Compiler.setLoggingLevel(Packages.java.util.logging.Level[config.loggingLevel || 'WARNING']);
             compiler = new Compiler();
-            compiler.compile(externSourceFile, jsSourceFile, options);
+            var result = compiler.compile(externSourceFile, jsSourceFile, options);
+            if (!result.success) {
+                throw new Error("Closure Compiler compilation failed");
+            }
             return compiler.toSource();
         }
     };
