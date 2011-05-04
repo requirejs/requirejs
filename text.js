@@ -14,8 +14,66 @@
         bodyRegExp = /<body[^>]*>\s*([\s\S]+)\s*<\/body>/im,
         buildMap = [];
 
+
+
+
+
+
     define(function () {
-        var text, get, fs;
+        var text, get, fs, parseJSON = null, checkJSON = null;
+
+
+        if (JSON != null) {
+            parseJSON = JSON.parse;
+            checkJSON = function(data) {
+                return JSON.stringify(JSON.parse(data));
+            }
+        } else {
+            (function() {
+                // Based on jQuery.parseJSON
+                // JSON RegExp
+                var rvalidchars  = /^[\],:{}\s]*$/,
+                    rvalidescape = /\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g,
+                    rvalidtokens = /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g,
+                    rvalidbraces = /(?:^|:|,)(?:\s*\[)+/g;
+                trim         = String.prototype.trim ?
+                    function(text) {
+                        return text == null ? '' : text.toString().trim();
+                    } :
+                    function(text) {
+                        return text == null ? '' : text.toString().replace(/^\s+|\s+$/gmi, '');
+                    };
+
+
+                checkJSON = function(data) {
+                    // Make sure the incoming data is actual JSON
+                    // Logic borrowed from http://json.org/json2.js
+                    return ( rvalidchars.test(data.replace(rvalidescape, "@")
+                           .replace(rvalidtokens, "]")
+                           .replace(rvalidbraces, "")));
+                };
+
+                parseJSON = function( data ) {
+                    if ( typeof data !== "string" || !data ) {
+                        return null;
+                    }
+
+                    // Make sure leading/trailing whitespace is removed (IE can't handle it)
+                    data = trim( data );
+
+
+                    if ( checkJSON(data) ) {
+                        return (new Function("return " + data))();
+                    } else {
+                        throw new Error( "Invalid JSON: " + data );
+                    }
+                }
+            })();
+        }
+
+
+
+
 
         if (typeof window !== "undefined" && window.navigator && window.document) {
             get = function (url, callback) {
@@ -143,34 +201,56 @@
                 //removing the <?xml ...?> declarations so the content can be inserted
                 //into the current doc without problems.
 
-                var strip = false, url, index = name.indexOf("."),
+                var strip = false, json = false, option = null, url, index = name.indexOf("."),
+                    contentType = 'text',
                     modName = name.substring(0, index),
                     ext = name.substring(index + 1, name.length);
 
                 index = ext.indexOf("!");
                 if (index !== -1) {
                     //Pull off the strip arg.
-                    strip = ext.substring(index + 1, ext.length);
-                    strip = strip === "strip";
+                    option = ext.substring(index + 1, ext.length);
+                    strip = option === "strip";
+                    json = option === "json";
                     ext = ext.substring(0, index);
                 }
+                
+                if (json) {
+                    contentType = 'json';
+                }
+                
+                
 
                 //Load the text.
                 url = req.nameToUrl(modName, "." + ext);
                 text.get(url, function (content) {
                     content = strip ? text.strip(content) : content;
                     if (config.isBuild && config.inlineText) {
-                        buildMap[name] = content;
+                        buildMap[name] = [contentType, content];
                     }
-                    onLoad(content);
+                    onLoad(json ? parseJSON(content) : content);
                 });
             },
 
             write: function (pluginName, moduleName, write) {
                 if (moduleName in buildMap) {
-                    var content = text.jsEscape(buildMap[moduleName]);
+                    
+                    var options = buildMap[moduleName];
+                        contentType = options[0] ,
+                        content = options[1];
+                   
+                    if (contentType == 'json') {
+                        if (!checkJSON(content)) {
+                            throw new Error( "Invalid JSON: " + data );
+
+                        }
+                     
+                    } else {
+                        content = '\'' + text.jsEscape(content) + '\'';
+                    }
+                   
                     write("define('" + pluginName + "!" + moduleName  +
-                          "', function () { return '" + content + "';});\n");
+                          "', function () { return " + content + ";});\n");
                 }
             }
         };
