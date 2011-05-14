@@ -6,6 +6,9 @@
 
 echo "Updating r.js"
 cp require.js ../r.js/require.js
+cd ../r.js
+node dist.js
+cd ../requirejs
 
 # The CoffeeScript loader plugin and example
 echo "CoffeeScript plugin"

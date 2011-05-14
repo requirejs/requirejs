@@ -7,10 +7,8 @@ Release Notes
 Next release
 --------------
 
-- https://github.com/jrburke/require-jquery: update readme for priority: the
-  priority call cannot be in the main.js file, does not work after optimizing.
-- Add jqueryui-amd to updatesubs.sh, update it to use opto too.
 - Update require-jquery to use opto, require-cs too.
+- Add jqueryui-amd to updatesubs.sh, update it to use opto too.
 - Test: node ../../r.js -o name=main out=main-built.js baseUrl=.
 - implement require('.')
 

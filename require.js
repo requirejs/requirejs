@@ -602,7 +602,7 @@ var require, define;
                 loaded[fullName] = true;
 
                 //If module is jQuery set up delaying its dom ready listeners.
-                if (fullName === "jquery") {
+                if (fullName === "jquery" && callback) {
                     jQueryCheck(callback());
                 }
             }
