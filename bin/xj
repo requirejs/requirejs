@@ -1,6 +1,0 @@
-#!/bin/sh
-
-# A command line tool to run some RequireJS scripts via Java/Rhino
-
-MYDIR=`cd \`dirname "$0"\`; pwd`
-java -classpath $MYDIR/../build/lib/rhino/js.jar:$MYDIR/../build/lib/closure/compiler.jar org.mozilla.javascript.tools.shell.Main $MYDIR/x.js $MYDIR "$@"

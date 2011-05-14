@@ -1,5 +1,5 @@
 <div id="directory" class="section">
-<h1>RequireJS Optimization Tool</h1>
+<h1>RequireJS Optimizer</h1>
 
 <ul class="index mono">
 <li class="hbox"><a href="#requirements">Requirements</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1</span></li>
@@ -13,15 +13,14 @@
 <li class="hbox"><a href="#options">All configuration options</a><span class="spacer boxFlex"></span><span class="sect">&sect; 9</span></li>
 </ul>
 
-<span class="note">Note: RequireJS comes with an optimization tool that does the following</span>
+<span class="note">Note: RequireJS has an optimization tool that does the following</span>
 
 <ul class="serif">
 <li>Combines related scripts together into build layers and minifies them via <a href="https://github.com/mishoo/UglifyJS">UglifyJS</a>  (the default) or <a href="http://code.google.com/closure/compiler/">Closure Compiler</a> (an option when using Java).</li>
 <li>Optimizes CSS by inlining CSS files referenced by @import and removing comments.</li>
-<li>Can add require.js and any of its plugins to any optimized build layer.</li>
 </ul>
 
-<p>The optimization tool is in the requirejs/build directory, and it is designed to be run as part of a build or packaging step after you are done with development and are ready to deploy the code for your users.</p>
+<p>The optimizer is part of the <a href="https://github.com/jrburke/r.js">r.js adapter for Node and Rhino</a>, and it is designed to be run as part of a build or packaging step after you are done with development and are ready to deploy the code for your users.</p>
 </div>
 
 <div class="section">
@@ -30,33 +29,28 @@
 <span class="sectionMark">&sect; 1</span>
 </h2>
 
-<p>The optimization tool can be run using either Node or using Java with Rhino. The requirements for each option:<p>
+<p>The optimizer can be run using either Node or using Java with Rhino. The requirements for each option:<p>
 
 <ul>
    <li><strong>Node:</strong> (preferred) <a href="http://nodejs.org">Node</a> 0.4.0 or later.</li>
    <li><strong>Java:</strong> <a href="http://java.com/">Java 1.6</a> or later.</li>
 </ul>
 
-<p>Node is the preferred execution environment. The optimization tool runs <strong>much faster</strong> with Node.</p>
+<p>Node is the preferred execution environment. The optimizer runs <strong>much faster</strong> with Node.</p>
 
-<p>All the example commands in this page assume Node usage, and running on a Linux/OS X command line.</p>
-<ul>
-    <li>If Using Java, use <strong>buildj.sh</strong> instead of build.sh in the examples below. If you want to use Ant to drive the optimizer, [Miller Medeiros created a gist showing how](https://gist.github.com/825117).</li>
-    <li>If using Windows: use <strong>build.bat</strong> (Node) or <strong>buildj.bat</strong> (Java).</li>
-</ul>
-
+<p>All the example commands in this page assume Node usage, and running on a Linux/OS X command line. See the <a href="https://github.com/jrburke/r.js/blob/master/README.md">r.js README</a> for how to run it in Java.</p>
 </div>
 
 <div class="section">
 <h2><a name="download">Download</a><span class="sectionMark">&sect; 2</span></h2>
 
-<p>You can download the tool on <a href="download.html#optimizationtool">the download page</a>.</p>
+<p>You can download the tool on <a href="download.html#rjs">the download page</a>.</p>
 </div>
 
 <div class="section">
 <h2><a name="setup">Example Setup</a><span class="sectionMark">&sect; 3</span></h2>
 
-<p>The examples in this page will assume you downloaded and unzipped the optimization tool in a directory that is a sibling to your project directory. The optimization tool can live anywhere you want, but you will likely need to adjust the paths accordingly in these examples.</p>
+<p>The examples in this page will assume you downloaded and saved r.js in a directory that is a sibling to your project directory. The optimizer that is part of r.js can live anywhere you want, but you will likely need to adjust the paths accordingly in these examples.</p>
 
 <p>Example setup:</p>
 
@@ -78,15 +72,7 @@
 <li>three.js</li>
 </ul></li>
 </ul></li>
-<li>requirejs (the unzipped optimization tool from the <a href="download.html">download page</a>)
-<ul>
-<li>build
-<ul>
-<li>build.sh</li>
-</ul></li>
-<li>require</li>
-<li>require.js</li>
-</ul></li>
+<li>r.js (The r.js optimizer from <a href="download.html#rjs">download page</a>)</li>
 </ul>
 
 <p>main.html has script tags for require.js and loads main.js via a require call, like so:</p>
@@ -128,7 +114,7 @@
 
 <p>Use the above example setup, if you just wanted to optimize main.js, you could use this command, from inside the <strong>appdirectory/scripts</strong> directory:</p>
 
-<pre><code>../../requirejs/build/build.sh name=main out=main-built.js baseUrl=.
+<pre><code>node ../../r.js -o name=main out=main-built.js baseUrl=.
 </code></pre>
 
 <p>This will create a file called <strong>appdirectory/scripts/main-built.js</strong> that will include the contents of main.js, one.js, two.js and three.js.</p>
@@ -137,7 +123,7 @@
 
 <p>It is not recommended that you bundle require.js with your main.js file. Ideally require.js should be the same file contents wherever it is used. However, if you do need to include require.js with the main.js source, you can use this command:</p>
 
-<pre><code>../../requirejs/build/build.sh baseUrl=. paths.requireLib=../../require name=main include=requireLib out=main-built.js
+<pre><code>node ../../r.js -o baseUrl=. paths.requireLib=../../require name=main include=requireLib out=main-built.js
 </code></pre>
 
 <p>Since "require" is a reserved dependency name, you create a "requireLib" dependency and map it to the require.js file.</p>
@@ -150,9 +136,9 @@
 
 <p>You can use the <a href="#onejs">one JavaScript file optimization</a> approach to make your development experience faster. By optimizing all the modules in your project into one file, except the one you are currently developing, you can reload your project quickly in the browser, but still give you the option of fine grained debugging in a module.</p>
 
-<p>You can do this by using the <strong>excludeShallow</strong> option. Using the <a href="#example">example setup</a> above, assume you are currently building out or debugging two.js. You could use thing optimization command:</p>
+<p>You can do this by using the <strong>excludeShallow</strong> option. Using the <a href="#example">example setup</a> above, assume you are currently building out or debugging two.js. You could use this optimization command:</p>
 
-<pre><code>../../requirejs/build/build.sh name=main excludeShallow=two out=main-built.js baseUrl=.
+<pre><code>node ../../r.js -o name=main excludeShallow=two out=main-built.js baseUrl=.
 </code></pre>
 
 <p>If you do not want the main-build.js file minified, pass <strong>optimize=none</strong> in the command above.</p>
@@ -189,7 +175,7 @@
 
 <p>Use the above example setup, if you just wanted to optimize main.css, you could use this command, from inside the <strong>appdirectory/css</strong> directory:</p>
 
-<pre><code>../../requirejs/build/build.sh cssIn=main.css out=main-built.css
+<pre><code>node ../../r.js -o cssIn=main.css out=main-built.css
 </code></pre>
 
 <p>This will create a file called <strong>appdirectory/css/main-build.css</strong> that will include the contents of common.js, have the url() paths properly adjusted, and have comments removed.</p>
@@ -202,7 +188,7 @@
 <div class="section">
 <h2><a name="wholeproject">Optimizing a whole project</a><span class="sectionMark">&sect; 7</span></h2>
 
-<p>The optimization tool can take care of optimizing all the CSS and JS files in your project by using a build profile.</p>
+<p>The optimizer can take care of optimizing all the CSS and JS files in your project by using a build profile.</p>
 
 <p>Create a build profile, call it app.build.js, and put it in the <strong>scripts</strong> directory. The app.build.js file can live anywhere, but just be sure to adjust the paths accordingly in the example below -- all paths will be relative to where the app.build.js is located. Example app.build.js:</p>
 
@@ -218,7 +204,7 @@
 })
 </code></pre>
 
-<p>This build profile tells RequireJS to copy all of <strong>appdirectory</strong> to a sibling directory called <strong>appdirectory-build</strong> and apply all the optimizations in the <strong>appdirectory-build</strong> directory. It is strongly suggested you use a different output directory than the source directory -- otherwise bad things will likely happen as the optimization tool overwrites your source.</p>
+<p>This build profile tells RequireJS to copy all of <strong>appdirectory</strong> to a sibling directory called <strong>appdirectory-build</strong> and apply all the optimizations in the <strong>appdirectory-build</strong> directory. It is strongly suggested you use a different output directory than the source directory -- otherwise bad things will likely happen as the optimizer overwrites your source.</p>
 
 <p>RequireJS will use <strong>baseUrl</strong> to resolve the paths for any module names. The <strong>baseUrl</strong> should be relative to <strong>appDir</strong>.</p>
 
@@ -226,14 +212,9 @@
 
 <p>It will also optimize any CSS files it finds inside <strong>appdirectory-build</strong>.</p>
 
-<p>To run the build on Unix/Linux systems, run this command from inside the <strong>appdirectory/scripts</strong> directory:</p>
+<p>To run the build, run this command from inside the <strong>appdirectory/scripts</strong> directory:</p>
 
-<pre><code>../../requirejs/build/build.sh app.build.js
-</code></pre>
-
-<p>For windows operating systems:</p>
-
-<pre><code>..\..\requirejs\build\build.bat app.build.js
+<pre><code>node ../../r.js -o app.build.js
 </code></pre>
 
 <p>Once the build is done, you can use <strong>appdirectory-build</strong> as your optimized project, ready for deployment.</p>
@@ -288,5 +269,5 @@ if (true) {
 <div class="section">
 <h2><a name="options">All configuration options</a><span class="sectionMark">&sect; 9</span></h2>
 
-<p>There is an <a href="http://github.com/jrburke/requirejs/blob/master/build/example.build.js">example.build.js</a> file in the requirejs/build directory that details all of the allowed optimization tool configuration options.</p>
+<p>There is an <a href="https://github.com/jrburke/r.js/blob/master/build/example.build.js">example.build.js</a> file in the requirejs/build directory that details all of the allowed optimizer configuration options.</p>
 </div>

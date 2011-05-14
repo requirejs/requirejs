@@ -5,8 +5,7 @@
     <ul>
         <li class="hbox"><a href="#requirejs">require.js</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.1</span></li>
         <li class="hbox"><a href="#samplejquery">Sample RequireJS + jQuery 1.5.1 project</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2</span></li>
-        <li class="hbox"><a href="#node">RequireJS adapter for Node and Rhino</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.3</span></li>
-        <li class="hbox"><a href="#optimizationtool">Optimization Tool / Full Source</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.4</span></li>
+        <li class="hbox"><a href="#rjs">r.js: Optimizer and Node and Rhino adapter</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.3</span></li>
     </ul>
     <li class="hbox"><a href="#previous">Plugins</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2</span></li>
     <ul>
@@ -15,30 +14,17 @@
         <li class="hbox"><a href="#cs">cs (CoffeeScript)</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2.3</span></li>
         <li class="hbox"><a href="#i18n">i18n</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2.4</span></li>
     </ul>
-    <li class="hbox"><a href="#previous">Previous Releases</a><span class="spacer boxFlex"></span><span class="sect">&sect; 3</span></li>
+    <li class="hbox"><a href="#releasenotes">Release Notes</a><span class="spacer boxFlex"></span><span class="sect">&sect; 3</span></li>
 </ul>
 
 </div>
 
 <div class="section">
-<h2><a name="latest">Latest Release: 0.24.0</a><span class="sectionMark">&sect; 1</span></h2>
-
-<ul>
-<li>Support for IE 9. It has <a href="https://connect.microsoft.com/IE/feedback/details/648057/script-onload-event-is-not-fired-immediately-after-script-execution">a non-conformant script loading behavior</a> that necessitated the change. It would be ideal if IE 9 would change the behavior to be conformant.</li>
-<li>Changes to jQuery integration:
-    <ul>
-        <li>jQuery 1.5.1 included in sample project.</li>
-        <li><span style="text-decoration: line-through">No more bundled RequireJS and jQuery file. RequireJS includes special code to detect jQuery as a module, so the combined file is not necessary, and this approach makes it easier to swap in new versions of jQuery as they are released.</span> (Changed on April 1, 2011 back to the old integrated sample)</li>
-        <li><span style="text-decoration: line-through">Because of that change, the jQuery sample project uses the new priority: config approach.</span> (Changed on April 1, 2011 back to the old integrated sample)</li>
-    </ul>
-<li>allplugins-require.js has been removed. Plugins are no longer bundled with require.js or in the sample jQuery project. There are separate download links to the existing plugins on the download page. Special treatment of these plugins has also been removed from the require.js source, so those plugins behave like any other loader plugin.</li>
-<li>There is now a <a href="#cs">CoffeScript plugin</a>. It makes it easy to code in CoffeeScript in the browser, it can participate in the optimizer optimizations, and it works in Node and Rhino. This is the best way to do cross-environment, modular CoffeeScript.</li>
-<li>Bug fixes.</li>
-</ul>
+<h2><a name="latest">Latest Release</a><span class="sectionMark">&sect; 1</span></h2>
 
 <div class="subSection">
 <h4 class="hbox">
-<a name="requirejs">require.js</a>
+<a name="requirejs">require.js 0.24.0</a>
 <span class="boxFlex"></span>
 <a class="download" href="http://requirejs.org/docs/release/0.24.0/minified/require.js">Minified</a>
 <a class="download" href="http://requirejs.org/docs/release/0.24.0/comments/require.js">With Comments</a>
@@ -49,7 +35,7 @@
 
 <div class="subSection">
 <h4 class="hbox">
-<a name="samplejquery">Sample RequireJS + jQuery 1.5.2 project</a>
+<a name="samplejquery">Sample RequireJS 0.24.0 + jQuery 1.5.2 project</a>
 <span class="boxFlex"></span>
 <a class="download" href="http://requirejs.org/docs/release/jquery-require/jquery1.5.2-requirejs0.24.0/jquery-require-sample.zip">Download</a>
 </h4>
@@ -57,42 +43,20 @@
 <p>A zip file containing a sample project that uses jQuery and RequireJS.</p>
 </div>
 
-<div class="subSection">
-<h4><a name="node">RequireJS adapter for Node and Rhino</a></h4>
-
-<p><strong><a href="http://requirejs.org/docs/release/0.24.0/r.js">r.js</a></strong>: use this file if you want to code to the RequireJS module format in Node or Rhino.</p>
-
-<p><strong>Use in Node</strong></p>
-
-<p>Requires Node 0.4.0 or higher. The <a href="node.html">Node instructions</a> explain how to use it. It includes all the code needed for RequireJS to function with Node.</p>
-
-<p><strong><a href="http://requirejs.org/docs/release/0.24.0/node/index.js">index.js</a></strong>: the standard HTTP server-based Hello World app for Node, but coded to work with the r.js adapter. Download it in the same directory as r.js and then run this command:</p>
-
-<pre><code>node r.js index.js
-</code></pre>
-
-<p>Then you can go to http://127.0.0.1:8000/ and see "Hello World" printed after about 2 seconds.</p>
-
-<p><strong>Use in Rhino</strong></p>
-
-<p>The r.js adapter also runs under Rhino. Use it like so, where main.js is your application's top level file:</p>
-
-<pre><code>java -jar path/to/rhino/js.jar r.js main.js
-</code></pre>
-
-</div>
 
 <div class="subSection">
 <h4 class="hbox">
-<a name="optimizationtool">Optimization Tool / Full Source</a>
+<a name="rjs">r.js: Optimizer and Node and Rhino adapter</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/0.24.0/requirejs-0.24.0.zip">Download</a></h4>
+<a class="download" href="https://github.com/jrburke/r.js/tree/master/dist">Download</a>
+</h4>
 
-<p>A zip file that is the optimization tool for RequireJS. It also includes the full source for RequireJS.</p>
+<p>The r.js file allows you to run the optimizer as well as run modules in Node or Rhino.
+The download button takes you to the r.js site to download the r.js file.</p>
+
+<p>See the <a href="https://github.com/jrburke/r.js">r.js README</a> for more information.</p>
+
 </div>
-
-</div>
-
 
 <div class="section">
 <h2><a name="plugins">Plugins</a><span class="sectionMark">&sect; 2</span></h2>
@@ -126,7 +90,7 @@
 <span class="boxFlex"></span>
 <a class="download" href="https://github.com/jrburke/require-cs/raw/0.1.0/cs.js">With Comments</a>
 </h4>
-<p>Load files written in CoffeeScript. Includes a version of CoffeeScript, only this one file is needed. With this plugin, it is easy to code in CoffeeScript in the browser, it can participate in the optimizer optimizations, and it works in Node and Rhino via the <a href="#node">RequireJS adapter</a>. This is the best way to do cross-environment, modular CoffeeScript. <a href="https://github.com/jrburke/require-cs/">The project home</a> has more information on how to use it.</p>
+<p>Load files written in CoffeeScript. Includes a version of CoffeeScript, only this one file is needed. With this plugin, it is easy to code in CoffeeScript in the browser, it can participate in the optimizer optimizations, and it works in Node and Rhino via the <a href="#rjs">RequireJS adapter</a>. This is the best way to do cross-environment, modular CoffeeScript. <a href="https://github.com/jrburke/require-cs/">The project home</a> has more information on how to use it.</p>
 </div>
 
 
@@ -143,7 +107,22 @@
 </div>
 
 <div class="section">
-<h2><a name="previous">Previous releases</a><span class="sectionMark">&sect; 3</span></h2>
+<h2><a name="releasenotes">Release Notes</a><span class="sectionMark">&sect; 3</span></h2>
+
+<h3>0.24.0</h3>
+
+<ul>
+<li>Support for IE 9. It has <a href="https://connect.microsoft.com/IE/feedback/details/648057/script-onload-event-is-not-fired-immediately-after-script-execution">a non-conformant script loading behavior</a> that necessitated the change. It would be ideal if IE 9 would change the behavior to be conformant.</li>
+<li>Changes to jQuery integration:
+    <ul>
+        <li>jQuery 1.5.1 included in sample project.</li>
+        <li><span style="text-decoration: line-through">No more bundled RequireJS and jQuery file. RequireJS includes special code to detect jQuery as a module, so the combined file is not necessary, and this approach makes it easier to swap in new versions of jQuery as they are released.</span> (Changed on April 1, 2011 back to the old integrated sample)</li>
+        <li><span style="text-decoration: line-through">Because of that change, the jQuery sample project uses the new priority: config approach.</span> (Changed on April 1, 2011 back to the old integrated sample)</li>
+    </ul>
+<li>allplugins-require.js has been removed. Plugins are no longer bundled with require.js or in the sample jQuery project. There are separate download links to the existing plugins on the download page. Special treatment of these plugins has also been removed from the require.js source, so those plugins behave like any other loader plugin.</li>
+<li>There is now a <a href="#cs">CoffeScript plugin</a>. It makes it easy to code in CoffeeScript in the browser, it can participate in the optimizer optimizations, and it works in Node and Rhino. This is the best way to do cross-environment, modular CoffeeScript.</li>
+<li>Bug fixes.</li>
+</ul>
 
 <h3>0.23.0</h3>
 
