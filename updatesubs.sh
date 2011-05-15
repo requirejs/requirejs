@@ -10,13 +10,24 @@ cd ../r.js
 node dist.js
 cd ../requirejs
 
-# The CoffeeScript loader plugin and example
-echo "CoffeeScript plugin"
-cp require.js ../require-cs/require.js
-
 # The RequireJS+jQuery sample project.
 echo "Updating jQuery sample project"
 cp require.js ../require-jquery/parts/require.js
+cp ../r.js/r.js ../require-jquery/jquery-require-sample/r.js
 cd ../require-jquery/parts
 ./update.sh
 cd ../../requirejs
+
+# The require-cs project
+echo "Updating the require-cs CoffeeScript plugin"
+cp require.js ../require-cs/demo/lib/require.js
+cp ../r.js/r.js ../require-cs/tools/r.js
+
+# The r.no.de example service
+echo "Updating r.no.de example"
+cp ../r.js/r.js ../r.no.de/server.js
+
+# The jquery-amd project
+echo "Updating jqueryui-amd"
+cp ../require-jquery/jquery-require-sample/webapp/scripts/require-jquery.js ../jqueryui-amd/example/webapp/scripts/require-jquery.js
+cp ../r.js/r.js ../jqueryui-amd/example/r.js

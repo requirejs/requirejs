@@ -3,13 +3,11 @@ Release Notes
 - exports and return use is stricter: if exports is in play, return value is ignored.
 - includeRequire is removed, use paths: {requireLib: "../../require"} to get require in it.
   See the optimization.html for the requireLib example.
+- New optimizer/node/rhino adapter: r.js
 
 Next release
 --------------
 
-- Update require-jquery to use opto, require-cs too.
-- Add jqueryui-amd to updatesubs.sh, update it to use opto too.
-- Test: node ../../r.js -o name=main out=main-built.js baseUrl=.
 - implement require('.')
 
 - text plugins after a build load xdomain?
