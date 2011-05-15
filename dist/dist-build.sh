@@ -18,10 +18,6 @@ rm -rf ../../requirejs-build
 mkdir ../../requirejs-build
 cp -r ../ ../../requirejs-build/requirejs-$version
 
-# Zip up the full source
-cd ../../requirejs-build
-zip -r requirejs-$version.zip requirejs-$version/*
-
 # Create the version output dir
 mkdir $version
 mkdir $version/minified
@@ -34,15 +30,6 @@ cp require.js ../$version/comments/require.js
 cp text.js ../$version/comments/text.js
 cp order.js ../$version/comments/order.js
 cp i18n.js ../$version/comments/i18n.js
-
-# Create node integration layer
-cd ../../
-cd adapt
-node dist.js
-mkdir ../../$version/node
-cp r.js ../../$version/
-cp tests/node/index.js ../../$version/node
-cd ../
 
 # Minify any of the browser-based JS files
 cd ../$version/comments

@@ -1,7 +1,0 @@
-@import url("../master.css");
-
-.sub {
-    background: transparent url(../../img/sub.png);
-    /*Some comment in here*/
-    position: relative;
-}

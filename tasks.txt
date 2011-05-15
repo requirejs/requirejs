@@ -3,22 +3,37 @@ Release Notes
 - exports and return use is stricter: if exports is in play, return value is ignored.
 - includeRequire is removed, use paths: {requireLib: "../../require"} to get require in it.
   See the optimization.html for the requireLib example.
+- New optimizer/node/rhino adapter: r.js
 
 Next release
 --------------
 
+- implement require('.')
+
 - text plugins after a build load xdomain?
+- Why can't plugins have dependencies? It is because the dependency is not fully evaluated.
+  Maybe rethink it, there have been some cases where creating a plugin that uses the
+  text plugin would be useful. However, would that mean the optimized result would include
+  the string twice in the output?
 - move urlFetched outside of load function and do the check before load.
 - replacement for modify that intercepts callbacks, holds off until another module loads them?
+  - A way to show dependency graph too?
 - Set up official IE9 release VM
 - localeList for i18n.js support, for better Dojo support.
 - Minify the require.js files with UglifyJS.
 - Update docs: priority config options can only be plain JS dependencies, not plugin loaded ones.
 - Fix commonjs/convert.sh script, does not work.
 - IE checkLoaded recursion? https://github.com/jrburke/requirejs/issues/82
+- Just an error in the define function causing infinite looping? Happened in firefox embedding.
 - Document in README the directory structure.
 - Support jQuery holdReady
 - Document config.jQuery support
+- https://github.com/jrburke/requirejs/issues/96
+- Update docs on order plugin to mention incompatibility with other plugins:
+  https://github.com/jrburke/requirejs/issues/99
+- Pointer to motivations behind current thing, reason for dependencies.
+
+- Need an AMD test suite
 
 - "libs/static.lib.02", //kaaahhhhnnnn!!!
 - optimizer as a separate project?
