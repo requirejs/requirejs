@@ -548,38 +548,42 @@ define({
 
 <p>Supported configuration options:</p>
 
-<p><strong>baseUrl</strong>: the root path to use for all module lookups. So in the above example, "my/module"'s script tag will have a src="/another/path/my/module.js". baseUrl is <strong>not</strong> used when loading plain .js files, those strings are used as-is, so a.js and b.js will be loaded from the same directory as the HTML page that contains the above snippet.</p>
+<p id="config-baseUrl"><strong>baseUrl</strong>: the root path to use for all module lookups. So in the above example, "my/module"'s script tag will have a src="/another/path/my/module.js". baseUrl is <strong>not</strong> used when loading plain .js files, those strings are used as-is, so a.js and b.js will be loaded from the same directory as the HTML page that contains the above snippet.</p>
 
 <p>If no baseUrl is explicitly set in the configuration, the default value will be the location of the HTML page that loads require.js. If a <strong>data-main</strong> attribute is used, that path will become the baseUrl.</p>
 
 <p>The baseUrl can be a URL on a different domain as the page that will load require.js. RequireJS script loading works across domains. The only restriction is on text content loaded by text! plugins: those paths should be on the same domain as the page, at least during development. The optimization tool will inline text! plugin resources so after using the optimization tool, you can use resources that reference text! plugin resources from another domain.</p>
 
-<p><strong>paths</strong>: path mappings for module names not found directly under baseUrl. The path settings are assumed to be relative to baseUrl, unless the paths setting starts with a "/" or has a URL protocol in it ("like http:"). In those cases, the path is determined relative to baseUrl. Using the above sample config, "some/module"'s script tag will be src="/another/path/some/v1.0/module.js". The path that is used for a module name should <strong>not</strong> include the .js extension, since the path mapping could be for a directory. The path mapping code will automatically add the .js extension when mapping the module name to a path.</p>
+<p id="config-paths"><strong>paths</strong>: path mappings for module names not found directly under baseUrl. The path settings are assumed to be relative to baseUrl, unless the paths setting starts with a "/" or has a URL protocol in it ("like http:"). In those cases, the path is determined relative to baseUrl. Using the above sample config, "some/module"'s script tag will be src="/another/path/some/v1.0/module.js". The path that is used for a module name should <strong>not</strong> include the .js extension, since the path mapping could be for a directory. The path mapping code will automatically add the .js extension when mapping the module name to a path.</p>
 
-<p><strong>packagePaths</strong>: configures module name prefixes to map to CommonJS packages. See the <a href="#packages">packages topic</a> for more information. Related to <strong>packages</strong> config option.</p>
+<p id="config-packagePaths"><strong>packagePaths</strong>: configures module name prefixes to map to CommonJS packages. See the <a href="#packages">packages topic</a> for more information. Related to <strong>packages</strong> config option.</p>
 
-<p><strong>packages</strong>: configures loading modules from CommonJS packages. See the <a href="#packages">packages topic</a> for more information. Related to <strong>packagePaths</strong> config option.</p>
+<p id="config-packages"><strong>packages</strong>: configures loading modules from CommonJS packages. See the <a href="#packages">packages topic</a> for more information. Related to <strong>packagePaths</strong> config option.</p>
 
-<p><strong>waitSeconds</strong>: The number of seconds to wait before giving up on loading a script. The default is 7 seconds.</p>
+<p id="config-waitSeconds"><strong>waitSeconds</strong>: The number of seconds to wait before giving up on loading a script. The default is 7 seconds.</p>
 
-<p><strong>locale</strong>: The locale to use for loading i18n bundles. By default navigator.language or navigator.userLanguage will be used. The proper syntax for specifying a locale is using lowercase and separating values by dashes, for instance: "fr-fr-paris" or "en-us".</p>
+<p id="config-locale"><strong>locale</strong>: The locale to use for loading i18n bundles. By default navigator.language or navigator.userLanguage will be used. The proper syntax for specifying a locale is using lowercase and separating values by dashes, for instance: "fr-fr-paris" or "en-us".</p>
 
-<p><strong>context</strong>: A name to give to a loading context. This allows require.js to load multiple versions of modules in a page, as long as each top-level require call specifies a unique context string. See <strong>Advanced Features</strong> below.</p>
+<p id="config-context"><strong>context</strong>: A name to give to a loading context. This allows require.js to load multiple versions of modules in a page, as long as each top-level require call specifies a unique context string. See <strong>Advanced Features</strong> below.</p>
 
-<p><strong>deps</strong>: An array of dependencies to load. Useful when require is defined as a config object before require.js is loaded, and you want to specify dependencies to load as soon as require() is defined.</p>
+<p id="config-deps"><strong>deps</strong>: An array of dependencies to load. Useful when require is defined as a config object before require.js is loaded, and you want to specify dependencies to load as soon as require() is defined.</p>
 
-<p><strong>callback</strong>: A function to pass to require that should be require after <strong>deps</strong> have been loaded. Useful when require is defined as a config object before require.js is loaded, and you want to specify a function to require after the configuration's <strong>deps</strong> array has been loaded.</p>
+<p id="config-callback"><strong>callback</strong>: A function to pass to require that should be require after <strong>deps</strong> have been loaded. Useful when require is defined as a config object before require.js is loaded, and you want to specify a function to require after the configuration's <strong>deps</strong> array has been loaded.</p>
 
-<p><strong>ready</strong>: A function to pass to require.ready(). Useful when require is defined as a config object before require.js is loaded, and you want to specify a require.ready callback to set as soon as require() is defined.</p>
+<p id="config-ready"><strong>ready</strong>: A function to pass to require.ready(). Useful when require is defined as a config object before require.js is loaded, and you want to specify a require.ready callback to set as soon as require() is defined.</p>
 
-<p><strong>priority</strong>: An array of module/file names to load immediately, before tracing down any other dependencies. This allows you to set up a small set of files that are downloaded in parallel that contain most of the modules and their dependencies already built in. More information is in the <a href="faq-optimization#priority">Optimization FAQ, Priority Downloads</a>.<b>Note:</b> resources loaded by loader plugins (like 'text!template.html') <b>cannot</b> be specified in the priority array: the priority mechanism only works with regular JavaScript resources.</p>
+<p id="config-priority"><strong>priority</strong>: An array of module/file names to load immediately, before tracing down any other dependencies. This allows you to set up a small set of files that are downloaded in parallel that contain most of the modules and their dependencies already built in. More information is in the <a href="faq-optimization#priority">Optimization FAQ, Priority Downloads</a>.<b>Note:</b> resources loaded by loader plugins (like 'text!template.html') <b>cannot</b> be specified in the priority array: the priority mechanism only works with regular JavaScript resources.</p>
 
-<p><strong>urlArgs</strong>: Extra query string arguments appended to URLs that RequireJS uses to fetch resources. Most useful to cache bust when the browser or server is not configured correctly. Example cache bust setting for urlArgs:</p>
+<p id="config-urlArgs"><strong>urlArgs</strong>: Extra query string arguments appended to URLs that RequireJS uses to fetch resources. Most useful to cache bust when the browser or server is not configured correctly. Example cache bust setting for urlArgs:</p>
 
 <pre><code>urlArgs: "bust=" +  (new Date()).getTime()
 </code></pre>
 
 <p>During development it can be useful to use this, however <strong>be sure</strong> to remove it before deploying your code.</p>
+
+<p id="config-jQuery"><strong>jQuery</strong>: (RequireJS 0.25.0+) specify an exact version match for the version of jQuery that should be allowed to register as the 'jquery' dependency. This is useful in environments where multiple jQuery files could be loaded but you want
+to be sure to get the right version of jQuery for your loading context. Normally you do not need to set this if you are only loading one version of jQuery in a page. However, if you use third party libraries that may also load jQuery, it is best to set this option.</p>
+
 </div>
 
 <div class="section">
