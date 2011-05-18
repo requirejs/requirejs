@@ -474,7 +474,12 @@ define({
 
 <p>The <strong>order</strong> plugin is best used with traditional scripts, it is not needed for scripts that use define() to define modules. It is possible to mix and match "order!" dependencies with regular dependencies, but only the "order!" ones will be evaluated in relative order to each other. </p>
 
-<p><strong>Note</strong>: the order! plugin only works with JavaScript files that are cacheable by the browser. If the JS file has headers that do not allow the browser to cache the file, then the order of scripts will not be maintained.</p>
+<p><strong>Notes:</strong></p>
+<ul>
+    <li>The order! plugin only works with JavaScript files that are cacheable by the browser. If the JS file has headers that do not allow the browser to cache the file, then the order of scripts will not be maintained.</li>
+    <li>Do not use the order! plugin to load other plugin-loaded resources. For instance. 'order!cs!my/coffescript/module' is not recommended. You will get errors in some versions of IE and WebKit. This is due to the workarounds the order plugin needs to do for those browsers to ensure ordered execution.</li>
+</ul>
+
 </div>
 
 <div class="section">
@@ -567,7 +572,7 @@ define({
 
 <p><strong>ready</strong>: A function to pass to require.ready(). Useful when require is defined as a config object before require.js is loaded, and you want to specify a require.ready callback to set as soon as require() is defined.</p>
 
-<p><strong>priority</strong>: An array of module/file names to load immediately, before tracing down any other dependencies. This allows you to set up a small set of files that are downloaded in parallel that contain most of the modules and their dependencies already built in. More information is in the <a href="faq-optimization#priority">Optimization FAQ, Priority Downloads</a>.</p>
+<p><strong>priority</strong>: An array of module/file names to load immediately, before tracing down any other dependencies. This allows you to set up a small set of files that are downloaded in parallel that contain most of the modules and their dependencies already built in. More information is in the <a href="faq-optimization#priority">Optimization FAQ, Priority Downloads</a>.<b>Note:</b> resources loaded by loader plugins (like 'text!template.html') <b>cannot</b> be specified in the priority array: the priority mechanism only works with regular JavaScript resources.</p>
 
 <p><strong>urlArgs</strong>: Extra query string arguments appended to URLs that RequireJS uses to fetch resources. Most useful to cache bust when the browser or server is not configured correctly. Example cache bust setting for urlArgs:</p>
 

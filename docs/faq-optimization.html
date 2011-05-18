@@ -36,7 +36,7 @@
 <li>Use the <a href="api.html#config"><strong>priority</strong> config value</a> to pass the list of layers to priority download to the top-level require() call in the HTML file(s).</li>
 </ul>
 
-<p>Script modules/files specified in the config's priority array will be downloaded in parallel before any other script dependencies are traced.</p>
+<p>Script modules/files specified in the config's priority array will be downloaded in parallel before any other script dependencies are traced. <b>Note:</b> resources loaded by loader plugins (like 'text!template.html') <b>cannot</b> be specified in the priority array: the priority mechanism only works with regular JavaScript resources.</p>
 
 <p>This example builds on the <a href="download.html#samplejquery">sample jQuery project</a> to demonstrate the approach:</p>
 
