@@ -407,7 +407,7 @@ define({
         //the html variable will be the text
         //of the some/module.html file
         //the css variable will be the text
-        //of the som/module.css file.
+        //of the some/module.css file.
     }
 );
 </code></pre>
@@ -470,9 +470,9 @@ define({
 });
 </code></pre>
 
-<p>Scripts loaded by the <strong>order</strong> plugin will be fetched asynchronously, but evaluated in the order they are passed to require, so it should still perform better with using script tags in the head of an HTML document.</p>
+<p>Scripts loaded by the <strong>order</strong> plugin will be fetched asynchronously, but evaluated in the order they are passed to require, so it should still perform better than using script tags in the head of an HTML document.</p>
 
-<p>The <strong>order</strong> plugin is best used with traditional scripts, it is not needed for scripts that use define() to define modules. It is possible to mix and match "order!" dependencies with regular dependencies, but only the "order!" ones will be evaluated in relative order to each other. </p>
+<p>The <strong>order</strong> plugin is best used with traditional scripts. It is not needed for scripts that use define() to define modules. It is possible to mix and match "order!" dependencies with regular dependencies, but only the "order!" ones will be evaluated in relative order to each other. </p>
 
 <p><strong>Notes:</strong></p>
 <ul>
