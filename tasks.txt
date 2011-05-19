@@ -4,11 +4,11 @@ Release Notes
 - includeRequire is removed, use paths: {requireLib: "../../require"} to get require in it.
   See the optimization.html for the requireLib example.
 - New optimizer/node/rhino adapter: r.js
+- Removed support for lib in packages.
 
 Next release
 --------------
 
-- implement require('.')
 - relative modules IDs? remove lib?
 
 - text plugins after a build load xdomain?

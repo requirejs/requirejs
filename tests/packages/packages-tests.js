@@ -8,14 +8,12 @@ require({
                 'alpha',
                 {
                     name: 'beta',
-                    location: 'beta/0.2',
-                    lib: 'scripts',
-                    main: 'scripts/beta'
+                    location: 'beta/0.2/scripts',
+                    main: 'beta'
                 },
                 'dojox/chair',
                 {
                     name: 'dojox/table',
-                    lib: '.',
                     main: 'table'
                 }
             ]
@@ -24,12 +22,11 @@ require({
             {
                 name: 'bar',
                 location: 'bar/0.4',
-                lib: 'scripts',
                 main: 'scripts/main'
             },
             {
                 name: 'foo',
-                location: 'foo'
+                location: 'foo/lib'
             },
             {
                 name: 'funky',
@@ -37,13 +34,12 @@ require({
             },
             {
                 name: 'baz',
-                location: 'baz',
-                main: 'lib/index'
+                location: 'baz/lib',
+                main: 'index'
             },
             {
                 name: 'dojox/window',
                 location: 'dojox/window',
-                lib: '.',
                 main: 'window'
             }
         ]

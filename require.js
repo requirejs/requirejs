@@ -101,12 +101,11 @@ var require, define;
             pkgs[pkgObj.name] = {
                 name: pkgObj.name,
                 location: location || pkgObj.name,
-                lib: pkgObj.lib || "lib",
                 //Remove leading dot in main, so main paths are normalized,
                 //and remove any trailing .js, since different package
                 //envs have different conventions: some use a module name,
                 //some use a file name.
-                main: (pkgObj.main || "lib/main")
+                main: (pkgObj.main || "main")
                       .replace(currDirRegExp, '')
                       .replace(jsSuffixRegExp, '')
             };
@@ -298,9 +297,9 @@ var require, define;
                     if (req.toModuleUrl) {
                         //Special logic required for a particular engine,
                         //like Node.
-                        url = req.toModuleUrl(context, name, parentModuleMap);
+                        url = req.toModuleUrl(context, normalizedName, parentModuleMap);
                     } else {
-                        url = context.nameToUrl(name, null, parentModuleMap);
+                        url = context.nameToUrl(normalizedName, null, parentModuleMap);
                     }
 
                     //Store the URL mapping for later.
@@ -1325,7 +1324,7 @@ var require, define;
                 } else {
 
                     //Normalize module name if have a base relative module name to work from.
-                    moduleName = normalize(moduleName, relModuleMap);
+                    moduleName = normalize(moduleName, relModuleMap && relModuleMap.fullName);
 
                     //If a colon is in the URL, it indicates a protocol is used and it is just
                     //an URL to a file, or if it starts with a slash or ends with .js, it is just a plain file.
@@ -1355,7 +1354,7 @@ var require, define;
                                 if (moduleName === pkg.name) {
                                     pkgPath = pkg.location + '/' + pkg.main;
                                 } else {
-                                    pkgPath = pkg.location + '/' + pkg.lib;
+                                    pkgPath = pkg.location;
                                 }
                                 syms.splice(0, i, pkgPath);
                                 break;
