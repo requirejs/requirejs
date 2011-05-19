@@ -9,10 +9,7 @@ Next release
 --------------
 
 - implement require('.')
-
-- Put in error message with URL refs to faq page?
-  - one candidate: mismatched require.def calls: happens when loading some modules/scripts with inline script tags that include a named module,
-    but later the anonymous version is loaded: so the named one is in a built file.
+- relative modules IDs? remove lib?
 
 - text plugins after a build load xdomain?
 - Why can't plugins have dependencies? It is because the dependency is not fully evaluated.
@@ -29,7 +26,6 @@ Next release
 - Just an error in the define function causing infinite looping? Happened in firefox embedding.
 - Document in README the directory structure.
 - Support jQuery holdReady
-- run css optimizer before JS optimizer: https://github.com/jrburke/requirejs/issues/96
 - Pointer to motivations behind current thing, reason for dependencies.
 
 - "libs/static.lib.02", //kaaahhhhnnnn!!!

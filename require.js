@@ -40,7 +40,7 @@ var require, define;
         useInteractive = false,
         req, cfg = {}, currentlyAddingScript, s, head, baseElement, scripts, script,
         src, subPath, mainScript, dataMain, i, scrollIntervalId, setReadyState, ctx,
-        jQueryCheck;
+        jQueryCheck, checkLoadedTimeoutId;
 
     function isFunction(it) {
         return ostring.call(it) === "[object Function]";
@@ -64,6 +64,16 @@ var require, define;
             }
         }
         return req;
+    }
+
+    /**
+     * Constructs an error with a pointer to an URL with more information.
+     * @param {String} id the error ID that maps to an ID on a web page.
+     * @param {String} message human readable error.
+     * @returns {Error}
+     */
+    function makeError(id, msg) {
+        return new Error(msg + '\nhttp://requirejs.org/docs/errors.html#' + id);
     }
 
     /**
@@ -807,15 +817,19 @@ var require, define;
             }
             if (expired && noLoads) {
                 //If wait time expired, throw error of unloaded modules.
-                err = new Error("require.js load timeout for modules: " + noLoads);
+                err = makeError("timeout", "Load timeout for modules: " + noLoads);
                 err.requireType = "timeout";
                 err.requireModules = noLoads;
                 return req.onError(err);
             }
             if (stillLoading || context.scriptCount) {
-                //Something is still waiting to load. Wait for it.
-                if (isBrowser || isWebWorker) {
-                    setTimeout(checkLoaded, 50);
+                //Something is still waiting to load. Wait for it, but only
+                //if a timeout is not already in effect.
+                if ((isBrowser || isWebWorker) && !checkLoadedTimeoutId) {
+                    checkLoadedTimeoutId = setTimeout(function () {
+                        checkLoadedTimeoutId = 0;
+                        checkLoaded();
+                    }, 50);
                 }
                 return undefined;
             }
@@ -987,7 +1001,7 @@ var require, define;
             while (defQueue.length) {
                 args = defQueue.shift();
                 if (args[0] === null) {
-                    return req.onError(new Error('Mismatched anonymous require.def modules'));
+                    return req.onError(makeError('mismatch', 'Mismatched anonymous define() module: ' + args[args.length - 1]));
                 } else {
                     callDefMain(args);
                 }
@@ -1167,7 +1181,7 @@ var require, define;
 
                     ret = defined[moduleMap.fullName];
                     if (ret === undefined) {
-                        return req.onError(new Error("require: module name '" +
+                        return req.onError(makeError("notloaded", "Module name '" +
                                     moduleMap.fullName +
                                     "' has not been loaded yet for context: " +
                                     contextName));
@@ -1549,7 +1563,7 @@ var require, define;
         if (useInteractive) {
             node = currentlyAddingScript || getInteractiveScript();
             if (!node) {
-                return req.onError(new Error("ERROR: No matching script interactive for " + callback));
+                return req.onError(makeError("interactive", "No matching script interactive for " + callback));
             }
             if (!name) {
                 name = node.getAttribute("data-requiremodule");
