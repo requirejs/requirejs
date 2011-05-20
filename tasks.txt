@@ -25,7 +25,6 @@ Next release
 - Set up official IE9 release VM
 - localeList for i18n.js support, for better Dojo support.
 - Minify the require.js files with UglifyJS.
-- Fix commonjs/convert.sh script, does not work.
 - IE checkLoaded recursion? https://github.com/jrburke/requirejs/issues/82
 - Just an error in the define function causing infinite looping? Happened in firefox embedding.
 - Support jQuery holdReady

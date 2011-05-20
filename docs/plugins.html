@@ -88,7 +88,7 @@ API
     <li><b>name</b>: String. The name of the resource to load. This is the part after the ! separator in the name. So, if a module asks for 'foo!something/for/foo', the foo module's load function will receive 'something/for/foo' as the name.</li>
     <li><b>parentRequire</b>: Function. A local "require" function to use to load other modules. It is suggested that you <b>do not</b> use the name "require" for this argument name to avoid any possible undesired behavior with the static analysis done by the optimizer when it looks for require() calls. The text! and i18n! plugins normally use "req" for this argument. This require function has some utilities on it:
     <ul>
-        <li><b>parentRequire.toUrl(moduleResource)</b>:where moduleResource is a path to a module and an extension. For instance "view/templates/main.html". It will return a full path to the resource, obeying any RequireJS configuration.</li>
+        <li><b>parentRequire.toUrl(moduleResource)</b>:where moduleResource is a module name plus an extension. For instance "view/templates/main.html". It will return a full path to the resource, obeying any RequireJS configuration.</li>
         <li><b>parentRequire.isDefined(moduleName)</b>: Returns true if the module has already been loaded and defined.</li>
     </ul></li>
     <li><b>load</b>: Function. A function to call with the value for name. This tells the loader that the plugin is done loading the resource.</li>
