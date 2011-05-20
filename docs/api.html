@@ -629,8 +629,7 @@ to be sure to get the right version of jQuery for your loading context. Normally
 <ul>
 <li><strong>name</strong>: The name of the package (used for the module name/prefix mapping)</li>
 <li><strong>location</strong>: The location on disk. Locations are relative to the baseUrl configuration value, unless they contain a protocol or start with a front slash (/).</li>
-<li><strong>lib</strong>: The name of the directory inside the package folder that contains modules. The default value is "lib", so no need to specify it unless it is different than the default.</li>
-<li><strong>main</strong>: The name of the module inside the package that should be used when someone does a require for "packageName". The default value is "lib/main", so only specify it if it differs from the default. The value is relative to the package folder.</li>
+<li><strong>main</strong>: The name of the module inside the package that should be used when someone does a require for "packageName". The default value is "main", so only specify it if it differs from the default. The value is relative to the package folder.</li>
 </ul></li>
 </ul>
 
@@ -638,6 +637,7 @@ to be sure to get the right version of jQuery for your loading context. Normally
 
 <ul>
 <li>While the packages can have the CommonJS directory layout, the modules themselves should be in a module format that RequireJS can understand. Exception to the rule: if you are using the r.js Node adapter, the modules can be in the traditional CommonJS module format. You can use the <a href="commonjs.html#autoconversion">CommonJS converter tool</a> if you need to convert traditional CommonJS modules into the async module format that RequireJS uses.</li>
+<li>The <strong>lib</strong> directory option that may be used in packages is not supported. It causes some confusing path issues.</li>
 <li>Only one version of a package can be used in a project context at a time. You can use RequireJS <a href="#multiversion">multiversion support</a> to load two different module contexts, but if you want to use Package A and B in one context and they depend on different versions of Package C, then that will be a problem. This may change in the future.</li>
 </ul>
 
@@ -671,33 +671,21 @@ to be sure to get the right version of jQuery for your loading context. Normally
 <ul>
 <li>alpha/
 <ul>
-<li>lib/
-<ul>
 <li>main.js</li>
-</ul></li>
 </ul></li>
 <li>omega/
 <ul>
-<li>lib/
-<ul>
 <li>main.js</li>
-</ul></li>
 </ul></li>
 </ul></li>
 <li>cart/
 <ul>
-<li>lib/
-<ul>
 <li>main.js</li>
-</ul></li>
 </ul></li>
 <li>store/
 <ul>
-<li>lib/
-<ul>
 <li>main.js</li>
 <li>util.js</li>
-</ul></li>
 </ul></li>
 <li>main.js</li>
 <li>package.json</li>
@@ -738,9 +726,9 @@ function (alpha,   omega,   cart,   store,   util) {
 });
 </code></pre>
 
-<p>A require of "alpha" means that it will be loaded from <strong>scripts/.packages/alpha/lib/main.js</strong>, since "lib" and "main" are the default lib directory and main module settings supported by RequireJS. A require of "store/util" will be loaded from <strong>scripts/store/lib/util.js</strong>.</p>
+<p>A require of "alpha" means that it will be loaded from <strong>scripts/.packages/alpha/main.js</strong>, since "main" is the default main module setting supported by RequireJS. A require of "store/util" will be loaded from <strong>scripts/store/util.js</strong>.</p>
 
-<p>If the "alpha" and "store" packages did not follow the "lib" and "main.js" conventions, and looked more like this:</p>
+<p>If the "alpha" and "store" packages did not follow the "main.js" convention, and looked more like this:</p>
 
 <ul>
 <li>project-directory/
@@ -753,25 +741,16 @@ function (alpha,   omega,   cart,   store,   util) {
 <ul>
 <li>alpha/
 <ul>
-<li>scripts/
-<ul>
 <li>index.js</li>
-</ul></li>
 </ul></li>
 <li>omega/
 <ul>
-<li>lib/
-<ul>
 <li>main.js</li>
-</ul></li>
 </ul></li>
 </ul></li>
 <li>cart/
 <ul>
-<li>lib/
-<ul>
 <li>main.js</li>
-</ul></li>
 </ul></li>
 <li>store/
 <ul>
@@ -792,7 +771,6 @@ function (alpha,   omega,   cart,   store,   util) {
         ".packages": [
             {
                 name: "alpha",
-                lib: "scripts",
                 main: "index"
             },
             "omega"
@@ -802,7 +780,6 @@ function (alpha,   omega,   cart,   store,   util) {
         "cart",
         {
             name: "store",
-            lib: ".",
             main: "store"
         }
     ]
@@ -816,7 +793,6 @@ function (alpha,   omega,   cart,   store,   util) {
         {
             name: "alpha",
             location: ".packages/alpha",
-            lib: "scripts",
             main: "index"
         },
         {
@@ -826,14 +802,13 @@ function (alpha,   omega,   cart,   store,   util) {
         "cart",
         {
             name: "store",
-            lib: ".",
             main: "store"
         }
     ]
 });
 </code></pre>
 
-<p>To avoid verbosity, it is strongly suggested to always use packages that use the "lib" and "main" conventions in their structure, and use packagePaths for third party packages.</p>
+<p>To avoid verbosity, it is strongly suggested to always use packages that use "main" convention in their structure, and use packagePaths for third party packages.</p>
 
 <p>To make fetching and configuring packages easier, there are designs for a command line package tool in the works.</p>
 

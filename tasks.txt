@@ -9,7 +9,11 @@ Release Notes
 Next release
 --------------
 
-- relative modules IDs? remove lib?
+- relative modules IDs?
+  - excludeShallow not excluding files loaded with the text plugin: email thread. Exclusions.
+
+- Remove nameToUrl use in plugins/public code.
+  - Make sure it is not in the docs
 
 - text plugins after a build load xdomain?
 - Why can't plugins have dependencies? It is because the dependency is not fully evaluated.
