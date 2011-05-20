@@ -28,11 +28,9 @@ Next release
 - Fix commonjs/convert.sh script, does not work.
 - IE checkLoaded recursion? https://github.com/jrburke/requirejs/issues/82
 - Just an error in the define function causing infinite looping? Happened in firefox embedding.
-- Document in README the directory structure.
 - Support jQuery holdReady
 - Pointer to motivations behind current thing, reason for dependencies.
 
-- "libs/static.lib.02", //kaaahhhhnnnn!!!
 - https://github.com/jrburke/requirejs/pull/71: process by 2/21
 
 - build tool to rename require and define calls to other names?
