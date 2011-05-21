@@ -9,10 +9,10 @@
  * node all-server.js
  *
  * Run the tests in Rhino with this command:
- * java -jar ../build/lib/rhino/js.jar all-server.js
+ * java -jar ../../r.js/lib/rhino/js.jar all-server.js
  *
  * To run with debugger:
- * java -classpath ../build/lib/rhino/js.jar org.mozilla.javascript.tools.debugger.Main all-server.js
+ * java -classpath ../../r.js/lib/rhino/js.jar org.mozilla.javascript.tools.debugger.Main all-server.js
  */
 
 /*jslint strict: false, evil: true */
@@ -49,7 +49,7 @@ var skipDohSetup = true,
 
 //Load require with rhino extension
 load("../require.js");
-load("../adapt/" + env + ".js");
+load("../../r.js/build/jslib/" + env + ".js");
 
 
 //Load the tests.

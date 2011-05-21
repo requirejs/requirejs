@@ -50,7 +50,7 @@ require({
 function(require,   alpha,   replace,         beta,   util,        bar,   baz,
          foo,   second,       chair,         table,         door,         pane,
          window,         legs,               funky) {
-    var dataUrl = require.nameToUrl('foo/../data', '.html');
+    var dataUrl = require.toUrl('foo/../data.html');
     doh.register(
         "packages",
         [

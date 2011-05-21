@@ -15,6 +15,11 @@ Next release
 - Remove nameToUrl use in plugins/public code.
   - Make sure it is not in the docs
 
+- Add a global require.toUrl()
+
+- Put in warning in r.js about paths that have http:, or just a colon.
+
+
 - text plugins after a build load xdomain?
 - Why can't plugins have dependencies? It is because the dependency is not fully evaluated.
   Maybe rethink it, there have been some cases where creating a plugin that uses the
@@ -25,12 +30,16 @@ Next release
 - Set up official IE9 release VM
 - localeList for i18n.js support, for better Dojo support.
 - Minify the require.js files with UglifyJS.
-- IE checkLoaded recursion? https://github.com/jrburke/requirejs/issues/82
-- Just an error in the define function causing infinite looping? Happened in firefox embedding.
 - Support jQuery holdReady
 - Pointer to motivations behind current thing, reason for dependencies.
 
 - https://github.com/jrburke/requirejs/pull/71: process by 2/21
+
+
+Next release
+------------------
+
+- If any other info: IE checkLoaded recursion? https://github.com/jrburke/requirejs/issues/82
 
 - build tool to rename require and define calls to other names?
 - Confirm: From Richard Backhouse: As an FYI I have been doing my own investigation of using UglifyJS for compression

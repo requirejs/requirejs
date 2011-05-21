@@ -11,6 +11,6 @@ define(function (require, exports, module) {
 
     //Use ugly exports
     exports.name = red.name + blue.name;
-    exports.path = require.nameToUrl('./foo', '.html');
+    exports.path = require.toUrl('./foo.html');
     exports.message = message;
 });

@@ -41,7 +41,8 @@
     //nlsRegExp.exec("foo/bar/baz/nls/foo") gives:
     //["foo/bar/baz/nls/foo", "foo/bar/baz/nls/", "/", "/", "foo", ""]
     //so, if match[5] is blank, it means this is the top bundle definition.
-    var nlsRegExp = /(^.*(^|\/)nls(\/|$))([^\/]*)\/?([^\/]*)/;
+    var nlsRegExp = /(^.*(^|\/)nls(\/|$))([^\/]*)\/?([^\/]*)/,
+        empty = {};
 
     //Helper function to avoid repeating code. Lots of arguments in the
     //desire to stay functional and support RequireJS contexts without having
@@ -57,8 +58,23 @@
 
     function addIfExists(req, locale, toLoad, prefix, suffix) {
         var fullName = prefix + locale + '/' + suffix;
-        if (require._fileExists(req.nameToUrl(fullName, null))) {
+        if (require._fileExists(req.toUrl(fullName))) {
             toLoad.push(fullName);
+        }
+    }
+
+    /**
+     * Simple function to mix in properties from source into target,
+     * but only if target does not already have a property of the same name.
+     * This is not robust in IE for transferring methods that match
+     * Object.prototype names, but the uses of mixin here seem unlikely to
+     * trigger a problem related to that.
+     */
+    function mixin(target, source, force) {
+        for (var prop in source) {
+            if (!(prop in empty) && (!(prop in target) || force)) {
+                target[prop] = source[prop];
+            }
         }
     }
 
@@ -130,7 +146,7 @@
                             if (partBundle === true || partBundle === 1) {
                                 partBundle = req(prefix + part + '/' + suffix);
                             }
-                            require.mixin(value, partBundle);
+                            mixin(value, partBundle);
                         }
 
                         //All done, notify the loader.

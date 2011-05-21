@@ -127,7 +127,7 @@
                 }
 
                 if (!xhr) {
-                    throw new Error("require.getXhr(): XMLHttpRequest not available");
+                    throw new Error("createXhr(): XMLHttpRequest not available");
                 }
 
                 return xhr;
@@ -156,7 +156,7 @@
                 }
 
                 //Load the text.
-                url = req.nameToUrl(modName, "." + ext);
+                url = req.toUrl(modName + "." + ext);
                 text.get(url, function (content) {
                     content = strip ? text.strip(content) : content;
                     if (config.isBuild && config.inlineText) {
