@@ -1363,7 +1363,12 @@ var require, define;
 
                         //Join the path parts together, then figure out if baseUrl is needed.
                         url = syms.join("/") + (ext || ".js");
-                        url = (url.charAt(0) === '/' || url.match(/^\w+:/) ? "" : config.baseUrl) + url;
+                        if ( url.charAt(0) !== '/' && ! url.match(/^\w+:/) ) {
+                            if (!config.baseUrl) {
+                                req.onError("No baseUrl, needed for URL: "+url);
+                            }
+                            url = config.baseUrl + url;
+                        }
                     }
                 }
 
