@@ -14,4 +14,5 @@ docs/jquery-require-sample/dist
 dist/dist-site/
 dist/dist-build/
 tests/layers/allplugins-require.js
+.project 
 
