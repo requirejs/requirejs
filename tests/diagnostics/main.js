@@ -117,4 +117,35 @@ function runTest()
             FBTest.compare("Some syntax error", onErrorMessage, "Test syntax error in define()");
         joinSyntaxError = true;
     }
+
+    // ----------------------------------------------------------------------------------------------------
+    FBTest.progress("Runtime error during define test");
+    config.context = "testRequireJS" + Math.random(),  // to give each test its own loader,
+
+    onErrorMessage = null;
+    var joinRuntimeError = false;
+
+    try
+    {
+        require(config, ["runtimeErrorInsideDefine"], function(syntaxError)
+        {
+            FBTest.progress("runtimeErrorInsideDefine callback")
+            if (joinRuntimeError)
+                FBTest.compare("Some syntax error", onErrorMessage, "Test syntax error in define()");
+            joinRuntimeError = true;
+        });
+    }
+    catch(exc)
+    {
+        FBTest.sysout("runtimeErrorInsideDefine ERROR "+exceptionToString(exc) );
+
+    }
+    finally
+    {
+        if (joinRuntimeError)
+            FBTest.compare("Some runtime error", onErrorMessage, "Test runtime error in define()");
+        joinRuntimeError = true;
+    }
+
+
 }
