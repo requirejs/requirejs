@@ -112,6 +112,22 @@ var require, define;
         }
     }
 
+    /**
+     * jQuery 1.4.3-1.5.x use a readyWait/ready() pairing to hold DOM
+     * ready callbacks, but jQuery 1.6 supports a holdReady() API instead.
+     * At some point remove the readyWait/ready() support and just stick
+     * with using holdReady.
+     */
+    function jQueryHoldReady($, shouldHold) {
+        if ($.holdReady) {
+            $.holdReady(shouldHold);
+        } else if (shouldHold) {
+            $.readyWait += 1;
+        } else {
+            $.ready(true);
+        }
+    }
+
     //Check for an existing version of require. If so, then exit out. Only allow
     //one version of require to be active in a page. However, allow for a require
     //config object, just exit quickly if require is an actual function.
@@ -690,9 +706,9 @@ var require, define;
         }
 
         /**
-         * As of jQuery 1.4.3, it supports a readyWait property that will hold off
+         * jQuery 1.4.3+ supports ways to hold off calling
          * calling jQuery ready callbacks until all scripts are loaded. Be sure
-         * to track it if readyWait is available. Also, since jQuery 1.4.3 does
+         * to track it if the capability exists.. Also, since jQuery 1.4.3 does
          * not register as a module, need to do some global inference checking.
          * Even if it does register as a module, not guaranteed to be the precise
          * name of the global. If a jQuery is tracked for this context, then go
@@ -709,7 +725,7 @@ var require, define;
                         return;
                     }
 
-                    if ("readyWait" in $) {
+                    if ("holdReady" in $ || "readyWait" in $) {
                         context.jQuery = $;
 
                         //Manually create a "jquery" module entry if not one already
@@ -720,9 +736,9 @@ var require, define;
                             return jQuery;
                         }]);
 
-                        //Increment jQuery readyWait if ncecessary.
+                        //Ask jQuery to hold DOM ready callbacks.
                         if (context.scriptCount) {
-                            $.readyWait += 1;
+                            jQueryHoldReady($, true);
                             context.jQueryIncremented = true;
                         }
                     }
@@ -1428,6 +1444,14 @@ var require, define;
         return context.require(deps, callback);
     };
 
+    /**
+     * Global require.toUrl(), to match global require, mostly useful
+     * for debugging/work in the global space.
+     */
+    req.toUrl = function (moduleNamePlusExt) {
+        return contexts[defContextName].toUrl(moduleNamePlusExt);
+    };
+
     req.version = version;
     req.isArray = isArray;
     req.isFunction = isFunction;
@@ -1485,11 +1509,11 @@ var require, define;
         context.scriptCount += 1;
         req.attach(url, contextName, moduleName);
 
-        //If tracking a jQuery, then make sure its readyWait
-        //is incremented to prevent its ready callbacks from
+        //If tracking a jQuery, then make sure its ready callbacks
+        //are put on hold to prevent its ready callbacks from
         //triggering too soon.
         if (context.jQuery && !context.jQueryIncremented) {
-            context.jQuery.readyWait += 1;
+            jQueryHoldReady(context.jQuery, true);
             context.jQueryIncremented = true;
         }
     };
@@ -1820,14 +1844,13 @@ var require, define;
                 }
             }
 
-            //If jQuery with readyWait is being tracked, updated its
-            //readyWait count.
+            //If jQuery with DOM ready delayed, release it now.
             contexts = s.contexts;
             for (prop in contexts) {
                 if (!(prop in empty)) {
                     context = contexts[prop];
                     if (context.jQueryIncremented) {
-                        context.jQuery.ready(true);
+                        jQueryHoldReady(context.jQuery, false);
                         context.jQueryIncremented = false;
                     }
                 }
