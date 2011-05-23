@@ -532,9 +532,14 @@ var require, define;
                     }
                 }
             } else if (fullName) {
-                //May just be an object definition for the module. Only
-                //worry about defining if have a module name.
-                ret = defined[fullName] = cb;
+                if (cb) {
+                    //May just be an object definition for the module. Only
+                    //worry about defining if have a module name.
+                    ret = defined[fullName] = cb;
+                } else {
+                    var noDefine = new Error("No define for module "+fullName+" in "+context.urlMap[fullName]);
+                    req.onError(noDefine);
+                }
             }
 
             if (fullName) {
