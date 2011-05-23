@@ -4,6 +4,7 @@ define(["module-b"], function(B) {
 
 // ********************************************************************************************* //
 syntax error
+;
 var A =
 {
     getMessage: function()

@@ -4,7 +4,6 @@
  * This file allows the requirejs tests from Firebug's FBTest to run in a web page.
  */
 
-
 var FBTest =
 {
     progress: function(msg) {

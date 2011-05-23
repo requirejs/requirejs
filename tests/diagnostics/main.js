@@ -19,10 +19,11 @@ function runTest()
         onError: function(msg)
         {
             FBTest.progress("onError: " + msg);
+            throw msg;
         },
         onTrace: function(msg)
         {
-            //FBTest.sysout("onTrace:" + msg);
+           // FBTest.progress("onTrace:" + msg);
         },
         debug: true,
     };
@@ -31,7 +32,8 @@ function runTest()
 
     var onErrorMessage = "";
     require.onError = function(msg) {
-        onErrorMessage = msg;
+        onErrorMessage = ""+msg;
+        throw msg;
     }
 
     try
@@ -60,15 +62,12 @@ function runTest()
     config.baseUrl = badBase + "loader/diagnostics/";
 
     onErrorMessage = null;
-    require.onError = function(msg) {
-        onErrorMessage = msg;
-    }
 
     try
     {
         require(config, ["badBaseURL"], function(Bad)
         {
-            // never get here
+            FBTest.sysout("baseBaseURL callback called");
         });
     }
     catch(exc)
@@ -77,9 +76,8 @@ function runTest()
     }
     finally
     {
-        FBTest.compare("Bad baseUrl, needed for URL: baseURLIsNull.js", onErrorMessage, "Test syntax error in define()");
+        FBTest.compare("Bad baseUrl, needed for URL: baseURLIsNull.js", onErrorMessage, "Test bad baseURL ");
     }
-
 
     // ----------------------------------------------------------------------------------------------------
     FBTest.progress("Syntax Error test");
@@ -87,29 +85,36 @@ function runTest()
 
     if (baseLocalPath)
     {
-        config.baseUrl = baseLocalPath + "/loader/diagnostics/";
+        config.baseUrl = baseLocalPath + "/requirejs/tests/diagnostics/";
     }
+    config.context = "testRequireJS" + Math.random(),  // to give each test its own loader,
 
     onErrorMessage = null;
-    require.onError = function(msg) {
-        onErrorMessage = msg;
+    var joinSyntaxError = false;
+
+    window.onError = function(msg) {
+        FBTest.progress("window.onError "+msg);
     }
 
     try
     {
         require(config, ["syntaxErrorInsideDefine"], function(syntaxError)
         {
-            var message = A.getMessage();
-            FBTest.compare("Hello World!", message, "The message from modules must match.");
-            FBTest.testDone("dependencies.DONE");
+            FBTest.progress("syntaxErrorTest callback")
+            if (joinSyntaxError)
+                FBTest.compare("Some syntax error", onErrorMessage, "Test syntax error in define()");
+            joinSyntaxError = true;
         });
     }
     catch(exc)
     {
         FBTest.sysout("syntaxErrorInsideDefine ERROR "+exceptionToString(exc) );
+
     }
     finally
     {
-        FBTest.compare("No baseUrl, needed for URL: baseURLIsNull.js", onErrorMessage, "Test syntax error in define()");
+        if (joinSyntaxError)
+            FBTest.compare("Some syntax error", onErrorMessage, "Test syntax error in define()");
+        joinSyntaxError = true;
     }
 }
