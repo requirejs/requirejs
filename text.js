@@ -135,15 +135,16 @@
 
             get: get,
 
-            load: function (name, req, onLoad, config) {
-                //Name has format: some.module.filext!strip
-                //The strip part is optional.
-                //if strip is present, then that means only get the string contents
-                //inside a body tag in an HTML string. For XML/SVG content it means
-                //removing the <?xml ...?> declarations so the content can be inserted
-                //into the current doc without problems.
-
-                var strip = false, url, index = name.indexOf("."),
+            /**
+             * Parses a resource name into its component parts. Resource names
+             * look like: module/name.ext!strip, where the !strip part is
+             * optional.
+             * @param {String} name the resource name
+             * @returns {Object} with properties "moduleName", "ext" and "strip"
+             * where strip is a boolean.
+             */
+            parseName: function (name) {
+                var strip = false, index = name.indexOf("."),
                     modName = name.substring(0, index),
                     ext = name.substring(index + 1, name.length);
 
@@ -155,10 +156,32 @@
                     ext = ext.substring(0, index);
                 }
 
+                return {
+                    moduleName: modName,
+                    ext: ext,
+                    strip: strip
+                };
+            },
+
+            xdRegExp = /^(\w+\:)?\/\/
+            isXDomain: function (url) {
+
+            }
+            load: function (name, req, onLoad, config) {
+                //Name has format: some.module.filext!strip
+                //The strip part is optional.
+                //if strip is present, then that means only get the string contents
+                //inside a body tag in an HTML string. For XML/SVG content it means
+                //removing the <?xml ...?> declarations so the content can be inserted
+                //into the current doc without problems.
+
+                var parsed = text.parseName(name),
+                    url;
+
                 //Load the text.
-                url = req.toUrl(modName + "." + ext);
+                url = req.toUrl(parsed.moduleName + "." + parsed.ext);
                 text.get(url, function (content) {
-                    content = strip ? text.strip(content) : content;
+                    content = parsed.strip ? text.strip(content) : content;
                     if (config.isBuild && config.inlineText) {
                         buildMap[name] = content;
                     }
@@ -166,12 +189,30 @@
                 });
             },
 
-            write: function (pluginName, moduleName, write) {
+            write: function (pluginName, moduleName, write, config) {
                 if (moduleName in buildMap) {
                     var content = text.jsEscape(buildMap[moduleName]);
                     write("define('" + pluginName + "!" + moduleName  +
                           "', function () { return '" + content + "';});\n");
                 }
+            },
+
+            builderMultiFile: true,
+
+            writeFile: function (pluginName, moduleName, req, write, config) {
+                var parsed = text.parseName(moduleName),
+                    //Use a '.js' file name so that it indicates it is a
+                    //script that can be loaded across domains.
+                    fileName = req.toUrl(parsed.moduleName + '.' +
+                                         parsed.ext) + '.js';
+
+                //Leverage own load() method to load plugin value.
+                text.load(moduleName, req, function (value) {
+                    //Use own write() method to construct full module value.
+                    text.write(pluginName, moduleName, function (contents) {
+                        write(fileName, contents);
+                    }, config);
+                }, config);
             }
         };
 
