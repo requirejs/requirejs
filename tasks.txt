@@ -9,19 +9,29 @@ Release Notes
 Next release
 --------------
 
+- text plugins after a build load xdomain?
+
 - relative modules IDs?
   - excludeShallow not excluding files loaded with the text plugin: email thread. Exclusions.
 
-- text plugins after a build load xdomain?
+- https://github.com/jrburke/requirejs/issues/104: define as a special dependency?
+- domReady plugin
+
+- empty: protocol support for build profiles?
+
 - Why can't plugins have dependencies? It is because the dependency is not fully evaluated.
   Maybe rethink it, there have been some cases where creating a plugin that uses the
   text plugin would be useful. However, would that mean the optimized result would include
-  the string twice in the output?
+  the string twice in the output? Well for the text plugin, could allow other plugins to
+  indicate "do not inline this dependency" to help with that.
 - replacement for modify that intercepts callbacks, holds off until another module loads them?
   - A way to show dependency graph too?
-- Set up official IE9 release VM
 - localeList for i18n.js support, for better Dojo support.
 - Minify the require.js files with UglifyJS.
+
+Docs:
+- http://requirejs.org/docs/api.html#jsfiles make the "plain script tag rules"
+  more of a bulleted list to call them out.
 - Pointer to motivations behind current thing, reason for dependencies.
 
 - https://github.com/jrburke/requirejs/pull/71: process by 2/21
