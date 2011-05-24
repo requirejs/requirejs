@@ -19,14 +19,8 @@ Next release
 
 - empty: protocol support for build profiles?
 
-- Why can't plugins have dependencies? It is because the dependency is not fully evaluated.
-  Maybe rethink it, there have been some cases where creating a plugin that uses the
-  text plugin would be useful. However, would that mean the optimized result would include
-  the string twice in the output? Well for the text plugin, could allow other plugins to
-  indicate "do not inline this dependency" to help with that.
 - replacement for modify that intercepts callbacks, holds off until another module loads them?
   - A way to show dependency graph too?
-- localeList for i18n.js support, for better Dojo support.
 - Minify the require.js files with UglifyJS.
 
 Docs:
@@ -46,6 +40,13 @@ Next release
 - Confirm: From Richard Backhouse: As an FYI I have been doing my own investigation of using UglifyJS for compression
 and one thing I found when trying to compress dojo 1.5 code was that I had ensure that "make_seqs"
 flag was set to false when calling ast_squeeze. If I left this flag set to true the code would not load.
+
+- Why can't plugins have dependencies? It is because the dependency is not fully evaluated.
+  Maybe rethink it, there have been some cases where creating a plugin that uses the
+  text plugin would be useful. However, would that mean the optimized result would include
+  the string twice in the output? Well for the text plugin, could allow other plugins to
+  indicate "do not inline this dependency" to help with that.
+- localeList for i18n.js support, for better Dojo support.
 
 
 Bugs to work on
