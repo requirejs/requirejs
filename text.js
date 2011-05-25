@@ -164,7 +164,7 @@
                 };
             },
 
-            xdRegExp: /^(\w+\:)?\/\/([^\/\\]+)(:(d+))?/,
+            xdRegExp: /^((\w+)\:)?\/\/([^\/\\]+)/,
 
             /**
              * Is an URL on another domain. Only works for browser use, returns
@@ -176,17 +176,20 @@
              */
             canUseXhr: function (url, protocol, hostname, port) {
                 var match = text.xdRegExp.exec(url),
-                    uProtocol, uHostname, uPort;
+                    uProtocol, uHostName, uPort;
                 if (!match) {
                     return true;
                 }
-                uProtocol = match[1];
-                uHostname = match[2];
-                uPort = match[4];
+                uProtocol = match[2];
+                uHostName = match[3];
+
+                uHostName = uHostName.split(':');
+                uPort = uHostName[1];
+                uHostName = uHostName[0];
 
                 return (!uProtocol || uProtocol === protocol) &&
-                       (!uHostname || uHostname === hostname) &&
-                       ((!uPort && !uHostname) || uPort === port);
+                       (!uHostName || uHostName === hostname) &&
+                       ((!uPort && !uHostName) || uPort === port);
             },
 
             finishLoad: function (name, strip, content, onLoad, config) {

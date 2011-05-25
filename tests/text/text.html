@@ -24,10 +24,22 @@
                         t.is('<div data-type="subwidget"><h1>This is a subwidget</h1></div>', widget.subWidgetTemplate);
                         t.is('<span>This! is template2</span>', widget.subWidgetTemplate2);
                         t.is('<h1>Local</h1>', local.localHtml);
+                    },
+
+                    function textLocalXhr(t){
+                        var text = require('text');
+                        t.is(true, text.canUseXhr('./some/thing.html', 'http', 'some.domain.com'));
+                        t.is(false, text.canUseXhr('https://some.domain.com/some/thing.html', 'http', 'some.domain.com'));
+                        t.is(false, text.canUseXhr('http://domain.com/some/thing.html', 'http', 'some.domain.com'));
+                        t.is(true, text.canUseXhr('//some.domain.com/some/thing.html', 'http', 'some.domain.com'));
+                        t.is(true, text.canUseXhr('https://some.domain.com:444/some/thing.html', 'https', 'some.domain.com', '444'));
+                        t.is(false, text.canUseXhr('https://some.domain.com/some/thing.html', 'https', 'some.domain.com', '444'));
+
                     }
                 ]
             );
             doh.run();
+
         }
     );
     </script>
