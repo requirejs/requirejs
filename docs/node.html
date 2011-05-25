@@ -54,6 +54,8 @@
 
 <p>This assumes you are in the directory that contains myNodeApp.js, your top-level Node application file. It also assumes myNodeApp.js uses the RequireJS API to load modules, and not Node's require('') syntax.</p>
 
+<p><strong>Note:</strong> if you will be using npm-installed modules, it is best to place r.js as a sibling to myNodeApp.js, since Node will use the directory of r.js as the place to look up node_modules.</p>
+
 <p>That is it!</p>
 
 <p>If you want to try a sample app that works with r.js, try <a href="https://github.com/jrburke/r.js/blob/master/tests/node/index.js">the index.js Hello World app</a>.</p>
