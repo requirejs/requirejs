@@ -665,7 +665,7 @@ function (lang,   logger,   file,          parse,    optimize,   pragma,
             //after the module is processed.
             //If we have a name, but no defined module, then add in the placeholder.
             if (moduleName && !layer.modulesWithNames[moduleName] && !config.skipModuleInsertion) {
-                fileContents += 'define("' + moduleName + '", function(){});\n';
+                fileContents += 'define("' + moduleName + '", function(){return true;});\n';
             }
         }
 
