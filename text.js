@@ -6,12 +6,13 @@
 /*jslint regexp: false, nomen: false, plusplus: false, strict: false */
 /*global require: false, XMLHttpRequest: false, ActiveXObject: false,
   define: false, window: false, process: false, Packages: false,
-  java: false */
+  java: false, location: false */
 
 (function () {
     var progIds = ['Msxml2.XMLHTTP', 'Microsoft.XMLHTTP', 'Msxml2.XMLHTTP.4.0'],
         xmlRegExp = /^\s*<\?xml(\s)+version=[\'\"](\d)*.(\d)*[\'\"](\s)*\?>/im,
         bodyRegExp = /<body[^>]*>\s*([\s\S]+)\s*<\/body>/im,
+        hasLocation = typeof location !== 'undefined' && location.href,
         buildMap = [];
 
     define(function () {
@@ -163,10 +164,39 @@
                 };
             },
 
-            xdRegExp = /^(\w+\:)?\/\/
-            isXDomain: function (url) {
+            xdRegExp: /^(\w+\:)?\/\/([^\/\\]+)(:(d+))?/,
 
-            }
+            /**
+             * Is an URL on another domain. Only works for browser use, returns
+             * false in non-browser environments. Only used to know if an
+             * optimized .js version of a text resource should be loaded
+             * instead.
+             * @param {String} url
+             * @returns Boolean
+             */
+            canUseXhr: function (url, protocol, hostname, port) {
+                var match = text.xdRegExp.exec(url),
+                    uProtocol, uHostname, uPort;
+                if (!match) {
+                    return true;
+                }
+                uProtocol = match[1];
+                uHostname = match[2];
+                uPort = match[4];
+
+                return (!uProtocol || uProtocol === protocol) &&
+                       (!uHostname || uHostname === hostname) &&
+                       ((!uPort && !uHostname) || uPort === port);
+            },
+
+            finishLoad: function (name, strip, content, onLoad, config) {
+                content = strip ? text.strip(content) : content;
+                if (config.isBuild && config.inlineText) {
+                    buildMap[name] = content;
+                }
+                onLoad(content);
+            },
+
             load: function (name, req, onLoad, config) {
                 //Name has format: some.module.filext!strip
                 //The strip part is optional.
@@ -176,17 +206,23 @@
                 //into the current doc without problems.
 
                 var parsed = text.parseName(name),
-                    url;
+                    url = req.toUrl(parsed.moduleName + "." + parsed.ext);
 
-                //Load the text.
-                url = req.toUrl(parsed.moduleName + "." + parsed.ext);
-                text.get(url, function (content) {
-                    content = parsed.strip ? text.strip(content) : content;
-                    if (config.isBuild && config.inlineText) {
-                        buildMap[name] = content;
-                    }
-                    onLoad(content);
-                });
+                //Load the text. Use XHR if possible and in a browser.
+                if (!hasLocation || text.canUseXhr(url)) {
+                    text.get(url, function (content) {
+                        text.finishLoad(name, parsed.strip, content, onLoad, config);
+                    });
+                } else {
+                    //Need to fetch the resource across domains. Assume
+                    //the resource has been optimized into a JS module. Fetch
+                    //by the module name + extension, but do not include the
+                    //!strip part to avoid file system issues.
+                    req([name], function (content) {
+                        text.finishLoad(parsed.moduleName + '.' + parsed.ext,
+                                        parsed.strip, content, onLoad, config);
+                    });
+                }
             },
 
             write: function (pluginName, moduleName, write, config) {
