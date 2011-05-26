@@ -1176,7 +1176,7 @@ var require, define;
             },
 
             require: function (deps, callback, relModuleMap) {
-                var moduleName, ret, moduleMap;
+                var moduleName, fullName, moduleMap;
                 if (typeof deps === "string") {
                     //Synchronous access to one module. If require.get is
                     //available (as in the Node adapter), prefer that.
@@ -1193,15 +1193,15 @@ var require, define;
 
                     //Normalize module name, if it contains . or ..
                     moduleMap = makeModuleMap(moduleName, relModuleMap);
+                    fullName = moduleMap.fullName;
 
-                    ret = defined[moduleMap.fullName];
-                    if (ret === undefined) {
+                    if (!(fullName in defined)) {
                         return req.onError(makeError("notloaded", "Module name '" +
                                     moduleMap.fullName +
                                     "' has not been loaded yet for context: " +
                                     contextName));
                     }
-                    return ret;
+                    return defined[fullName];
                 }
 
                 main(null, deps, callback, relModuleMap);
