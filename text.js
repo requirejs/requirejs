@@ -236,19 +236,20 @@
                 }
             },
 
-            builderMultiFile: true,
-
             writeFile: function (pluginName, moduleName, req, write, config) {
                 var parsed = text.parseName(moduleName),
+                    nonStripName = parsed.moduleName + '.' + parsed.ext,
                     //Use a '.js' file name so that it indicates it is a
                     //script that can be loaded across domains.
                     fileName = req.toUrl(parsed.moduleName + '.' +
                                          parsed.ext) + '.js';
 
-                //Leverage own load() method to load plugin value.
-                text.load(moduleName, req, function (value) {
+                //Leverage own load() method to load plugin value, but only
+                //write out values that do not have the strip argument,
+                //to avoid any potential issues with ! in file names.
+                text.load(nonStripName, req, function (value) {
                     //Use own write() method to construct full module value.
-                    text.write(pluginName, moduleName, function (contents) {
+                    text.write(pluginName, nonStripName, function (contents) {
                         write(fileName, contents);
                     }, config);
                 }, config);
