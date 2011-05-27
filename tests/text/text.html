@@ -12,7 +12,7 @@
                 text: "../../text"
             } //, priority: ['widgetlayer']
         },
-        ["require", "widget", "local", "text!resources/sample.html!strip"],
+        ["require", "widget", "local", "text!resources/sample.html?strip"],
         function(require, widget, local, sampleText) {
             doh.register(
                 "text",

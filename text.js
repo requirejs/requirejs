@@ -138,7 +138,7 @@
 
             /**
              * Parses a resource name into its component parts. Resource names
-             * look like: module/name.ext!strip, where the !strip part is
+             * look like: module/name.ext?strip, where the ?strip part is
              * optional.
              * @param {String} name the resource name
              * @returns {Object} with properties "moduleName", "ext" and "strip"
@@ -149,7 +149,7 @@
                     modName = name.substring(0, index),
                     ext = name.substring(index + 1, name.length);
 
-                index = ext.indexOf("!");
+                index = ext.indexOf("?");
                 if (index !== -1) {
                     //Pull off the strip arg.
                     strip = ext.substring(index + 1, ext.length);
@@ -201,7 +201,7 @@
             },
 
             load: function (name, req, onLoad, config) {
-                //Name has format: some.module.filext!strip
+                //Name has format: some.module.filext?strip
                 //The strip part is optional.
                 //if strip is present, then that means only get the string contents
                 //inside a body tag in an HTML string. For XML/SVG content it means
@@ -209,7 +209,8 @@
                 //into the current doc without problems.
 
                 var parsed = text.parseName(name),
-                    url = req.toUrl(parsed.moduleName + "." + parsed.ext);
+                    nonStripName = parsed.moduleName + '.' + parsed.ext,
+                    url = req.toUrl(nonStripName);
 
                 //Load the text. Use XHR if possible and in a browser.
                 if (!hasLocation || text.canUseXhr(url)) {
@@ -220,8 +221,8 @@
                     //Need to fetch the resource across domains. Assume
                     //the resource has been optimized into a JS module. Fetch
                     //by the module name + extension, but do not include the
-                    //!strip part to avoid file system issues.
-                    req([name], function (content) {
+                    //?strip part to avoid file system issues.
+                    req([nonStripName], function (content) {
                         text.finishLoad(parsed.moduleName + '.' + parsed.ext,
                                         parsed.strip, content, onLoad, config);
                     });
@@ -246,7 +247,7 @@
 
                 //Leverage own load() method to load plugin value, but only
                 //write out values that do not have the strip argument,
-                //to avoid any potential issues with ! in file names.
+                //to avoid any potential issues with ? in file names.
                 text.load(nonStripName, req, function (value) {
                     //Use own write() method to construct full module value.
                     text.write(pluginName, nonStripName, function (contents) {

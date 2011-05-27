@@ -414,9 +414,9 @@ define({
 
 <p>Notice the .html and .css suffixes to specify the extension of the file. The "some/module" part of the path will be resolved according to normal module name resolution: it will use the <strong>baseUrl</strong> and <strong>paths</strong> <a href="#config">configuration options</a> to map that name to a path.</p>
 
-<p>For HTML/XML/SVG files, there is another option. You can pass !strip, which strips XML declarations so that external SVG and XML documents can be added to a document without worry. Also, if the string is an HTML document, only the part inside the body tag is returned. Example:</p>
+<p>For HTML/XML/SVG files, there is another option. You can pass ?strip, which strips XML declarations so that external SVG and XML documents can be added to a document without worry. Also, if the string is an HTML document, only the part inside the body tag is returned. Example:</p>
 
-<pre><code>require(["text!some/module.html!strip"],
+<pre><code>require(["text!some/module.html?strip"],
     function(html) {
         //the html variable will be the text of the
         //some/module.html file, but only the part
