@@ -1325,20 +1325,6 @@ var require, define;
                 var paths, pkgs, pkg, pkgPath, syms, i, parentModule, url,
                     config = context.config;
 
-                if (moduleName.indexOf("./") === 0 || moduleName.indexOf("../") === 0) {
-                    //A relative ID, just map it relative to relModuleMap's url
-                    syms = relModuleMap && relModuleMap.url ? relModuleMap.url.split('/') : [];
-                    //Pop off the file name.
-                    if (syms.length) {
-                        syms.pop();
-                    }
-                    syms = syms.concat(moduleName.split('/'));
-                    trimDots(syms);
-                    url = syms.join('/') +
-                          (ext ? ext :
-                          (req.jsExtRegExp.test(moduleName) ? "" : ".js"));
-                } else {
-
                     //Normalize module name if have a base relative module name to work from.
                     moduleName = normalize(moduleName, relModuleMap && relModuleMap.fullName);
 
@@ -1381,7 +1367,6 @@ var require, define;
                         url = syms.join("/") + (ext || ".js");
                         url = (url.charAt(0) === '/' || url.match(/^\w+:/) ? "" : config.baseUrl) + url;
                     }
-                }
 
                 return config.urlArgs ? url +
                                         ((url.indexOf('?') === -1 ? '?' : '&') +

@@ -5,11 +5,14 @@ Release Notes
   See the optimization.html for the requireLib example.
 - New optimizer/node/rhino adapter: r.js
 - Removed support for lib in packages.
+- relative IDs are now relative to the module ID.
+- text plugin API changed? Uses ?strip instead of !strip now. Only in multiWrite
 
 Next release
 --------------
 
 - text plugins after a build load xdomain?
+  - Send impl to list
 
 - relative modules IDs?
   - excludeShallow not excluding files loaded with the text plugin: email thread. Exclusions.
@@ -18,6 +21,8 @@ Next release
 - domReady plugin
 
 - empty: protocol support for build profiles?
+
+- Put in helpful error in r.js if running it without -o option.
 
 - replacement for modify that intercepts callbacks, holds off until another module loads them?
   - A way to show dependency graph too?
