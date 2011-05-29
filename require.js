@@ -1605,7 +1605,12 @@ var require, define;
      * @private
      */
     req.execCb = function (name, callback, args, exports) {
-        return callback.apply(exports, args);
+        try {
+            return callback.apply(exports, args);
+        } catch (exc) {
+            req.onError(exc);
+        }
+
     };
 
     /**
