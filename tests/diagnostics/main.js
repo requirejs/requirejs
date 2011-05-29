@@ -111,6 +111,7 @@ function testBadBaseURL() {
 
     var onErrorMessage = "";
 
+    var require = FBTest.getRequire();
     require.onError = function(msg) {
         FBTest.sysout("require.onError "+msg);
         var expected = "Error: Could not resolve "+
@@ -204,6 +205,7 @@ function testNotLoaded() {
 
     var config = getTestConfig();
 
+    var require = FBTest.getRequire();
     require.onError = function(msg) {
         FBTest.sysout("require.onError "+msg);
         var expected = "Error: Module name 'not/loaded' has not been loaded yet for context: _\nhttp://requirejs.org/docs/errors.html#notloaded";
@@ -228,6 +230,7 @@ function testDefineWithNoReturn() {
 
     var config = getTestConfig();
 
+    var require = FBTest.getRequire();
     require.onError = function(msg) {
         FBTest.sysout("require.onError "+msg);
         var expected = "Error: The module 'defineWithNoReturn' has false return value\n"+
