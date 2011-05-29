@@ -2,36 +2,83 @@ function exceptionToString(exc)
 {
     return exc.toString() +" "+(exc.fileName || exc.sourceName) + "@" + exc.lineNumber;
 }
+
+var testQueue = [];
+function runNextTest() {
+    if (testQueue.length)
+    {
+        var test = testQueue.shift();
+        if (test)
+            test.call();
+    }
+    else
+    {
+        FBTest.sysout("DONE");
+    }
+}
+
 function runTest()
 {
     FBTest.progress("diagnotics test start, using baseLocalPath " + baseLocalPath);
 
     // ----------------------------------------------------------------------------------------------------
-    FBTest.progress("Null baseURL test");
+    testQueue.push(testNullBaseURL);
+    // ----------------------------------------------------------------------------------------------------
+    testQueue.push(testBadBaseURL);
+    // ----------------------------------------------------------------------------------------------------
+    testQueue.push(testSyntaxError);
+    // ----------------------------------------------------------------------------------------------------
+    testQueue.push(testRuntimeError);
+    // ----------------------------------------------------------------------------------------------------
+    testQueue.push(testNotLoaded);
+    // ----------------------------------------------------------------------------------------------------
+    testQueue.push(testDefineWithNoReturn);
+
+    runNextTest();
+}
+
+function getTestConfig() {
 
     var config = {
-        context: "testRequireJS" + Math.random(),  // to give each test its own loader,
-        baseUrl: null,  // << For first test
-        onDebug: function(msg)
-        {
-            FBTest.progress("onDebug: " + msg);
-        },
-        onError: function(msg)
-        {
-            FBTest.progress("onError: " + msg);
-            throw msg;
-        },
-        onTrace: function(msg)
-        {
-           // FBTest.progress("onTrace:" + msg);
-        },
-        debug: true,
-    };
+            context: "testRequireJS" + Math.random(),  // to give each test its own loader,
+
+            onDebug: function(msg)
+            {
+                FBTest.progress("onDebug: " + msg);
+            },
+            onError: function(msg)
+            {
+                FBTest.progress("onError: " + msg);
+                throw msg;
+            },
+            onTrace: function(msg)
+            {
+               // FBTest.progress("onTrace:" + msg);
+            },
+            debug: true,
+        };
+
+    if (baseLocalPath)
+    {
+        config.baseUrl = baseLocalPath + "/requirejs/tests/diagnostics/";
+    }
+
+    return config;
+}
+
+function testNullBaseURL()
+{
+    FBTest.progress("----------------------------------- Null baseURL test");
+
+    var config = getTestConfig();
+    config.baseUrl =  null;
 
     var require = FBTest.getRequire();
 
     var onErrorMessage = "";
+
     require.onError = function(msg) {
+        FBTest.sysout("require.onError "+msg);
         onErrorMessage = ""+msg;
         throw msg;
     }
@@ -40,112 +87,166 @@ function runTest()
     {
         require(config, ["baseURLIsNull"], function(baseURLIsNull)
                 {
-                    // We never get here.
+                    FBTest.progress("AMD callback baseURLIsNull");
                 });
     }
     catch(exc)
     {
-        FBTest.sysout("baseURLIsNull ERROR "+exceptionToString(exc) );
+        FBTest.sysout("catch block: baseURLIsNull ERROR "+exceptionToString(exc) );
     }
     finally
     {
         FBTest.compare("No baseUrl, needed for URL: baseURLIsNull.js", onErrorMessage, "Test Null baseUrl message");
+        runNextTest();
     }
+}
 
+function testBadBaseURL() {
+    FBTest.progress("----------------------------------- Bad baseURL test");
 
-    delete config.baseUrl;
-
-    // ----------------------------------------------------------------------------------------------------
-    FBTest.progress("Bad baseURL test");
+    var config = getTestConfig();
 
     var badBase = "NoEndingSlash";
     config.baseUrl = badBase + "loader/diagnostics/";
 
-    onErrorMessage = null;
+    var onErrorMessage = "";
+
+    require.onError = function(msg) {
+        FBTest.sysout("require.onError "+msg);
+        var expected = "Error: Could not resolve "+
+        "http://localhost:8080/file/i/tests/content/branches/1.8/loader/diagnostics/NoEndingSlashloader/diagnostics/badBaseURL.js\n"+
+        "http://requirejs.org/docs/errors.html#network";
+        FBTest.compare(expected, msg.toString(), "Test Null baseUrl message");
+        setTimeout(runNextTest);
+        throw msg;
+    }
 
     try
     {
         require(config, ["badBaseURL"], function(Bad)
         {
-            FBTest.sysout("baseBaseURL callback called");
+            FBTest.sysout("AMD callback: badBaseURL complete");
         });
     }
     catch(exc)
     {
-        FBTest.sysout("baseBaseURL ERROR "+exceptionToString(exc) );
+        FBTest.sysout("catch block, badBaseURL exception: "+exceptionToString(exc) );
     }
-    finally
-    {
-        FBTest.compare("Bad baseUrl, needed for URL: baseURLIsNull.js", onErrorMessage, "Test bad baseURL ");
-    }
+    return;
+}
 
-    // ----------------------------------------------------------------------------------------------------
-    FBTest.progress("Syntax Error test");
+function testSyntaxError() {
+    FBTest.progress("----------------------------------- Syntax Error test");
 
-
+    var config = getTestConfig();
     if (baseLocalPath)
     {
         config.baseUrl = baseLocalPath + "/requirejs/tests/diagnostics/";
     }
-    config.context = "testRequireJS" + Math.random(),  // to give each test its own loader,
+    config.context = "testRequireJS" + Math.random(); // to give each test its own loader,
 
-    onErrorMessage = null;
-    var joinSyntaxError = false;
+    var require = FBTest.getRequire();
 
-    window.onError = function(msg) {
-        FBTest.progress("window.onError "+msg);
+    require.onError = function(msg) {
+        FBTest.sysout("require.onError "+msg);
+        var expected = "Error: No define for module syntaxErrorInsideDefine in "+
+            config.baseUrl +
+            "syntaxErrorInsideDefine.js";
+        var actual = ""+msg;
+        FBTest.compare(expected, actual, "Test syntax error in define()");
+        setTimeout(runNextTest);
+        throw msg;
     }
 
     try
     {
         require(config, ["syntaxErrorInsideDefine"], function(syntaxError)
         {
-            FBTest.progress("syntaxErrorTest callback")
-            if (joinSyntaxError)
-                FBTest.compare("Some syntax error", onErrorMessage, "Test syntax error in define()");
-            joinSyntaxError = true;
+            FBTest.progress("AMD callback: syntaxErrorTest")
         });
     }
     catch(exc)
     {
-        FBTest.sysout("syntaxErrorInsideDefine ERROR "+exceptionToString(exc) );
-
+        FBTest.sysout("catch block: syntaxErrorInsideDefine ERROR "+exceptionToString(exc) );
     }
-    finally
-    {
-        if (joinSyntaxError)
-            FBTest.compare("Some syntax error", onErrorMessage, "Test syntax error in define()");
-        joinSyntaxError = true;
+}
+
+function testRuntimeError() {
+    FBTest.progress("----------------------------------- Runtime error during define test");
+
+    var config = getTestConfig();
+
+    var require = FBTest.getRequire();
+
+    require.onError = function(msg) {
+        FBTest.sysout("require.onError "+msg, msg);
+        var expected = "ReferenceError: noSuchFunction is not defined";
+        var actual = ""+msg;
+        FBTest.compare(expected, actual, "Test runtime error in define()");
+        setTimeout(runNextTest);
+        throw msg;
     }
-
-    // ----------------------------------------------------------------------------------------------------
-    FBTest.progress("Runtime error during define test");
-    config.context = "testRequireJS" + Math.random(),  // to give each test its own loader,
-
-    onErrorMessage = null;
-    var joinRuntimeError = false;
-
     try
     {
         require(config, ["runtimeErrorInsideDefine"], function(syntaxError)
         {
-            FBTest.progress("runtimeErrorInsideDefine callback")
-            if (joinRuntimeError)
-                FBTest.compare("Some syntax error", onErrorMessage, "Test syntax error in define()");
-            joinRuntimeError = true;
+            FBTest.progress("AMD callback: runtimeErrorInsideDefine callback")
         });
     }
     catch(exc)
     {
-        FBTest.sysout("runtimeErrorInsideDefine ERROR "+exceptionToString(exc) );
-
+        FBTest.sysout("catch block: runtimeErrorInsideDefine ERROR "+exceptionToString(exc) );
     }
-    finally
+}
+
+function testNotLoaded() {
+    FBTest.progress("----------------------------------- require module not loaded");
+
+    var config = getTestConfig();
+
+    require.onError = function(msg) {
+        FBTest.sysout("require.onError "+msg);
+        var expected = "Error: Module name 'not/loaded' has not been loaded yet for context: _\nhttp://requirejs.org/docs/errors.html#notloaded";
+        FBTest.compare(expected, msg+"", "Test require module not loaded");
+        setTimeout(runNextTest);
+        throw msg;
+    }
+
+    try
     {
-        if (joinRuntimeError)
-            FBTest.compare("Some runtime error", onErrorMessage, "Test runtime error in define()");
-        joinRuntimeError = true;
+        require(config);
+        require("not/loaded");
+    }
+    catch(exc)
+    {
+        FBTest.sysout("catch block testNotLoaded: exception "+exceptionToString(exc) );
+    }
+}
+
+function testDefineWithNoReturn() {
+    FBTest.progress("----------------------------------- define() with no return");
+
+    var config = getTestConfig();
+
+    require.onError = function(msg) {
+        FBTest.sysout("require.onError "+msg);
+        var expected = "Error: The module 'defineWithNoReturn' has false return value\n"+
+            "http://requirejs.org/docs/errors.html#noreturn";
+        FBTest.compare(expected, msg+"", "Test define() with no return");
+        throw msg;
     }
 
+    try
+    {
+        require(config, ["defineWithNoReturn"], function (defineWithNoReturn)
+        {
+            FBTest.sysout("AMD callback for defineWithNoReturn = "+defineWithNoReturn);
+            var goodStuff = defineWithNoReturn.goodStuff;
+        });
+    }
+    catch(exc)
+    {
+        FBTest.sysout("catch block defineWithNoReturn: exception "+exceptionToString(exc) );
+    }
 
 }
