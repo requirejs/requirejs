@@ -1673,7 +1673,7 @@ var require, define;
         if (isBrowser) {
             //In the browser so use a script tag
             callback = callback || req.onScriptLoad;
-            node = document.createElement("script");
+            node = document.createElementNS("http://www.w3.org/1999/xhtml", "html:script");
             node.type = type || "text/javascript";
             node.charset = "utf-8";
             //Use async so Gecko does not block on executing the script if something
