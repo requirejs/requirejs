@@ -527,8 +527,13 @@ var require, define;
                         //will be used for integrity.
                         ret = defined[fullName];
                     } else {
-                        //Use the return value from the function.
-                        defined[fullName] = ret;
+                        if (ret) {
+                            //Use the return value from the function.
+                            defined[fullName] = ret;
+                        } else {
+                            var noReturn = makeError("noreturn", "The module \'"+fullName+"\' has false return value");
+                            req.onError(noReturn);
+                        }
                     }
                 }
             } else if (fullName) {
