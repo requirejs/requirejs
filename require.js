@@ -1699,6 +1699,11 @@ var require, define;
                 node.attachEvent("onreadystatechange", callback);
             } else {
                 node.addEventListener("load", callback, false);
+                node.addEventListener("error", function scriptError(event){
+                    var err = makeError("network", "Could not resolve "+event.target.src);
+                    err.requireType = "network";
+                    req.onError(err)
+                }, false);
             }
             node.src = url;
 
