@@ -148,11 +148,10 @@ function testSyntaxError() {
 
     var require = FBTest.getRequire();
 
-    require.onError = function(msg) {
+    require.onDebug = function(msg) {
         FBTest.sysout("require.onError "+msg);
-        var expected = "Error: No define for module syntaxErrorInsideDefine in "+
-            config.baseUrl +
-            "syntaxErrorInsideDefine.js";
+        var expected = "Error: Undefined dependency syntaxErrorInsideDefine\n"+
+            "http://requirejs.org/docs/errors.html#undefinedDependency";
         var actual = ""+msg;
         FBTest.compare(expected, actual, "Test syntax error in define()");
         setTimeout(runNextTest);
@@ -163,7 +162,9 @@ function testSyntaxError() {
     {
         require(config, ["syntaxErrorInsideDefine"], function(syntaxError)
         {
-            FBTest.progress("AMD callback: syntaxErrorTest")
+            FBTest.progress("AMD callback: syntaxErrorTest");
+            FBTest.compare("called onError","called AMD callback",  "Test syntax error in define() should not call the AMD callback");
+            setTimeout(runNextTest);
         });
     }
     catch(exc)
@@ -231,7 +232,7 @@ function testDefineWithNoReturn() {
     var config = getTestConfig();
 
     var require = FBTest.getRequire();
-    require.onError = function(msg) {
+    require.onDebug = function(msg) {
         FBTest.sysout("require.onError "+msg);
         var expected = "Error: The module 'defineWithNoReturn' has false return value\n"+
             "http://requirejs.org/docs/errors.html#noreturn";

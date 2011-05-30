@@ -503,7 +503,14 @@ var require, define;
                 //values to the callback.
                 if (ary) {
                     for (i = 0; i < ary.length; i++) {
-                        args.push(manager.deps[ary[i]]);
+                        var dependency = manager.deps[ary[i]];
+                        if (req.onDebug && typeof(dependency) === "undefined") {
+                            var dependentName = fullName ? ("for " + fullName) : "";
+                            var badDep = makeError('undefinedDependency', "Undefined dependency "+ary[i]+dependentName);
+                            req.onDebug(badDep)
+                        } else {
+                            args.push(dependency);
+                        }
                     }
                 }
 
@@ -531,19 +538,20 @@ var require, define;
                             //Use the return value from the function.
                             defined[fullName] = ret;
                         } else {
-                            var noReturn = makeError("noreturn", "The module \'"+fullName+"\' has false return value");
-                            req.onError(noReturn);
+                            if (req.onDebug && typeof(jQuery) === "undefined") {
+                                var noReturn = makeError("noreturn", "The module \'"+fullName+"\' has false return value");
+                                req.onDebug(noReturn);
+                            }
                         }
                     }
                 }
             } else if (fullName) {
-                if (cb) {
-                    //May just be an object definition for the module. Only
-                    //worry about defining if have a module name.
+                // Syntax errors in script elements end up here because cb will be null,
+                // but lots of special cases also have cb null.
+                //May just be an object definition for the module. Only
+                //worry about defining if have a module name.
+                if (cb) {  // set only if the object is truthy
                     ret = defined[fullName] = cb;
-                } else {
-                    var noDefine = new Error("No define for module "+fullName+" in "+context.urlMap[fullName]);
-                    req.onError(noDefine);
                 }
             }
 
@@ -1781,10 +1789,14 @@ var require, define;
                     dataMain = mainScript.replace(jsSuffixRegExp, '');
                 }
 
+                if (cfg.dataMain) {
+                    req.onError("Two data-main scripts, 1) "+cfg.dataMain+" 2) "+dataMain);
+                    break; // obey the first one if we did not throw in onError
+                }
+
                 //Put the data-main script in the files to load.
                 cfg.deps = cfg.deps ? cfg.deps.concat(dataMain) : [dataMain];
-
-                break;
+                cfg.dataMain = dataMain;
             }
         }
     }
