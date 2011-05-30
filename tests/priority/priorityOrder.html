@@ -26,11 +26,12 @@
         {
             baseUrl: "./",
             paths: {
-                text: "../../text"
+                text: "../../text",
+                domReady: "../../domReady"
             },
             priority: ["order!leaf", "order!tree"]
         },
-        ["leaf", "bark", "tree", "flower"],
+        ["leaf", "bark", "tree", "flower", "domReady"],
         function (leaf, bark, tree, bush) {
             count += 1;
 
@@ -43,6 +44,8 @@
             doh.is("leaf", tree.leafName);
             doh.is("bark", tree.barkName);
             doh.is("flower", bush.name);
+
+            domReady(verifyFunc);
         }
     );
 
@@ -54,14 +57,6 @@
             doh.f(regExp.test(scripts[i].src));
         }
         master.callback(true);
-    }
-
-    //Account for requiring this test with a version of require.js that
-    //does not have require.ready built in.
-    if (require.ready) {
-        require.ready(verifyFunc);
-    } else {
-        setTimeout(verifyFunc, 3000);
     }
     </script>
 </head>

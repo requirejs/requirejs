@@ -8,18 +8,25 @@
     var d, s, head;
 
     function goRequire() {
-        //Need a hack to trigger require.pageLoaded() for pre Firefox 3.6 browsers.
-        var ff = parseFloat(navigator.userAgent.split("Firefox/")[1]) || null;
-        if (ff && ff < 3.6) {
-            require.pageLoaded();
-        }
 
         require({
-                baseUrl: "./"
-            },
-            ["require", "simple"],
-            function (require, simple) {
-                require.ready(function() {
+            baseUrl: "./",
+            paths: {
+                domReady: '../domReady'
+            }
+        });
+
+        //Need a hack to trigger require.onDomLoad() for pre Firefox 3.6 browsers.
+        var ff = parseFloat(navigator.userAgent.split("Firefox/")[1]) || null;
+        if (ff && ff < 3.6) {
+            require(["domReady"], function (domReady) {
+                require.onDomLoad();
+            });
+        }
+
+        require(["require", "simple", "domReady"],
+            function (require, simple, domReady) {
+                domReady(function() {
                     doh.is("blue", simple.color);
 
                     //Now test another script getting loaded will see
@@ -83,28 +90,6 @@
     );
     doh.run();
 
-
-    /*}
-    require({
-            baseUrl: "./"    
-        },
-        ["require", "simple", "dimple"],
-        function(require, simple, dimple) {
-            require.ready(function(){
-                doh.register(
-                    "simple", 
-                    [
-                        function colors(t){
-                            t.is("blue", simple.color);
-                            t.is("dimple-blue", dimple.color);
-                        }
-                    ]
-                );
-                doh.run();			
-            });
-        }
-    );
-    */
     </script>
 </head>
 <body onload="loadRequire()">

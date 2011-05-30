@@ -23,10 +23,13 @@
 
     require(
         {
-            baseUrl: "./"
+            baseUrl: "./",
+            paths: {
+                domReady: "../../domReady"
+            }
         },
-        ["require", "layer1"],
-        function(require) {
+        ["require", "domReady", "layer1"],
+        function(require, domReady) {
             require(["alpha", "beta", "gamma", "epsilon"],
                 function(alpha, beta, gamma, epsilon) {
                     doh.is("alpha", alpha.name);
@@ -49,13 +52,7 @@
                 master.callback(true);
             };
 
-            //Account for requirening this test with a version of require.js that
-            //does not have require.ready built in.
-            if (require.ready) {
-                require.ready(verifyFunc);
-            } else {
-                setTimeout(verifyFunc, 3000);
-            }
+            domReady(verifyFunc);
         }
     );
     </script>

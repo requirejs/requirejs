@@ -2,11 +2,12 @@ require({
         baseUrl: require.isBrowser ? "./" : "anon/",
         paths: {
             text: "../../text",
-            i18n: "../../i18n"
+            i18n: "../../i18n",
+            domReady: "../../domReady"
         }
     },
-    ["require", "magenta", "red", "blue", "green", "yellow", "a", "c"],
-    function(require, magenta, red, blue, green, yellow, a, c) {
+    ["require", "magenta", "red", "blue", "green", "yellow", "a", "c", "domReady"],
+    function(require, magenta, red, blue, green, yellow, a, c, domReady) {
 
         doh.register(
             "anonSimple",
@@ -47,7 +48,7 @@ require({
             });
         }
         if (require.isBrowser) {
-            require.ready(function () {
+            domReady(function () {
                 setTimeout(onReady, 100);
             })
         } else {

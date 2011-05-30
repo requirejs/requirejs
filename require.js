@@ -36,10 +36,11 @@ var require, define;
         contexts = {},
         globalDefQueue = [],
         interactiveScript = null,
-        isDone = false,
         useInteractive = false,
-        req, cfg = {}, currentlyAddingScript, s, head, baseElement, scripts, script,
-        src, subPath, mainScript, dataMain, i, scrollIntervalId, setReadyState, ctx,
+        cfg = {},
+        scrollIntervalId, setReadyState,
+        req, currentlyAddingScript, s, head, baseElement, scripts, script,
+        src, subPath, mainScript, dataMain, i, ctx,
         jQueryCheck, checkLoadedTimeoutId;
 
     function isFunction(it) {
@@ -220,7 +221,7 @@ var require, define;
             var pkgName, pkgConfig;
 
             //Adjust any relative paths.
-            if (name.charAt(0) === ".") {
+            if (name && name.charAt(0) === ".") {
                 //If have a base name, try to normalize against it,
                 //otherwise, assume it is a top-level require that will
                 //be relative to baseUrl in the end.
@@ -301,7 +302,7 @@ var require, define;
                         //it has a normalize method. To avoid possible
                         //ambiguity with relative names loaded from another
                         //plugin, use the parent's name as part of this name.
-                        normalizedName = '__$p' + parentName + '@' + name;
+                        normalizedName = '__$p' + parentName + '@' + (name || '');
                     }
                 } else {
                     normalizedName = normalize(name, parentName);
@@ -329,7 +330,7 @@ var require, define;
                 parentMap: parentModuleMap,
                 url: url,
                 originalName: originalName,
-                fullName: prefix ? prefix + "!" + normalizedName : normalizedName
+                fullName: prefix ? prefix + "!" + (normalizedName || '') : normalizedName
             };
         }
 
@@ -942,7 +943,7 @@ var require, define;
         function loadPaused(dep) {
             //Renormalize dependency if its name was waiting on a plugin
             //to load, which as since loaded.
-            if (dep.prefix && dep.name.indexOf('__$p') === 0 && defined[dep.prefix]) {
+            if (dep.prefix && dep.name && dep.name.indexOf('__$p') === 0 && defined[dep.prefix]) {
                 dep = makeModuleMap(dep.originalName, dep.parentMap);
             }
 
@@ -1325,48 +1326,48 @@ var require, define;
                 var paths, pkgs, pkg, pkgPath, syms, i, parentModule, url,
                     config = context.config;
 
-                    //Normalize module name if have a base relative module name to work from.
-                    moduleName = normalize(moduleName, relModuleMap && relModuleMap.fullName);
+                //Normalize module name if have a base relative module name to work from.
+                moduleName = normalize(moduleName, relModuleMap && relModuleMap.fullName);
 
-                    //If a colon is in the URL, it indicates a protocol is used and it is just
-                    //an URL to a file, or if it starts with a slash or ends with .js, it is just a plain file.
-                    //The slash is important for protocol-less URLs as well as full paths.
-                    if (req.jsExtRegExp.test(moduleName)) {
-                        //Just a plain path, not module name lookup, so just return it.
-                        //Add extension if it is included. This is a bit wonky, only non-.js things pass
-                        //an extension, this method probably needs to be reworked.
-                        url = moduleName + (ext ? ext : "");
-                    } else {
-                        //A module that needs to be converted to a path.
-                        paths = config.paths;
-                        pkgs = config.pkgs;
+                //If a colon is in the URL, it indicates a protocol is used and it is just
+                //an URL to a file, or if it starts with a slash or ends with .js, it is just a plain file.
+                //The slash is important for protocol-less URLs as well as full paths.
+                if (req.jsExtRegExp.test(moduleName)) {
+                    //Just a plain path, not module name lookup, so just return it.
+                    //Add extension if it is included. This is a bit wonky, only non-.js things pass
+                    //an extension, this method probably needs to be reworked.
+                    url = moduleName + (ext ? ext : "");
+                } else {
+                    //A module that needs to be converted to a path.
+                    paths = config.paths;
+                    pkgs = config.pkgs;
 
-                        syms = moduleName.split("/");
-                        //For each module name segment, see if there is a path
-                        //registered for it. Start with most specific name
-                        //and work up from it.
-                        for (i = syms.length; i > 0; i--) {
-                            parentModule = syms.slice(0, i).join("/");
-                            if (paths[parentModule]) {
-                                syms.splice(0, i, paths[parentModule]);
-                                break;
-                            } else if ((pkg = pkgs[parentModule])) {
-                                //If module name is just the package name, then looking
-                                //for the main module.
-                                if (moduleName === pkg.name) {
-                                    pkgPath = pkg.location + '/' + pkg.main;
-                                } else {
-                                    pkgPath = pkg.location;
-                                }
-                                syms.splice(0, i, pkgPath);
-                                break;
+                    syms = moduleName.split("/");
+                    //For each module name segment, see if there is a path
+                    //registered for it. Start with most specific name
+                    //and work up from it.
+                    for (i = syms.length; i > 0; i--) {
+                        parentModule = syms.slice(0, i).join("/");
+                        if (paths[parentModule]) {
+                            syms.splice(0, i, paths[parentModule]);
+                            break;
+                        } else if ((pkg = pkgs[parentModule])) {
+                            //If module name is just the package name, then looking
+                            //for the main module.
+                            if (moduleName === pkg.name) {
+                                pkgPath = pkg.location + '/' + pkg.main;
+                            } else {
+                                pkgPath = pkg.location;
                             }
+                            syms.splice(0, i, pkgPath);
+                            break;
                         }
-
-                        //Join the path parts together, then figure out if baseUrl is needed.
-                        url = syms.join("/") + (ext || ".js");
-                        url = (url.charAt(0) === '/' || url.match(/^\w+:/) ? "" : config.baseUrl) + url;
                     }
+
+                    //Join the path parts together, then figure out if baseUrl is needed.
+                    url = syms.join("/") + (ext || ".js");
+                    url = (url.charAt(0) === '/' || url.match(/^\w+:/) ? "" : config.baseUrl) + url;
+                }
 
                 return config.urlArgs ? url +
                                         ((url.indexOf('?') === -1 ? '?' : '&') +
@@ -1446,9 +1447,7 @@ var require, define;
     s = req.s = {
         contexts: contexts,
         //Stores a list of URLs that should not get async script tag treatment.
-        skipAsync: {},
-        isPageLoaded: !isBrowser,
-        readyCalls: []
+        skipAsync: {}
     };
 
     req.isAsync = req.isBrowser = isBrowser;
@@ -1484,7 +1483,13 @@ var require, define;
     req.load = function (context, moduleName, url) {
         var contextName = context.contextName,
             loaded = context.loaded;
-        isDone = false;
+
+        if (req.resourcesLoaded) {
+            req.resourcesLoaded = false;
+            if (req.resourcesReady) {
+                req.resourcesReady(false);
+            }
+        }
 
         //Only set loaded to false for tracking if it has not already been set.
         if (!loaded[moduleName]) {
@@ -1732,8 +1737,145 @@ var require, define;
         return null;
     };
 
-    //Look for a data-main script attribute, which could also adjust the baseUrl.
+    /**
+     * Set resourcesReady as a property on require to indicate that this loader
+     * supports resourcesReady blocking of DOM ready callbacks. A DOM ready loader
+     * plugin/module can implement resourcesReady to get notified. Set the value to
+     * null here so that if(require.resourcesReady) is false, to indicate there is
+     * not an existing resourcesReady function, but if ('resourcesReady' in require)
+     * is true, to indicate this loader supports resourcesReady blocking.
+     */
+    req.resourcesReady = null;
+    req.resourcesLoaded = true;
+
+    /**
+     * Set domReady as a property on require to indicate that this loader
+     * supports domReady detection. A DOM ready loader
+     * plugin/module can implement domReady to get notified. Set the value to
+     * null here so that if(require.domReady) is false, to indicate there is
+     * not an existing domReady function, but if ('domReady' in require)
+     * is true, to indicate this loader supports domReady detection. Since
+     * a domReady module/plugin can be loaded after the page loads, it is
+     * easier if the loader, which should already be in the DOM before the
+     * DOM triggers DOMContentLoaded can properly detect the state.
+     * For Firefox < 3.6, it does not set document.readyState correctly, so
+     * require.onDomLoad() needs to be manually set if require.js is added
+     * after the DOM is ready.
+     */
+    req.domReady = null;
+
+    /**
+     * Indicates if DOMContentLoaded has been reached. Used by domReady plugins
+     */
+    req.domLoaded = !isBrowser;
+
+    //See if there is nothing waiting across contexts, and if not, trigger
+    //callReady.
+    req.checkReadyState = function () {
+        var contexts, prop, context;
+
+        if (!req.resourcesLoaded) {
+            //Cycle through all contexts, if something is still loading,
+            //then the loader is not done.
+            contexts = s.contexts;
+            for (prop in contexts) {
+                if (!(prop in empty)) {
+                    context = contexts[prop];
+                    if (context.waitCount) {
+                        return;
+                    } else {
+                        //If jQuery with DOM ready delayed for this context,
+                        //release it now.
+                        if (context.jQueryIncremented) {
+                            jQueryHoldReady(context.jQuery, false);
+                            context.jQueryIncremented = false;
+                        }
+                    }
+                }
+            }
+
+            //Notify any domReady listener that loading is done.
+            req.resourcesLoaded = true;
+            if (req.resourcesReady) {
+                req.resourcesReady(true);
+            }
+        }
+    };
+
+    /**
+     * Sets the page as loaded and triggers check for all modules loaded.
+     * Needs to be manually called in FF < 3.6 since those browsers do
+     * not properly set document.readyState === 'complete'. For other
+     * browsers, this method will be called at the right time.
+     */
+    req.onDomLoad = function () {
+        if (!req.domLoaded) {
+            req.domLoaded = true;
+            if (scrollIntervalId) {
+                clearInterval(scrollIntervalId);
+            }
+
+            //Part of a fix for FF < 3.6 where readyState was not set to
+            //complete so libraries like jQuery that check for readyState
+            //after page load where not getting initialized correctly.
+            //Original approach suggested by Andrea Giammarchi:
+            //http://webreflection.blogspot.com/2009/11/195-chars-to-help-lazy-loading.html
+            //see other setReadyState reference for the rest of the fix.
+            if (setReadyState) {
+                document.readyState = "complete";
+            }
+
+            if (req.domReady) {
+                req.domReady();
+            }
+        }
+    };
+
     if (isBrowser) {
+        //Listen for DOMContentLoaded.
+        if (document.addEventListener) {
+            //Standards. Hooray! Assumption here that if standards based,
+            //it knows about DOMContentLoaded.
+            document.addEventListener("DOMContentLoaded", req.onDomLoad, false);
+            window.addEventListener("load", req.onDomLoad, false);
+            //Part of FF < 3.6 readystate fix (see setReadyState refs for more info)
+            if (!document.readyState) {
+                setReadyState = true;
+                document.readyState = "loading";
+            }
+        } else if (window.attachEvent) {
+            window.attachEvent("onload", req.onDomLoad);
+
+            //DOMContentLoaded approximation, as found by Diego Perini:
+            //http://javascript.nwbox.com/IEContentLoaded/
+            if (self === self.top) {
+                scrollIntervalId = setInterval(function () {
+                    try {
+                        //From this ticket:
+                        //http://bugs.dojotoolkit.org/ticket/11106,
+                        //In IE HTML Application (HTA), such as in a selenium test,
+                        //javascript in the iframe can't see anything outside
+                        //of it, so self===self.top is true, but the iframe is
+                        //not the top window and doScroll will be available
+                        //before document.body is set. Test document.body
+                        //before trying the doScroll trick.
+                        if (document.body) {
+                            document.documentElement.doScroll("left");
+                            req.onDomLoad();
+                        }
+                    } catch (e) {}
+                }, 30);
+            }
+        }
+
+        //Check if document already complete, and if so, just trigger page load
+        //listeners. NOTE: does not work with Firefox before 3.6. To support
+        //those browsers, manually call require.onDomLoad().
+        if (document.readyState === "complete") {
+            req.onDomLoad();
+        }
+
+        //Look for a data-main script attribute, which could also adjust the baseUrl.
         //Figure out baseUrl. Get it from the script tag with require.js in it.
         scripts = document.getElementsByTagName("script");
 
@@ -1773,132 +1915,6 @@ var require, define;
     //Set baseUrl based on config.
     s.baseUrl = cfg.baseUrl;
 
-    //****** START page load functionality ****************
-    /**
-     * Sets the page as loaded and triggers check for all modules loaded.
-     */
-    req.pageLoaded = function () {
-        if (!s.isPageLoaded) {
-            s.isPageLoaded = true;
-            if (scrollIntervalId) {
-                clearInterval(scrollIntervalId);
-            }
-
-            //Part of a fix for FF < 3.6 where readyState was not set to
-            //complete so libraries like jQuery that check for readyState
-            //after page load where not getting initialized correctly.
-            //Original approach suggested by Andrea Giammarchi:
-            //http://webreflection.blogspot.com/2009/11/195-chars-to-help-lazy-loading.html
-            //see other setReadyState reference for the rest of the fix.
-            if (setReadyState) {
-                document.readyState = "complete";
-            }
-
-            req.callReady();
-        }
-    };
-
-    //See if there is nothing waiting across contexts, and if not, trigger
-    //callReady.
-    req.checkReadyState = function () {
-        var contexts = s.contexts, prop;
-        for (prop in contexts) {
-            if (!(prop in empty)) {
-                if (contexts[prop].waitCount) {
-                    return;
-                }
-            }
-        }
-        s.isDone = true;
-        req.callReady();
-    };
-
-    /**
-     * Internal function that calls back any ready functions. If you are
-     * integrating RequireJS with another library without require.ready support,
-     * you can define this method to call your page ready code instead.
-     */
-    req.callReady = function () {
-        var callbacks = s.readyCalls, i, callback, contexts, context, prop;
-
-        if (s.isPageLoaded && s.isDone) {
-            if (callbacks.length) {
-                s.readyCalls = [];
-                for (i = 0; (callback = callbacks[i]); i++) {
-                    callback();
-                }
-            }
-
-            //If jQuery with DOM ready delayed, release it now.
-            contexts = s.contexts;
-            for (prop in contexts) {
-                if (!(prop in empty)) {
-                    context = contexts[prop];
-                    if (context.jQueryIncremented) {
-                        jQueryHoldReady(context.jQuery, false);
-                        context.jQueryIncremented = false;
-                    }
-                }
-            }
-        }
-    };
-
-    /**
-     * Registers functions to call when the page is loaded
-     */
-    req.ready = function (callback) {
-        if (s.isPageLoaded && s.isDone) {
-            callback();
-        } else {
-            s.readyCalls.push(callback);
-        }
-        return req;
-    };
-
-    if (isBrowser) {
-        if (document.addEventListener) {
-            //Standards. Hooray! Assumption here that if standards based,
-            //it knows about DOMContentLoaded.
-            document.addEventListener("DOMContentLoaded", req.pageLoaded, false);
-            window.addEventListener("load", req.pageLoaded, false);
-            //Part of FF < 3.6 readystate fix (see setReadyState refs for more info)
-            if (!document.readyState) {
-                setReadyState = true;
-                document.readyState = "loading";
-            }
-        } else if (window.attachEvent) {
-            window.attachEvent("onload", req.pageLoaded);
-
-            //DOMContentLoaded approximation, as found by Diego Perini:
-            //http://javascript.nwbox.com/IEContentLoaded/
-            if (self === self.top) {
-                scrollIntervalId = setInterval(function () {
-                    try {
-                        //From this ticket:
-                        //http://bugs.dojotoolkit.org/ticket/11106,
-                        //In IE HTML Application (HTA), such as in a selenium test,
-                        //javascript in the iframe can't see anything outside
-                        //of it, so self===self.top is true, but the iframe is
-                        //not the top window and doScroll will be available
-                        //before document.body is set. Test document.body
-                        //before trying the doScroll trick.
-                        if (document.body) {
-                            document.documentElement.doScroll("left");
-                            req.pageLoaded();
-                        }
-                    } catch (e) {}
-                }, 30);
-            }
-        }
-
-        //Check if document already complete, and if so, just trigger page load
-        //listeners. NOTE: does not work with Firefox before 3.6. To support
-        //those browsers, manually call require.pageLoaded().
-        if (document.readyState === "complete") {
-            req.pageLoaded();
-        }
-    }
-    //****** END page load functionality ****************
 
     //Set up default context. If require was a configuration object, use that as base config.
     req(cfg);

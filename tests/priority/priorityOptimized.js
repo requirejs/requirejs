@@ -42,8 +42,8 @@ require(
         baseUrl: "./",
         priority: ["one", "two", "three"]
     },
-    ["alpha", "beta", "gamma", "epsilon", "alphaPrime", "betaPrime"],
-    function (alpha, beta, gamma, epsilon, alphaPrime, betaPrime) {
+    ["alpha", "beta", "gamma", "epsilon", "alphaPrime", "betaPrime", "../../domReady"],
+    function (alpha, beta, gamma, epsilon, alphaPrime, betaPrime, domReady) {
         count += 1;
 
         //Make sure callback is only called once.
@@ -60,6 +60,8 @@ require(
         doh.is("alphaPrime", alphaPrime.name);
         doh.is("alphaPrime", betaPrime.alphaPrimeName);
         doh.is("betaPrime", betaPrime.name);
+
+        domReady(verifyFunc);
     }
 );
 
@@ -71,12 +73,4 @@ function verifyFunc() {
         doh.f(regExp.test(scripts[i].src));
     }
     master.callback(true);
-}
-
-//Account for requiring this test with a version of require.js that
-//does not have require.ready built in.
-if (require.ready) {
-    require.ready(verifyFunc);
-} else {
-    setTimeout(verifyFunc, 3000);
 }
