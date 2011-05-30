@@ -1018,7 +1018,7 @@ var require, define;
             while (defQueue.length) {
                 args = defQueue.shift();
                 if (args[0] === null) {
-                    return req.onError(makeError('mismatch', 'Mismatched anonymous define() module: ' + args[args.length - 1]));
+                    return req.onError(makeError('mismatch', 'Second anonymous define(): ' + args[args.length - 1]));
                 } else {
                     callDefMain(args);
                 }
