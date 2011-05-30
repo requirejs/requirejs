@@ -33,6 +33,8 @@ function runTest()
     testQueue.push(testNotLoaded);
     // ----------------------------------------------------------------------------------------------------
     testQueue.push(testDefineWithNoReturn);
+    // ----------------------------------------------------------------------------------------------------
+    testQueue.push(testTwoDefineOneFile);
 
     runNextTest();
 }
@@ -237,6 +239,7 @@ function testDefineWithNoReturn() {
         var expected = "Error: The module 'defineWithNoReturn' has false return value\n"+
             "http://requirejs.org/docs/errors.html#noreturn";
         FBTest.compare(expected, msg+"", "Test define() with no return");
+        setTimeout(runNextTest);
         throw msg;
     }
 
@@ -251,6 +254,35 @@ function testDefineWithNoReturn() {
     catch(exc)
     {
         FBTest.sysout("catch block defineWithNoReturn: exception "+exceptionToString(exc) );
+    }
+
+}
+
+function testTwoDefineOneFile() {
+    FBTest.progress("----------------------------------- Two anonymous define() in one file");
+
+    var config = getTestConfig();
+
+    var require = FBTest.getRequire();
+    require.onError = function(msg) {
+        FBTest.sysout("require.onError "+msg);
+        var expected = "Error: Second anonymous define(): function (A) {\n    var C = {};\n    return C;\n}\nhttp://requirejs.org/docs/errors.html#mismatch";
+        FBTest.compare(expected, msg+"", "Test Two anonymous define() in one file");
+        setTimeout(runNextTest);
+        throw msg;
+    }
+
+    try
+    {
+        require(config, ["twoDefineOneFile"], function (twoDefineOneFile)
+        {
+            FBTest.sysout("AMD callback for twoDefineOneFile = "+twoDefineOneFile);
+            var goodStuff = twoDefineOneFile.goodStuff;
+        });
+    }
+    catch(exc)
+    {
+        FBTest.sysout("catch block twoDefineOneFile: exception "+exceptionToString(exc) );
     }
 
 }
