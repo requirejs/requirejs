@@ -866,6 +866,7 @@ var require, define;
 
                 //Only allow this recursion to a certain depth.
                 if (checkLoadedDepth < 10) {
+                    checkLoadedDepth += 1;
                     checkLoaded();
                 } else {
                     for (i = 0; (manager = waitAry[i]); i++) {
