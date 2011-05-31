@@ -13,24 +13,38 @@ Next release
 
 - text plugins after a build load xdomain?
   - Send impl to list
+  - merge multiWrite branches for require.js and r.js
 
 - relative modules IDs?
   - excludeShallow not excluding files loaded with the text plugin: email thread. Exclusions.
 
 - https://github.com/jrburke/requirejs/issues/104: define as a special dependency?
+
 - domReady plugin
+  - Update docs
+    - remove the config.ready support.
+    - remove require.ready
+    - add domReady docs.
+  - add domReady tests? Or tested already in the tests.
+    - Need waitForLoader test
+    - Need to add a boolean to indicate if if scripts are done.
+  - require.s.isDone used in Node and Rhino adapters?
 
-- empty: protocol support for build profiles?
-
-- Put in helpful error in r.js if running it without -o option.
+- check priority tests on Safari 3, in the non-domReady branch.
+  In master, it has occasional failures too.
 
 - replacement for modify that intercepts callbacks, holds off until another module loads them?
   - A way to show dependency graph too?
 - Minify the require.js files with UglifyJS.
 
+- Test DOMContentLoaded work related to dojo-contributors "bring back skipIeDomLoaded" thread,
+  selenium tests.
+  - http://trac.dojotoolkit.org/ticket/13113
+
 Docs:
 - http://requirejs.org/docs/api.html#jsfiles make the "plain script tag rules"
   more of a bulleted list to call them out.
+- Update api.html#define to indicate commonjs wrapper.
 - Pointer to motivations behind current thing, reason for dependencies.
 
 - https://github.com/jrburke/requirejs/pull/71: process by 2/21
