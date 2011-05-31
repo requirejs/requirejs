@@ -11,6 +11,9 @@ Release Notes
 Next release
 --------------
 
+- too much recursion error.
+  - Add waitdep to error.html
+
 - text plugins after a build load xdomain?
   - Send impl to list
   - merge multiWrite branches for require.js and r.js
