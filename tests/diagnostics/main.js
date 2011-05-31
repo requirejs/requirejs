@@ -116,10 +116,13 @@ function testBadBaseURL() {
     var require = FBTest.getRequire();
     require.onError = function(msg) {
         FBTest.sysout("require.onError "+msg);
-        var expected = "Error: Could not resolve "+
-        "http://localhost:8080/file/i/tests/content/branches/1.8/loader/diagnostics/NoEndingSlashloader/diagnostics/badBaseURL.js\n"+
+
+        var expected = "Error: Could not resolve <base>/"+
+        "NoEndingSlashloader/diagnostics/badBaseURL.js\n"+
         "http://requirejs.org/docs/errors.html#network";
-        FBTest.compare(expected, msg.toString(), "Test Null baseUrl message");
+
+        var actual = msg.toString().replace(/\s[^\s]*NoEnding/," <base>/NoEnding");
+        FBTest.compare(expected, actual, "Test bad baseUrl message");
         setTimeout(runNextTest);
         throw msg;
     }
