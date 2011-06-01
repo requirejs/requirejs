@@ -37,6 +37,7 @@ var require, define;
         globalDefQueue = [],
         interactiveScript = null,
         isDone = false,
+        checkLoadedDepth = 0,
         useInteractive = false,
         req, cfg = {}, currentlyAddingScript, s, head, baseElement, scripts, script,
         src, subPath, mainScript, dataMain, i, scrollIntervalId, setReadyState, ctx,
@@ -109,6 +110,22 @@ var require, define;
                       .replace(currDirRegExp, '')
                       .replace(jsSuffixRegExp, '')
             };
+        }
+    }
+
+    /**
+     * jQuery 1.4.3-1.5.x use a readyWait/ready() pairing to hold DOM
+     * ready callbacks, but jQuery 1.6 supports a holdReady() API instead.
+     * At some point remove the readyWait/ready() support and just stick
+     * with using holdReady.
+     */
+    function jQueryHoldReady($, shouldHold) {
+        if ($.holdReady) {
+            $.holdReady(shouldHold);
+        } else if (shouldHold) {
+            $.readyWait += 1;
+        } else {
+            $.ready(true);
         }
     }
 
@@ -712,9 +729,9 @@ var require, define;
         }
 
         /**
-         * As of jQuery 1.4.3, it supports a readyWait property that will hold off
+         * jQuery 1.4.3+ supports ways to hold off calling
          * calling jQuery ready callbacks until all scripts are loaded. Be sure
-         * to track it if readyWait is available. Also, since jQuery 1.4.3 does
+         * to track it if the capability exists.. Also, since jQuery 1.4.3 does
          * not register as a module, need to do some global inference checking.
          * Even if it does register as a module, not guaranteed to be the precise
          * name of the global. If a jQuery is tracked for this context, then go
@@ -731,7 +748,7 @@ var require, define;
                         return;
                     }
 
-                    if ("readyWait" in $) {
+                    if ("holdReady" in $ || "readyWait" in $) {
                         context.jQuery = $;
 
                         //Manually create a "jquery" module entry if not one already
@@ -742,9 +759,9 @@ var require, define;
                             return jQuery;
                         }]);
 
-                        //Increment jQuery readyWait if ncecessary.
+                        //Ask jQuery to hold DOM ready callbacks.
                         if (context.scriptCount) {
-                            $.readyWait += 1;
+                            jQueryHoldReady($, true);
                             context.jQueryIncremented = true;
                         }
                     }
@@ -794,7 +811,7 @@ var require, define;
                 //It is possible to disable the wait interval by using waitSeconds of 0.
                 expired = waitInterval && (context.startTime + waitInterval) < new Date().getTime(),
                 noLoads = "", hasLoadedProp = false, stillLoading = false, prop,
-                err, manager;
+                err, manager, ary, i, j, dep, args = [];
 
             //If there are items still in the paused queue processing wait.
             //This is particularly important in the sync case where each paused
@@ -869,9 +886,30 @@ var require, define;
                     forceExec(manager, {});
                 }
 
-                checkLoaded();
+                //Only allow this recursion to a certain depth.
+                if (checkLoadedDepth < 10) {
+                    checkLoadedDepth += 1;
+                    checkLoaded();
+                } else {
+                    for (i = 0; (manager = waitAry[i]); i++) {
+                        if (!manager.isDone) {
+                            err += '\n* ' + manager.fullName + ' waiting for: ';
+                            ary = manager.depArray;
+                            for (j = 0; j < ary.length; j++) {
+                                dep = ary[i];
+                                if (!(dep in manager.deps)) {
+                                    args.push(dep);
+                                }
+                            }
+                            err += args.join(',');
+                        }
+                    }
+                    req.onError(makeError('waitdep', 'Unresolved dependency:' + err));
+                }
                 return undefined;
             }
+
+            checkLoadedDepth = 0;
 
             //Check for DOM ready, and nothing is waiting across contexts.
             req.checkReadyState();
@@ -1182,7 +1220,7 @@ var require, define;
             },
 
             require: function (deps, callback, relModuleMap) {
-                var moduleName, ret, moduleMap;
+                var moduleName, fullName, moduleMap;
                 if (typeof deps === "string") {
                     //Synchronous access to one module. If require.get is
                     //available (as in the Node adapter), prefer that.
@@ -1199,15 +1237,15 @@ var require, define;
 
                     //Normalize module name, if it contains . or ..
                     moduleMap = makeModuleMap(moduleName, relModuleMap);
+                    fullName = moduleMap.fullName;
 
-                    ret = defined[moduleMap.fullName];
-                    if (ret === undefined) {
+                    if (!(fullName in defined)) {
                         return req.onError(makeError("notloaded", "Module name '" +
                                     moduleMap.fullName +
                                     "' has not been loaded yet for context: " +
                                     contextName));
                     }
-                    return ret;
+                    return defined[fullName];
                 }
 
                 main(null, deps, callback, relModuleMap);
@@ -1331,57 +1369,43 @@ var require, define;
                 var paths, pkgs, pkg, pkgPath, syms, i, parentModule, url,
                     config = context.config;
 
-                if (moduleName.indexOf("./") === 0 || moduleName.indexOf("../") === 0) {
-                    //A relative ID, just map it relative to relModuleMap's url
-                    syms = relModuleMap && relModuleMap.url ? relModuleMap.url.split('/') : [];
-                    //Pop off the file name.
-                    if (syms.length) {
-                        syms.pop();
-                    }
-                    syms = syms.concat(moduleName.split('/'));
-                    trimDots(syms);
-                    url = syms.join('/') +
-                          (ext ? ext :
-                          (req.jsExtRegExp.test(moduleName) ? "" : ".js"));
+                //Normalize module name if have a base relative module name to work from.
+                moduleName = normalize(moduleName, relModuleMap && relModuleMap.fullName);
+
+                //If a colon is in the URL, it indicates a protocol is used and it is just
+                //an URL to a file, or if it starts with a slash or ends with .js, it is just a plain file.
+                //The slash is important for protocol-less URLs as well as full paths.
+                if (req.jsExtRegExp.test(moduleName)) {
+                    //Just a plain path, not module name lookup, so just return it.
+                    //Add extension if it is included. This is a bit wonky, only non-.js things pass
+                    //an extension, this method probably needs to be reworked.
+                    url = moduleName + (ext ? ext : "");
                 } else {
+                    //A module that needs to be converted to a path.
+                    paths = config.paths;
+                    pkgs = config.pkgs;
 
-                    //Normalize module name if have a base relative module name to work from.
-                    moduleName = normalize(moduleName, relModuleMap && relModuleMap.fullName);
-
-                    //If a colon is in the URL, it indicates a protocol is used and it is just
-                    //an URL to a file, or if it starts with a slash or ends with .js, it is just a plain file.
-                    //The slash is important for protocol-less URLs as well as full paths.
-                    if (req.jsExtRegExp.test(moduleName)) {
-                        //Just a plain path, not module name lookup, so just return it.
-                        //Add extension if it is included. This is a bit wonky, only non-.js things pass
-                        //an extension, this method probably needs to be reworked.
-                        url = moduleName + (ext ? ext : "");
-                    } else {
-                        //A module that needs to be converted to a path.
-                        paths = config.paths;
-                        pkgs = config.pkgs;
-
-                        syms = moduleName.split("/");
-                        //For each module name segment, see if there is a path
-                        //registered for it. Start with most specific name
-                        //and work up from it.
-                        for (i = syms.length; i > 0; i--) {
-                            parentModule = syms.slice(0, i).join("/");
-                            if (paths[parentModule]) {
-                                syms.splice(0, i, paths[parentModule]);
-                                break;
-                            } else if ((pkg = pkgs[parentModule])) {
-                                //If module name is just the package name, then looking
-                                //for the main module.
-                                if (moduleName === pkg.name) {
-                                    pkgPath = pkg.location + '/' + pkg.main;
-                                } else {
-                                    pkgPath = pkg.location;
-                                }
-                                syms.splice(0, i, pkgPath);
-                                break;
+                    syms = moduleName.split("/");
+                    //For each module name segment, see if there is a path
+                    //registered for it. Start with most specific name
+                    //and work up from it.
+                    for (i = syms.length; i > 0; i--) {
+                        parentModule = syms.slice(0, i).join("/");
+                        if (paths[parentModule]) {
+                            syms.splice(0, i, paths[parentModule]);
+                            break;
+                        } else if ((pkg = pkgs[parentModule])) {
+                            //If module name is just the package name, then looking
+                            //for the main module.
+                            if (moduleName === pkg.name) {
+                                pkgPath = pkg.location + '/' + pkg.main;
+                            } else {
+                                pkgPath = pkg.location;
                             }
+                            syms.splice(0, i, pkgPath);
+                            break;
                         }
+                    }
 
                         //Join the path parts together, then figure out if baseUrl is needed.
                         url = syms.join("/") + (ext || ".js");
@@ -1455,6 +1479,14 @@ var require, define;
         return context.require(deps, callback);
     };
 
+    /**
+     * Global require.toUrl(), to match global require, mostly useful
+     * for debugging/work in the global space.
+     */
+    req.toUrl = function (moduleNamePlusExt) {
+        return contexts[defContextName].toUrl(moduleNamePlusExt);
+    };
+
     req.version = version;
     req.isArray = isArray;
     req.isFunction = isFunction;
@@ -1512,11 +1544,11 @@ var require, define;
         context.scriptCount += 1;
         req.attach(url, contextName, moduleName);
 
-        //If tracking a jQuery, then make sure its readyWait
-        //is incremented to prevent its ready callbacks from
+        //If tracking a jQuery, then make sure its ready callbacks
+        //are put on hold to prevent its ready callbacks from
         //triggering too soon.
         if (context.jQuery && !context.jQueryIncremented) {
-            context.jQuery.readyWait += 1;
+            jQueryHoldReady(context.jQuery, true);
             context.jQueryIncremented = true;
         }
     };
@@ -1864,14 +1896,13 @@ var require, define;
                 }
             }
 
-            //If jQuery with readyWait is being tracked, updated its
-            //readyWait count.
+            //If jQuery with DOM ready delayed, release it now.
             contexts = s.contexts;
             for (prop in contexts) {
                 if (!(prop in empty)) {
                     context = contexts[prop];
                     if (context.jQueryIncremented) {
-                        context.jQuery.ready(true);
+                        jQueryHoldReady(context.jQuery, false);
                         context.jQueryIncremented = false;
                     }
                 }
