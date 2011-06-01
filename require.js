@@ -497,6 +497,10 @@ var require, define;
                 args = [],
                 ary = manager.depArray;
 
+            if (req.onDebugDAG) {
+                req.onDebugDAG(fullName, manager.deps);
+            }
+
             //Call the callback to define the module, if necessary.
             if (cb && isFunction(cb)) {
                 //Pull out the defined dependencies and pass the ordered
