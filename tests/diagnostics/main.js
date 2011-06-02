@@ -62,7 +62,7 @@ function getTestConfig() {
 
     if (baseLocalPath)
     {
-        config.baseUrl = baseLocalPath + "/requirejs/tests/diagnostics/";
+        config.baseUrl = baseLocalPath;
     }
 
     return config;
@@ -147,7 +147,7 @@ function testSyntaxError() {
     var config = getTestConfig();
     if (baseLocalPath)
     {
-        config.baseUrl = baseLocalPath + "/requirejs/tests/diagnostics/";
+        config.baseUrl = baseLocalPath;
     }
     config.context = "testRequireJS" + Math.random(); // to give each test its own loader,
 
