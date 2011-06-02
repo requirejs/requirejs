@@ -555,7 +555,7 @@ var require, define;
                         //will be used for integrity.
                         ret = defined[fullName];
                     } else {
-                        if (ret) {
+                        if (ret) {  // This change breaks the priority order test
                             //Use the return value from the function.
                             defined[fullName] = ret;
                         } else {
@@ -1406,6 +1406,7 @@ var require, define;
                             break;
                         }
                     }
+
                     //Join the path parts together, then figure out if baseUrl is needed.
                     url = syms.join("/") + (ext || ".js");
                     if ( url.charAt(0) !== '/' && ! url.match(/^\w+:/) ) {
@@ -1715,6 +1716,7 @@ var require, define;
         if (isBrowser) {
             //In the browser so use a script tag
             callback = callback || req.onScriptLoad;
+            // This causes test ../paths/paths.html::paths::paths to fail
             node = document.createElementNS("http://www.w3.org/1999/xhtml", "html:script");
             node.type = type || "text/javascript";
             node.charset = "utf-8";
