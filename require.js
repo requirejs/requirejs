@@ -555,10 +555,9 @@ var require, define;
                         //will be used for integrity.
                         ret = defined[fullName];
                     } else {
-                        if (ret) {  // This change breaks the priority order test
-                            //Use the return value from the function.
-                            defined[fullName] = ret;
-                        } else {
+                        //Use the return value from the function.
+                        defined[fullName] = ret;
+                        if (!ret) {
                             if (req.onDebug && typeof(jQuery) === "undefined") {
                                 var noReturn = makeError("noreturn", "The module \'"+fullName+"\' has false return value");
                                 req.onDebug(noReturn);
