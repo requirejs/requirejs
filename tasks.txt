@@ -11,6 +11,11 @@ Release Notes
 Next release
 --------------
 
+- chromeless work:
+https://github.com/mozilla/chromeless/commit/cdc5e90ff2cb3316caa8e0c17533cc8d6c5b3ea0
+https://github.com/mozilla/chromeless/blob/cdc5e90ff2cb3316caa8e0c17533cc8d6c5b3ea0/tests/requirejs/require.js.patch
+
+
 - too much recursion error.
   - Add waitdep to error.html
 
