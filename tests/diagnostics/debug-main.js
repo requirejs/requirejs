@@ -155,8 +155,10 @@ function testSyntaxError() {
 
     require.onDebug = function(msg) {
         FBTest.sysout("require.onError "+msg);
-        var expected = "Error: Undefined dependency syntaxErrorInsideDefine\n"+
-            "http://requirejs.org/docs/errors.html#undefinedDependency";
+        var expected = "Error: Compile failed: syntaxErrorInsideDefine -> "+
+        "http://localhost:8080/file/c/loader/diagnostics/requirejs/tests/"+
+        "diagnostics/syntaxErrorInsideDefine.js\n"+
+        "http://requirejs.org/docs/errors.html#undefinedDependency";
         var actual = ""+msg;
         FBTest.compare(expected, actual, "Test syntax error in define()");
         setTimeout(runNextTest);

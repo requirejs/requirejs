@@ -526,8 +526,9 @@ var require, define;
                     for (i = 0; i < ary.length; i++) {
                         var dependency = manager.deps[ary[i]];
                         if (req.onDebug && typeof(dependency) === "undefined") {
-                            var dependentName = fullName ? ("for " + fullName) : "";
-                            var badDep = makeError('undefinedDependency', "Undefined dependency "+ary[i]+dependentName);
+                            var dependencyURL = makeModuleMap(ary[i]).url;
+                            var msg = "Compile failed: "+ary[i]+" -> "+dependencyURL;
+                            var badDep = makeError('undefinedDependency', msg);
                             req.onDebug(badDep)
                         } else {
                             args.push(dependency);
