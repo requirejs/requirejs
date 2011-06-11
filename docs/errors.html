@@ -19,11 +19,14 @@
 
 <p>Also seen if you manually code a script tag in HTML to load a script that has a few named modules, but then try to load an anonymous module that ends up having the same name as one of the named modules in the script loaded by the manually coded script tag.</p>
 
+<p>Finally, if you use the loader plugins or anonymous modules but do not use the RequireJS optimizer to combine files together, this error can occur. The optimizer knows how to name anonymous modules correctly so that can be combined with other modules in an optimized file.</p>
+
 <p>To avoid the error:</p>
 
 <ul>
     <li>Be sure to load all scripts that call define() via the RequireJS API. Do not manually code script tags in HTML to load scripts that have define() calls in them.</li>
     <li>If you manually code an HTML script tag, be sure it only includes named modules, and that an anonymous module that will have the same name as one of the modules in that file is not loaded.</li>
+    <li>If the problem is the use of loader plugins or anonymous modules but the RequireJS optimizer is not used for file bundling, use the RequireJS optimizer.</li>
 </ul>
 
 </div>

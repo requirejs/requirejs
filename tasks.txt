@@ -16,12 +16,13 @@ https://github.com/mozilla/chromeless/commit/cdc5e90ff2cb3316caa8e0c17533cc8d6c5
 https://github.com/mozilla/chromeless/blob/cdc5e90ff2cb3316caa8e0c17533cc8d6c5b3ea0/tests/requirejs/require.js.patch
 
 
+- order plugin issue with a build, and IE/WebKit: Tim's example.
+
 - too much recursion error.
   - Add waitdep to error.html
 
 - text plugins after a build load xdomain?
   - Send impl to list
-  - merge multiWrite branches for require.js and r.js
 
 - relative modules IDs?
   - excludeShallow not excluding files loaded with the text plugin: email thread. Exclusions.
@@ -40,6 +41,8 @@ https://github.com/mozilla/chromeless/blob/cdc5e90ff2cb3316caa8e0c17533cc8d6c5b3
 
 - check priority tests on Safari 3, in the non-domReady branch.
   In master, it has occasional failures too.
+
+- Put in helpful error in r.js if running it without -o option.
 
 - replacement for modify that intercepts callbacks, holds off until another module loads them?
   - A way to show dependency graph too?
@@ -68,7 +71,8 @@ Next release
 and one thing I found when trying to compress dojo 1.5 code was that I had ensure that "make_seqs"
 flag was set to false when calling ast_squeeze. If I left this flag set to true the code would not load.
 
-- Why can't plugins have dependencies? It is because the dependency is not fully evaluated.
+- https://github.com/jrburke/r.js/issues/1
+  Why can't plugins have dependencies? It is because the dependency is not fully evaluated.
   Maybe rethink it, there have been some cases where creating a plugin that uses the
   text plugin would be useful. However, would that mean the optimized result would include
   the string twice in the output? Well for the text plugin, could allow other plugins to
