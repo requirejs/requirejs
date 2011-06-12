@@ -393,7 +393,8 @@ var require, define;
             mixin(modRequire, {
                 nameToUrl: makeContextModuleFunc(context.nameToUrl, relModuleMap),
                 toUrl: makeContextModuleFunc(context.toUrl, relModuleMap),
-                isDefined: makeContextModuleFunc(context.isDefined, relModuleMap),
+                defined: makeContextModuleFunc(context.defined, relModuleMap),
+                specified: makeContextModuleFunc(context.specified, relModuleMap),
                 ready: req.ready,
                 isBrowser: req.isBrowser
             });
@@ -1193,8 +1194,12 @@ var require, define;
                 }
             },
 
-            isDefined: function (moduleName, relModuleMap) {
+            defined: function (moduleName, relModuleMap) {
                 return makeModuleMap(moduleName, relModuleMap).fullName in defined;
+            },
+
+            specified: function (moduleName, relModuleMap) {
+                return makeModuleMap(moduleName, relModuleMap).fullName in specified;
             },
 
             require: function (deps, callback, relModuleMap) {

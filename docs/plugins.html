@@ -89,7 +89,8 @@ API
     <li><b>parentRequire</b>: Function. A local "require" function to use to load other modules. This require function has some utilities on it:
     <ul>
         <li><b>parentRequire.toUrl(moduleResource)</b>:where moduleResource is a module name plus an extension. For instance "view/templates/main.html". It will return a full path to the resource, obeying any RequireJS configuration.</li>
-        <li><b>parentRequire.isDefined(moduleName)</b>: Returns true if the module has already been loaded and defined.</li>
+        <li><b>parentRequire.defined(moduleName)</b>: Returns true if the module has already been loaded and defined. Used to be called require.isDefined before RequireJS 0.25.0.</li>
+        <li><b>parentRequire.specified(moduleName)</b>: Returns true if the module has already been requested or is in the process of loading and should be available at some point.</li>
     </ul></li>
     <li><b>load</b>: Function. A function to call with the value for name. This tells the loader that the plugin is done loading the resource.</li>
     <li><b>config</b>: Object. A configuration object. This is a way for the optimizer and the web app to pass configuration information to the plugin. The i18n! plugin uses this to get the current current locale, if the web app wants to force a specific locale. The optimizer will set an <b>isBuild</b> property in the config to true if this plugin (or pluginBuilder) is being called as part of an optimizer build.</li>
