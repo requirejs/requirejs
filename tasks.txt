@@ -8,6 +8,7 @@ Release Notes
 - relative IDs are now relative to the module ID.
 - text plugin API changed? Uses ?strip instead of !strip now. But why? Only in multiWrite
 - isDefined is now defined() and there is a specified() that is available of of context-sensitive require.
+- support plugin resources built as separate files via the writeFile method
 
 Next release
 --------------
@@ -19,8 +20,7 @@ https://github.com/mozilla/chromeless/blob/cdc5e90ff2cb3316caa8e0c17533cc8d6c5b3
 - too much recursion error.
   - Add waitdep to error.html
 
-- text plugins after a build load xdomain?
-  - Send impl to list
+- Update the coffeescript plugin to use the writeFile API?
 
 - relative modules IDs?
   - excludeShallow not excluding files loaded with the text plugin: email thread. Exclusions.
@@ -39,8 +39,6 @@ https://github.com/mozilla/chromeless/blob/cdc5e90ff2cb3316caa8e0c17533cc8d6c5b3
 
 - check priority tests on Safari 3, in the non-domReady branch.
   In master, it has occasional failures too.
-
-- Put in helpful error in r.js if running it without -o option.
 
 - replacement for modify that intercepts callbacks, holds off until another module loads them?
   - A way to show dependency graph too?

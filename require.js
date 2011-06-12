@@ -393,8 +393,8 @@ var require, define;
             mixin(modRequire, {
                 nameToUrl: makeContextModuleFunc(context.nameToUrl, relModuleMap),
                 toUrl: makeContextModuleFunc(context.toUrl, relModuleMap),
-                defined: makeContextModuleFunc(context.defined, relModuleMap),
-                specified: makeContextModuleFunc(context.specified, relModuleMap),
+                defined: makeContextModuleFunc(context.requireDefined, relModuleMap),
+                specified: makeContextModuleFunc(context.requireSpecified, relModuleMap),
                 ready: req.ready,
                 isBrowser: req.isBrowser
             });
@@ -1194,11 +1194,11 @@ var require, define;
                 }
             },
 
-            defined: function (moduleName, relModuleMap) {
+            requireDefined: function (moduleName, relModuleMap) {
                 return makeModuleMap(moduleName, relModuleMap).fullName in defined;
             },
 
-            specified: function (moduleName, relModuleMap) {
+            requireSpecified: function (moduleName, relModuleMap) {
                 return makeModuleMap(moduleName, relModuleMap).fullName in specified;
             },
 
