@@ -12,20 +12,21 @@ Release Notes
 
 Next release
 --------------
+- xhtml config option
 
-- chromeless work:
+- Add requirejs global? (Fix r.js code mod then) chromeless work:
 https://github.com/mozilla/chromeless/commit/cdc5e90ff2cb3316caa8e0c17533cc8d6c5b3ea0
 https://github.com/mozilla/chromeless/blob/cdc5e90ff2cb3316caa8e0c17533cc8d6c5b3ea0/tests/requirejs/require.js.patch
 
-- too much recursion error.
-  - Add waitdep to error.html
 
 - Update the coffeescript plugin to use the writeFile API?
 
-- relative modules IDs?
-  - excludeShallow not excluding files loaded with the text plugin: email thread. Exclusions.
+- jjb's diagnostic/debug branch with dependency mappings
 
 - https://github.com/jrburke/requirejs/issues/104: define as a special dependency?
+
+- mingw on windows build: weird path issue/file not found? Tim's example.
+
 
 - domReady plugin
   - Update docs

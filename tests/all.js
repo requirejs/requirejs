@@ -60,6 +60,8 @@ doh.registerUrl("layers", "../layers/layers.html", 10000);
 
 doh.registerUrl("afterload", "../afterload.html", 10000);
 
+doh.registerUrl("defineError", "../defineError/defineError.html");
+
 doh.registerUrl("pluginsSync", "../plugins/sync.html");
 doh.registerUrl("doublePluginCall", "../plugins/double.html");
 doh.registerUrl("pluginsFromText", "../plugins/fromText/fromText.html");

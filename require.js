@@ -37,7 +37,6 @@ var require, define;
         globalDefQueue = [],
         interactiveScript = null,
         isDone = false,
-        checkLoadedDepth = 0,
         useInteractive = false,
         req, cfg = {}, currentlyAddingScript, s, head, baseElement, scripts, script,
         src, subPath, mainScript, dataMain, i, scrollIntervalId, setReadyState, ctx,
@@ -509,7 +508,7 @@ var require, define;
         }
 
         function execManager(manager) {
-            var i, ret, waitingCallbacks,
+            var i, ret, waitingCallbacks, err,
                 cb = manager.callback,
                 fullName = manager.fullName,
                 args = [],
@@ -525,7 +524,11 @@ var require, define;
                     }
                 }
 
-                ret = req.execCb(fullName, manager.callback, args, defined[fullName]);
+                try {
+                    ret = req.execCb(fullName, manager.callback, args, defined[fullName]);
+                } catch (e) {
+                    err = e;
+                }
 
                 if (fullName) {
                     //If exports is in play, favor that since it helps circular
@@ -576,6 +579,14 @@ var require, define;
                     //Clear the wait array used for cycles.
                     waitAry = [];
                 }
+            }
+
+            if (err) {
+                return req.onError(makeError('defineerror', 'Error evaluating ' +
+                                'module "' + fullName + '" at location "' +
+                                (fullName ? makeModuleMap(fullName).url : '') + '":\n' +
+                                err + '\nfileName:' + (err.fileName || err.sourceURL) +
+                                '\nlineNumber: ' + (err.lineNumber || err.line)));
             }
 
             return undefined;
@@ -790,7 +801,7 @@ var require, define;
                 //It is possible to disable the wait interval by using waitSeconds of 0.
                 expired = waitInterval && (context.startTime + waitInterval) < new Date().getTime(),
                 noLoads = "", hasLoadedProp = false, stillLoading = false, prop,
-                err, manager, ary, i, j, dep, args = [];
+                err, manager;
 
             //If there are items still in the paused queue processing wait.
             //This is particularly important in the sync case where each paused
@@ -866,29 +877,8 @@ var require, define;
                 }
 
                 //Only allow this recursion to a certain depth.
-                if (checkLoadedDepth < 10) {
-                    checkLoadedDepth += 1;
-                    checkLoaded();
-                } else {
-                    for (i = 0; (manager = waitAry[i]); i++) {
-                        if (!manager.isDone) {
-                            err += '\n* ' + manager.fullName + ' waiting for: ';
-                            ary = manager.depArray;
-                            for (j = 0; j < ary.length; j++) {
-                                dep = ary[i];
-                                if (!(dep in manager.deps)) {
-                                    args.push(dep);
-                                }
-                            }
-                            err += args.join(',');
-                        }
-                    }
-                    req.onError(makeError('waitdep', 'Unresolved dependency:' + err));
-                }
-                return undefined;
+                checkLoaded();
             }
-
-            checkLoadedDepth = 0;
 
             //Check for DOM ready, and nothing is waiting across contexts.
             req.checkReadyState();
