@@ -19,6 +19,20 @@ https://github.com/mozilla/chromeless/commit/cdc5e90ff2cb3316caa8e0c17533cc8d6c5
 https://github.com/mozilla/chromeless/blob/cdc5e90ff2cb3316caa8e0c17533cc8d6c5b3ea0/tests/requirejs/require.js.patch
 
 
+- anonymous define call 4th case:
+We found a fourth path, two calls to define() in one file.
+require-debug.js reports this error as:
+      Second anonymous define(): <the text of the second function found>
+so then you can search for the text of the second function to perhaps understand the problem.
+
+Docs:
+- http://requirejs.org/docs/api.html#jsfiles make the "plain script tag rules"
+  more of a bulleted list to call them out.
+- Update api.html#define to indicate commonjs wrapper.
+- Interaction of node_modules and paths in r.js
+- Pointer to motivations behind current thing, reason for dependencies.
+
+
 - Update the coffeescript plugin to use the writeFile API?
 
 - jjb's diagnostic/debug branch with dependency mappings
@@ -48,12 +62,6 @@ https://github.com/mozilla/chromeless/blob/cdc5e90ff2cb3316caa8e0c17533cc8d6c5b3
 - Test DOMContentLoaded work related to dojo-contributors "bring back skipIeDomLoaded" thread,
   selenium tests.
   - http://trac.dojotoolkit.org/ticket/13113
-
-Docs:
-- http://requirejs.org/docs/api.html#jsfiles make the "plain script tag rules"
-  more of a bulleted list to call them out.
-- Update api.html#define to indicate commonjs wrapper.
-- Pointer to motivations behind current thing, reason for dependencies.
 
 - https://github.com/jrburke/requirejs/pull/71: process by 2/21
 

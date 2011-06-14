@@ -1499,8 +1499,8 @@ var require, define;
      * @param {Object} url the URL to the module.
      */
     req.load = function (context, moduleName, url) {
-        var contextName = context.contextName,
-            loaded = context.loaded;
+        var loaded = context.loaded;
+
         isDone = false;
 
         //Only set loaded to false for tracking if it has not already been set.
@@ -1509,7 +1509,7 @@ var require, define;
         }
 
         context.scriptCount += 1;
-        req.attach(url, contextName, moduleName);
+        req.attach(url, context, moduleName);
 
         //If tracking a jQuery, then make sure its ready callbacks
         //are put on hold to prevent its ready callbacks from
@@ -1669,17 +1669,19 @@ var require, define;
      * environment. Right now only supports browser loading,
      * but can be redefined in other environments to do the right thing.
      * @param {String} url the url of the script to attach.
-     * @param {String} contextName the name of the context that wants the script.
+     * @param {Object} context the context that wants the script.
      * @param {moduleName} the name of the module that is associated with the script.
      * @param {Function} [callback] optional callback, defaults to require.onScriptLoad
      * @param {String} [type] optional type, defaults to text/javascript
      */
-    req.attach = function (url, contextName, moduleName, callback, type) {
-        var node, loaded, context;
+    req.attach = function (url, context, moduleName, callback, type) {
+        var node, loaded;
         if (isBrowser) {
             //In the browser so use a script tag
             callback = callback || req.onScriptLoad;
-            node = document.createElement("script");
+            node = context && context.config && context.config.xhtml ?
+                    document.createElementNS("http://www.w3.org/1999/xhtml", "html:script") :
+                    document.createElement("script");
             node.type = type || "text/javascript";
             node.charset = "utf-8";
             //Use async so Gecko does not block on executing the script if something
@@ -1694,7 +1696,7 @@ var require, define;
             //plugin
             node.async = !s.skipAsync[url];
 
-            node.setAttribute("data-requirecontext", contextName);
+            node.setAttribute("data-requirecontext", context.contextName);
             node.setAttribute("data-requiremodule", moduleName);
 
             //Set up load listener. Test attachEvent first because IE9 has
@@ -1737,7 +1739,6 @@ var require, define;
             //are in play, the expectation that a build has been done so that
             //only one script needs to be loaded anyway. This may need to be
             //reevaluated if other use cases become common.
-            context = contexts[contextName];
             loaded = context.loaded;
             loaded[moduleName] = false;
 

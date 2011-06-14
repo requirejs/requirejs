@@ -132,7 +132,7 @@
                         req: req,
                         onLoad: onLoad
                     });
-                    require.attach(url, "", name, scriptCacheCallback, "script/cache");
+                    require.attach(url, null, name, scriptCacheCallback, "script/cache");
                 }
             }
         }
