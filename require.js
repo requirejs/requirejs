@@ -70,10 +70,16 @@ var require, define;
      * Constructs an error with a pointer to an URL with more information.
      * @param {String} id the error ID that maps to an ID on a web page.
      * @param {String} message human readable error.
+     * @param {Error} [err] the original error, if there is one.
+     *
      * @returns {Error}
      */
-    function makeError(id, msg) {
-        return new Error(msg + '\nhttp://requirejs.org/docs/errors.html#' + id);
+    function makeError(id, msg, err) {
+        var e = Error(msg + '\nhttp://requirejs.org/docs/errors.html#' + id);
+        if (err) {
+            e.originalError = err;
+        }
+        return e;
     }
 
     /**
@@ -586,7 +592,7 @@ var require, define;
                                 'module "' + fullName + '" at location "' +
                                 (fullName ? makeModuleMap(fullName).url : '') + '":\n' +
                                 err + '\nfileName:' + (err.fileName || err.sourceURL) +
-                                '\nlineNumber: ' + (err.lineNumber || err.line)));
+                                '\nlineNumber: ' + (err.lineNumber || err.line), err));
             }
 
             return undefined;

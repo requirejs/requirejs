@@ -12,8 +12,6 @@ Release Notes
 
 Next release
 --------------
-- xhtml config option
-
 - Add requirejs global? (Fix r.js code mod then) chromeless work:
 https://github.com/mozilla/chromeless/commit/cdc5e90ff2cb3316caa8e0c17533cc8d6c5b3ea0
 https://github.com/mozilla/chromeless/blob/cdc5e90ff2cb3316caa8e0c17533cc8d6c5b3ea0/tests/requirejs/require.js.patch
