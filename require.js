@@ -75,7 +75,7 @@ var require, define;
      * @returns {Error}
      */
     function makeError(id, msg, err) {
-        var e = Error(msg + '\nhttp://requirejs.org/docs/errors.html#' + id);
+        var e = new Error(msg + '\nhttp://requirejs.org/docs/errors.html#' + id);
         if (err) {
             e.originalError = err;
         }
@@ -588,11 +588,13 @@ var require, define;
             }
 
             if (err) {
-                return req.onError(makeError('defineerror', 'Error evaluating ' +
+                err = makeError('defineerror', 'Error evaluating ' +
                                 'module "' + fullName + '" at location "' +
                                 (fullName ? makeModuleMap(fullName).url : '') + '":\n' +
                                 err + '\nfileName:' + (err.fileName || err.sourceURL) +
-                                '\nlineNumber: ' + (err.lineNumber || err.line), err));
+                                '\nlineNumber: ' + (err.lineNumber || err.line), err);
+                err.moduleName = fullName;
+                return req.onError(err);
             }
 
             return undefined;
