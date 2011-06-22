@@ -42,6 +42,7 @@ load("simple-tests.js");
 load("circular-tests.js");
 load("relative/relative-tests.js");
 load("exports/exports-tests.js");
+load("exports/moduleAndExports-tests.js");
 load("anon/anon-tests.js");
 load("packages/packages-tests.js");
 load("plugins/sync-tests.js");

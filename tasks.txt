@@ -16,8 +16,6 @@ Next release
 https://github.com/mozilla/chromeless/commit/cdc5e90ff2cb3316caa8e0c17533cc8d6c5b3ea0
 https://github.com/mozilla/chromeless/blob/cdc5e90ff2cb3316caa8e0c17533cc8d6c5b3ea0/tests/requirejs/require.js.patch
 
-- check for a type of exports usage that gives undefined modules.
-
 - anonymous define call 4th case:
 We found a fourth path, two calls to define() in one file.
 require-debug.js reports this error as:

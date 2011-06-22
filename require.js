@@ -538,21 +538,13 @@ var require, define;
                 }
 
                 if (fullName) {
-                    //If exports is in play, favor that since it helps circular
-                    //dependencies. If setting exports via "module" is in play,
-                    //favor that but only if the value is different from default
-                    //exports value.
-                    if (manager.usingExports && manager.cjsModule &&
-                        manager.cjsModule.exports !== defined[fullName]) {
+                    //If setting exports via "module" is in play,
+                    //favor that over return value and exports. After that,
+                    //favor a non-undefined return value over exports use.
+                    if (manager.cjsModule && manager.cjsModule.exports !== undefined) {
                         ret = defined[fullName] = manager.cjsModule.exports;
-                    } else if (fullName in defined) {
-                        //This case is when usingExports is in play and
-                        //module.exports/setExports was not used. It could also
-                        //occur if the module was previously defined, but that
-                        //should not happen, checks for specified and defined
-                        //elsewhere should prevent that from happening. However,
-                        //if it does for some reason, only the original definition
-                        //will be used for integrity.
+                    } else if (ret === undefined && manager.usingExports) {
+                        //exports already set the defined value.
                         ret = defined[fullName];
                     } else {
                         //Use the return value from the function.
