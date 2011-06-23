@@ -20,7 +20,7 @@
 
 <p>Also seen if you manually code a script tag in HTML to load a script that has a few named modules, but then try to load an anonymous module that ends up having the same name as one of the named modules in the script loaded by the manually coded script tag.</p>
 
-<p>Finally, if you use the loader plugins or anonymous modules but do not use the RequireJS optimizer to combine files together, this error can occur. The optimizer knows how to name anonymous modules correctly so that can be combined with other modules in an optimized file.</p>
+<p>Finally, if you use the loader plugins or anonymous modules (modules that call define() with no string ID) but do not use the RequireJS optimizer to combine files together, this error can occur. The optimizer knows how to name anonymous modules correctly so that they can be combined with other modules in an optimized file.</p>
 
 <p>To avoid the error:</p>
 

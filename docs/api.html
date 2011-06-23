@@ -11,9 +11,10 @@
                 <li class="hbox"><a href="#deffunc">Definition Functions</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2.2</span></li>
                 <li class="hbox"><a href="#defdep">Definition Functions with Dependencies</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2.3</span></li>
                 <li class="hbox"><a href="#funcmodule">Define a Module as a Function</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2.4</span></li>
-                <li class="hbox"><a href="#modulename">Define a Module with a name</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2.5</span></li>
-                <li class="hbox"><a href="#modulenotes">Other Module Notes</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2.6</span></li>
-                <li class="hbox"><a href="#circular">Circular Dependencies</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2.7</span></li>
+                <li class="hbox"><a href="#cjsmodule">Define a Module with Simplified CommonJS Wrapper</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2.5</span></li>
+                <li class="hbox"><a href="#modulename">Define a Module with a name</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2.6</span></li>
+                <li class="hbox"><a href="#modulenotes">Other Module Notes</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2.7</span></li>
+                <li class="hbox"><a href="#circular">Circular Dependencies</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2.8</span></li>
             </ul>
             <li class="hbox"><a href="#i18n">Define an I18N Bundle</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.3</span></li>
             <li class="hbox"><a href="#text">Specify a Text File Dependency</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.4</span></li>
@@ -76,7 +77,15 @@
 <li>b.js (in the same directory as the HTML page that has the above HTML snippet)</li>
 </ul>
 
-<p>Files that end in ".js" are assumed to just be plain JS files that do not use the RequireJS module syntax, and therefore do not use the module-to-path algorithm used for looking up dot-notation modules, like "some/module" above.</p>
+<p>RequireJS normally uses the <a href="#config-baseUrl">baseUrl</a> and <a href="#config-paths">paths</a> configuration to convert names like "some/module" into a file path.</p>
+
+<p>However, if the dependency name has one of the following properties, it is treated as a regular file path, like something that was passed to a &lt;script src=""&gt; tag:</p>
+
+<ul>
+<li>Ends in ".js".</li>
+<li>Starts with a "/".</li>
+<li>Contains an URL protocol, like "http:" or "https:".</li>
+</ul>
 
 <p>See the <a href="#config">Configuration Options</a> section for information on changing the lookup paths used for dependencies.</p>
 
@@ -218,8 +227,20 @@ define(["my/cart", "my/inventory"],
 </code></pre>
 </div>
 
+
 <div class="subSection">
-<h4><a name="modulename">Define a Module with a Name</a><span class="sectionMark">&sect; 1.2.5</span></h4>
+<h4><a name="cjsmodule">Define a Module with Simplified CommonJS Wrapper</a><span class="sectionMark">&sect; 1.2.5</span></h4>
+
+<p>If you wish to reuse some code that was written in the traditional <a href="http://wiki.commonjs.org/wiki/Modules/1.1.1">CommonJS module format</a> it may be difficult to re-work to the array of dependencies used above. Also, Node 0.5 will likely support a limited kind of define() function that provides a simple wrapper over CommonJS files. So if you are building a small utility and you wish it to be used in both Node (without using the <a href="node.html">RequireJS Node adapter</a>), and in the browser, you can use the <a href="commonjs.html">simplified CommonJS wrapper</a>.</p>
+
+<p>It can also be useful if you have many dependencies, and keeping dependency array positioning in sync with the function argument positioning is undesirable.</p>
+
+<p>This wrapper relies on Function.prototype.toString() to give a useful string value of the function contents. This does not work on some devices like the PS3 and some older Opera mobile browsers. Use the <a href="optimization.html">optimizer</a> to pull out the dependencies in the array format for use on those devices.</p>
+</div>
+
+
+<div class="subSection">
+<h4><a name="modulename">Define a Module with a Name</a><span class="sectionMark">&sect; 1.2.6</span></h4>
 
 <p>You may encounter some define() calls that include a name for the module as the first argument to define():</p>
 
@@ -237,7 +258,7 @@ define(["my/cart", "my/inventory"],
 
 <div class="subSection">
 
-<h4><a name="modulenotes">Other Module Notes</a><span class="sectionMark">&sect; 1.2.6</span></h4>
+<h4><a name="modulenotes">Other Module Notes</a><span class="sectionMark">&sect; 1.2.7</span></h4>
 
 <p><strong>One module per file.</strong>: Only one module should be defined per JavaScript file, given the nature of the module name-to-file-path lookup algorithm. Multiple modules will be grouped into optimized files by the <a href="optimization.html">optimization tool</a>, but you should only use the optimization tool to place more than one module in a file.</p>
 
@@ -266,7 +287,7 @@ define(["my/cart", "my/inventory"],
 </div>
 
 <div class="subSection">
-<h4><a name="circular">Circular Dependencies</a><span class="sectionMark">&sect; 1.2.7</span></h4>
+<h4><a name="circular">Circular Dependencies</a><span class="sectionMark">&sect; 1.2.8</span></h4>
 
 <p>If you define a circular dependency (A needs B and B needs A), then in this case when B's module function is called, it will get an undefined value for A. B can fetch A later after modules have been defined by using the require() method (be sure to specify require as a dependency so the right context is used to look up A):</p>
 

@@ -15,17 +15,7 @@ Next release
 
 - Confirm text plugin API change is worth it.
 
-- anonymous define call 4th case:
-We found a fourth path, two calls to define() in one file.
-require-debug.js reports this error as:
-      Second anonymous define(): <the text of the second function found>
-so then you can search for the text of the second function to perhaps understand the problem.
-
 Docs:
-- http://requirejs.org/docs/api.html#jsfiles make the "plain script tag rules"
-  more of a bulleted list to call them out.
-- Update api.html#define to indicate commonjs wrapper.
-- Interaction of node_modules and paths in r.js
 - Pointer to motivations behind current thing, reason for dependencies.
 - Put page title in head's title element.
 
