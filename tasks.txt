@@ -1,6 +1,5 @@
 Release Notes
 -------------------
-- exports and return use is stricter: if exports is in play, return value is ignored.
 - includeRequire is removed, use paths: {requireLib: "../../require"} to get require in it.
   See the optimization.html for the requireLib example.
 - New optimizer/node/rhino adapter: r.js
@@ -9,12 +8,12 @@ Release Notes
 - text plugin API changed? Uses ?strip instead of !strip now. But why? Only in multiWrite
 - isDefined is now defined() and there is a specified() that is available of of context-sensitive require.
 - support plugin resources built as separate files via the writeFile method
+- requirejs global object, chromeless.
 
 Next release
 --------------
-- Add requirejs global? (Fix r.js code mod then) chromeless work:
-https://github.com/mozilla/chromeless/commit/cdc5e90ff2cb3316caa8e0c17533cc8d6c5b3ea0
-https://github.com/mozilla/chromeless/blob/cdc5e90ff2cb3316caa8e0c17533cc8d6c5b3ea0/tests/requirejs/require.js.patch
+
+- Confirm text plugin API change is worth it.
 
 - anonymous define call 4th case:
 We found a fourth path, two calls to define() in one file.

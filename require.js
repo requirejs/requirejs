@@ -8,7 +8,7 @@
   jQuery: false, clearInterval: false, setInterval: false, self: false,
   setTimeout: false, opera: false */
 
-var require, define;
+var requirejs, require, define;
 (function () {
     //Change this version number for each release.
     var version = "0.24.0+",
@@ -135,16 +135,27 @@ var require, define;
         }
     }
 
-    //Check for an existing version of require. If so, then exit out. Only allow
-    //one version of require to be active in a page. However, allow for a require
-    //config object, just exit quickly if require is an actual function.
-    if (typeof require !== "undefined") {
-        if (isFunction(require)) {
+    if (typeof define !== "undefined") {
+        //If a define is already in play via another AMD loader,
+        //do not overwrite.
+        return;
+    }
+
+    if (typeof requirejs !== "undefined") {
+        if (isFunction(requirejs)) {
+            //Do not overwrite and existing requirejs instance.
             return;
         } else {
-            //assume it is a config object.
-            cfg = require;
+            cfg = requirejs;
+            requirejs = undefined;
         }
+    }
+
+    //Allow for a require config object
+    if (typeof require !== "undefined" && !isFunction(require)) {
+        //assume it is a config object.
+        cfg = require;
+        require = undefined;
     }
 
     /**
@@ -712,14 +723,14 @@ var require, define;
         }
 
         /**
-         * Convenience method to call main for a require.def call that was put on
+         * Convenience method to call main for a define call that was put on
          * hold in the defQueue.
          */
         function callDefMain(args) {
             main.apply(null, args);
             //Mark the module loaded. Must do it here in addition
-            //to doing it in require.def in case a script does
-            //not call require.def
+            //to doing it in define in case a script does
+            //not call define
             loaded[args[0]] = true;
         }
 
@@ -1289,11 +1300,11 @@ var require, define;
                         args[0] = moduleName;
                         break;
                     } else if (args[0] === moduleName) {
-                        //Found matching require.def call for this script!
+                        //Found matching define call for this script!
                         break;
                     } else {
-                        //Some other named require.def call, most likely the result
-                        //of a build layer that included many require.def calls.
+                        //Some other named define call, most likely the result
+                        //of a build layer that included many define calls.
                         callDefMain(args);
                         args = null;
                     }
@@ -1311,7 +1322,7 @@ var require, define;
                 }
 
                 //Mark the script as loaded. Note that this can be different from a
-                //moduleName that maps to a require.def call. This line is important
+                //moduleName that maps to a define call. This line is important
                 //for traditional browser scripts.
                 loaded[moduleName] = true;
 
@@ -1431,7 +1442,7 @@ var require, define;
      * on a require that are not standardized), and to give a short
      * name for minification/local scope use.
      */
-    req = require = function (deps, callback) {
+    req = requirejs = function (deps, callback) {
 
         //Find the right context, use default
         var contextName = defContextName,
@@ -1463,6 +1474,13 @@ var require, define;
 
         return context.require(deps, callback);
     };
+
+    /**
+     * Export require as a global, but only if it does not already exist.
+     */
+    if (typeof require === "undefined") {
+        require = req;
+    }
 
     /**
      * Global require.toUrl(), to match global require, mostly useful
@@ -1739,9 +1757,9 @@ var require, define;
             if (node.attachEvent && !isOpera) {
                 //Probably IE. IE (at least 6-8) do not fire
                 //script onload right after executing the script, so
-                //we cannot tie the anonymous require.def call to a name.
+                //we cannot tie the anonymous define call to a name.
                 //However, IE reports the script as being in "interactive"
-                //readyState at the time of the require.def call.
+                //readyState at the time of the define call.
                 useInteractive = true;
                 node.attachEvent("onreadystatechange", callback);
             } else {
@@ -1750,7 +1768,7 @@ var require, define;
             node.src = url;
 
             //For some cache cases in IE 6-8, the script executes before the end
-            //of the appendChild execution, so to tie an anonymous require.def
+            //of the appendChild execution, so to tie an anonymous define
             //call to the module name (which is stored on the node), hold on
             //to a reference to this node, but clear after the DOM insertion.
             currentlyAddingScript = node;

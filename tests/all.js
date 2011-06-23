@@ -10,6 +10,7 @@ doh.registerUrl("simple", "../simple.html");
 doh.registerUrl("baseUrl", "../baseUrl.html");
 
 doh.registerUrl("config", "../config.html");
+doh.registerUrl("configRequirejs", "../configRequirejs.html");
 doh.registerUrl("dataMain", "../dataMain.html");
 
 if (hasToString) {
