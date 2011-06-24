@@ -1,5 +1,6 @@
 Release Notes
 -------------------
+- bumps in the api, moving towards interop.
 - includeRequire is removed, use paths: {requireLib: "../../require"} to get require in it.
   See the optimization.html for the requireLib example.
 - New optimizer/node/rhino adapter: r.js
@@ -9,15 +10,14 @@ Release Notes
 - isDefined is now defined() and there is a specified() that is available of of context-sensitive require.
 - support plugin resources built as separate files via the writeFile method
 - requirejs global object, chromeless.
+- amd tests, discussion on new list.
+- new error page diagnostics.
 
 Next release
 --------------
 
-- Confirm text plugin API change is worth it.
-
 Docs:
 - Pointer to motivations behind current thing, reason for dependencies.
-- Put page title in head's title element.
 
 - Update the coffeescript plugin to use the writeFile API?
 
@@ -50,10 +50,6 @@ Docs:
   - http://trac.dojotoolkit.org/ticket/13113
 
 - https://github.com/jrburke/requirejs/pull/71: process by 2/21
-
-
-Next release
-------------------
 
 - r.js: do not find require calls inside define calls, to allow dynamic loading to
   happen without var req = require gymnastics.
