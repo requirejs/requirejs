@@ -12,13 +12,14 @@ To run this file:
 */
 
 /*jslint regexp: false, nomen: false, plusplus: false, strict: false */
-/*global require: false */
+/*global require: false, console: false */
 
 var files, htmlFile, transFile, fileContents,
     preContents, postContents, h1, homePath, cssPath,
-    ieCssPath, jsPath, length, j,
+    ieCssPath, jsPath, length, j, title,
     isTopPage = false,
     fileIndex = 0,
+    h1RegExp = /<h1>([^<]+)<\/h1>/,
     file = require('./file'),
     child_process = require('child_process');
 
@@ -61,6 +62,11 @@ function processFile() {
 
             //Build up a complete HTML file.
             fileContents = file.readFile(transFile);
+
+            //Find the page title.
+            title = h1RegExp.exec(fileContents);
+            title = title && title[1];
+
             fileContents = preContents + fileContents + postContents;
 
             //Set the title of the HTML page
@@ -103,6 +109,10 @@ function processFile() {
             fileContents = fileContents.replace(/\ie\.css/, ieCssPath);
             fileContents = fileContents.replace(/\init\.js/, jsPath);
 
+            //Set the page title to be the first h1 tag name
+            if (title) {
+                fileContents = fileContents.replace(/<title>[^<]*<\/title>/, '<title>' + title + '</title>');
+            }
 
             //If it is the top page, adjust the header links
             if (isTopPage) {

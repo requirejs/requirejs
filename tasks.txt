@@ -1,27 +1,32 @@
 Release Notes
 -------------------
-- exports and return use is stricter: if exports is in play, return value is ignored.
+- bumps in the api, moving towards interop.
 - includeRequire is removed, use paths: {requireLib: "../../require"} to get require in it.
   See the optimization.html for the requireLib example.
 - New optimizer/node/rhino adapter: r.js
 - Removed support for lib in packages.
 - relative IDs are now relative to the module ID.
-- text plugin API changed? Uses ?strip instead of !strip now. Only in multiWrite
+- text plugin API changed? Uses ?strip instead of !strip now. But why? Only in multiWrite
+- isDefined is now defined() and there is a specified() that is available of of context-sensitive require.
+- support plugin resources built as separate files via the writeFile method
+- requirejs global object, chromeless.
+- amd tests, discussion on new list.
+- new error page diagnostics.
 
 Next release
 --------------
 
-- too much recursion error.
-  - Add waitdep to error.html
+Docs:
+- Pointer to motivations behind current thing, reason for dependencies.
 
-- text plugins after a build load xdomain?
-  - Send impl to list
-  - merge multiWrite branches for require.js and r.js
+- Update the coffeescript plugin to use the writeFile API?
 
-- relative modules IDs?
-  - excludeShallow not excluding files loaded with the text plugin: email thread. Exclusions.
+- jjb's diagnostic/debug branch with dependency mappings
 
 - https://github.com/jrburke/requirejs/issues/104: define as a special dependency?
+
+- mingw on windows build: weird path issue/file not found? Tim's example.
+
 
 - domReady plugin
   - Update docs
@@ -44,17 +49,10 @@ Next release
   selenium tests.
   - http://trac.dojotoolkit.org/ticket/13113
 
-Docs:
-- http://requirejs.org/docs/api.html#jsfiles make the "plain script tag rules"
-  more of a bulleted list to call them out.
-- Update api.html#define to indicate commonjs wrapper.
-- Pointer to motivations behind current thing, reason for dependencies.
-
 - https://github.com/jrburke/requirejs/pull/71: process by 2/21
 
-
-Next release
-------------------
+- r.js: do not find require calls inside define calls, to allow dynamic loading to
+  happen without var req = require gymnastics.
 
 - If any other info: IE checkLoaded recursion? https://github.com/jrburke/requirejs/issues/82
 
@@ -63,7 +61,8 @@ Next release
 and one thing I found when trying to compress dojo 1.5 code was that I had ensure that "make_seqs"
 flag was set to false when calling ast_squeeze. If I left this flag set to true the code would not load.
 
-- Why can't plugins have dependencies? It is because the dependency is not fully evaluated.
+- https://github.com/jrburke/r.js/issues/1
+  Why can't plugins have dependencies? It is because the dependency is not fully evaluated.
   Maybe rethink it, there have been some cases where creating a plugin that uses the
   text plugin would be useful. However, would that mean the optimized result would include
   the string twice in the output? Well for the text plugin, could allow other plugins to

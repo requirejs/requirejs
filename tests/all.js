@@ -10,6 +10,7 @@ doh.registerUrl("simple", "../simple.html");
 doh.registerUrl("baseUrl", "../baseUrl.html");
 
 doh.registerUrl("config", "../config.html");
+doh.registerUrl("configRequirejs", "../configRequirejs.html");
 doh.registerUrl("dataMain", "../dataMain.html");
 
 if (hasToString) {
@@ -60,6 +61,8 @@ doh.registerUrl("layers", "../layers/layers.html", 10000);
 
 doh.registerUrl("afterload", "../afterload.html", 10000);
 
+doh.registerUrl("defineError", "../defineError/defineError.html");
+
 doh.registerUrl("pluginsSync", "../plugins/sync.html");
 doh.registerUrl("doublePluginCall", "../plugins/double.html");
 doh.registerUrl("pluginsFromText", "../plugins/fromText/fromText.html");
@@ -73,6 +76,7 @@ doh.registerUrl("relative", "../relative/relative.html");
 //Hmm, PS3 does not like exports test? assign2 is undefined?
 doh.registerUrl("exports", "../exports/exports.html");
 
+doh.registerUrl("moduleAndExports", "../exports/moduleAndExports.html");
 
 doh.registerUrl("priority", "../priority/priority.html");
 doh.registerUrl("priorityOptimized", "../priority/priorityOptimized.html");
