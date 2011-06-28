@@ -515,7 +515,7 @@ var require, define;
                 ary = manager.depArray;
 
             if (req.onDebugDAG) {
-                req.onDebugDAG(fullName, manager.deps);
+                req.onDebugDAG(fullName, manager.deps, makeModuleMap(fullName).url);
             }
 
             //Call the callback to define the module, if necessary.
@@ -838,7 +838,8 @@ var require, define;
                     hasLoadedProp = true;
                     if (!loaded[prop]) {
                         if (expired) {
-                            noLoads += prop + " ";
+                            var url = urlMap[prop] || makeModuleMap(prop).url;
+                            noLoads += prop + " ("+url+") ";
                         } else {
                             stillLoading = true;
                             break;
@@ -855,7 +856,7 @@ var require, define;
             }
             if (expired && noLoads) {
                 //If wait time expired, throw error of unloaded modules.
-                err = makeError("timeout", "Load timeout for modules: " + noLoads);
+                err = makeError("timeout", "Load timeout in "+window.location+" for modules: " + noLoads);
                 err.requireType = "timeout";
                 err.requireModules = noLoads;
                 return req.onError(err);
@@ -1242,6 +1243,7 @@ var require, define;
                     if (!(fullName in defined)) {
                         return req.onError(makeError("notloaded", "Module name '" +
                                     moduleMap.fullName +
+                                    "(" + moduleMap.url + ")" +
                                     "' has not been loaded yet for context: " +
                                     contextName));
                     }
