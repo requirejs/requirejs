@@ -1,13 +1,12 @@
 Release Notes
 -------------------
 - bumps in the api, moving towards interop.
+- Removed support for lib in packages.
+- relative IDs are now relative to the module ID.
+- isDefined is now defined() and there is a specified() that is available of of context-sensitive require.
 - includeRequire is removed, use paths: {requireLib: "../../require"} to get require in it.
   See the optimization.html for the requireLib example.
 - New optimizer/node/rhino adapter: r.js
-- Removed support for lib in packages.
-- relative IDs are now relative to the module ID.
-- text plugin API changed? Uses ?strip instead of !strip now. But why? Only in multiWrite
-- isDefined is now defined() and there is a specified() that is available of of context-sensitive require.
 - support plugin resources built as separate files via the writeFile method
 - requirejs global object, chromeless.
 - amd tests, discussion on new list.
