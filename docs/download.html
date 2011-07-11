@@ -4,7 +4,7 @@
     <li class="hbox"><a href="#latest">Latest Release</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1</span></li>
     <ul>
         <li class="hbox"><a href="#requirejs">require.js</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.1</span></li>
-        <li class="hbox"><a href="#samplejquery">Sample RequireJS + jQuery 1.5.1 project</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2</span></li>
+        <li class="hbox"><a href="#samplejquery">Sample RequireJS + jQuery 1.6.2 project</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2</span></li>
         <li class="hbox"><a href="#rjs">r.js: Optimizer and Node and Rhino adapter</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.3</span></li>
     </ul>
     <li class="hbox"><a href="#previous">Plugins</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2</span></li>
@@ -24,10 +24,10 @@
 
 <div class="subSection">
 <h4 class="hbox">
-<a name="requirejs">require.js 0.24.0</a>
+<a name="requirejs">require.js 0.25.0</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/0.24.0/minified/require.js">Minified</a>
-<a class="download" href="http://requirejs.org/docs/release/0.24.0/comments/require.js">With Comments</a>
+<a class="download" href="http://requirejs.org/docs/release/0.25.0/minified/require.js">Minified</a>
+<a class="download" href="http://requirejs.org/docs/release/0.25.0/comments/require.js">With Comments</a>
 </h4>
 
 <p>All you need to start using require.js in the browser.</p>
@@ -35,9 +35,9 @@
 
 <div class="subSection">
 <h4 class="hbox">
-<a name="samplejquery">Sample RequireJS 0.24.0 + jQuery 1.5.2 project</a>
+<a name="samplejquery">Sample RequireJS 0.25.0 + jQuery 1.6.2 project</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/jquery-require/jquery1.5.2-requirejs0.24.0/jquery-require-sample.zip">Download</a>
+<a class="download" href="http://requirejs.org/docs/release/jquery-require/jquery1.6.2-requirejs0.25.0/jquery-require-sample.zip">Download</a>
 </h4>
 
 <p>A zip file containing a sample project that uses jQuery and RequireJS.</p>
@@ -66,8 +66,8 @@
 <h4 class="hbox">
 <a name="text">text</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/0.24.0/minified/text.js">Minified</a>
-<a class="download" href="http://requirejs.org/docs/release/0.24.0/comments/text.js">With Comments</a>
+<a class="download" href="http://requirejs.org/docs/release/0.25.0/minified/text.js">Minified</a>
+<a class="download" href="http://requirejs.org/docs/release/0.25.0/comments/text.js">With Comments</a>
 </h4>
 <p><a href="api.html#text">Load text files and treat them as dependencies</a>. Great for loading templates. The text strings can be inlined in an optimized build when the optimizer is used.</p>
 </div>
@@ -76,8 +76,8 @@
 <h4 class="hbox">
 <a name="order">order</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/0.24.0/minified/order.js">Minified</a>
-<a class="download" href="http://requirejs.org/docs/release/0.24.0/comments/order.js">With Comments</a>
+<a class="download" href="http://requirejs.org/docs/release/0.25.0/minified/order.js">Minified</a>
+<a class="download" href="http://requirejs.org/docs/release/0.25.0/comments/order.js">With Comments</a>
 </h4>
 <p><a href="api.html#order">Load script in the order specified in the dependency array</a>. Useful for existing scripts that have implied dependencies instead of calling define() to create modular code.</p>
 </div>
@@ -97,8 +97,8 @@
 <h4 class="hbox">
 <a name="i18n">i18n</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/0.24.0/minified/i18n.js">Minified</a>
-<a class="download" href="http://requirejs.org/docs/release/0.24.0/comments/i18n.js">With Comments</a>
+<a class="download" href="http://requirejs.org/docs/release/0.25.0/minified/i18n.js">Minified</a>
+<a class="download" href="http://requirejs.org/docs/release/0.25.0/comments/i18n.js">With Comments</a>
 </h4>
 <p><a href="api.html#i18n">Load string bundles</a> used in internationalization (i18n) that are made up of separate country/language/locale-specific bundles.</p>
 </div>
@@ -107,6 +107,34 @@
 
 <div class="section">
 <h2><a name="releasenotes">Release Notes</a><span class="sectionMark">&sect; 3</span></h2>
+
+
+<h3 id="0-25-0">0.25.0</h3>
+
+<p>The awesome part: the optimizer is now just one JS file! It also doubles as a bootstrap script that supports the full capability of AMD modules and loader plugins in Node and in Rhino.</p>
+
+<p>To use the optimizer, pass the "-o" option to r.js:</p>
+
+<pre>    node r.js -o app.build.js</pre>
+
+<p>To run your AMD-based project via the adapter (assuming server.js is your top-level AMD module):</p>
+
+<pre>    node r.js server.js</pre>
+
+<p>There is more information about <a href="http://requirejs.org/docs/node.html">running AMD modules in Node</a>. The <a href="http://requirejs.org/docs/optimization.html">optimizer docs</a> have been updated to the new optimizer syntax, and the r.js script has <a href="https://github.com/jrburke/r.js">its own project now</a>, to allow releases that are decoupled from require.js.</p>
+
+<p>Other highlights:</p>
+
+<ul><li>The loader plugin API changed to allow plugins to create cross-domain-accessible resources. The main use case: you use the text plugin to dynamically load text resources, but you want to deploy those scripts to a CDN. See the <a href="http://requirejs.org/docs/download.html#text">text plugin</a>'s implementation of writeFile() as an example.
+</li><li>There is now a global <span style="font-weight: bold;">requirejs()</span> function object that is the same as the old global <span style="font-weight: bold;">require()</span> function object. This should allow RequireJS to work better in environments like <a href="http://mozillalabs.com/chromeless/">Mozilla Chromeless</a>, which already have a built-in require() function that does not have full AMD/loader plugin capabilities.
+</li><li>It is now possible to <a href="http://requirejs.org/docs/api.html#config-jQuery">specify the precise version of jQuery</a> to allow in a RequireJS context. This is useful if you know of other scripts that load different versions of jQuery on a page.</li></ul>
+
+<p>Some changes in the name of compatibility with other AMD module loaders and Node:</p>
+
+
+<ul><li>The "lib" directory configuration in package support was removed. It was always very awkward to support, and Node no longer supports it, so it was enough justification to remove it.</li><li>Relative module IDs are now relative to the related module ID, not the related module ID path.</li><li>includeRequire in the optimizer config was removed, Use a paths config to include require.js instead. See the Optimization docs for more details.</li></ul>
+
+<p>A small change to the context-specific require() passed to <a href="http://requirejs.org/docs/plugins.html#apiload">a loader plugin's load() call</a>: require.isDefined() is now require.defined() and there is require. specified().</p>
 
 <h3>0.24.0</h3>
 
@@ -145,105 +173,5 @@ to find the module. This allows the most compatible use of npm-installed modules
 <li><a href="node.html">Robust Node support</a>: now can use npm-installed modules, .node add-ons, and modules on require.paths.</li>
 <li>Support for <a href="optimization.html#hasjs">has.js optimizations</a> in the optimizer, including dead code branch removal via Closure Compiler.</a>
 <li><a href="https://github.com/jrburke/requirejs/commits/">Bug Fixes from 2010-12-21 through 2011-01-05</a>.</li>
-</ul>
-
-<h3>0.2.1 (should have been 0.21.0)</h3>
-
-<ul>
-<li>[Bug Fixes from 2010-12-16 through 2010-12-19](https://github.com/jrburke/requirejs/commits/)</li>
-</ul>
-
-<h3>0.2.0 (should have been 0.20.0)</h3>
-
-<ul>
-<li>Refactored core.</li>
-<li>New loader plugin API support.</li>
-<li>Improved Rhino and Node adapters</li>
-<li>Bug fixes around loader plugins and the optimizer.</li>
-<li>require.modify removed.</li>
-<li>Removed Transport D files.</li>
-</ul>
-
-<h3>0.15.0</h3>
-
-<ul>
-<li>The bundled jQuery options now use jQuery 1.4.4.</li>
-<li>The jQuery sample project now includes the ability to use RequireJS plugins.</li>
-<li>The jsonp! plugin has been removed, since, thanks to work by Kris Zyp, the core loader now supports loading JSONP dependencies by default. The <a href="http://requirejs.org/docs/api.html#jsonp">JSONP docs</a> have been updated accordingly.</li>
-<li>The optimizer can now be run from any directory, not just the directory with the build profile.</li>
-<li>r.js Node adapter is more robust, and it can handle using more Node-written modules by default now. Thanks to Francois Laberge for a great test case application that lead to improving the robustness of r.js.</li>
-<li>Initial support for PS3 Netfront browser. Thanks to Chris Warren for investigating the load behavior of the browser. Not all tests pass, but the basic ones do.</li>
-<li>Miscellaneous fixes, some listed in <a href="https://github.com/jrburke/requirejs/issues/closed#sort=updated">the issue tracker</a>.</li>
-</ul>
-
-<h3>0.14.5</h3>
-
-<ul>
-<li><a href="http://github.com/jrburke/requirejs/commit/88847fe53ab2e97e7ba7ec8f2afc056fb29b0a70">Fix bug</a> where scripts were not loaded from the correct path. Did not affect RequireJS+jQuery builds, but affected other builds. If you do not use a RequireJS+jQuery build, then it is strongly recommended that you upgrade from 0.14.4 to 0.14.5.</li>
-<li>Added an urlArgs <a href="http://requirejs.org/docs/api.html#config">config option</a> to allow for cache busting when servers/browser misbehave during development.</li>
-</ul>
-
-<h3>0.14.4</h3>
-
-<ul>
-<li>Support jQuery 1.4.3. The bundled RequireJS+jQuery bundle now uses RequireJS 1.4.3, and it is now possible to load jQuery directly from a CDN.</li>
-<li>Remove the Transport D pre-built option from the download page. The Transport D adapter is still in the source bundler though.</li>
-</ul>
-
-<h3>0.14.3</h3>
-
-<ul>
-<li>Support for <strong>define()</strong>. It works the same as <strong>require.def()</strong>. It is supported in order to conform with the <a href="http://wiki.commonjs.org/wiki/Modules/AsynchronousDefinition">Asynchronous Module Proposal</a>. require.def will continue to work, but you are encouraged to gradually migrate to define() for better compatibly with other Async Module loaders.</li>
-<li>text! plugin now works in Node.</li>
-<li><em>_dirname and _</em>filename support in the r.js Node adapter.</li>
-<li><a href="http://github.com/jrburke/requirejs/commit/79188c726f90aefa34a16435e929a7bb98098358">Bug fix for priority option</a>.</li>
-<li>GPL license option removed: project is now just MIT and new BSD dual-licensed, since the new BSD license is compatible with the GPL.</li>
-</ul>
-
-<h3>0.14.2</h3>
-
-<ul>
-<li>Bug fixes:
-<ul>
-<li><a href="http://github.com/jrburke/requirejs/commit/079e8b1e0abd4b77f0cd898c4bd77f24581942f5">Fix issue with "module" dependency</a> not correctly assigning exported value if it is <em>not</em> listed as the last dependency.</li>
-<li><a href="http://github.com/jrburke/requirejs/commit/e89c6c1523ac59e7303407d506f8e2ce75cdeb31">Fix "packages" config option</a>. Its behavior was fixed to match the docs.</li>
-<li><a href="http://github.com/jrburke/requirejs/commit/416f24a6f556c0d96f9fd9d4146a9ecfcd337668">Fix module-to-name resolution</a> to account for package mappings.</li>
-</ul></li>
-</ul>
-
-<h3>0.14.1</h3>
-
-<ul>
-<li>Bug fixes:
-<ul>
-<li><a href="http://github.com/jrburke/requirejs/issues#issue/13">Issue 13</a>: convertCommonJs.sh failed copying non-JS files)</li>
-<li><a href="http://github.com/jrburke/requirejs/issues#issue/14">Issue 14</a>: exports not available when no require calls)</li>
-<li><a href="http://github.com/jrburke/requirejs/commit/c5500f135bdb006cd963d245d9d30519a7cb3945">Fix for deeply cyclic dependencies</a>.</li>
-</ul></li>
-</ul>
-
-<h3>0.14.0</h3>
-
-<ul>
-<li><a href="http://tagneto.blogspot.com/2010/09/anonymous-module-support-in-requirejs.html">Anonymous modules support</a>, <a href="http://wiki.commonjs.org/wiki/Modules/AsynchronousDefinition">CommonJS Asynchronous Module proposal</a> supported.</li>
-<li><a href="api.html#packages">Loading modules from CommonJS packages</a>.</li>
-<li><a href="http://github.com/jrburke/requirejs/commits/master">Bug fixes</a> (see commits starting from (see commits starting from 2010-09-15 through 2010-09-26))</li>
-</ul>
-
-<h3>0.13.0</h3>
-
-<ul>
-<li>module.setExports and module.exports are now supported for converted CommonJS modules.</li>
-<li><a href="http://github.com/jrburke/requirejs/commits/master">Bug fixes</a> (see commits starting from 2010-07-05 through 2010-09-10), in particular <a href="http://github.com/jrburke/requirejs/commit/d12935bac803bcd5981652584102282b69fdd7b1">a fix to throw when a timeout for a script occurs</a>. That fix should make debugging issues much easier.</li>
-</ul>
-
-<h3>0.12.0</h3>
-
-<ul>
-<li>A new plugin: <a href="api.html#order">order</a> -- it ensures that scripts are fetched asynchronously and in parallel, but executed in the order specified in the call to require(). Ideal for traditional browser scripts that do not participate in modules defined via calls to require.def().</li>
-<li><a href="api.html#webworker">Web Worker support</a>. RequireJS can be used in a web worker.</li>
-<li>Multiple module names can now be mapped via the <strong>paths</strong> config option to the same URL, and that URL will only be fetched once.</li>
-<li>Added Firefox 2 to supported browsers. Safari 3.2 also works with require().</li>
-<li><a href="http://github.com/jrburke/requirejs/commits/master">Bug fixes</a> (see commits starting from 2010-05-25 through 2010-07-04), in particular <a href="http://github.com/jrburke/requirejs/commit/c3ae5e96f0aadd549f30a4019fe021c057e76f50">a fix for the priority config</a>, and <a href="http://github.com/jrburke/requirejs/commit/98d418fe4e4503575cca18b73260c0ab74f365fc">improved support in IE with a bad base tag</a>.</li>
 </ul>
 </div>

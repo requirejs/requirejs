@@ -13,6 +13,7 @@ When doing a release, do the following:
     * post.html
 * Check version of cs plugin, update download.html if necessary.
 * Check version of jQuery in the jQuery sample project, update the download.html if necessary.
+* Update version in x.js in the r.js project if necessary.
 * Commit/push changes
 * .updatesubs.sh
 * Commit changes to:
