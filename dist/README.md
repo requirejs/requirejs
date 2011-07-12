@@ -12,13 +12,14 @@ When doing a release, do the following:
     * pre.html
     * post.html
 * .updatesubs.sh
+* Update version in x.js in the r.js project if necessary.
+* Check in changes to r.js project.
+* Run updatesubs.sh again so all projects have the latest r.js.
 * Check version of cs plugin, update download.html if necessary.
 * Check version of jQuery in the jQuery sample project, update the download.html if necessary.
     * Upload change in jQuery project to website even before the current release.
-* Update version in x.js in the r.js project if necessary.
 * Commit/push changes
 * Commit changes to:
-    * r.js
     * require-cs: make a new tag if cs.js changed since last release.
     * jquery-amd: update the downloadable content if necessary.
 
