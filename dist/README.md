@@ -11,11 +11,12 @@ When doing a release, do the following:
     * docs/download.md: check for nested paths too, add new release section
     * pre.html
     * post.html
+* .updatesubs.sh
 * Check version of cs plugin, update download.html if necessary.
 * Check version of jQuery in the jQuery sample project, update the download.html if necessary.
+    * Upload change in jQuery project to website even before the current release.
 * Update version in x.js in the r.js project if necessary.
 * Commit/push changes
-* .updatesubs.sh
 * Commit changes to:
     * r.js
     * require-cs: make a new tag if cs.js changed since last release.
