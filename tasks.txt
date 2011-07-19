@@ -4,8 +4,14 @@ Release Notes
 
 Next release
 --------------
+- See if uglify.js can do has removal branches, if not file ticket!
+
 
 Docs:
+- rename r.js to be another name, confusing as a shorthand for require.js?
+
+- Update docs and then r.js README on how specifically to run with google closure compiler.
+
 - Pointer to motivations behind current thing, reason for dependencies.
 
 - Update the coffeescript plugin to use the writeFile API?
