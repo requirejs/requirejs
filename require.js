@@ -238,7 +238,7 @@ var requirejs, require, define;
             var pkgName, pkgConfig;
 
             //Adjust any relative paths.
-            if (name.charAt(0) === ".") {
+            if (name && name.charAt(0) === ".") {
                 //If have a base name, try to normalize against it,
                 //otherwise, assume it is a top-level require that will
                 //be relative to baseUrl in the end.
@@ -319,7 +319,7 @@ var requirejs, require, define;
                         //it has a normalize method. To avoid possible
                         //ambiguity with relative names loaded from another
                         //plugin, use the parent's name as part of this name.
-                        normalizedName = '__$p' + parentName + '@' + name;
+                        normalizedName = '__$p' + parentName + '@' + (name || '');
                     }
                 } else {
                     normalizedName = normalize(name, parentName);
@@ -347,7 +347,7 @@ var requirejs, require, define;
                 parentMap: parentModuleMap,
                 url: url,
                 originalName: originalName,
-                fullName: prefix ? prefix + "!" + normalizedName : normalizedName
+                fullName: prefix ? prefix + "!" + (normalizedName || '') : normalizedName
             };
         }
 
@@ -984,7 +984,7 @@ var requirejs, require, define;
         function loadPaused(dep) {
             //Renormalize dependency if its name was waiting on a plugin
             //to load, which as since loaded.
-            if (dep.prefix && dep.name.indexOf('__$p') === 0 && defined[dep.prefix]) {
+            if (dep.prefix && dep.name && dep.name.indexOf('__$p') === 0 && defined[dep.prefix]) {
                 dep = makeModuleMap(dep.originalName, dep.parentMap);
             }
 

@@ -6,6 +6,9 @@ Next release
 --------------
 - See if uglify.js can do has removal branches, if not file ticket!
 
+- Document require for amd list
+
+- Update docs to mention npm install option for r.js.
 
 Docs:
 - rename r.js to be another name, confusing as a shorthand for require.js?
