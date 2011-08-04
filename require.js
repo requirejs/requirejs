@@ -526,7 +526,7 @@ var requirejs, require, define;
         }
 
         function execManager(manager) {
-            var i, ret, waitingCallbacks, err,
+            var i, ret, waitingCallbacks, err, errFile,
                 cb = manager.callback,
                 fullName = manager.fullName,
                 args = [],
@@ -584,10 +584,12 @@ var requirejs, require, define;
             }
 
             if (err) {
+                errFile = (fullName ? makeModuleMap(fullName).url : '') ||
+                           err.fileName || err.sourceURL;
                 err = makeError('defineerror', 'Error evaluating ' +
                                 'module "' + fullName + '" at location "' +
-                                (fullName ? makeModuleMap(fullName).url : '') + '":\n' +
-                                err + '\nfileName:' + (err.fileName || err.sourceURL) +
+                                errFile + '":\n' +
+                                err + '\nfileName:' + errFile +
                                 '\nlineNumber: ' + (err.lineNumber || err.line), err);
                 err.moduleName = fullName;
                 return req.onError(err);
