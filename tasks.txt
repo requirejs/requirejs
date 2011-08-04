@@ -8,6 +8,16 @@ Next release
 
 - Document require for amd list
 
+- Node 0.5.3 running ./alln.sh in r.js fails:
+Error: require.paths is removed. Use node_modules folders, or the NODE_PATH environment variable instead.
+    at Function.<anonymous> (module.js:360:11)
+Figure out a better way, use a module that can be included: var r = require("r"); This
+would allow the directory to be the directory of the script...
+
+
+- Error messages not having useful lineNumber and fileName in Chrome:
+  https://github.com/jrburke/requirejs/issues/116
+
 - Update docs to mention npm install option for r.js.
 
 Docs:
