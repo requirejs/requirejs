@@ -26,6 +26,7 @@ Go to r.js project and run the following:
 
 Try manual testing:
 
+* node ../../r.js -o simpleNamespace.build.js - load builds/simpleNamespace/NAMESPACE.html to test namespacing.
 * node ../../r.js -o indexBuilder.build.js - confirm plugin write calls are done.
 * node ../../r.js -o text.build.js - confirm plugin write calls are done.
 * node ../../r.js -o textExclude.build.js - confirm that 'text!subwidget2.html' is excluded.

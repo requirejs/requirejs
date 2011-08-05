@@ -64,7 +64,6 @@ Docs:
 
 - If any other info: IE checkLoaded recursion? https://github.com/jrburke/requirejs/issues/82
 
-- build tool to rename require and define calls to other names?
 - Confirm: From Richard Backhouse: As an FYI I have been doing my own investigation of using UglifyJS for compression
 and one thing I found when trying to compress dojo 1.5 code was that I had ensure that "make_seqs"
 flag was set to false when calling ast_squeeze. If I left this flag set to true the code would not load.
