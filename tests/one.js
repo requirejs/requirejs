@@ -1,5 +1,10 @@
-define("one",
-  ["require", "two"],
+//
+//  Test comment
+//
+define(
+    [
+     "require", "two"
+    ],
   function(require) {
     var one = {
       size: "large",
