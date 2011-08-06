@@ -1,7 +1,7 @@
 //
 //  Test comment
 //
-define(
+define('one',
     [
      "require", "two"
     ],
