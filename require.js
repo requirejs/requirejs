@@ -13,7 +13,7 @@ var requirejs, require, define;
     //Change this version number for each release.
     var version = "0.25.0+",
         commentRegExp = /(\/\*([\s\S]*?)\*\/|\/\/(.*)$)/mg,
-        cjsRequireRegExp = /require\(["']([^'"\s]+)["']\)/g,
+        cjsRequireRegExp = /require\(\s*["']([^'"\s]+)["']\s*\)/g,
         currDirRegExp = /^\.\//,
         jsSuffixRegExp = /\.js$/,
         ostring = Object.prototype.toString,
