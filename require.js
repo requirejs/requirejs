@@ -1625,13 +1625,12 @@ var requirejs, require, define;
         //work.
         if (useInteractive) {
             node = currentlyAddingScript || getInteractiveScript();
-            if (!node) {
-                return req.onError(makeError("interactive", "No matching script interactive for " + callback));
+            if (node) {
+                if (!name) {
+                    name = node.getAttribute("data-requiremodule");
+                }
+                context = contexts[node.getAttribute("data-requirecontext")];
             }
-            if (!name) {
-                name = node.getAttribute("data-requiremodule");
-            }
-            context = contexts[node.getAttribute("data-requirecontext")];
         }
 
         //Always save off evaluating the def call until the script onload handler.
