@@ -1,12 +1,17 @@
 Release Notes
 -------------------
+- Fix for running scripts in 0.5.3, use embedded, also fixes path issue via config value.
+- Better native windows support via the 0.5.3 node.exe file.
+- this version of uglify does has() branch removal
 
 
 Next release
 --------------
-- See if uglify.js can do has removal branches, if not file ticket!
 
 - Document require for amd list
+
+- programmable builds, web server builds, hmm web build not work on reload?
+  need to document.
 
 - Node 0.5.3 running ./alln.sh in r.js fails:
 Error: require.paths is removed. Use node_modules folders, or the NODE_PATH environment variable instead.
@@ -14,11 +19,13 @@ Error: require.paths is removed. Use node_modules folders, or the NODE_PATH envi
 Figure out a better way, use a module that can be included: var r = require("r"); This
 would allow the directory to be the directory of the script...
 
+- Update docs to mention npm install option for r.js: requirejs package, document use,
+switch to new docs for running node apps vs. doing the optimization:
+  require('requirejs') vs r.js -o .....
 
 - Error messages not having useful lineNumber and fileName in Chrome:
   https://github.com/jrburke/requirejs/issues/116
 
-- Update docs to mention npm install option for r.js.
 
 Docs:
 - rename r.js to be another name, confusing as a shorthand for require.js?
@@ -32,9 +39,6 @@ Docs:
 - jjb's diagnostic/debug branch with dependency mappings
 
 - https://github.com/jrburke/requirejs/issues/104: define as a special dependency?
-
-- mingw on windows build: weird path issue/file not found? Tim's example.
-
 
 - domReady plugin
   - Update docs
