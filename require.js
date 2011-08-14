@@ -76,7 +76,13 @@ var requirejs, require, define;
      * @returns {Error}
      */
     function makeError(id, msg, err) {
-        var e = new Error(msg + '\nhttp://requirejs.org/docs/errors.html#' + id);
+        var e = new Error(msg + '\nhttp://requirejs.org/docs/errors.html#' + id),
+            handleErrors = ctx.config.handleErrors;
+
+        if( handleErrors != null && ! handleErrors ){
+            throw err;
+        }
+
         if (err) {
             e.originalError = err;
         }
