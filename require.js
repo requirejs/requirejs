@@ -1270,7 +1270,7 @@ var requirejs, require, define;
                         resume();
                     }
                 }
-                return undefined;
+                return context.require;
             },
 
             /**
@@ -1480,6 +1480,14 @@ var requirejs, require, define;
         }
 
         return context.require(deps, callback);
+    };
+
+    /**
+     * Support require.config() to make it easier to cooperate with other
+     * AMD loaders on globally agreed names.
+     */
+    req.config = function (config) {
+        return req(config);
     };
 
     /**

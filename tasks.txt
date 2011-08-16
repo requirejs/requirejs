@@ -8,26 +8,17 @@ Release Notes
 Next release
 --------------
 
-- Document catchError: define
-
-- Document require for amd list
-
 - programmable builds, web server builds, hmm web build not work on reload?
   need to document.
+- document pragmasOnSave
 
-- Node 0.5.3 running ./alln.sh in r.js fails:
-Error: require.paths is removed. Use node_modules folders, or the NODE_PATH environment variable instead.
-    at Function.<anonymous> (module.js:360:11)
-Figure out a better way, use a module that can be included: var r = require("r"); This
-would allow the directory to be the directory of the script...
+- A way to support local file/other kinds of caches?
+http://groups.google.com/group/requirejs/browse_thread/thread/77092307ac6b9acb
+http://www.html5rocks.com/en/tutorials/file/filesystem/#toc-filesystemurls
 
 - Update docs to mention npm install option for r.js: requirejs package, document use,
 switch to new docs for running node apps vs. doing the optimization:
   require('requirejs') vs r.js -o .....
-
-- Error messages not having useful lineNumber and fileName in Chrome:
-  https://github.com/jrburke/requirejs/issues/116
-
 
 Docs:
 - rename r.js to be another name, confusing as a shorthand for require.js?

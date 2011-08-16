@@ -1,6 +1,8 @@
-require({
-        baseUrl: require.isBrowser ? "./" : "./exports/"
-    },
+require.config({
+    baseUrl: require.isBrowser ? "./" : "./exports/"
+});
+
+require(
     ["require", "vanilla", "funcSet", "assign", "assign2", "usethis",
      "implicitModule", "simpleReturn"],
     function(require, vanilla, funcSet, assign, assign2, usethis,

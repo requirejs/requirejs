@@ -528,22 +528,21 @@ define({
 
 <pre><code>&lt;script type="text/javascript" src="scripts/require.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript"&gt;
-  require({
-          baseUrl: "/another/path",
-          paths: {
-              "some": "some/v1.0"
-          },
-          waitSeconds: 15,
-          locale: "fr-fr",
-          context: "foo"
-      },
-      ["some/module", "my/module", "a.js", "b.js"],
-      function(someModule, myModule) {
-          //This function will be called when all the dependencies
-          //listed above are loaded. Note that this function could
-          //be called before the page is loaded.
-          //This callback is optional.
-      }
+  require.config({
+    baseUrl: "/another/path",
+    paths: {
+        "some": "some/v1.0"
+    },
+    waitSeconds: 15,
+    locale: "fr-fr"
+  });
+  require( ["some/module", "my/module", "a.js", "b.js"],
+    function(someModule,    myModule) {
+        //This function will be called when all the dependencies
+        //listed above are loaded. Note that this function could
+        //be called before the page is loaded.
+        //This callback is optional.
+    }
   );
 &lt;/script&gt;
 </code></pre>
@@ -585,7 +584,7 @@ define({
 
 <p id="config-locale"><strong>locale</strong>: The locale to use for loading i18n bundles. By default navigator.language or navigator.userLanguage will be used. The proper syntax for specifying a locale is using lowercase and separating values by dashes, for instance: "fr-fr-paris" or "en-us".</p>
 
-<p id="config-context"><strong>context</strong>: A name to give to a loading context. This allows require.js to load multiple versions of modules in a page, as long as each top-level require call specifies a unique context string. See <strong>Advanced Features</strong> below.</p>
+<p id="config-context"><strong>context</strong>: A name to give to a loading context. This allows require.js to load multiple versions of modules in a page, as long as each top-level require call specifies a unique context string. To use it correctly, see the <a href="#multiversion">Multiversion Support</strong> section.</p>
 
 <p id="config-deps"><strong>deps</strong>: An array of dependencies to load. Useful when require is defined as a config object before require.js is loaded, and you want to specify dependencies to load as soon as require() is defined.</p>
 
@@ -738,7 +737,7 @@ to be sure to get the right version of jQuery for your loading context. Normally
 
 <pre><code>//main.js contents
 //Pass a config object to require
-require({
+require.config({
     packagePaths: {
         ".packages": ["alpha", "omega"]
     },
@@ -791,7 +790,7 @@ function (alpha,   omega,   cart,   store,   util) {
 
 <p>Then the RequireJS configuration would look like so:</p>
 
-<pre><code>require({
+<pre><code>require.config({
     packagePaths: {
         ".packages": [
             {
@@ -813,7 +812,7 @@ function (alpha,   omega,   cart,   store,   util) {
 
 <p><strong>packagePaths</strong> is just a convenience for listing several packages that are not direct siblings of require.js, but still have a common directory parent. The above configuration could be written like so with just the <strong>packages</strong> config option, by using the <strong>location</strong> property for each third-party package:</p>
 
-<pre><code>require({
+<pre><code>require.config({
     "packages": [
         {
             name: "alpha",
@@ -839,49 +838,49 @@ function (alpha,   omega,   cart,   store,   util) {
 
 <h3><a name="multiversion">Multiversion Support</a><span class="sectionMark">&sect; 5.2</span></h3>
 
-<p>As mentioned in <a href="#config">Configuration Options</a>, multiple versions of a module can be loaded in a page by using different "context" configuration options. Here is an example that loads two different versions of the alpha and beta modules (this example is taken from one of the test files):</p>
+<p>As mentioned in <a href="#config">Configuration Options</a>, multiple versions of a module can be loaded in a page by using different "context" configuration options. require.config() returns a require function that will use the context configuration. Here is an example that loads two different versions of the alpha and beta modules (this example is taken from one of the test files):</p>
 
 <pre><code>&lt;script type="text/javascript" src="../require.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript"&gt;
-require({
-      context: "version1",
-      baseUrl: "version1"
-    },
-    ["require", "alpha", "beta",],
-    function(require, alpha, beta) {
-      log("alpha version is: " + alpha.version); //prints 1
-      log("beta version is: " + beta.version); //prints 1
+var reqOne = require.config({
+  context: "version1",
+  baseUrl: "version1"
+});
 
-      setTimeout(function() {
-        require(["omega"],
-          function(omega) {
-            log("version1 omega loaded with version: " +
-                omega.version); //prints 1
-          }
-        );
-      }, 100);
-    }
-);
+reqOne(["require", "alpha", "beta",],
+function(require,   alpha,   beta) {
+  log("alpha version is: " + alpha.version); //prints 1
+  log("beta version is: " + beta.version); //prints 1
 
-require({
+  setTimeout(function() {
+    require(["omega"],
+      function(omega) {
+        log("version1 omega loaded with version: " +
+             omega.version); //prints 1
+      }
+    );
+  }, 100);
+});
+
+var reqTwo = require.config({
       context: "version2",
       baseUrl: "version2"
-    },
-    ["require", "alpha", "beta"],
-    function(require, alpha, beta) {
-      log("alpha version is: " + alpha.version); //prints 2
-      log("beta version is: " + beta.version); //prints 2
+    });
 
-      setTimeout(function() {
-        require(["omega"],
-          function(omega) {
-            log("version2 omega loaded with version: " +
-                omega.version); //prints 2
-          }
-        );
-      }, 100);
+reqTwo(["require", "alpha", "beta"],
+function(require,   alpha,   beta) {
+  log("alpha version is: " + alpha.version); //prints 2
+  log("beta version is: " + beta.version); //prints 2
+
+  setTimeout(function() {
+    require(["omega"],
+      function(omega) {
+        log("version2 omega loaded with version: " +
+            omega.version); //prints 2
       }
-);
+    );
+  }, 100);
+});
 &lt;/script&gt;
 </code></pre>
 

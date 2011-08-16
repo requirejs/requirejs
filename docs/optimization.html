@@ -168,13 +168,14 @@ require(mods);</code></pre>
         &lt;link rel="stylesheet" type="text/css" href="css/main.css"&gt;
         &lt;script src="scripts/require.js"&gt;&lt;/script&gt;
         &lt;script&gt;
-            require({
+            require.config({
                 paths: {
                     //Comment out this line to go back to loading
                     //the non-optimized main.js source file.
                     "main": "main-built"
                 }
-            }, ["main"]);
+            });
+            require(["main"]);
         &lt;/script&gt;
     &lt;/head&gt;
     &lt;body&gt;

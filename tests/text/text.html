@@ -7,11 +7,12 @@
     <script type="text/javascript" src="../doh/_browserRunner.js"></script>
     <script type="text/javascript">
     require({
-            baseUrl: "./",
-            paths: {
-                text: "../../text"
-            } //, priority: ['widgetlayer']
-        },
+        baseUrl: "./",
+        paths: {
+            text: "../../text"
+        } //, priority: ['widgetlayer']
+    });
+    require(
         ["require", "widget", "local", "text!resources/sample.html!strip"],
         function(require, widget, local, sampleText) {
             doh.register(
