@@ -4,21 +4,15 @@ Release Notes
 - Better native windows support via the 0.5.3 node.exe file.
 - this version of uglify does has() branch removal
 - catchError: define
+- require.config
+- npm install requirejs, web build/single script tag.
 
 Next release
 --------------
 
-- programmable builds, web server builds, hmm web build not work on reload?
-  need to document.
-- document pragmasOnSave
-
 - A way to support local file/other kinds of caches?
 http://groups.google.com/group/requirejs/browse_thread/thread/77092307ac6b9acb
 http://www.html5rocks.com/en/tutorials/file/filesystem/#toc-filesystemurls
-
-- Update docs to mention npm install option for r.js: requirejs package, document use,
-switch to new docs for running node apps vs. doing the optimization:
-  require('requirejs') vs r.js -o .....
 
 Docs:
 - rename r.js to be another name, confusing as a shorthand for require.js?
@@ -42,9 +36,6 @@ Docs:
     - Need waitForLoader test
     - Need to add a boolean to indicate if if scripts are done.
   - require.s.isDone used in Node and Rhino adapters?
-
-- check priority tests on Safari 3, in the non-domReady branch.
-  In master, it has occasional failures too.
 
 - replacement for modify that intercepts callbacks, holds off until another module loads them?
   - A way to show dependency graph too?

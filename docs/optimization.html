@@ -13,7 +13,7 @@
 <li class="hbox"><a href="#options">All configuration options</a><span class="spacer boxFlex"></span><span class="sect">&sect; 9</span></li>
 </ul>
 
-<span class="note">Note: RequireJS has an optimization tool that does the following</span>
+<p>RequireJS has an optimization tool that does the following</p>
 
 <ul class="serif">
 <li>Combines related scripts together into build layers and minifies them via <a href="https://github.com/mishoo/UglifyJS">UglifyJS</a>  (the default) or <a href="http://code.google.com/closure/compiler/">Closure Compiler</a> (an option when using Java).</li>
@@ -60,7 +60,23 @@ require(mods);</code></pre>
 <div class="section">
 <h2><a name="download">Download</a><span class="sectionMark">&sect; 2</span></h2>
 
-<p>You can download the tool on <a href="download.html#rjs">the download page</a>.</p>
+<p>1) You can download the tool on <a href="download.html#rjs">the download page</a>.</p>
+
+<p>2) If you are using Node with NPM, you can install r.js as part of the "requirejs" package in NPM:</p>
+
+<pre><code>&gt; npm install requirejs
+&gt; r.js -o app.build.js
+</code></pre>
+
+<p>That will work for a project based in in the directory in which "npm install" is run. You can also install it globally via the -g option to npm:</p>
+
+<pre><code>&gt; npm install -g requirejs
+</code></pre>
+
+<p>If you install the requirejs npm package, you can also <a href="node.html#optimizer">use the optimizer via a function call</a> inside a node program.</p>
+
+<p>The rest of this page assumes that r.js is just downloaded manually from the download page. It is normally the clearest, most portable way to use the optimizer.</p>
+
 </div>
 
 <div class="section">

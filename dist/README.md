@@ -46,6 +46,8 @@ To generate a build
 
 Be sure the links for the CoffeeScript and jQuery Sample project work.
 
+UPDATE THE NPM PACKAGE
+
 When done, reset versions to:
 
 * 0.0.0+ in require.js
