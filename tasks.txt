@@ -6,6 +6,7 @@ Release Notes
 - catchError: define
 - require.config
 - npm install requirejs, web build/single script tag.
+- update for closure compiler call
 
 Next release
 --------------
@@ -16,8 +17,6 @@ http://www.html5rocks.com/en/tutorials/file/filesystem/#toc-filesystemurls
 
 Docs:
 - rename r.js to be another name, confusing as a shorthand for require.js?
-
-- Update docs and then r.js README on how specifically to run with google closure compiler.
 
 - Pointer to motivations behind current thing, reason for dependencies.
 
