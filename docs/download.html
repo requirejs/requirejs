@@ -24,10 +24,10 @@
 
 <div class="subSection">
 <h4 class="hbox">
-<a name="requirejs">require.js 0.25.0</a>
+<a name="requirejs">require.js 0.26.0</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/0.25.0/minified/require.js">Minified</a>
-<a class="download" href="http://requirejs.org/docs/release/0.25.0/comments/require.js">With Comments</a>
+<a class="download" href="http://requirejs.org/docs/release/0.26.0/minified/require.js">Minified</a>
+<a class="download" href="http://requirejs.org/docs/release/0.26.0/comments/require.js">With Comments</a>
 </h4>
 
 <p>All you need to start using require.js in the browser.</p>
@@ -35,9 +35,9 @@
 
 <div class="subSection">
 <h4 class="hbox">
-<a name="samplejquery">Sample RequireJS 0.25.0 + jQuery 1.6.2 project</a>
+<a name="samplejquery">Sample RequireJS 0.26.0 + jQuery 1.6.2 project</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/jquery-require/jquery1.6.2-requirejs0.25.0/jquery-require-sample.zip">Download</a>
+<a class="download" href="http://requirejs.org/docs/release/jquery-require/jquery1.6.2-requirejs0.26.0/jquery-require-sample.zip">Download</a>
 </h4>
 
 <p>A zip file containing a sample project that uses jQuery and RequireJS.</p>
@@ -48,7 +48,7 @@
 <h4 class="hbox">
 <a name="rjs">r.js: Optimizer and Node and Rhino adapter</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/0.25.0/r.js">Download</a>
+<a class="download" href="http://requirejs.org/docs/release/0.26.0/r.js">Download</a>
 </h4>
 
 <p>The r.js file allows you to run the optimizer as well as run modules in Node or Rhino.</p>
@@ -68,8 +68,8 @@
 <h4 class="hbox">
 <a name="text">text</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/0.25.0/minified/text.js">Minified</a>
-<a class="download" href="http://requirejs.org/docs/release/0.25.0/comments/text.js">With Comments</a>
+<a class="download" href="http://requirejs.org/docs/release/0.26.0/minified/text.js">Minified</a>
+<a class="download" href="http://requirejs.org/docs/release/0.26.0/comments/text.js">With Comments</a>
 </h4>
 <p><a href="api.html#text">Load text files and treat them as dependencies</a>. Great for loading templates. The text strings can be inlined in an optimized build when the optimizer is used.</p>
 </div>
@@ -78,8 +78,8 @@
 <h4 class="hbox">
 <a name="order">order</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/0.25.0/minified/order.js">Minified</a>
-<a class="download" href="http://requirejs.org/docs/release/0.25.0/comments/order.js">With Comments</a>
+<a class="download" href="http://requirejs.org/docs/release/0.26.0/minified/order.js">Minified</a>
+<a class="download" href="http://requirejs.org/docs/release/0.26.0/comments/order.js">With Comments</a>
 </h4>
 <p><a href="api.html#order">Load script in the order specified in the dependency array</a>. Useful for existing scripts that have implied dependencies instead of calling define() to create modular code.</p>
 </div>
@@ -99,8 +99,8 @@
 <h4 class="hbox">
 <a name="i18n">i18n</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/0.25.0/minified/i18n.js">Minified</a>
-<a class="download" href="http://requirejs.org/docs/release/0.25.0/comments/i18n.js">With Comments</a>
+<a class="download" href="http://requirejs.org/docs/release/0.26.0/minified/i18n.js">Minified</a>
+<a class="download" href="http://requirejs.org/docs/release/0.26.0/comments/i18n.js">With Comments</a>
 </h4>
 <p><a href="api.html#i18n">Load string bundles</a> used in internationalization (i18n) that are made up of separate country/language/locale-specific bundles.</p>
 </div>
@@ -110,6 +110,59 @@
 <div class="section">
 <h2><a name="releasenotes">Release Notes</a><span class="sectionMark">&sect; 3</span></h2>
 
+<h3 id="0-26-0">0.26.0</h3>
+
+<ul>
+    <li><strong>npm install requirejs</strong> to allow require("requirejs"). This allows you to:
+    <ul>
+        <li><a href="node.html#usage">Load AMD modules inside node</a> without running a bootstrap script. It also
+        fixes some path issues using traditional Node modules alongside AMD modules.</li>
+        <li>Exposes the optimizer as require("requirejs").optimize() to
+        <a href="https://github.com/jrburke/r.js/blob/master/build/tests/http/httpBuild.js">allow dynamic server builds</a>
+        for people who like to do "<a href="node.html#optimizer">only one script tag
+        in the page at the end of body" development</a>. With the "excludeShallow" optimizer config,
+        you can still debug a single module/script while having the rest combined into one script.</li>
+    </ul>
+    This is now the recommended path for using RequireJS in Node. More information on
+    the <a href="node.html">Use with Node</a> page.</li>
+
+    <li>UglifyJS in the minifier is updated to 1.0.6. The upside: now
+    <a href="optimization.html#hasjs">has() branch trimming</a> now works with
+    the default minifier.</li>
+
+    <li>Fixes for running under Node on Windows using the native node.exe builds that are now available
+    in the Node 0.5.x series. Now there is less of a need to use Java to drive the RequireJS
+    Optimizer!</li>
+
+    <li>Configuration is now done via a require.config({}) call, to get in line with
+    the <a href="https://github.com/amdjs/amdjs-api/wiki/require#wiki-globalConfig">amdjs require API</a>.
+    The old require({}) method works on the global require()
+    for backwards compatibility, but the suggested API going forward is require.config({}).
+    The <a href="api.html">API doc</a> has been updated to show proper usage.
+
+    <li>There is <a href="faq-advanced.html#rename">a namespace option now for builds</a>,
+    to allow moving require() and define()
+    calls under a different namespace. This allows you to build an optimized file that uses
+    RequireJS but does not interfere with any other AMD loader on the page, and you can make
+    sure only your modules are loaded in that namespaced object.</li>
+
+    <li>The default error behavior when a define() factory function throws an error is
+    to not catch it. The catching done in 0.25.0 made it more difficult to debug. However,
+    there are some situations where catching the errors is preferred. Setting the config
+    value <a href="api.html#config-catchError">catchError.define = true</a> will switch to catching the errors
+    and allow processing via require.onError()</li>
+
+    <li>Closure Compiler in the optimizer was updated. As a result, the code
+    to invoke Closure Compiler changed, and will likely only work with the latest
+    Closure Compiler release. You can grab a version known to work with
+    the optimizer in the optimizer's <a href="https://github.com/jrburke/r.js/tree/master/lib/closure">lib/closure directory</a>.</li>
+
+    <li>There is now a pragmasOnSave build option, which is used in the
+    <a href="https://github.com/jrburke/require-cs/blob/master/demo/build.js">require-cs CoffeeScript loader plugin build profile</a>
+    to strip out the
+    CoffeeScript compiler after a build. The end result: tiny build layers
+    of converted CoffeeScript code.</li>
+</ul>
 
 <h3 id="0-25-0">0.25.0</h3>
 

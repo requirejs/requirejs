@@ -21,7 +21,16 @@ When doing a release, do the following:
 * Commit/push changes
 * Commit changes to:
     * require-cs: make a new tag if cs.js changed since last release.
-    * jquery-amd: update the downloadable content if necessary.
+    * jqueryui-amd: update the downloadable content if necessary.
+* Update the require-npm directory
+  * Update version in package.json
+  * Modify bin/r.js to add: #!/usr/bin/env node
+  * npm uninstall -g requirejs
+  * npm install . -g
+  * r.js -v
+  * node (then use repl to do require("requirejs"))
+  * Try a local install.
+  * npm publish (in the requirejs-npm/requirejs directory)
 
 * Tag the tree:
     * git tag -am "Release 0.0.0" 0.0.0

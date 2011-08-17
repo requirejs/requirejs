@@ -1,5 +1,5 @@
 /**
- * @license RequireJS order 0.25.0 Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
+ * @license RequireJS order 0.26.0 Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/requirejs for details
  */
@@ -85,7 +85,7 @@
     }
 
     define({
-        version: '0.25.0',
+        version: '0.26.0',
 
         load: function (name, req, onLoad, config) {
             var url = req.nameToUrl(name, null);

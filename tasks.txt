@@ -1,12 +1,5 @@
 Release Notes
 -------------------
-- Fix for running scripts in 0.5.3, use embedded, also fixes path issue via config value.
-- Better native windows support via the 0.5.3 node.exe file.
-- this version of uglify does has() branch removal
-- catchError: define
-- require.config
-- npm install requirejs, web build/single script tag.
-- update for closure compiler call
 
 Next release
 --------------
