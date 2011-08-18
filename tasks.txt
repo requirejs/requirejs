@@ -4,6 +4,23 @@ Release Notes
 Next release
 --------------
 
+- Support require({priority: ['config']}) and have it affect paths for
+  paused resources. Trouble is makeModuleMap burns in the URL with the old
+  config, before the priority config loads, and the name resolution in
+  normalize uses package map information to resolve some names. ARGH PACKAGES!
+  It would also be good to avoid having to rename plugin resources after
+  a resource finishes loading. Maybe for both of those reasons, work out
+  a different algorithm in the loader.
+  HMM: is priority config even needed? Isn't a nested require enough?
+  Well, it is a bit different, but map out why.
+
+- Blog post on config options using a pkg tool.
+
+- integrate properly with cpm
+
+- Make ordered execution the default behavior?
+  - debugging in IE is hurt?
+
 - A way to support local file/other kinds of caches?
 http://groups.google.com/group/requirejs/browse_thread/thread/77092307ac6b9acb
 http://www.html5rocks.com/en/tutorials/file/filesystem/#toc-filesystemurls

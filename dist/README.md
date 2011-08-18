@@ -32,12 +32,13 @@ When doing a release, do the following:
   * Try a local install.
   * npm publish (in the requirejs-npm/requirejs directory)
 
-* Tag the tree:
+* Tag the requirejs and r.js trees:
     * git tag -am "Release 0.0.0" 0.0.0
     * git push --tags
 
-Now pull down the tagged version to do a distribution:
+Now pull down the tagged version to do a distribution, do this in git/ directory:
 
+* rm -rf ./requirejs-dist ./requirejs-build
 * git clone git://github.com/jrburke/requirejs.git requirejs-dist
 * cd requirejs-dist
 * git checkout 0.0.0
@@ -45,17 +46,18 @@ Now pull down the tagged version to do a distribution:
 
 Run the distribution tasks.
 
-To generate the web site:
-
-* node dist-site.js
-
 To generate a build
 
 * ./dist-build.sh 0.0.0
 
-Be sure the links for the CoffeeScript and jQuery Sample project work.
+To generate the web site:
 
-UPDATE THE NPM PACKAGE
+* node dist-site.js
+* cd dist-site
+* zip -r docs.zip ./*
+* mv docs.zip ../../../requirejs-build/
+
+Be sure the links for the CoffeeScript and jQuery Sample project work.
 
 When done, reset versions to:
 
