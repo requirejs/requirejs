@@ -373,23 +373,12 @@ var requirejs, require, define;
             return priorityDone;
         }
 
-        /**
-         * Helper function that creates a setExports function for a "module"
-         * CommonJS dependency. Do this here to avoid creating a closure that
-         * is part of a loop.
-         */
-        function makeSetExports(moduleObj) {
-            return function (exports) {
-                moduleObj.exports = exports;
-            };
-        }
-
         function makeContextModuleFunc(func, relModuleMap, enableBuildCallback) {
             return function () {
                 //A version of a require function that passes a moduleName
                 //value for items that may need to
                 //look up paths relative to the moduleName
-                var args = [].concat(aps.call(arguments, 0)), lastArg;
+                var args = aps.call(arguments, 0), lastArg;
                 if (enableBuildCallback &&
                     isFunction((lastArg = args[args.length - 1]))) {
                     lastArg.__requireJsBuild = true;
@@ -416,10 +405,6 @@ var requirejs, require, define;
                 ready: req.ready,
                 isBrowser: req.isBrowser
             });
-            //Something used by node.
-            if (req.paths) {
-                modRequire.paths = req.paths;
-            }
             return modRequire;
         }
 
@@ -700,7 +685,6 @@ var requirejs, require, define;
                             uri: name ? context.nameToUrl(name, null, relModuleMap) : undefined,
                             exports: defined[fullName]
                         };
-                        cjsMod.setExports = makeSetExports(cjsMod);
                     } else if (depName in defined && !(depName in waiting)) {
                         //Module already defined, no need to wait for it.
                         manager.deps[depName] = defined[depName];

@@ -1,8 +1,23 @@
 Release Notes
 -------------------
+- removed module.setExports support.
 
 Next release
 --------------
+
+- remove require.def()
+
+coffeescript:
+- mix of types a problem? https://github.com/jrburke/require-cs/issues/5
+- extend duplication: https://github.com/jrburke/require-cs/issues/7
+
+- browserify
+- backbone
+
+- Test copyDir normalize change on windows.
+  wrap too.
+
+- document wrap usage, faq-advanced, mention on optimization page for single file.
 
 - Support require({priority: ['config']}) and have it affect paths for
   paused resources. Trouble is makeModuleMap burns in the URL with the old
