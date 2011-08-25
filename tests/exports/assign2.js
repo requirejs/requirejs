@@ -1,4 +1,4 @@
-require.def(["module", "exports", "require"],
+define(["module", "exports", "require"],
             function (module, exports, require) {
     module.exports = "assign2";
 });

@@ -1,4 +1,4 @@
-require.def("bark", function () {
+define("bark", function () {
     return {
         name: "bark"
     };

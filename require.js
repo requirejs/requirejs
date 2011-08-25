@@ -1579,7 +1579,7 @@ var requirejs, require, define;
      * return a value to define the module corresponding to the first argument's
      * name.
      */
-    define = req.def = function (name, deps, callback) {
+    define = function (name, deps, callback) {
         var node, context;
 
         //Allow for anonymous functions

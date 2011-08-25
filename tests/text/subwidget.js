@@ -1,4 +1,4 @@
-require.def("subwidget",
+define("subwidget",
   ["text!subwidget.html!strip", "text!subwidget2.html"],
   function(template, template2) {
     return {

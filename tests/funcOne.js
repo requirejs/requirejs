@@ -1,4 +1,4 @@
-require.def("funcOne",
+define("funcOne",
     ["require", "funcTwo"],
     function (require) {
         var one = function (name) {

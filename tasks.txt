@@ -1,11 +1,14 @@
 Release Notes
 -------------------
 - removed module.setExports support.
+- removed require.def support
 
 Next release
 --------------
 
-- remove require.def()
+- domready
+- code pass
+- need to document writeFile
 
 coffeescript:
 - mix of types a problem? https://github.com/jrburke/require-cs/issues/5

@@ -16,7 +16,7 @@ doh.run();
 
 //START simulated optimization of the "one" dependency, it should not be
 //be requested as a separate script.
-require.def("alphaPrime",
+define("alphaPrime",
     function () {
         return {
             name: "alphaPrime"
@@ -24,7 +24,7 @@ require.def("alphaPrime",
     }
 );
 
-require.def("betaPrime",
+define("betaPrime",
     ["alphaPrime"],
     function (alphaPrime) {
         return {

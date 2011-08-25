@@ -1,3 +1,3 @@
-require.def("foo/bar/two", {
+define("foo/bar/two", {
     name: "two"
 });
