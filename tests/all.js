@@ -70,6 +70,7 @@ doh.registerUrl("pluginsNameOnly", "../plugins/nameOnly.html");
 doh.registerUrl("pluginsFromText", "../plugins/fromText/fromText.html");
 doh.registerUrl("text", "../text/text.html");
 doh.registerUrl("textOnly", "../text/textOnly.html");
+doh.registerUrl("textBuilt", "../text/textBuilt.html");
 doh.registerUrl("jsonp", "../jsonp/jsonp.html");
 doh.registerUrl("order", "../order/order.html");
 
