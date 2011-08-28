@@ -6,6 +6,15 @@ Release Notes
 Next release
 --------------
 
+- volatile: plugin support.
+  - test that tests unique dependencies along with a volatile plugin.
+  - test cyclical coffeescript dependency.
+
+!!!closure compiler does not like .volatile properties!
+
+- allow plugins to require require, other dependencies.
+- run sc.handlebars.compile as part of a plugin call.
+
 - domready
 - code pass
 - need to document writeFile
@@ -36,8 +45,7 @@ coffeescript:
 
 - integrate properly with cpm
 
-- Make ordered execution the default behavior?
-  - debugging in IE is hurt?
+- Offer alternate loader where ordered config is default?
 
 - A way to support local file/other kinds of caches?
 http://groups.google.com/group/requirejs/browse_thread/thread/77092307ac6b9acb
