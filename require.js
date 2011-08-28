@@ -433,7 +433,7 @@ var requirejs, require, define;
                     } else if (ret === undefined && manager.usingExports) {
                         //exports already set the defined value.
                         ret = defined[fullName];
-                    } else if (!prefix || !plugins[prefix]['volatile']) {
+                    } else if (!prefix || !plugins[prefix].volatile) {
                         //Use the return value from the function.
                         defined[fullName] = ret;
                     }
@@ -491,11 +491,18 @@ var requirejs, require, define;
          */
         function makeArgCallback(manager, i) {
             return function (value) {
-                manager.deps[i] = value;
-                manager.depCount -= 1;
-                if (!manager.depCount) {
-                    //All done, execute!
-                    execManager(manager);
+                //Only do the work if it has not been done
+                //already for a dependency. Cycle breaking
+                //logic in forceExec could mean this function
+                //is called more than once for a given dependency.
+                if (!manager.depDone[i]) {
+                    manager.depDone[i] = true;
+                    manager.deps[i] = value;
+                    manager.depCount -= 1;
+                    if (!manager.depCount) {
+                        //All done, execute!
+                        execManager(manager);
+                    }
                 }
             };
         }
@@ -585,17 +592,23 @@ var requirejs, require, define;
                                 (plugins[prefix] = defined[prefix]) : null,
                 manager, created, pluginManager;
 
-            manager = managerCallbacks[fullName];
+            if (fullName) {
+                manager = managerCallbacks[fullName];
+            }
+
             if (!manager) {
                 created = true;
                 manager = {
                     //ID is just the full name, but if it is a plugin resource
                     //for a plugin that has not been loaded or is a volatile
                     //plugin resource, then add an ID counter to it.
-                    id: (prefix && (!plugin || plugin['volatile']) ?
-                        (managerCounter++) + '__p@:' : '') + fullName,
+                    id: (prefix && (!plugin || plugin.volatile) ?
+                        (managerCounter++) + '__p@:' : '') +
+                        (fullName || '__r@' + (managerCounter++)),
                     map: map,
                     depCount: 0,
+                    depDone: [],
+                    depCallbacks: [],
                     deps: [],
                     listeners: [],
                     add: managerAdd
@@ -607,10 +620,9 @@ var requirejs, require, define;
                 //non-volatile resource. Also only track plugin resources once
                 //the plugin has been loaded, and so the fullName is the
                 //true normalized value.
-                if (!prefix || (plugin && !plugin['volatile'])) {
+                if (fullName && (!prefix || (plugin && !plugin.volatile))) {
                     managerCallbacks[fullName] = manager;
                 }
-
             }
 
             //If there is a plugin needed, but it is not loaded,
@@ -650,6 +662,7 @@ var requirejs, require, define;
                 deps = manager.deps,
                 i, depArg, depName, depPrefix, cjsMod;
 
+            manager.depArray = depArray;
             manager.callback = callback;
 
             if (fullName) {
@@ -708,7 +721,7 @@ var requirejs, require, define;
                         };
                     } else if (depName in defined && !(depName in waiting) &&
                                (!depPrefix || (plugins[depPrefix] &&
-                                             !plugins[depPrefix]['volatile']))) {
+                                             !plugins[depPrefix].volatile))) {
                         //Module already defined, no need to wait for it.
                         deps[i] = defined[depName];
                     } else {
@@ -716,7 +729,8 @@ var requirejs, require, define;
                         //resource for either a plugin that has not
                         //loaded yet, or is a volatile plugin resource.
                         manager.depCount += 1;
-                        getManager(depArg, true).add(makeArgCallback(manager, i));
+                        manager.depCallbacks[i] = makeArgCallback(manager, i);
+                        getManager(depArg, true).add(manager.depCallbacks[i]);
                     }
                 }
             }
@@ -778,6 +792,39 @@ var requirejs, require, define;
                 }
             }
         };
+
+        function forceExec(manager, traced) {
+            if (manager.isDone) {
+                return undefined;
+            }
+
+            var fullName = manager.map.fullName,
+                depArray = manager.depArray,
+                i, depName, depManager;
+
+            if (fullName) {
+                if (traced[fullName]) {
+                    return defined[fullName];
+                }
+
+                traced[fullName] = true;
+            }
+
+            //Trace through the dependencies.
+            for (i = 0; i < depArray.length; i++) {
+                //Some array members may be null, like if a trailing comma
+                //IE, so do the explicit [i] access and check if it has a value.
+                depName = depArray[i];
+                if (depName) {
+                    depManager = waiting[depName];
+                    if (depManager && !depManager.isDone) {
+                        manager.depCallbacks[i](forceExec(depManager, traced));
+                    }
+                }
+            }
+
+            return fullName ? defined[fullName] : undefined;
+        }
 
         /**
          * Checks if all modules for a context are loaded, and if so, evaluates the
@@ -862,9 +909,8 @@ var requirejs, require, define;
             if (context.waitCount) {
                 //Cycle through the waitAry, and call items in sequence.
                 for (i = 0; (manager = waitAry[i]); i++) {
-                    if (!manager.isDone) {
-                        execManager(manager);
-                    }
+                    forceExec(manager, {});
+
                 }
 
                 //Only allow this recursion to a certain depth. Only
