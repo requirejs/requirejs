@@ -7,6 +7,7 @@ This is a list of things to test before doing a RequireJS release.
 ## Items in tests directory
 
 * All browsers: tests/doh/runner.html?testUrl=../all in all the browsers
+* go to tests/ run alln.sh and allj.sh
 * Optional, only do on major refactors: tests/commonjs, run each file in browser.
 
 ## Node testing

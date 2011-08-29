@@ -6,11 +6,9 @@ Release Notes
 Next release
 --------------
 
-- volatile: plugin support.
-  - test that tests unique dependencies along with a volatile plugin.
+- dynamic: plugin support.
+  - test that tests unique dependencies along with a dynamic plugin.
   - test cyclical coffeescript dependency.
-
-!!!closure compiler does not like .volatile properties!
 
 - allow plugins to require require, other dependencies.
 - run sc.handlebars.compile as part of a plugin call.

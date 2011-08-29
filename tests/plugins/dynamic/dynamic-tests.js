@@ -1,14 +1,18 @@
 /*jslint strict: false */
 /*global require: false, doh: false */
 
-require(['pillow', 'sub/blanket'],
+requirejs.config({
+    baseUrl: require.isBrowser ? './' : './plugins/dynamic'
+});
+
+requirejs(['pillow', 'sub/blanket'],
 function (pillow,   blanket) {
 
     pillow.delayed(function (resource) {
         doh.register(
-            'pluginsVolatile',
+            'pluginsDynamic',
             [
-                function pluginsVolatile(t) {
+                function pluginsDynamic(t) {
                     //Make sure the resource names do not match for the
                     //three kinds of pillow-related resources.
                     t.is(false, resource === pillow.resource);

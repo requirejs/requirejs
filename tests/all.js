@@ -68,7 +68,7 @@ doh.registerUrl("pluginsSync", "../plugins/sync.html");
 doh.registerUrl("doublePluginCall", "../plugins/double.html");
 doh.registerUrl("pluginsNameOnly", "../plugins/nameOnly.html");
 doh.registerUrl("pluginsFromText", "../plugins/fromText/fromText.html");
-doh.registerUrl("pluginsVolatile", "../plugins/volatile/volatile.html");
+doh.registerUrl("pluginsDynamic", "../plugins/dynamic/dynamic.html");
 doh.registerUrl("text", "../text/text.html");
 doh.registerUrl("textOnly", "../text/textOnly.html");
 doh.registerUrl("textBuilt", "../text/textBuilt.html");

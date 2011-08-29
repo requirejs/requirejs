@@ -1,4 +1,4 @@
-define([ 'require', 'volatile!../pillow.resource', 'volatile!./blanket.resource'],
+define([ 'require', 'dynamic!../pillow.resource', 'dynamic!./blanket.resource'],
 function (require,   pillowResource,                blanketResource) {
     return {
         resource: blanketResource,
