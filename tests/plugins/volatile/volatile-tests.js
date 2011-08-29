@@ -16,10 +16,10 @@ function (pillow,   blanket) {
                     t.is(false, resource === blanket.pillowResource);
 
                     //Make sure the paths after the counter ID are not relative.
-                    t.is(true, resource.split(':')[1].indexOf('./pillow') !== -1);
-                    t.is(true, pillow.resource.split(':')[1].indexOf('./pillow') !== -1);
-                    t.is(true, blanket.pillowResource.split(':')[1].indexOf('../pillow') !== -1);
-                    t.is(true, blanket.resource.split(':')[1].indexOf('./blanket') !== -1);
+                    t.is(true, resource.split(':')[1].indexOf('./pillow') === -1);
+                    t.is(true, pillow.resource.split(':')[1].indexOf('./pillow') === -1);
+                    t.is(true, blanket.pillowResource.split(':')[1].indexOf('../pillow') === -1);
+                    t.is(true, blanket.resource.split(':')[1].indexOf('./blanket') === -1);
                 }
             ]
         );
