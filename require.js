@@ -3,7 +3,7 @@
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/requirejs for details
  */
-/*jslint strict: false, plusplus: false */
+/*jslint strict: false, plusplus: false, sub: true */
 /*global window: false, navigator: false, document: false, importScripts: false,
   jQuery: false, clearInterval: false, setInterval: false, self: false,
   setTimeout: false, opera: false */
@@ -430,7 +430,7 @@ var requirejs, require, define;
                     } else if (ret === undefined && manager.usingExports) {
                         //exports already set the defined value.
                         ret = defined[fullName];
-                    } else if (!prefix || !plugins[prefix].volatile) {
+                    } else if (!prefix || !plugins[prefix]['volatile']) {
                         //Use the return value from the function.
                         defined[fullName] = ret;
                     }
@@ -601,7 +601,7 @@ var requirejs, require, define;
                     //ID is just the full name, but if it is a plugin resource
                     //for a plugin that has not been loaded or is a volatile
                     //plugin resource, then add an ID counter to it.
-                    id: (prefix && (!plugin || plugin.volatile) ?
+                    id: (prefix && (!plugin || plugin['volatile']) ?
                         (managerCounter++) + '__p@:' : '') +
                         (fullName || '__r@' + (managerCounter++)),
                     map: map,
@@ -619,7 +619,7 @@ var requirejs, require, define;
                 //non-volatile resource. Also only track plugin resources once
                 //the plugin has been loaded, and so the fullName is the
                 //true normalized value.
-                if (fullName && (!prefix || (plugin && !plugin.volatile))) {
+                if (fullName && (!prefix || (plugin && !plugin['volatile']))) {
                     managerCallbacks[fullName] = manager;
                 }
             }
@@ -721,7 +721,7 @@ var requirejs, require, define;
                         };
                     } else if (depName in defined && !(depName in waiting) &&
                                (!depPrefix || (plugins[depPrefix] &&
-                                             !plugins[depPrefix].volatile))) {
+                                             !plugins[depPrefix]['volatile']))) {
                         //Module already defined, no need to wait for it.
                         deps[i] = defined[depName];
                     } else {

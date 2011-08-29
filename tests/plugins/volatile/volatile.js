@@ -8,7 +8,7 @@
         //Depends on loader to normalize relative resource names, so it
         //does not implement normalize().
         return {
-            volatile: true,
+            'volatile': true,
 
             load: function (name, require, load, config) {
                 load((counter++) + ':' + name);
