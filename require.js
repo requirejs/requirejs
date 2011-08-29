@@ -302,16 +302,13 @@ var requirejs, require, define;
             if (name) {
                 if (prefix) {
                     pluginModule = defined[prefix];
-                    if (pluginModule) {
-                        //Plugin is loaded, use its normalize method, otherwise,
-                        //normalize name as usual.
-                        if (pluginModule.normalize) {
-                            normalizedName = pluginModule.normalize(name, function (name) {
-                                return normalize(name, parentName);
-                            });
-                        } else {
-                            normalizedName = normalize(name, parentName);
-                        }
+                    if (pluginModule && pluginModule.normalize) {
+                        //Plugin is loaded, use its normalize method.
+                        normalizedName = pluginModule.normalize(name, function (name) {
+                            return normalize(name, parentName);
+                        });
+                    } else {
+                        normalizedName = normalize(name, parentName);
                     }
                 } else {
                     //A regular module.
@@ -572,9 +569,11 @@ var requirejs, require, define;
          * resolved items should be in the waiting queue.
          */
         function addWait(manager) {
-            waiting[manager.id] = manager;
-            waitAry.push(manager);
-            context.waitCount += 1;
+            if (!waiting[manager.id]) {
+                waiting[manager.id] = manager;
+                waitAry.push(manager);
+                context.waitCount += 1;
+            }
         }
 
         /**
@@ -648,6 +647,7 @@ var requirejs, require, define;
                 //queued.
                 loaded[manager.id] = false;
                 queueDependency(manager);
+                addWait(manager);
             }
 
             return manager;
@@ -800,7 +800,7 @@ var requirejs, require, define;
 
             var fullName = manager.map.fullName,
                 depArray = manager.depArray,
-                i, depName, depManager;
+                i, depName, depManager, prefix, prefixManager, value;
 
             if (fullName) {
                 if (traced[fullName]) {
@@ -811,14 +811,23 @@ var requirejs, require, define;
             }
 
             //Trace through the dependencies.
-            for (i = 0; i < depArray.length; i++) {
-                //Some array members may be null, like if a trailing comma
-                //IE, so do the explicit [i] access and check if it has a value.
-                depName = depArray[i];
-                if (depName) {
-                    depManager = waiting[depName];
-                    if (depManager && !depManager.isDone) {
-                        manager.depCallbacks[i](forceExec(depManager, traced));
+            if (depArray) {
+                for (i = 0; i < depArray.length; i++) {
+                    //Some array members may be null, like if a trailing comma
+                    //IE, so do the explicit [i] access and check if it has a value.
+                    depName = depArray[i];
+                    if (depName) {
+                        //First, make sure if it is a plugin resource that the
+                        //plugin is not blocked.
+                        prefix = makeModuleMap(depName).prefix;
+                        if (prefix && (prefixManager = waiting[prefix])) {
+                            forceExec(prefixManager, traced);
+                        }
+                        depManager = waiting[depName];
+                        if (depManager && !depManager.isDone && loaded[depName]) {
+                            value = forceExec(depManager, traced);
+                            manager.depCallbacks[i](value);
+                        }
                     }
                 }
             }
@@ -910,7 +919,11 @@ var requirejs, require, define;
                 //Cycle through the waitAry, and call items in sequence.
                 for (i = 0; (manager = waitAry[i]); i++) {
                     forceExec(manager, {});
+                }
 
+                //If anything got placed in the paused queue, run it down.
+                if (context.paused.length) {
+                    resume();
                 }
 
                 //Only allow this recursion to a certain depth. Only
@@ -938,7 +951,7 @@ var requirejs, require, define;
          * Resumes tracing of dependencies and then checks if everything is loaded.
          */
         resume = function () {
-            var manager, map, url, i, p, args;
+            var manager, map, url, i, p, args, fullName;
 
             resumeDepth += 1;
 
@@ -972,6 +985,7 @@ var requirejs, require, define;
                     for (i = 0; (manager = p[i]); i++) {
                         map = manager.map;
                         url = map.url;
+                        fullName = map.fullName;
 
                         //If the manager is for a plugin managed resource,
                         //ask the plugin to load it now.
@@ -979,8 +993,8 @@ var requirejs, require, define;
                             callPlugin(map.prefix, manager);
                         } else {
                             //Regular dependency.
-                            if (!urlFetched[url]) {
-                                req.load(context, map.fullName, url);
+                            if (!urlFetched[url] && !loaded[fullName]) {
+                                req.load(context, fullName, url);
                                 urlFetched[url] = true;
                             }
                         }
