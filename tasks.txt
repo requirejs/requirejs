@@ -6,9 +6,26 @@ Release Notes
 Next release
 --------------
 
+cdnjs:
+- https://github.com/jrburke/require-jquery/issues/2
+- how to do fallback scripts:
+  - FF2 wants evt.currentTarget?
+  - Opera no calls.
+  - Safari 2: load event for 404 and 500, error event for noserver.
+  - IE 6-8: load event.
+  - IE 9 standard: error event.
+  - FF, Safari, Chrome error events.
+
+- example using backbone and such.
+
+- jquery 1.6.3 released.
+
+- clarify commonjs wrapping in amd api page.
+
 - dynamic: plugin support.
-  - test that tests unique dependencies along with a dynamic plugin.
+  - test that tests unique dependencies: duplicate uniques along with a dynamic plugin.
   - test cyclical coffeescript dependency.
+-> Hmm, just cut dynamic support for now?
 
 - allow plugins to require require, other dependencies.
 - run sc.handlebars.compile as part of a plugin call.
