@@ -430,7 +430,7 @@ var requirejs, require, define;
                     } else if (ret === undefined && manager.usingExports) {
                         //exports already set the defined value.
                         ret = defined[fullName];
-                    } else if (!prefix || !plugins[prefix].dynamic) {
+                    } else {
                         //Use the return value from the function.
                         defined[fullName] = ret;
                     }
@@ -565,7 +565,7 @@ var requirejs, require, define;
         }
 
         /**
-         * Adds the manager to the waiting queue. Only non-dynamic, fully
+         * Adds the manager to the waiting queue. Only fully
          * resolved items should be in the waiting queue.
          */
         function addWait(manager) {
@@ -599,9 +599,9 @@ var requirejs, require, define;
                 created = true;
                 manager = {
                     //ID is just the full name, but if it is a plugin resource
-                    //for a plugin that has not been loaded or is a dynamic
-                    //plugin resource, then add an ID counter to it.
-                    id: (prefix && (!plugin || plugin.dynamic) ?
+                    //for a plugin that has not been loaded,
+                    //then add an ID counter to it.
+                    id: (prefix && !plugin ?
                         (managerCounter++) + '__p@:' : '') +
                         (fullName || '__r@' + (managerCounter++)),
                     map: map,
@@ -615,11 +615,11 @@ var requirejs, require, define;
 
                 specified[manager.id] = true;
 
-                //Only track the manager/reuse it if this is a non-plugin,
-                //non-dynamic resource. Also only track plugin resources once
+                //Only track the manager/reuse it if this is a non-plugin
+                //resource. Also only track plugin resources once
                 //the plugin has been loaded, and so the fullName is the
                 //true normalized value.
-                if (fullName && (!prefix || (plugin && !plugin.dynamic))) {
+                if (fullName && !prefix) {
                     managerCallbacks[fullName] = manager;
                 }
             }
@@ -719,15 +719,13 @@ var requirejs, require, define;
                             uri: name ? context.nameToUrl(name, null, relModuleMap) : undefined,
                             exports: defined[fullName]
                         };
-                    } else if (depName in defined && !(depName in waiting) &&
-                               (!depPrefix || (plugins[depPrefix] &&
-                                             !plugins[depPrefix].dynamic))) {
+                    } else if (depName in defined && !(depName in waiting)) {
                         //Module already defined, no need to wait for it.
                         deps[i] = defined[depName];
                     } else {
                         //Either a resource that is not loaded yet, or a plugin
                         //resource for either a plugin that has not
-                        //loaded yet, or is a dynamic plugin resource.
+                        //loaded yet.
                         manager.depCount += 1;
                         manager.depCallbacks[i] = makeArgCallback(manager, i);
                         getManager(depArg, true).add(manager.depCallbacks[i]);
