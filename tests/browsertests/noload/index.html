@@ -12,6 +12,7 @@
         if (evt.type === "load" || readyRegExp.test(node.readyState)) {
             log(node.getAttribute("data-name") + " loaded");
 
+            /* Comment out for now, make sure we get all events for test
             //Clean up binding.
             if (node.removeEventListener) {
                 node.removeEventListener("load", onTestScriptLoad, false);
@@ -19,6 +20,7 @@
                 //Probably IE.
                 node.detachEvent("onreadystatechange", onTestScriptLoad);
             }
+            */
         }
     }
 
@@ -26,12 +28,14 @@
         var node = evt.target || evt.srcElement,
             name = node.getAttribute("data-name");
 
-        if (typeof console !== "undefined" && console.log) {
-            console.log(name + ' has error event: ', evt);
-        }
+        //if (typeof console !== "undefined" && console.log) {
+        //    console.log(name + ' has error event: ', evt);
+        //}
 
-        log(name + " onerror triggered");
+        log(name + " ONERROR triggered");
 
+
+        /* Comment out for now, make sure we get all events for test
         //Clean up binding.
         if (node.removeEventListener) {
             node.removeEventListener("error", onTestError, false);
@@ -39,6 +43,7 @@
             //Probably IE.
             node.detachEvent("onerror", onTestError);
         }
+        */
     }
 
     function attachScript(url, name) {
@@ -80,8 +85,10 @@
 
     <p>For this test to receive 500 responses, nodejs needs to run server.js in this directory.</p>
 
-    <p>Output below should be "404 onerror triggered", "500 onerror triggered" and "no server onerror triggered".
-    They may be in a different order, but that is OK.</p>
+    <p>Output (normally shown in the console) should be "404 ONERROR triggered", "500 ONERROR triggered"
+    and "no server ONERROR triggered".
+    They may be in a different order, but that is OK. If items like "404 loaded" are seend, then
+    it means the error handler was not triggered, which is undesirable.</p>
 
     <p>Unfortunately, IE 6-8 trigger the onreadystate callback, <b>not the error callback</b>,
     and given that they execute scripts in a way where the onload for a script is not executed
@@ -91,7 +98,7 @@
     <p>If all scripts called define() then the loader would have a chance to determine if
     the module was not already loaded or in the context.defQueue (in requirejs). However,
     since some scripts can be executed in requirejs without using define, there does not
-    seem to be a reliable way to tie the error to the event.</p>
+    seem to be a reliable way to tie the error to the event in IE 6-8.</p>
 
 </body>
 </html>
