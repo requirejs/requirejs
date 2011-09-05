@@ -191,7 +191,8 @@ var requirejs, require, define;
             managerCounter = 0,
             managerCallbacks = {},
             plugins = {},
-            resumeDepth = 0;
+            resumeDepth = 0,
+            fell = false;
 
         /**
          * Trims the . and .. from an array of path segments.
@@ -404,7 +405,6 @@ var requirejs, require, define;
             var i, ret, err, errFile, errModuleTree,
                 cb = manager.callback,
                 map = manager.map,
-                prefix = map.prefix,
                 fullName = map.fullName,
                 args = manager.deps,
                 listeners = manager.listeners;
@@ -834,6 +834,57 @@ var requirejs, require, define;
         }
 
         /**
+         * Load a module with fallback config.
+         * id should already be normalized.
+         */
+        function fallback(id) {
+            //Grab the manager, and mod it for fallback location.
+            var manager = waiting[id],
+                oldMap = manager.map,
+                cfg = config,
+                scripts, i;
+
+            //swap in fallback for config
+            context.config = config = cfg.fallback;
+
+            //Remove the items from the urlMap, since a new path needs
+            //to be generated.
+            delete urlMap[id];
+
+            //Reset loaded and defined state: in IE, onScriptLoad
+            //will be triggered, but there will not be a value for the
+            //module yet, so need to reset.
+            loaded[id] = false;
+            delete defined[id];
+            manager.isDone = false;
+
+            //Generate new module map based on fallback
+            manager.map = makeModuleMap(oldMap.fullName,
+                                        oldMap.parentMap && makeModuleMap(oldMap.parentMap.fullName));
+
+            //Restore config to old value.
+            context.config = config = cfg;
+
+            //Remove the script tag for the old load attempt.
+            if (isBrowser) {
+                scripts = document.getElementsByTagName('script');
+                for (i = scripts.length - 1; i > -1 && (script = scripts[i]); i--) {
+                    if (script.getAttribute('data-requiremodule') === id &&
+                        script.getAttribute('data-requirecontext') === contextName) {
+                        script.parentNode.removeChild(script);
+                        break;
+                    }
+                }
+            }
+
+            //Allow time for fetching the new resource.
+            context.startTime = (new Date()).getTime();
+
+            //Load the script from the new location.
+            req.load(context, id, manager.map.url);
+        }
+
+        /**
          * Checks if all modules for a context are loaded, and if so, evaluates the
          * new ones in right dependency order.
          *
@@ -843,8 +894,8 @@ var requirejs, require, define;
             var waitInterval = config.waitSeconds * 1000,
                 //It is possible to disable the wait interval by using waitSeconds of 0.
                 expired = waitInterval && (context.startTime + waitInterval) < new Date().getTime(),
-                noLoads = "", hasLoadedProp = false, stillLoading = false, prop,
-                err, manager;
+                noLoads = [], hasLoadedProp = false, stillLoading = false, prop,
+                err, manager, noLoad, i;
 
             //If there are items still in the paused queue processing wait.
             //This is particularly important in the sync case where each paused
@@ -871,7 +922,7 @@ var requirejs, require, define;
                     hasLoadedProp = true;
                     if (!loaded[prop]) {
                         if (expired) {
-                            noLoads += prop + " ";
+                            noLoads.push(prop);
                         } else {
                             stillLoading = true;
                             break;
@@ -886,12 +937,20 @@ var requirejs, require, define;
                 //the work below does not need to be done.
                 return undefined;
             }
-            if (expired && noLoads) {
-                //If wait time expired, throw error of unloaded modules.
-                err = makeError("timeout", "Load timeout for modules: " + noLoads);
-                err.requireType = "timeout";
-                err.requireModules = noLoads;
-                return req.onError(err);
+            if (expired && noLoads.length) {
+                if (!config.fallback || fell) {
+                    fell = false;
+                    //If wait time expired, throw error of unloaded modules.
+                    err = makeError("timeout", "Load timeout for modules: " + noLoads.join(" "));
+                    err.requireType = "timeout";
+                    err.requireModules = noLoads;
+                    return req.onError(err);
+                } else {
+                    for (i = 0; (noLoad = noLoads[i]); i++) {
+                        fallback(noLoad);
+                    }
+                    fell = true;
+                }
             }
             if (stillLoading || context.scriptCount) {
                 //Something is still waiting to load. Wait for it, but only
@@ -1018,6 +1077,60 @@ var requirejs, require, define;
             return undefined;
         };
 
+        /**
+         * Sets up paths used in the configuration. Some paths need to be
+         * normalized, and for package paths, special magic applied.
+         * cfg is the new config object, config is the target that will
+         * get the new config objects applied. It is done this way to
+         * avoid modifying the input config object since we do not own it.
+         */
+        function setPaths(cfg, config) {
+            var paths, prop, packages, pkgs, packagePaths;
+
+            //Make sure the baseUrl ends in a slash.
+            if (cfg.baseUrl) {
+                if (cfg.baseUrl.charAt(cfg.baseUrl.length - 1) !== "/") {
+                    cfg.baseUrl += "/";
+                }
+            }
+
+            //Save off the paths and packages since they require special processing,
+            //they are additive.
+            paths = config.paths;
+            packages = config.packages;
+            pkgs = config.pkgs;
+
+            //Mix in the config values, favoring the new values over
+            //existing ones in context.config.
+            mixin(config, cfg, true);
+
+            //Adjust paths if necessary.
+            if (cfg.paths) {
+                mixin(paths, cfg.paths, true);
+                config.paths = paths;
+            }
+
+            packagePaths = cfg.packagePaths;
+            if (packagePaths || cfg.packages) {
+                //Convert packagePaths into a packages config.
+                if (packagePaths) {
+                    for (prop in packagePaths) {
+                        if (!(prop in empty)) {
+                            configurePackageDir(pkgs, packagePaths[prop], prop);
+                        }
+                    }
+                }
+
+                //Adjust packages if necessary.
+                if (cfg.packages) {
+                    configurePackageDir(pkgs, cfg.packages);
+                }
+
+                //Done with modifications, assing packages back to context config
+                config.pkgs = pkgs;
+            }
+        }
+
         //Define the context object. Many of these fields are on here
         //just to make debugging easier.
         context = {
@@ -1042,53 +1155,15 @@ var requirejs, require, define;
              * @param {Object} cfg config object to integrate.
              */
             configure: function (cfg) {
-                var paths, prop, packages, pkgs, packagePaths, requireWait;
+                var requireWait;
 
-                //Make sure the baseUrl ends in a slash.
-                if (cfg.baseUrl) {
-                    if (cfg.baseUrl.charAt(cfg.baseUrl.length - 1) !== "/") {
-                        cfg.baseUrl += "/";
-                    }
-                }
-
-                //Save off the paths and packages since they require special processing,
-                //they are additive.
-                paths = config.paths;
-                packages = config.packages;
-                pkgs = config.pkgs;
-
-                //Mix in the config values, favoring the new values over
-                //existing ones in context.config.
-                mixin(config, cfg, true);
-
-                //Adjust paths if necessary.
-                if (cfg.paths) {
-                    for (prop in cfg.paths) {
-                        if (!(prop in empty)) {
-                            paths[prop] = cfg.paths[prop];
-                        }
-                    }
-                    config.paths = paths;
-                }
-
-                packagePaths = cfg.packagePaths;
-                if (packagePaths || cfg.packages) {
-                    //Convert packagePaths into a packages config.
-                    if (packagePaths) {
-                        for (prop in packagePaths) {
-                            if (!(prop in empty)) {
-                                configurePackageDir(pkgs, packagePaths[prop], prop);
-                            }
-                        }
-                    }
-
-                    //Adjust packages if necessary.
-                    if (cfg.packages) {
-                        configurePackageDir(pkgs, cfg.packages);
-                    }
-
-                    //Done with modifications, assing packages back to context config
-                    config.pkgs = pkgs;
+                setPaths(cfg, config);
+                if (cfg.fallback) {
+                    config.fallback = {
+                        paths: {},
+                        pkgs: {}
+                    };
+                    setPaths(cfg.fallback, config.fallback);
                 }
 
                 //If priority loading is in effect, trigger the loads now
@@ -1596,7 +1671,7 @@ var requirejs, require, define;
      *
      * @private
      */
-    req.onScriptLoad = function (evt) {
+    function onScriptLoad(evt) {
         //Using currentTarget instead of target for Firefox 2.0's sake. Not
         //all old browsers will be supported, but this one was easy enough
         //to support and still makes sense.
@@ -1613,7 +1688,7 @@ var requirejs, require, define;
             moduleName = node.getAttribute("data-requiremodule");
             context = contexts[contextName];
 
-            contexts[contextName].completeLoad(moduleName);
+            context.completeLoad(moduleName);
 
             //Clean up script binding. Favor detachEvent because of IE9
             //issue, see attachEvent/addEventListener comment elsewhere
@@ -1621,12 +1696,12 @@ var requirejs, require, define;
             if (node.detachEvent && !isOpera) {
                 //Probably IE. If not it will throw an error, which will be
                 //useful to know.
-                node.detachEvent("onreadystatechange", req.onScriptLoad);
+                node.detachEvent("onreadystatechange", onScriptLoad);
             } else {
-                node.removeEventListener("load", req.onScriptLoad, false);
+                node.removeEventListener("load", onScriptLoad, false);
             }
         }
-    };
+    }
 
     /**
      * Attaches the script represented by the URL to the current
@@ -1635,14 +1710,14 @@ var requirejs, require, define;
      * @param {String} url the url of the script to attach.
      * @param {Object} context the context that wants the script.
      * @param {moduleName} the name of the module that is associated with the script.
-     * @param {Function} [callback] optional callback, defaults to require.onScriptLoad
+     * @param {Function} [callback] optional callback, defaults to onScriptLoad
      * @param {String} [type] optional type, defaults to text/javascript
      */
     req.attach = function (url, context, moduleName, callback, type) {
         var node;
         if (isBrowser) {
             //In the browser so use a script tag
-            callback = callback || req.onScriptLoad;
+            callback = callback || onScriptLoad;
             node = context && context.config && context.config.xhtml ?
                     document.createElementNS("http://www.w3.org/1999/xhtml", "html:script") :
                     document.createElement("script");

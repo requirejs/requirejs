@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>require.js: Fallback Test</title>
+    <script type="text/javascript" src="../../require.js"></script>
+    <script type="text/javascript" src="../doh/runner.js"></script>
+    <script type="text/javascript" src="../doh/_browserRunner.js"></script>
+    <script type="text/javascript">
+    require({
+            baseUrl: 'initial',
+            //Shorter wait so IE 6-8 fails faster.
+            waitSeconds: 3,
+            paths: {
+                //A non-responding server.
+                'desert': location.protocol + '//' + location.hostname + ':9832/desert'
+            },
+            fallback: {
+                baseUrl: '.',
+                paths: {
+                    'forest': 'secondary/forest'
+                }
+            }
+        },
+        ['lake', 'forest', 'desert'],
+        function(lake, forest, desert) {
+
+            doh.register(
+                "fallback",
+                [
+                    function fallback(t){
+                        t.is("lake", lake.name);
+                        t.is("forest", forest.name);
+                        t.is("desert", desert.name);
+                    }
+                ]
+            );
+            doh.run();
+        }
+    );
+    </script>
+</head>
+<body>
+    <h1>require.js: Fallback Test</h1>
+    <p>Test using a fallback config.</p>
+    <p>Check console for messages</p>
+</body>
+</html>

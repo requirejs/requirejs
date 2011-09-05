@@ -25,7 +25,6 @@ if (location.href.indexOf('http://127.0.0.1/requirejs/') === 0) {
     doh.registerUrl("simple-badbase", "../simple-badbase.html");
 }
 
-
 doh.registerUrl("circular", "../circular.html");
 doh.registerUrl("depoverlap", "../depoverlap.html");
 doh.registerUrl("urlfetch", "../urlfetch/urlfetch.html");
@@ -35,6 +34,8 @@ doh.registerUrl("jquery", "../jquery/jquery.html");
 doh.registerUrl("jqueryPriority", "../jquery/jqueryPriority.html");
 doh.registerUrl("jqueryVersion", "../jquery/jqueryVersion.html");
 doh.registerUrl("jqueryVersion2", "../jquery/jqueryVersion2.html");
+
+doh.registerUrl("fallback", "../fallback/fallback.html", 6000);
 
 //Next three tests fail in PS3
 doh.registerUrl("jqueryDynamic", "../jquery/jqueryDynamic.html");

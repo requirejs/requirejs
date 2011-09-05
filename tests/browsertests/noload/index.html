@@ -64,6 +64,8 @@
     //Main logic
     attachScript('404.js', '404');
 
+    attachScript('200.js', '200');
+
     var url505 = location.protocol + '//' + location.hostname + ':9320/505.js';
     attachScript(url505, '505');
 
@@ -81,6 +83,15 @@
     <p>Output below should be "404 onerror triggered", "500 onerror triggered" and "no server onerror triggered".
     They may be in a different order, but that is OK.</p>
 
+    <p>Unfortunately, IE 6-8 trigger the onreadystate callback, <b>not the error callback</b>,
+    and given that they execute scripts in a way where the onload for a script is not executed
+    <b>immediately</b> after executing the script, we do not have a good way to determine if
+    the onreadystate 'load' was for the non-loading script or for a good one.</p>
+
+    <p>If all scripts called define() then the loader would have a chance to determine if
+    the module was not already loaded or in the context.defQueue (in requirejs). However,
+    since some scripts can be executed in requirejs without using define, there does not
+    seem to be a reliable way to tie the error to the event.</p>
 
 </body>
 </html>

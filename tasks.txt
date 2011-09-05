@@ -16,22 +16,23 @@ cdnjs:
   - IE 9 standard: error event.
   - FF, Safari, Chrome error events.
 
+- fallback
+  - have a test that fails for the fallback too. Make sure further fallbacks
+    are not attempted.
+  - how to test for web workers.
+  - what about firefox still evaluating script even if "times out"?
+    make sure duplicate calls are ignored.
+
 - example using backbone and such.
 
 - jquery 1.6.3 released.
 
 - clarify commonjs wrapping in amd api page.
 
-- dynamic: plugin support.
-  - test that tests unique dependencies: duplicate uniques along with a dynamic plugin.
-  - test cyclical coffeescript dependency.
--> Hmm, just cut dynamic support for now?
-
 - allow plugins to require require, other dependencies.
 - run sc.handlebars.compile as part of a plugin call.
 
 - domready
-- code pass
 - need to document writeFile
 
 coffeescript:
