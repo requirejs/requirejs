@@ -404,7 +404,6 @@ var requirejs, require, define;
             var i, ret, err, errFile, errModuleTree,
                 cb = manager.callback,
                 map = manager.map,
-                prefix = map.prefix,
                 fullName = map.fullName,
                 args = manager.deps,
                 listeners = manager.listeners;
@@ -619,7 +618,7 @@ var requirejs, require, define;
                 //resource. Also only track plugin resources once
                 //the plugin has been loaded, and so the fullName is the
                 //true normalized value.
-                if (fullName && !prefix) {
+                if (fullName && (!prefix || plugins[prefix])) {
                     managerCallbacks[fullName] = manager;
                 }
             }
