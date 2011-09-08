@@ -505,6 +505,7 @@ var requirejs, require, define;
 
         function callPlugin(pluginName, depManager) {
             var map = depManager.map,
+                fullName = map.fullName,
                 name = map.name,
                 plugin = plugins[pluginName] ||
                         (plugins[pluginName] = defined[pluginName]),
@@ -557,10 +558,16 @@ var requirejs, require, define;
                 context.completeLoad(moduleName);
             };
 
-            //Use parentName here since the plugin's name is not reliable,
-            //could be some weird string with no path that actually wants to
-            //reference the parentName's path.
-            plugin.load(name, makeRequire(map.parentMap, true), load, config);
+            //No need to continue if the plugin value has already been
+            //defined by a build.
+            if (fullName in defined) {
+                load(defined[fullName]);
+            } else {
+                //Use parentName here since the plugin's name is not reliable,
+                //could be some weird string with no path that actually wants to
+                //reference the parentName's path.
+                plugin.load(name, makeRequire(map.parentMap, true), load, config);
+            }
         }
 
         /**
