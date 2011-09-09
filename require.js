@@ -35,12 +35,10 @@ var requirejs, require, define;
         contexts = {},
         globalDefQueue = [],
         interactiveScript = null,
-        isDone = false,
         checkLoadedDepth = 0,
         useInteractive = false,
         req, cfg = {}, currentlyAddingScript, s, head, baseElement, scripts, script,
-        src, subPath, mainScript, dataMain, i, scrollIntervalId, setReadyState, ctx,
-        jQueryCheck, checkLoadedTimeoutId;
+        src, subPath, mainScript, dataMain, i, ctx, jQueryCheck, checkLoadedTimeoutId;
 
     function isFunction(it) {
         return ostring.call(it) === "[object Function]";
@@ -171,7 +169,7 @@ var requirejs, require, define;
         var context, resume,
             config = {
                 waitSeconds: 7,
-                baseUrl: s.baseUrl || "./",
+                baseUrl: "./",
                 paths: {},
                 pkgs: {},
                 catchError: {}
@@ -1424,17 +1422,13 @@ var requirejs, require, define;
     };
 
     req.version = version;
-    req.isArray = isArray;
-    req.isFunction = isFunction;
-    req.mixin = mixin;
+
     //Used to filter out dependencies that are already paths.
     req.jsExtRegExp = /^\/|:|\?|\.js$/;
     s = req.s = {
         contexts: contexts,
         //Stores a list of URLs that should not get async script tag treatment.
-        skipAsync: {},
-        isPageLoaded: !isBrowser,
-        readyCalls: []
+        skipAsync: {}
     };
 
     req.isAsync = req.isBrowser = isBrowser;
@@ -1468,7 +1462,7 @@ var requirejs, require, define;
      * @param {Object} url the URL to the module.
      */
     req.load = function (context, moduleName, url) {
-        isDone = false;
+        req.resourcesReady(false);
 
         context.scriptCount += 1;
         req.attach(url, context, moduleName);
@@ -1517,14 +1511,14 @@ var requirejs, require, define;
         }
 
         //This module may not have dependencies
-        if (!req.isArray(deps)) {
+        if (!isArray(deps)) {
             callback = deps;
             deps = [];
         }
 
         //If no name, and callback is a function, then figure out if it a
         //CommonJS thing with dependencies.
-        if (!name && !deps.length && req.isFunction(callback)) {
+        if (!name && !deps.length && isFunction(callback)) {
             //Remove comments from the callback string,
             //look for require calls, and pull them into the dependencies,
             //but only if there are function args.
@@ -1757,36 +1751,8 @@ var requirejs, require, define;
         }
     }
 
-    //Set baseUrl based on config.
-    s.baseUrl = cfg.baseUrl;
-
-    //****** START page load functionality ****************
-    /**
-     * Sets the page as loaded and triggers check for all modules loaded.
-     */
-    req.pageLoaded = function () {
-        if (!s.isPageLoaded) {
-            s.isPageLoaded = true;
-            if (scrollIntervalId) {
-                clearInterval(scrollIntervalId);
-            }
-
-            //Part of a fix for FF < 3.6 where readyState was not set to
-            //complete so libraries like jQuery that check for readyState
-            //after page load where not getting initialized correctly.
-            //Original approach suggested by Andrea Giammarchi:
-            //http://webreflection.blogspot.com/2009/11/195-chars-to-help-lazy-loading.html
-            //see other setReadyState reference for the rest of the fix.
-            if (setReadyState) {
-                document.readyState = "complete";
-            }
-
-            req.callReady();
-        }
-    };
-
     //See if there is nothing waiting across contexts, and if not, trigger
-    //callReady.
+    //resourcesReady.
     req.checkReadyState = function () {
         var contexts = s.contexts, prop;
         for (prop in contexts) {
@@ -1796,26 +1762,22 @@ var requirejs, require, define;
                 }
             }
         }
-        s.isDone = true;
-        req.callReady();
+        req.resourcesReady(true);
     };
 
     /**
-     * Internal function that calls back any ready functions. If you are
-     * integrating RequireJS with another library without require.ready support,
-     * you can define this method to call your page ready code instead.
+     * Internal function that is triggered whenever all scripts/resources
+     * have been loaded by the loader. Can be overridden by other, for
+     * instance the domReady plugin, which wants to know when all resources
+     * are loaded.
      */
-    req.callReady = function () {
-        var callbacks = s.readyCalls, i, callback, contexts, context, prop;
+    req.resourcesReady = function (isReady) {
+        var contexts, context, prop;
 
-        if (s.isPageLoaded && s.isDone) {
-            if (callbacks.length) {
-                s.readyCalls = [];
-                for (i = 0; (callback = callbacks[i]); i++) {
-                    callback();
-                }
-            }
+        //First, set the public variable indicating that resources are loading.
+        req.resourcesDone = isReady;
 
+        if (req.resourcesDone) {
             //If jQuery with DOM ready delayed, release it now.
             contexts = s.contexts;
             for (prop in contexts) {
@@ -1830,62 +1792,23 @@ var requirejs, require, define;
         }
     };
 
-    /**
-     * Registers functions to call when the page is loaded
-     */
-    req.ready = function (callback) {
-        if (s.isPageLoaded && s.isDone) {
-            callback();
-        } else {
-            s.readyCalls.push(callback);
+    //FF < 3.6 readyState fix. Needed so that domReady plugin
+    //works well in that environment, since require.js is normally
+    //loaded via an HTML script tag so it will be there before window load,
+    //where the domReady plugin is more likely to be loaded after window load.
+    req.pageLoaded = function () {
+        if (document.readyState !== "complete") {
+            document.readyState = "complete";
         }
-        return req;
     };
-
     if (isBrowser) {
         if (document.addEventListener) {
-            //Standards. Hooray! Assumption here that if standards based,
-            //it knows about DOMContentLoaded.
-            document.addEventListener("DOMContentLoaded", req.pageLoaded, false);
-            window.addEventListener("load", req.pageLoaded, false);
-            //Part of FF < 3.6 readystate fix (see setReadyState refs for more info)
             if (!document.readyState) {
-                setReadyState = true;
                 document.readyState = "loading";
+                window.addEventListener("load", req.pageLoaded, false);
             }
-        } else if (window.attachEvent) {
-            window.attachEvent("onload", req.pageLoaded);
-
-            //DOMContentLoaded approximation, as found by Diego Perini:
-            //http://javascript.nwbox.com/IEContentLoaded/
-            if (self === self.top) {
-                scrollIntervalId = setInterval(function () {
-                    try {
-                        //From this ticket:
-                        //http://bugs.dojotoolkit.org/ticket/11106,
-                        //In IE HTML Application (HTA), such as in a selenium test,
-                        //javascript in the iframe can't see anything outside
-                        //of it, so self===self.top is true, but the iframe is
-                        //not the top window and doScroll will be available
-                        //before document.body is set. Test document.body
-                        //before trying the doScroll trick.
-                        if (document.body) {
-                            document.documentElement.doScroll("left");
-                            req.pageLoaded();
-                        }
-                    } catch (e) {}
-                }, 30);
-            }
-        }
-
-        //Check if document already complete, and if so, just trigger page load
-        //listeners. NOTE: does not work with Firefox before 3.6. To support
-        //those browsers, manually call require.pageLoaded().
-        if (document.readyState === "complete") {
-            req.pageLoaded();
         }
     }
-    //****** END page load functionality ****************
 
     //Set up default context. If require was a configuration object, use that as base config.
     req(cfg);
