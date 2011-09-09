@@ -103,12 +103,7 @@
                 //Just a normal script tag append, but without async attribute
                 //on the script.
                 req([name], function (value) {
-                    //The value may be a real defined module. Wrap
-                    //it in a function call, because this function is used
-                    //as the factory function for this ordered dependency.
-                    onLoad(function () {
-                        return value;
-                    });
+                    onLoad(value);
                 });
             } else {
                 //Credit to LABjs author Kyle Simpson for finding that scripts
@@ -119,12 +114,7 @@
                 //correct order.
                 if (req.specified(name)) {
                     req([name], function (value) {
-                        //The value may be a real defined module. Wrap
-                        //it in a function call, because this function is used
-                        //as the factory function for this ordered dependency.
-                        onLoad(function () {
-                            return value;
-                        });
+                        onLoad(value);
                     });
                 } else {
                     waiting.push({
