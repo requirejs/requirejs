@@ -5,6 +5,9 @@ Release Notes
 
 Next release
 --------------
+- Update docs about plugins have dependencies, note that the dependencies
+  should be able to execute ideally in node and java environments, or whatever
+  env the developer is targeting for a build.
 
 cdnjs:
 - https://github.com/jrburke/require-jquery/issues/2
