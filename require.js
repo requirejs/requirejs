@@ -741,7 +741,8 @@ var requirejs, require, define;
                             exports: defined[fullName]
                         };
                     } else if (depName in defined && !(depName in waiting) &&
-                               (!(fullName in needFullExec) || !fullExec[depName])) {
+                               (!(fullName in needFullExec) ||
+                                (fullName in needFullExec && fullExec[depName]))) {
                         //Module already defined, and not in a build situation
                         //where the module is a something that needs full
                         //execution and this dependency has not been fully
@@ -753,6 +754,10 @@ var requirejs, require, define;
                         //the current module needs full exec.
                         if (fullName in needFullExec) {
                             needFullExec[depName] = true;
+                            //Reset state so fully executed code will get
+                            //picked up correctly.
+                            delete defined[depName];
+                            urlFetched[depArg.url] = false;
                         }
 
                         //Either a resource that is not loaded yet, or a plugin
