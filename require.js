@@ -31,6 +31,29 @@ var requirejs, require, define;
         defContextName = "_",
         //Oh the tragedy, detecting opera. See the usage of isOpera for reason.
         isOpera = typeof opera !== "undefined" && opera.toString() === "[object Opera]",
+
+        //Sadly necessary browser inference due to differences in the way
+        //that browsers load and execute dynamically inserted javascript
+        //and whether the script/cache method works when ordered execution is
+        //desired. Currently, Gecko and Opera do not load/fire onload for scripts with
+        //type="script/cache" but they execute injected scripts in order
+        //unless the 'async' flag is present.
+        //However, this is all changing in latest browsers implementing HTML5
+        //spec. With compliant browsers .async true by default, and
+        //if false, then it will execute in order. Favor that test first for forward
+        //compatibility.
+        testScript = isBrowser && document.createElement("script"),
+        supportsInOrderExecution = testScript && (testScript.async ||
+                               (isOpera ||
+                               //If Firefox 2 does not have to be supported, then
+                               //a better check may be:
+                               //('mozIsLocallyAvailable' in window.navigator)
+                               ("MozAppearance" in document.documentElement.style))),
+        //This test is true for IE browsers, which will load scripts but only
+        //execute them once the script is added to the DOM.
+        supportsLoadSeparateFromExecute = testScript &&
+                                          testScript.readyState === 'uninitialized',
+
         empty = {},
         contexts = {},
         globalDefQueue = [],
@@ -41,6 +64,9 @@ var requirejs, require, define;
         req, cfg = {}, currentlyAddingScript, s, head, baseElement, scripts, script,
         src, subPath, mainScript, dataMain, i, scrollIntervalId, setReadyState, ctx,
         jQueryCheck, checkLoadedTimeoutId;
+
+    //Done with the test script.
+    testScript = null;
 
     function isFunction(it) {
         return ostring.call(it) === "[object Function]";
@@ -170,6 +196,7 @@ var requirejs, require, define;
     function newContext(contextName) {
         var context, resume,
             config = {
+                ordered: false,
                 waitSeconds: 7,
                 baseUrl: s.baseUrl || "./",
                 paths: {},
@@ -1080,6 +1107,10 @@ var requirejs, require, define;
             managerCallbacks: managerCallbacks,
             makeModuleMap: makeModuleMap,
             normalize: normalize,
+            scriptWaiting: [],
+            scriptCached: {},
+            scriptNodes: {},
+
             /**
              * Set a configuration for the context.
              * @param {Object} cfg config object to integrate.
@@ -1631,6 +1662,25 @@ var requirejs, require, define;
         return callback.apply(exports, args);
     };
 
+
+    /**
+     * Adds a node to the DOM. Helper function since used in more
+     * than one place.
+     */
+    function addScriptToDom(node) {
+        //For some cache cases in IE 6-8, the script executes before the end
+        //of the appendChild execution, so to tie an anonymous define
+        //call to the module name (which is stored on the node), hold on
+        //to a reference to this node, but clear after the DOM insertion.
+        currentlyAddingScript = node;
+        if (baseElement) {
+            head.insertBefore(node, baseElement);
+        } else {
+            head.appendChild(node);
+        }
+        currentlyAddingScript = null;
+    }
+
     /**
      * callback for script loads, used to check status of loading.
      *
@@ -1643,8 +1693,9 @@ var requirejs, require, define;
         //Using currentTarget instead of target for Firefox 2.0's sake. Not
         //all old browsers will be supported, but this one was easy enough
         //to support and still makes sense.
-        var node = evt.currentTarget || evt.srcElement, contextName, moduleName,
-            context;
+        var node = evt.currentTarget || evt.srcElement,
+            keepListeners, contextName, moduleName, context, scriptCached,
+            scriptWaiting, ordered, resourceName;
 
         if (evt.type === "load" || readyRegExp.test(node.readyState)) {
             //Reset interactive script so a script node is not held onto for
@@ -1655,18 +1706,53 @@ var requirejs, require, define;
             contextName = node.getAttribute("data-requirecontext");
             moduleName = node.getAttribute("data-requiremodule");
             context = contexts[contextName];
+            scriptCached = context.scriptCached;
+            scriptWaiting = context.scriptWaiting;
+            ordered = context.config.ordered;
 
-            contexts[contextName].completeLoad(moduleName);
+            if (ordered && scriptCached[moduleName] === false) {
+                //Mark this script/cache request as loaded,
+                //then trigger a new script attachment
+                scriptCached[moduleName] = true;
+
+                //Find out how many ordered modules have loaded
+                for (i = 0; (resourceName = context.scriptWaiting[i]); i++) {
+                    if (scriptCached[resourceName]) {
+                        req.attach(node.src, context, resourceName);
+                    } else {
+                        //Something in the ordered list is not loaded,
+                        //so wait.
+                        break;
+                    }
+                }
+
+                //If just loaded some items, remove them from waiting.
+                if (i > 0) {
+                    scriptWaiting.splice(0, i);
+                }
+
+                //Remove this script tag from the DOM
+                //Use a setTimeout for cleanup because some older IE versions vomit
+                //if removing a script node while it is being evaluated.
+                setTimeout(function () {
+                    node.parentNode.removeChild(node);
+                }, 15);
+            } else {
+                //Normal async
+                contexts[contextName].completeLoad(moduleName);
+            }
 
             //Clean up script binding. Favor detachEvent because of IE9
             //issue, see attachEvent/addEventListener comment elsewhere
             //in this file.
-            if (node.detachEvent && !isOpera) {
-                //Probably IE. If not it will throw an error, which will be
-                //useful to know.
-                node.detachEvent("onreadystatechange", req.onScriptLoad);
-            } else {
-                node.removeEventListener("load", req.onScriptLoad, false);
+            if (!keepListeners) {
+                if (node.detachEvent && !isOpera) {
+                    //Probably IE. If not it will throw an error, which will be
+                    //useful to know.
+                    node.detachEvent("onreadystatechange", req.onScriptLoad);
+                } else {
+                    node.removeEventListener("load", req.onScriptLoad, false);
+                }
             }
         }
     };
@@ -1682,14 +1768,19 @@ var requirejs, require, define;
      * @param {String} [type] optional type, defaults to text/javascript
      */
     req.attach = function (url, context, moduleName, callback, type) {
-        var node;
+        var ordered = context.config.ordered,
+            orderedScriptCache = ordered && !supportsInOrderExecution &&
+                                 !supportsLoadSeparateFromExecute &&
+                                 context.scriptCache.hasOwnProperty(moduleName),
+            node, resourceName, loadedNode;
+
         if (isBrowser) {
             //In the browser so use a script tag
             callback = callback || req.onScriptLoad;
             node = context && context.config && context.config.xhtml ?
                     document.createElementNS("http://www.w3.org/1999/xhtml", "html:script") :
                     document.createElement("script");
-            node.type = type || "text/javascript";
+            node.type = type || (orderedScriptCache ? "script/cache" : "text/javascript");
             node.charset = "utf-8";
             //Use async so Gecko does not block on executing the script if something
             //like a long-polling comet tag is being run first. Gecko likes
@@ -1701,12 +1792,25 @@ var requirejs, require, define;
             //Helps Firefox 3.6+
             //Allow some URLs to not be fetched async. Mostly helps the order!
             //plugin
-            node.async = !s.skipAsync[url];
+            node.async = !ordered;
 
             if (context) {
                 node.setAttribute("data-requirecontext", context.contextName);
             }
             node.setAttribute("data-requiremodule", moduleName);
+
+            if (orderedScriptCache) {
+                //Ordered execution wanted, but it is an older browser that
+                //only supports cache priming via a dummy script request.
+                //Credit to LABjs author Kyle Simpson for finding that scripts
+                //with type="script/cache" allow scripts to be downloaded into
+                //browser cache but not executed. Use that
+                //so that subsequent addition of a real type="text/javascript"
+                //tag will cause the scripts to be executed immediately in the
+                //correct order.
+                context.scriptCache[moduleName] = false;
+                context.scriptWaiting.push(moduleName);
+            }
 
             //Set up load listener. Test attachEvent first because IE9 has
             //a subtle issue in its addEventListener and script onload firings
@@ -1723,23 +1827,58 @@ var requirejs, require, define;
                 //However, IE reports the script as being in "interactive"
                 //readyState at the time of the define call.
                 useInteractive = true;
-                node.attachEvent("onreadystatechange", callback);
+
+                if (ordered && supportsLoadSeparateFromExecute) {
+                    context.scriptNodes[moduleName] = node;
+                    context.scriptWaiting.push(moduleName);
+
+                    //Need to use old school onreadystate here since
+                    //when the event fires and the node is not attached
+                    //to the DOM, the evt.srcElement is null, so use
+                    //a closure to remember the node.
+                    node.onreadystatechange = function (evt) {
+                        //Script loaded but not executed.
+                        //Clear loaded handler, set the real one that
+                        //waits for script execution.
+                        if (node.readyState === 'loaded') {
+                            node.onreadystatechange = null;
+                            node.attachEvent("onreadystatechange", callback);
+
+                            //Mark this script as loaded.
+                            node.setAttribute('data-requireloaded', 'loaded');
+
+                            //Cycle through waiting scripts. If the matching node for them
+                            //is loaded, and is in the right order, add it to the DOM
+                            //to execute the script.
+                            for (i = 0; (resourceName = context.scriptWaiting[i]); i++) {
+                                loadedNode = context.scriptNodes[resourceName];
+                                if (loadedNode &&
+                                    loadedNode.getAttribute('data-requireloaded') === 'loaded') {
+                                    delete context.scriptNodes[resourceName];
+                                    addScriptToDom(loadedNode);
+                                } else {
+                                    break;
+                                }
+                            }
+
+                            //If just loaded some items, remove them from waiting.
+                            if (i > 0) {
+                                context.scriptWaiting.splice(0, i);
+                            }
+                        }
+                    };
+                } else {
+                    node.attachEvent("onreadystatechange", callback);
+                }
             } else {
                 node.addEventListener("load", callback, false);
             }
             node.src = url;
 
-            //For some cache cases in IE 6-8, the script executes before the end
-            //of the appendChild execution, so to tie an anonymous define
-            //call to the module name (which is stored on the node), hold on
-            //to a reference to this node, but clear after the DOM insertion.
-            currentlyAddingScript = node;
-            if (baseElement) {
-                head.insertBefore(node, baseElement);
-            } else {
-                head.appendChild(node);
+            if (!ordered || !supportsLoadSeparateFromExecute) {
+                addScriptToDom(node);
             }
-            currentlyAddingScript = null;
+
             return node;
         } else if (isWebWorker) {
             //In a web worker, use importScripts. This is not a very

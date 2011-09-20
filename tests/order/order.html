@@ -8,12 +8,13 @@
     <script type="text/javascript">
         require({
                 baseUrl: "./",
+                ordered: true,
                 paths: {
                     order: "../../order"
                 }
             },
             //Test ordering .js paths and scripts referred to without .js
-            ["require", "order!one.js", "order!two", "order!three.js", "order!bar.js"],
+            ["require", "one.js", "two", "three.js", "bar.js"],
             function(require) {
                 var oneName = one.name,
                     twoName = two.name,
