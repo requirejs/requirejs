@@ -683,9 +683,6 @@ var requirejs, require, define;
                 deps = manager.deps,
                 i, depArg, depName, depPrefix, cjsMod;
 
-            manager.depArray = depArray;
-            manager.callback = callback;
-
             if (fullName) {
                 //If module already defined for context, or already loaded,
                 //then leave. Also leave if jQuery is registering but it does
@@ -708,6 +705,13 @@ var requirejs, require, define;
                     jQueryCheck(callback());
                 }
             }
+
+            //Attach real depArray and callback to the manager. Do this
+            //only if the module has not been defined already, so do this after
+            //the fullName checks above. IE can call main() more than once
+            //for a module.
+            manager.depArray = depArray;
+            manager.callback = callback;
 
             //Add the dependencies to the deps field, and register for callbacks
             //on the dependencies.
