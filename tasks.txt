@@ -9,6 +9,8 @@ Next release
   should be able to execute ideally in node and java environments, or whatever
   env the developer is targeting for a build.
 
+- Remove isDone for require.ready in build/jslib/node.js and rhino.js, if domReady lands.
+
 cdnjs:
 - https://github.com/jrburke/require-jquery/issues/2
 - how to do fallback scripts:

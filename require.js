@@ -387,7 +387,6 @@ var requirejs, require, define;
                 toUrl: makeContextModuleFunc(context.toUrl, relModuleMap),
                 defined: makeContextModuleFunc(context.requireDefined, relModuleMap),
                 specified: makeContextModuleFunc(context.requireSpecified, relModuleMap),
-                ready: req.ready,
                 isBrowser: req.isBrowser
             });
             return modRequire;
@@ -1165,12 +1164,6 @@ var requirejs, require, define;
                 //config object before require.js is loaded.
                 if (cfg.deps || cfg.callback) {
                     context.require(cfg.deps || [], cfg.callback);
-                }
-
-                //Set up ready callback, if asked. Useful when require is defined as a
-                //config object before require.js is loaded.
-                if (cfg.ready) {
-                    req.ready(cfg.ready);
                 }
             },
 
