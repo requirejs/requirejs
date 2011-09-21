@@ -1697,7 +1697,7 @@ var requirejs, require, define;
             keepListeners, contextName, moduleName, context, scriptCached,
             scriptWaiting, ordered, resourceName;
 
-        if (evt.type === "load" || readyRegExp.test(node.readyState)) {
+        if (evt.type === "load" || (node && readyRegExp.test(node.readyState))) {
             //Reset interactive script so a script node is not held onto for
             //to long.
             interactiveScript = null;
