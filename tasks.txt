@@ -10,6 +10,7 @@ Next release
   env the developer is targeting for a build.
 
 - Remove isDone for require.ready in build/jslib/node.js and rhino.js, if domReady lands.
+- Scrub all require.ready refs, tests and docs.
 
 cdnjs:
 - https://github.com/jrburke/require-jquery/issues/2
