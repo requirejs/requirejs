@@ -189,6 +189,10 @@ var requirejs, require, define;
             managerCounter = 0,
             managerCallbacks = {},
             plugins = {},
+            //Used to indicate which modules in a build scenario
+            //need to be full executed.
+            needFullExec = {},
+            fullExec = {},
             resumeDepth = 0;
 
         /**
@@ -430,12 +434,23 @@ var requirejs, require, define;
                     } else {
                         //Use the return value from the function.
                         defined[fullName] = ret;
+                        //If this module needed full execution in a build
+                        //environment, mark that now.
+                        if (needFullExec[fullName]) {
+                            fullExec[fullName] = true;
+                        }
                     }
                 }
             } else if (fullName) {
                 //May just be an object definition for the module. Only
                 //worry about defining if have a module name.
                 ret = defined[fullName] = cb;
+
+                //If this module needed full execution in a build
+                //environment, mark that now.
+                if (needFullExec[fullName]) {
+                    fullExec[fullName] = true;
+                }
             }
 
             //Clean up waiting. Do this before error calls, and before
@@ -666,9 +681,6 @@ var requirejs, require, define;
                 deps = manager.deps,
                 i, depArg, depName, depPrefix, cjsMod;
 
-            manager.depArray = depArray;
-            manager.callback = callback;
-
             if (fullName) {
                 //If module already defined for context, or already loaded,
                 //then leave. Also leave if jQuery is registering but it does
@@ -691,6 +703,13 @@ var requirejs, require, define;
                     jQueryCheck(callback());
                 }
             }
+
+            //Attach real depArray and callback to the manager. Do this
+            //only if the module has not been defined already, so do this after
+            //the fullName checks above. IE can call main() more than once
+            //for a module.
+            manager.depArray = depArray;
+            manager.callback = callback;
 
             //Add the dependencies to the deps field, and register for callbacks
             //on the dependencies.
@@ -723,10 +742,26 @@ var requirejs, require, define;
                             uri: name ? context.nameToUrl(name, null, relModuleMap) : undefined,
                             exports: defined[fullName]
                         };
-                    } else if (depName in defined && !(depName in waiting)) {
-                        //Module already defined, no need to wait for it.
+                    } else if (depName in defined && !(depName in waiting) &&
+                               (!(fullName in needFullExec) ||
+                                (fullName in needFullExec && fullExec[depName]))) {
+                        //Module already defined, and not in a build situation
+                        //where the module is a something that needs full
+                        //execution and this dependency has not been fully
+                        //executed. See r.js's requirePatch.js for more info
+                        //on fullExec.
                         deps[i] = defined[depName];
                     } else {
+                        //Mark this dependency as needing full exec if
+                        //the current module needs full exec.
+                        if (fullName in needFullExec) {
+                            needFullExec[depName] = true;
+                            //Reset state so fully executed code will get
+                            //picked up correctly.
+                            delete defined[depName];
+                            urlFetched[depArg.url] = false;
+                        }
+
                         //Either a resource that is not loaded yet, or a plugin
                         //resource for either a plugin that has not
                         //loaded yet.
@@ -1038,6 +1073,8 @@ var requirejs, require, define;
             paused: [],
             pausedCount: 0,
             plugins: plugins,
+            needFullExec: needFullExec,
+            fullExec: fullExec,
             managerCallbacks: managerCallbacks,
             makeModuleMap: makeModuleMap,
             normalize: normalize,

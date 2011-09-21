@@ -35,17 +35,6 @@
         waiting = [],
         cached = {};
 
-    function loadResource(name, req, onLoad) {
-        req([name], function (value) {
-            //The value may be a real defined module. Wrap
-            //it in a function call, because this function is used
-            //as the factory function for this ordered dependency.
-            onLoad(function () {
-                return value;
-            });
-        });
-    }
-
     //Callback used by the type="script/cache" callback that indicates a script
     //has finished downloading.
     function scriptCacheCallback(evt) {
@@ -62,7 +51,7 @@
             //Find out how many ordered modules have loaded
             for (i = 0; (resource = waiting[i]); i++) {
                 if (cached[resource.name]) {
-                    loadResource(resource.name, resource.req, resource.onLoad);
+                    resource.req([resource.name], resource.onLoad);
                 } else {
                     //Something in the ordered list is not loaded,
                     //so wait.
@@ -92,7 +81,7 @@
 
             //If a build, just load the module as usual.
             if (config.isBuild) {
-                loadResource(name, req, onLoad);
+                req([name], onLoad);
                 return;
             }
 
@@ -102,14 +91,7 @@
             if (supportsInOrderExecution) {
                 //Just a normal script tag append, but without async attribute
                 //on the script.
-                req([name], function (value) {
-                    //The value may be a real defined module. Wrap
-                    //it in a function call, because this function is used
-                    //as the factory function for this ordered dependency.
-                    onLoad(function () {
-                        return value;
-                    });
-                });
+                req([name], onLoad);
             } else {
                 //Credit to LABjs author Kyle Simpson for finding that scripts
                 //with type="script/cache" allow scripts to be downloaded into
@@ -118,14 +100,7 @@
                 //tag will cause the scripts to be executed immediately in the
                 //correct order.
                 if (req.specified(name)) {
-                    req([name], function (value) {
-                        //The value may be a real defined module. Wrap
-                        //it in a function call, because this function is used
-                        //as the factory function for this ordered dependency.
-                        onLoad(function () {
-                            return value;
-                        });
-                    });
+                    req([name], onLoad);
                 } else {
                     waiting.push({
                         name: name,

@@ -34,6 +34,15 @@ Try manual testing:
 * node ../../r.js -o order.build.js - confirm one, two, three are in order.
 * node ../../r.js -o hasTestModule.build.js - confirm has replacements have been done.
 
+* plugins with dependencies, test in r.js/build/tests/lib/plugins:
+node ../../../../r.js main.js (tests if code runs unoptimized)
+node ../../../../r.js -o build.js
+node ../../../../r.js main-built.js (compare output with unoptimized case)
+
+Notably, the plug!shouldbeuppercasetext resource should be in the output, and
+the build should complete as normal, no errors because of the plugin's
+dependencies are not defined properly.
+
 Try r.js a larger node project if available.
 
 Do these tests for each version of Node to support.
