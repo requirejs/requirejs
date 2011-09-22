@@ -232,8 +232,10 @@
             write: function (pluginName, moduleName, write, config) {
                 if (moduleName in buildMap) {
                     var content = text.jsEscape(buildMap[moduleName]);
-                    write("define('" + pluginName + "!" + moduleName  +
-                          "', function () { return '" + content + "';});\n");
+                    write.asModule(pluginName + "!" + moduleName,
+                                   "define(function () { return '" +
+                                       content +
+                                   "';});\n");
                 }
             },
 
@@ -250,9 +252,16 @@
                 //to avoid any potential issues with ! in file names.
                 text.load(nonStripName, req, function (value) {
                     //Use own write() method to construct full module value.
-                    text.write(pluginName, nonStripName, function (contents) {
-                        write(fileName, contents);
-                    }, config);
+                    //But need to create shell that translates writeFile's
+                    //write() to the right interface.
+                    var textWrite = function (contents) {
+                        return write(fileName, contents);
+                    };
+                    textWrite.asModule = function (moduleName, contents) {
+                        return write.asModule(moduleName, fileName, contents);
+                    };
+
+                    text.write(pluginName, nonStripName, textWrite, config);
                 }, config);
             }
         };
