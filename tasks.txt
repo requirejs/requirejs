@@ -5,12 +5,12 @@ Release Notes
 
 Next release
 --------------
+
 - Update docs about plugins have dependencies, note that the dependencies
   should be able to execute ideally in node and java environments, or whatever
   env the developer is targeting for a build.
 
 - Remove isDone for require.ready in build/jslib/node.js and rhino.js, if domReady lands.
-- Scrub all require.ready refs, tests and docs.
 
 - For plugins: document writeFile.asModule(moduleName, fileName, contents)
 

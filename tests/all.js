@@ -73,6 +73,7 @@ doh.registerUrl("textOnly", "../text/textOnly.html");
 doh.registerUrl("textBuilt", "../text/textBuilt.html");
 doh.registerUrl("jsonp", "../jsonp/jsonp.html");
 doh.registerUrl("order", "../order/order.html");
+doh.registerUrl("domReadyWithResources", "../domReady/withResources.html");
 
 doh.registerUrl("relative", "../relative/relative.html");
 

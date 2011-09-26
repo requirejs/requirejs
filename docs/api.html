@@ -20,17 +20,17 @@
             <li class="hbox"><a href="#text">Specify a Text File Dependency</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.4</span></li>
             <li class="hbox"><a href="#jsonp">Specify a JSONP Service Dependency</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.5</span></li>
             <li class="hbox"><a href="#order">Load Scripts in a Specific Order</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.6</span></li>
+            <li class="hbox"><a href="#pageload">Page Load Event Support/DOM Ready</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.7</span></li>
         </ul>
     <li class="hbox"><a href="#mechanics">Mechanics</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2</span></li>
     <li class="hbox"><a href="#config">Configuration Options</a><span class="spacer boxFlex"></span><span class="sect">&sect; 3</span></li>
-    <li class="hbox"><a href="#pageload">Page Load Event Support</a><span class="spacer boxFlex"></span><span class="sect">&sect; 4</span></li>
-    <li class="hbox"><a href="#advanced">Advanced Usage</a><span class="spacer boxFlex"></span><span class="sect">&sect;&sect; 5-5.5</span></li>
+    <li class="hbox"><a href="#advanced">Advanced Usage</a><span class="spacer boxFlex"></span><span class="sect">&sect;&sect; 4-4.5</span></li>
     <ul>
-        <li class="hbox"><a href="#packages">Loading Modules from Packages</a><span class="spacer boxFlex"></span><span class="sect">&sect; 5.1</span></li>
-        <li class="hbox"><a href="#multiversion">Multiversion Support</a><span class="spacer boxFlex"></span><span class="sect">&sect; 5.2</span></li>
-        <li class="hbox"><a href="#afterload">Loading Code After Page Load</a><span class="spacer boxFlex"></span><span class="sect">&sect; 5.3</span></li>
-        <li class="hbox"><a href="#webworker">Web Worker Support</a><span class="spacer boxFlex"></span><span class="sect">&sect; 5.4</span></li>
-        <li class="hbox"><a href="#rhino">Rhino Support</a><span class="spacer boxFlex"></span><span class="sect">&sect; 5.5</span></li>
+        <li class="hbox"><a href="#packages">Loading Modules from Packages</a><span class="spacer boxFlex"></span><span class="sect">&sect; 4.1</span></li>
+        <li class="hbox"><a href="#multiversion">Multiversion Support</a><span class="spacer boxFlex"></span><span class="sect">&sect; 4.2</span></li>
+        <li class="hbox"><a href="#afterload">Loading Code After Page Load</a><span class="spacer boxFlex"></span><span class="sect">&sect; 4.3</span></li>
+        <li class="hbox"><a href="#webworker">Web Worker Support</a><span class="spacer boxFlex"></span><span class="sect">&sect; 4.4</span></li>
+        <li class="hbox"><a href="#rhino">Rhino Support</a><span class="spacer boxFlex"></span><span class="sect">&sect; 4.5</span></li>
     </ul>
 </ul>
 </div>
@@ -501,6 +501,55 @@ define({
     <li>Do not use the order! plugin to load other plugin-loaded resources. For instance. 'order!cs!my/coffescript/module' is not recommended. You will get errors in some versions of IE and WebKit. This is due to the workarounds the order plugin needs to do for those browsers to ensure ordered execution.</li>
 </ul>
 
+
+<h3><a name="pageload">Page Load Event Support/DOM Ready</a><span class="sectionMark">&sect; 1.7</span></h3>
+
+<p>It is possible when using RequireJS to load scripts quickly enough that they complete before the DOM is ready. Any work that tries to interact with the DOM should wait for the DOM to be ready. For modern browsers, this is done by waiting for the DOMContentLoaded event.</p>
+
+<p>However, not all browsers in use support DOMContentLoaded. The domReady module implements a cross-browser method to determine when the DOM is ready. <a href="download.html#domReady">Download the module</a> and use it in your project like so:</p>
+
+<pre><code>require(['domReady'], function (domReady) {
+  domReady(function () {
+    //This function is called once the DOM is ready.
+    //It will be safe to query the DOM and manipulate
+    //DOM nodes in this function.
+  }):
+});
+</code></pre>
+
+<p>Since DOM ready is a common application need, ideally the nested functions
+in the API above could be avoided. The domReady module also implements the <a href="plugin.html">Loader Plugin API</a>,
+so you can use the loader plugin syntax (notice the <b>!</b> in the domReady dependency) to force the
+require() callback function to wait for the DOM to be ready before executing. domReady will return
+the current document when used as a loader plugin:</p>
+
+<pre><code>require(['domReady!'], function (doc) {
+    //This function is called once the DOM is ready,
+    //notice the value for 'domReady!' is the current
+    //document.
+  }):
+});
+</code></pre>
+
+<p><b>Note:</b> If the document takes a while to load (maybe it is a very large document, or has HTML script tags loading large JS files that block DOM completion until they are done), using domReady as a loader plugin may result in a RequireJS "timeout" error. If this a problem either increase the <a href="#config-waitSeconds">waitSeconds</a> configuration, or just use domReady as a module and
+call domReady() inside the require() callback.</p>
+
+<p id="domReadyWithResources"><b>DOM Ready with implicit dependencies</b>: If you are working on a project that does not use require() and define() to explicitly indicate dependencies in all scripts, you many notice some errors when waiting for the DOM to be ready then executing code that depends on those implicit dependencies.</p>
+
+<p>The best fix is to wrap all scripts in explicit define() calls that specify all the direct dependencies. However, if that is not an option, you can call a special method on the domReady plugin to wait for all scripts to load and the DOM to be ready:</p>
+
+<pre><code>require(['domReady'], function (domReady) {
+  domReady.withResources(function () {
+    //This function is called once the DOM is ready,
+    //and all modules/plugin resources that RequireJS is loading
+    //finish loading.
+  }):
+});
+</code></pre>
+
+<p><b>You should avoid using this function</b>, and instead be very explicit about the dependencies in each file.
+However, as an intermediate patch to get a project working with RequireJS, it can be useful.</p>
+
 </div>
 
 <div class="section">
@@ -547,7 +596,9 @@ define({
 &lt;/script&gt;
 </code></pre>
 
-<p>Also, you can define require to be an object <strong>before</strong> require.js is loaded, and have the values applied. This example specifies some dependencies to load as soon as require.js defines require() and registers a require.ready() callback to be called after require.js defines require.ready():</p>
+<p>Also, you can define require to be an object <strong>before</strong> require.js is
+loaded, and have the values applied.
+This example specifies some dependencies to load as soon as require.js defines require():</p>
 
 <pre><code>&lt;script type="text/javascript"&gt;
     var require = {
@@ -557,9 +608,6 @@ define({
             //listed above in deps are loaded. Note that this
             //function could be called before the page is loaded.
             //This callback is optional.
-        },
-        ready: function() {
-            //This function is called once the DOM is ready.
         }
     };
 &lt;/script&gt;
@@ -590,8 +638,6 @@ define({
 
 <p id="config-callback"><strong>callback</strong>: A function to pass to require that should be require after <strong>deps</strong> have been loaded. Useful when require is defined as a config object before require.js is loaded, and you want to specify a function to require after the configuration's <strong>deps</strong> array has been loaded.</p>
 
-<p id="config-ready"><strong>ready</strong>: A function to pass to require.ready(). Useful when require is defined as a config object before require.js is loaded, and you want to specify a require.ready callback to set as soon as require() is defined.</p>
-
 <p id="config-priority"><strong>priority</strong>: An array of module/file names to load immediately, before tracing down any other dependencies. This allows you to set up a small set of files that are downloaded in parallel that contain most of the modules and their dependencies already built in. More information is in the <a href="faq-optimization#priority">Optimization FAQ, Priority Downloads</a>.<b>Note:</b> resources loaded by loader plugins (like 'text!template.html') <b>cannot</b> be specified in the priority array: the priority mechanism only works with regular JavaScript resources.</p>
 
 <p id="config-xhtml"><strong>xhtml</strong>: If set to true, document.createElementNS() will be used to create script elements.</p>
@@ -612,38 +658,11 @@ to be sure to get the right version of jQuery for your loading context. Normally
 
 <div class="section">
 <h2>
-<a name="pageload">Page Load Event Support</a>
+<a name="advanced">Advanced Usage</a>
 <span class="sectionMark">&sect; 4</span>
 </h2>
 
-<p>require.js also has a method for notifying your code when the page has loaded. require.js uses the DOMContentLoaded event for browsers that support it, or window onload for browsers that do not.</p>
-
-<p>The syntax:</p>
-
-<pre><code>require.ready(function() {
-  //DOM is ready, DOM nodes can be manipulated now.
-});
-</code></pre>
-
-<p>To use it in conjunction with module loading:</p>
-
-<pre><code>require(["module/one", "module/two"],
-    function(one, two) {
-      require.ready(function() {
-        one.modifyTheDom();
-      });
-    }
-);
-</code></pre>
-</div>
-
-<div class="section">
-<h2>
-<a name="advanced">Advanced Usage</a>
-<span class="sectionMark">&sect; 5</span>
-</h2>
-
-<h3><a name="packages">Loading Modules from Packages</a><span class="sectionMark">&sect; 5.1</span></h3>
+<h3><a name="packages">Loading Modules from Packages</a><span class="sectionMark">&sect; 4.1</span></h3>
 
 <p>RequireJS supports loading modules that are in a <a href="http://wiki.commonjs.org/wiki/Packages/1.1">CommonJS Packages</a> directory structure, but some additional configuration needs to be specified for it to work. Specifically, there is support for the following CommonJS Packages features:</p>
 
@@ -836,7 +855,7 @@ function (alpha,   omega,   cart,   store,   util) {
 
 <p>To make fetching and configuring packages easier, there are designs for a command line package tool in the works.</p>
 
-<h3><a name="multiversion">Multiversion Support</a><span class="sectionMark">&sect; 5.2</span></h3>
+<h3><a name="multiversion">Multiversion Support</a><span class="sectionMark">&sect; 4.2</span></h3>
 
 <p>As mentioned in <a href="#config">Configuration Options</a>, multiple versions of a module can be loaded in a page by using different "context" configuration options. require.config() returns a require function that will use the context configuration. Here is an example that loads two different versions of the alpha and beta modules (this example is taken from one of the test files):</p>
 
@@ -886,11 +905,11 @@ function(require,   alpha,   beta) {
 
 <p>Note that "require" is specified as a dependency for the module. This allows the require() function that is passed to the function callback to use the right context to load the modules correctly for multiversion support. If "require" is not specified as a dependency, then there will likely be an error.</p>
 
-<h3><a name="afterload">Loading Code After Page Load</a><span class="sectionMark">&sect; 5.3</span></h3>
+<h3><a name="afterload">Loading Code After Page Load</a><span class="sectionMark">&sect; 4.3</span></h3>
 
 <p>The example above in the <strong>Multiversion Support</strong> section shows how code can later be loaded by nested require() calls. </p>
 
-<h3><a name="webworker">Web Worker Support</a><span class="sectionMark">&sect; 5.4</span></h3>
+<h3><a name="webworker">Web Worker Support</a><span class="sectionMark">&sect; 4.4</span></h3>
 
 <p>As of release 0.12, RequireJS can be run inside a Web Worker. Just use importScripts() inside a web worker to load require.js (or the JS file that contains the require() definition), then call require.</p>
 
@@ -898,7 +917,7 @@ function(require,   alpha,   beta) {
 
 <p>You can see an example of its use by looking at one of the files used in <a href="http://github.com/jrburke/requirejs/blob/master/tests/workers.js">the unit test</a>.</p>
 
-<h3><a name="rhino">Rhino Support</a><span class="sectionMark">&sect; 5.5</span></h3>
+<h3><a name="rhino">Rhino Support</a><span class="sectionMark">&sect; 4.5</span></h3>
 
 <p>RequireJS can be used in Rhino via the <a href="download.html#rjs">r.js adapter</a>.
 See <a href="https://github.com/jrburke/r.js/blob/master/README.md">the r.js README</a> for more information.</p>

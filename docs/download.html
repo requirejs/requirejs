@@ -7,12 +7,13 @@
         <li class="hbox"><a href="#samplejquery">Sample RequireJS + jQuery 1.6.2 project</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2</span></li>
         <li class="hbox"><a href="#rjs">r.js: Optimizer and Node and Rhino adapter</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.3</span></li>
     </ul>
-    <li class="hbox"><a href="#previous">Plugins</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2</span></li>
+    <li class="hbox"><a href="#plugins">Plugins</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2</span></li>
     <ul>
         <li class="hbox"><a href="#text">text</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2.1</span></li>
-        <li class="hbox"><a href="#order">order</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2.2</span></li>
-        <li class="hbox"><a href="#cs">cs (CoffeeScript)</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2.3</span></li>
-        <li class="hbox"><a href="#i18n">i18n</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2.4</span></li>
+        <li class="hbox"><a href="#domReady">domReady</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2.2</span></li>
+        <li class="hbox"><a href="#order">order</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2.3</span></li>
+        <li class="hbox"><a href="#cs">cs (CoffeeScript)</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2.4</span></li>
+        <li class="hbox"><a href="#i18n">i18n</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2.5</span></li>
     </ul>
     <li class="hbox"><a href="#releasenotes">Release Notes</a><span class="spacer boxFlex"></span><span class="sect">&sect; 3</span></li>
 </ul>
@@ -72,6 +73,17 @@
 <a class="download" href="http://requirejs.org/docs/release/0.26.0/comments/text.js">With Comments</a>
 </h4>
 <p><a href="api.html#text">Load text files and treat them as dependencies</a>. Great for loading templates. The text strings can be inlined in an optimized build when the optimizer is used.</p>
+</div>
+
+<div class="subSection">
+<h4 class="hbox">
+<a name="domReady">domReady</a>
+<span class="boxFlex"></span>
+<a class="download" href="http://requirejs.org/docs/release/0.26.0/minified/domReady.js">Minified</a>
+<a class="download" href="http://requirejs.org/docs/release/0.26.0/comments/domReady.js">With Comments</a>
+</h4>
+<p><a href="api.html#pageload">Wait for the DOM is ready</a>. Useful for pausing execution of top level application
+logic until the DOM is ready for querying/modification.</p>
 </div>
 
 <div class="subSection">
