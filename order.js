@@ -7,6 +7,10 @@
 /*global require: false, define: false, window: false, document: false,
   setTimeout: false */
 
+//Specify that requirejs optimizer should wrap this code in a closure that
+//maps the namespaced requirejs API to non-namespaced local variables.
+/*requirejs namespace: true */
+
 (function () {
     //Sadly necessary browser inference due to differences in the way
     //that browsers load and execute dynamically inserted javascript
