@@ -2,6 +2,7 @@ Release Notes
 -------------------
 - removed module.setExports support.
 - removed require.def support
+- removed require.ready, domReady now.
 
 Next release
 --------------
@@ -9,8 +10,6 @@ Next release
 - Update docs about plugins have dependencies, note that the dependencies
   should be able to execute ideally in node and java environments, or whatever
   env the developer is targeting for a build.
-
-- Remove isDone for require.ready in build/jslib/node.js and rhino.js, if domReady lands.
 
 - For plugins: document writeFile.asModule(moduleName, fileName, contents)
 
