@@ -12,6 +12,10 @@ Next release
 - Remove isDone for require.ready in build/jslib/node.js and rhino.js, if domReady lands.
 - Scrub all require.ready refs, tests and docs.
 
+- For plugins: document writeFile.asModule(moduleName, fileName, contents)
+
+- example that shows how to do a "include *" in a build.
+
 cdnjs:
 - https://github.com/jrburke/require-jquery/issues/2
 - how to do fallback scripts:

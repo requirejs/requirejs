@@ -470,6 +470,12 @@ var requirejs, require, define;
             //Do not need to track manager callback now that it is defined.
             delete managerCallbacks[fullName];
 
+            //Allow instrumentation like the optimizer to know the order
+            //of modules executed and their dependencies.
+            if (req.onResourceLoad && !manager.placeholder) {
+                req.onResourceLoad(context, map, manager.depArray);
+            }
+
             if (err) {
                 errFile = (fullName ? makeModuleMap(fullName).url : '') ||
                            err.fileName || err.sourceURL;
@@ -531,11 +537,6 @@ var requirejs, require, define;
             depManager.loading = true;
 
             load = function (ret) {
-                //Allow the build process to register plugin-loaded dependencies.
-                if (req.onPluginLoad) {
-                    req.onPluginLoad(context, pluginName, name, ret);
-                }
-
                 depManager.callback = function () {
                     return ret;
                 };
@@ -553,6 +554,10 @@ var requirejs, require, define;
                 //Indicate a the module is in process of loading.
                 loaded[moduleName] = false;
                 context.scriptCount += 1;
+
+                //Indicate this is not a "real" module, so do not track it
+                //for builds, it does not map to a real file.
+                context.fake[moduleName] = true;
 
                 //Turn off interactive script matching for IE for any define
                 //calls in the text, then turn it back on at the end.
@@ -652,6 +657,11 @@ var requirejs, require, define;
                     //done.
                     var newMap = makeModuleMap(map.originalName, map.parentMap),
                         normalizedManager = getManager(newMap, true);
+
+                    //Indicate this manager is a placeholder for the real,
+                    //normalized thing. Important for when trying to map
+                    //modules and dependencies, for instance, in a build.
+                    manager.placeholder = true;
 
                     normalizedManager.add(function (resource) {
                         manager.callback = function () {
@@ -1073,6 +1083,7 @@ var requirejs, require, define;
             pausedCount: 0,
             plugins: plugins,
             needFullExec: needFullExec,
+            fake: {},
             fullExec: fullExec,
             managerCallbacks: managerCallbacks,
             makeModuleMap: makeModuleMap,
