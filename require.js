@@ -1077,6 +1077,7 @@ var requirejs, require, define;
             specified: specified,
             loaded: loaded,
             urlMap: urlMap,
+            urlFetched: urlFetched,
             scriptCount: 0,
             defined: defined,
             paused: [],
@@ -1629,6 +1630,25 @@ var requirejs, require, define;
         return callback.apply(exports, args);
     };
 
+
+    /**
+     * Adds a node to the DOM. Public function since used by the order plugin.
+     * This method should not normally be called by outside code.
+     */
+    req.addScriptToDom = function (node) {
+        //For some cache cases in IE 6-8, the script executes before the end
+        //of the appendChild execution, so to tie an anonymous define
+        //call to the module name (which is stored on the node), hold on
+        //to a reference to this node, but clear after the DOM insertion.
+        currentlyAddingScript = node;
+        if (baseElement) {
+            head.insertBefore(node, baseElement);
+        } else {
+            head.appendChild(node);
+        }
+        currentlyAddingScript = null;
+    };
+
     /**
      * callback for script loads, used to check status of loading.
      *
@@ -1644,7 +1664,7 @@ var requirejs, require, define;
         var node = evt.currentTarget || evt.srcElement, contextName, moduleName,
             context;
 
-        if (evt.type === "load" || readyRegExp.test(node.readyState)) {
+        if (evt.type === "load" || (node && readyRegExp.test(node.readyState))) {
             //Reset interactive script so a script node is not held onto for
             //to long.
             interactiveScript = null;
@@ -1678,8 +1698,13 @@ var requirejs, require, define;
      * @param {moduleName} the name of the module that is associated with the script.
      * @param {Function} [callback] optional callback, defaults to require.onScriptLoad
      * @param {String} [type] optional type, defaults to text/javascript
+     * @param {Function} [fetchOnlyFunction] optional function to indicate the script node
+     * should be set up to fetch the script but do not attach it to the DOM
+     * so that it can later be attached to execute it. This is a way for the
+     * order plugin to support ordered loading in IE. Once the script is fetched,
+     * but not executed, the fetchOnlyFunction will be called.
      */
-    req.attach = function (url, context, moduleName, callback, type) {
+    req.attach = function (url, context, moduleName, callback, type, fetchOnlyFunction) {
         var node;
         if (isBrowser) {
             //In the browser so use a script tag
@@ -1721,23 +1746,36 @@ var requirejs, require, define;
                 //However, IE reports the script as being in "interactive"
                 //readyState at the time of the define call.
                 useInteractive = true;
-                node.attachEvent("onreadystatechange", callback);
+
+
+                if (fetchOnlyFunction) {
+                    //Need to use old school onreadystate here since
+                    //when the event fires and the node is not attached
+                    //to the DOM, the evt.srcElement is null, so use
+                    //a closure to remember the node.
+                    node.onreadystatechange = function (evt) {
+                        //Script loaded but not executed.
+                        //Clear loaded handler, set the real one that
+                        //waits for script execution.
+                        if (node.readyState === 'loaded') {
+                            node.onreadystatechange = null;
+                            node.attachEvent("onreadystatechange", callback);
+                            fetchOnlyFunction(node);
+                        }
+                    };
+                } else {
+                    node.attachEvent("onreadystatechange", callback);
+                }
             } else {
                 node.addEventListener("load", callback, false);
             }
             node.src = url;
 
-            //For some cache cases in IE 6-8, the script executes before the end
-            //of the appendChild execution, so to tie an anonymous define
-            //call to the module name (which is stored on the node), hold on
-            //to a reference to this node, but clear after the DOM insertion.
-            currentlyAddingScript = node;
-            if (baseElement) {
-                head.insertBefore(node, baseElement);
-            } else {
-                head.appendChild(node);
+            //Fetch only means waiting to attach to DOM after loaded.
+            if (!fetchOnlyFunction) {
+                req.addScriptToDom(node);
             }
-            currentlyAddingScript = null;
+
             return node;
         } else if (isWebWorker) {
             //In a web worker, use importScripts. This is not a very

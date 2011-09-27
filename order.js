@@ -12,32 +12,42 @@
 /*requirejs namespace: true */
 
 (function () {
+
     //Sadly necessary browser inference due to differences in the way
     //that browsers load and execute dynamically inserted javascript
-    //and whether the script/cache method works.
-    //Currently, Gecko and Opera do not load/fire onload for scripts with
+    //and whether the script/cache method works when ordered execution is
+    //desired. Currently, Gecko and Opera do not load/fire onload for scripts with
     //type="script/cache" but they execute injected scripts in order
     //unless the 'async' flag is present.
     //However, this is all changing in latest browsers implementing HTML5
-    //spec. Firefox nightly supports using the .async true by default, and
+    //spec. With compliant browsers .async true by default, and
     //if false, then it will execute in order. Favor that test first for forward
-    //compatibility. However, it is unclear if webkit/IE will follow suit.
-    //Latest webkit breaks the script/cache trick.
-    //Test for document and window so that this file can be loaded in
-    //a web worker/non-browser env. It will not make sense to use this
-    //plugin in a non-browser env, but the file should not error out if included
-    //in a file, then loaded in a non-browser env.
-    var supportsInOrderExecution = typeof document !== "undefined" &&
-                                   typeof window !== "undefined" &&
-                                   (document.createElement("script").async ||
-                               (window.opera && Object.prototype.toString.call(window.opera) === "[object Opera]") ||
+    //compatibility.
+    var testScript = typeof document !== "undefined" &&
+                 typeof window !== "undefined" &&
+                 document.createElement("script"),
+
+        supportsInOrderExecution = testScript && (testScript.async ||
+                               ((window.opera &&
+                                 Object.prototype.toString.call(window.opera) === "[object Opera]") ||
                                //If Firefox 2 does not have to be supported, then
                                //a better check may be:
                                //('mozIsLocallyAvailable' in window.navigator)
-                               ("MozAppearance" in document.documentElement.style)),
+                               ("MozAppearance" in document.documentElement.style))),
+
+        //This test is true for IE browsers, which will load scripts but only
+        //execute them once the script is added to the DOM.
+        supportsLoadSeparateFromExecute = testScript &&
+                                          testScript.readyState === 'uninitialized',
+
         readyRegExp = /^(complete|loaded)$/,
-        waiting = [],
-        cached = {};
+        cacheWaiting = [],
+        cached = {},
+        scriptNodes = {},
+        scriptWaiting = [];
+
+    //Done with the test script.
+    testScript = null;
 
     //Callback used by the type="script/cache" callback that indicates a script
     //has finished downloading.
@@ -53,7 +63,7 @@
             cached[moduleName] = true;
 
             //Find out how many ordered modules have loaded
-            for (i = 0; (resource = waiting[i]); i++) {
+            for (i = 0; (resource = cacheWaiting[i]); i++) {
                 if (cached[resource.name]) {
                     resource.req([resource.name], resource.onLoad);
                 } else {
@@ -63,9 +73,9 @@
                 }
             }
 
-            //If just loaded some items, remove them from waiting.
+            //If just loaded some items, remove them from cacheWaiting.
             if (i > 0) {
-                waiting.splice(0, i);
+                cacheWaiting.splice(0, i);
             }
 
             //Remove this script tag from the DOM
@@ -77,24 +87,75 @@
         }
     }
 
+    /**
+     * Used for the IE case, where fetching is done by creating script element
+     * but not attaching it to the DOM. This function will be called when that
+     * happens so it can be determined when the node can be attached to the
+     * DOM to trigger its execution.
+     */
+    function onFetchOnly(node) {
+        var i, loadedNode, resourceName;
+
+        //Mark this script as loaded.
+        node.setAttribute('data-orderloaded', 'loaded');
+
+        //Cycle through waiting scripts. If the matching node for them
+        //is loaded, and is in the right order, add it to the DOM
+        //to execute the script.
+        for (i = 0; (resourceName = scriptWaiting[i]); i++) {
+            loadedNode = scriptNodes[resourceName];
+            if (loadedNode &&
+                loadedNode.getAttribute('data-orderloaded') === 'loaded') {
+                delete scriptNodes[resourceName];
+                require.addScriptToDom(loadedNode);
+            } else {
+                break;
+            }
+        }
+
+        //If just loaded some items, remove them from waiting.
+        if (i > 0) {
+            scriptWaiting.splice(0, i);
+        }
+    }
+
     define({
         version: '0.26.0',
 
         load: function (name, req, onLoad, config) {
-            var url = req.nameToUrl(name, null);
-
-            //If a build, just load the module as usual.
-            if (config.isBuild) {
-                req([name], onLoad);
-                return;
-            }
+            var url = req.nameToUrl(name, null),
+                node, context;
 
             //Make sure the async attribute is not set for any pathway involving
             //this script.
             require.s.skipAsync[url] = true;
-            if (supportsInOrderExecution) {
+            if (supportsInOrderExecution || config.isBuild) {
                 //Just a normal script tag append, but without async attribute
                 //on the script.
+                req([name], onLoad);
+            } else if (supportsLoadSeparateFromExecute) {
+                //Just fetch the URL, but do not execute it yet. The
+                //non-standards IE case. Really not so nice because it is
+                //assuming and touching requrejs internals. OK though since
+                //ordered execution should go away after a long while.
+                context = require.s.contexts._;
+
+                if (!context.urlFetched[url] && !context.loaded[name]) {
+                    //Indicate the script is being fetched.
+                    context.urlFetched[url] = true;
+
+                    //Stuff from require.load
+                    require.resourcesReady(false);
+                    context.scriptCount += 1;
+
+                    //Fetch the script now, remember it.
+                    node = require.attach(url, context, name, null, null, onFetchOnly);
+                    scriptNodes[name] = node;
+                    scriptWaiting.push(name);
+                }
+
+                //Do a normal require for it, once it loads, use it as return
+                //value.
                 req([name], onLoad);
             } else {
                 //Credit to LABjs author Kyle Simpson for finding that scripts
@@ -106,7 +167,7 @@
                 if (req.specified(name)) {
                     req([name], onLoad);
                 } else {
-                    waiting.push({
+                    cacheWaiting.push({
                         name: name,
                         req: req,
                         onLoad: onLoad
