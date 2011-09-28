@@ -6,6 +6,7 @@ Release Notes
 
 Next release
 --------------
+- New API section: how to generate URLs relative to a module.
 
 - Update docs about plugins have dependencies, note that the dependencies
   should be able to execute ideally in node and java environments, or whatever
@@ -14,6 +15,11 @@ Next release
 - For plugins: document writeFile.asModule(moduleName, fileName, contents)
 
 - example that shows how to do a "include *" in a build.
+
+- Put in common error for r.js error:
+When I try to build my project (optimize with r.js), it fails with
+following error message: "Error: Path is not supported: http://some.path.org"
+Explain that mappings to empty: can be used.
 
 cdnjs:
 - https://github.com/jrburke/require-jquery/issues/2

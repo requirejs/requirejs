@@ -1190,6 +1190,11 @@ var requirejs, require, define;
             require: function (deps, callback, relModuleMap) {
                 var moduleName, fullName, moduleMap;
                 if (typeof deps === "string") {
+                    if (isFunction(callback)) {
+                        //Invalid call
+                        return req.onError(makeError("requireargs", "Invalid require call"));
+                    }
+
                     //Synchronous access to one module. If require.get is
                     //available (as in the Node adapter), prefer that.
                     //In this case deps is the moduleName and callback is
