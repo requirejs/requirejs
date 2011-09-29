@@ -6,11 +6,25 @@ Release Notes
 
 Next release
 --------------
-- Document text.useXhr override, how it deals with xdomain resources.
 
-- jQuery 1.7 Beta 1: try it, also need to document define.amd.jQuery flag.
+- Test copyDir normalize change on windows.
+  wrap too.
 
+- mix of types a problem? https://github.com/jrburke/require-cs/issues/5
+
+- Put in common error for r.js error:
+When I try to build my project (optimize with r.js), it fails with
+following error message: "Error: Path is not supported: http://some.path.org"
+Explain that mappings to empty: can be used.
+
+- clarify commonjs wrapping in amd api page.
 - add amd test for dynamic that uses commonjs wrapper, remove dynamic from list of APIs require.js supports.
+
+- document wrap usage, faq-advanced, mention on optimization page for single file.
+
+- Fix README.md's links and formatting.
+
+- Document text.useXhr override, how it deals with xdomain resources.
 
 - New API section: how to generate URLs relative to a module.
 
@@ -18,54 +32,36 @@ Next release
   should be able to execute ideally in node and java environments, or whatever
   env the developer is targeting for a build.
 
-- For plugins: document writeFile.asModule(moduleName, fileName, contents)
+- For plugins: document writeFile and writeFile.asModule(moduleName, fileName, contents)
 
-- example that shows how to do a "include *" in a build.
 
-- Put in common error for r.js error:
-When I try to build my project (optimize with r.js), it fails with
-following error message: "Error: Path is not supported: http://some.path.org"
-Explain that mappings to empty: can be used.
+- test rflorence changes to things like bonzo
 
-cdnjs:
-- https://github.com/jrburke/require-jquery/issues/2
-- how to do fallback scripts:
-  - FF2 wants evt.currentTarget?
-  - Opera no calls.
-  - Safari 2: load event for 404 and 500, error event for noserver.
-  - IE 6-8: load event.
-  - IE 9 standard: error event.
-  - FF, Safari, Chrome error events.
+- Overriding modules used in r.js? https://github.com/jrburke/r.js/issues/24
+
+- onModuleLoad, useful?
+
+- jQuery 1.7 Beta 1: try it, also need to document define.amd.jQuery flag.
+
+--------------
+
+
+- has() source trimming, needs brace matching?
+
+
+- need to surface pragmasOnSave better?
+
+
+- cdnjs: how to use with fallback
 
 - example using backbone and such.
 
-- jquery 1.6.3 released.
+- example that shows how to do a "include *" in a build.
 
-- clarify commonjs wrapping in amd api page.
+- coffeescript: extend duplication: https://github.com/jrburke/require-cs/issues/7
 
-- dynamic: plugin support.
-  - test that tests unique dependencies: duplicate uniques along with a dynamic plugin.
-  - test cyclical coffeescript dependency.
--> Hmm, just cut dynamic support for now?
-
-- allow plugins to require require, other dependencies.
-- run sc.handlebars.compile as part of a plugin call.
-
-- domready
-- code pass
-- need to document writeFile
-
-coffeescript:
-- mix of types a problem? https://github.com/jrburke/require-cs/issues/5
-- extend duplication: https://github.com/jrburke/require-cs/issues/7
-
-- browserify
 - backbone
 
-- Test copyDir normalize change on windows.
-  wrap too.
-
-- document wrap usage, faq-advanced, mention on optimization page for single file.
 
 - Support require({priority: ['config']}) and have it affect paths for
   paused resources. Trouble is makeModuleMap burns in the URL with the old
@@ -77,18 +73,13 @@ coffeescript:
   HMM: is priority config even needed? Isn't a nested require enough?
   Well, it is a bit different, but map out why.
 
-- Blog post on config options using a pkg tool.
-
 - integrate properly with cpm
-
-- Offer alternate loader where ordered config is default?
 
 - A way to support local file/other kinds of caches?
 http://groups.google.com/group/requirejs/browse_thread/thread/77092307ac6b9acb
 http://www.html5rocks.com/en/tutorials/file/filesystem/#toc-filesystemurls
 
 Docs:
-- rename r.js to be another name, confusing as a shorthand for require.js?
 
 - Pointer to motivations behind current thing, reason for dependencies.
 
@@ -98,49 +89,16 @@ Docs:
 
 - https://github.com/jrburke/requirejs/issues/104: define as a special dependency?
 
-- domReady plugin
-  - Update docs
-    - remove the config.ready support.
-    - remove require.ready
-    - add domReady docs.
-  - add domReady tests? Or tested already in the tests.
-    - Need waitForLoader test
-    - Need to add a boolean to indicate if if scripts are done.
-  - require.s.isDone used in Node and Rhino adapters?
-
 - replacement for modify that intercepts callbacks, holds off until another module loads them?
   - A way to show dependency graph too?
 - Minify the require.js files with UglifyJS.
 
-- Test DOMContentLoaded work related to dojo-contributors "bring back skipIeDomLoaded" thread,
-  selenium tests.
-  - http://trac.dojotoolkit.org/ticket/13113
-
 - https://github.com/jrburke/requirejs/pull/71: process by 2/21
-
-- r.js: do not find require calls inside define calls, to allow dynamic loading to
-  happen without var req = require gymnastics.
 
 - If any other info: IE checkLoaded recursion? https://github.com/jrburke/requirejs/issues/82
 
-- Confirm: From Richard Backhouse: As an FYI I have been doing my own investigation of using UglifyJS for compression
-and one thing I found when trying to compress dojo 1.5 code was that I had ensure that "make_seqs"
-flag was set to false when calling ast_squeeze. If I left this flag set to true the code would not load.
-
-- https://github.com/jrburke/r.js/issues/1
-  Why can't plugins have dependencies? It is because the dependency is not fully evaluated.
-  Maybe rethink it, there have been some cases where creating a plugin that uses the
-  text plugin would be useful. However, would that mean the optimized result would include
-  the string twice in the output? Well for the text plugin, could allow other plugins to
-  indicate "do not inline this dependency" to help with that.
-- localeList for i18n.js support, for better Dojo support.
-
-
 Bugs to work on
 ------------------
-
-
-- File bug for UglifyJS on dead code removal.
 
 - Update AMD page to mention require scanning means only do them at the top.
 
@@ -148,8 +106,6 @@ Bugs to work on
   - removing scanning
   - add amd object
   - add plugins?
-
-- Allow specifying the use of a plugin in the data-main property? gets weird for built cases.
 
 - building with packages.build.js, the alpha/replace path mapping does not work out?
 
