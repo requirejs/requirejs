@@ -6,6 +6,12 @@ Release Notes
 
 Next release
 --------------
+- Document text.useXhr override, how it deals with xdomain resources.
+
+- jQuery 1.7 Beta 1: try it, also need to document define.amd.jQuery flag.
+
+- add amd test for dynamic that uses commonjs wrapper, remove dynamic from list of APIs require.js supports.
+
 - New API section: how to generate URLs relative to a module.
 
 - Update docs about plugins have dependencies, note that the dependencies

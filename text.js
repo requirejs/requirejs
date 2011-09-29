@@ -13,6 +13,9 @@
         xmlRegExp = /^\s*<\?xml(\s)+version=[\'\"](\d)*.(\d)*[\'\"](\s)*\?>/im,
         bodyRegExp = /<body[^>]*>\s*([\s\S]+)\s*<\/body>/im,
         hasLocation = typeof location !== 'undefined' && location.href,
+        defaultProtocol = hasLocation && location.protocol && location.protocol.replace(/\:/, ''),
+        defaultHostName = hasLocation && location.hostname,
+        defaultPort = hasLocation && (location.port || undefined),
         buildMap = [];
 
     define(function () {
@@ -174,7 +177,7 @@
              * @param {String} url
              * @returns Boolean
              */
-            canUseXhr: function (url, protocol, hostname, port) {
+            useXhr: function (url, protocol, hostname, port) {
                 var match = text.xdRegExp.exec(url),
                     uProtocol, uHostName, uPort;
                 if (!match) {
@@ -210,10 +213,12 @@
 
                 var parsed = text.parseName(name),
                     nonStripName = parsed.moduleName + '.' + parsed.ext,
-                    url = req.toUrl(nonStripName);
+                    url = req.toUrl(nonStripName),
+                    useXhr = (config && config.text && config.text.useXhr) ||
+                             text.useXhr;
 
                 //Load the text. Use XHR if possible and in a browser.
-                if (!hasLocation || text.canUseXhr(url)) {
+                if (!hasLocation || useXhr(url, defaultProtocol, defaultHostName, defaultPort)) {
                     text.get(url, function (content) {
                         text.finishLoad(name, parsed.strip, content, onLoad, config);
                     });
