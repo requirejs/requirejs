@@ -2,7 +2,8 @@ Release Notes
 -------------------
 - removed module.setExports support.
 - removed require.def support
-- removed require.ready, domReady now.
+- removed require.ready, domReady plugin.
+- mention almond release?
 
 Next release
 --------------
@@ -12,21 +13,9 @@ Next release
 
 - mix of types a problem? https://github.com/jrburke/require-cs/issues/5
 
-- Put in common error for r.js error:
-When I try to build my project (optimize with r.js), it fails with
-following error message: "Error: Path is not supported: http://some.path.org"
-Explain that mappings to empty: can be used.
-
-- clarify commonjs wrapping in amd api page.
-- add amd test for dynamic that uses commonjs wrapper, remove dynamic from list of APIs require.js supports.
+- almond release: look at splice change
 
 - document wrap usage, faq-advanced, mention on optimization page for single file.
-
-- Fix README.md's links and formatting.
-
-- Document text.useXhr override, how it deals with xdomain resources.
-
-- New API section: how to generate URLs relative to a module.
 
 - Update docs about plugins have dependencies, note that the dependencies
   should be able to execute ideally in node and java environments, or whatever
@@ -35,7 +24,7 @@ Explain that mappings to empty: can be used.
 - For plugins: document writeFile and writeFile.asModule(moduleName, fileName, contents)
 
 
-- test rflorence changes to things like bonzo
+- test rflorence changes to things like bonzo: https://github.com/ded/bonzo/issues/32
 
 - Overriding modules used in r.js? https://github.com/jrburke/r.js/issues/24
 
@@ -44,6 +33,9 @@ Explain that mappings to empty: can be used.
 - jQuery 1.7 Beta 1: try it, also need to document define.amd.jQuery flag.
 
 --------------
+
+- clarify commonjs wrapping in amd api page.
+- add amd test for dynamic that uses commonjs wrapper, remove dynamic from list of APIs require.js supports.
 
 
 - has() source trimming, needs brace matching?

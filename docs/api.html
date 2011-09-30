@@ -125,8 +125,6 @@ require(["some/module", "a.js", "b.js"], function(someModule) {
 
 <p>There should only be <strong>one</strong> module definition per file on disk. The modules can be grouped into optimized bundles by the <a href="optimization.html">optimization tool</a>.</p>
 
-<span class="note">Note: As of RequireJS 0.14.3, the function <strong>define()</strong> is preferred to create modules. Previously it was <strong>require.def()</strong>. require.def is still available, but define() is encouraged because it conforms to the <a href="http://wiki.commonjs.org/wiki/Modules/AsynchronousDefinition">Asynchronous Module Proposal</a>. You are free to continue using require.def() if you only want RequireJS to load the modules, but if you want your code to be potentially interoperable with other Async Module script loaders, you should consider using define(). Any API examples that use define() will work the same if require.def() is used instead.</span>
-
 <div class="subSection">
 <h4>
 <a name="defsimple">Simple Name/Value Pairs</a>
@@ -260,9 +258,9 @@ define(["my/cart", "my/inventory"],
 
 <h4><a name="modulenotes">Other Module Notes</a><span class="sectionMark">&sect; 1.2.7</span></h4>
 
-<p><strong>One module per file.</strong>: Only one module should be defined per JavaScript file, given the nature of the module name-to-file-path lookup algorithm. Multiple modules will be grouped into optimized files by the <a href="optimization.html">optimization tool</a>, but you should only use the optimization tool to place more than one module in a file.</p>
+<p id="modulenotes-onemodule"><strong>One module per file.</strong>: Only one module should be defined per JavaScript file, given the nature of the module name-to-file-path lookup algorithm. Multiple modules will be grouped into optimized files by the <a href="optimization.html">optimization tool</a>, but you should only use the optimization tool to place more than one module in a file.</p>
 
-<p><strong>Relative module names inside define()</strong>: For require("./relative/name") calls that can happen inside a define() function call, be sure to ask for "require" as a dependency, so that the relative name is resolved correctly:</p>
+<p id="modulenotes-relative"><strong>Relative module names inside define()</strong>: For require("./relative/name") calls that can happen inside a define() function call, be sure to ask for "require" as a dependency, so that the relative name is resolved correctly:</p>
 
 <pre><code>define(["require", "./relative/name"], function(require) {
     var mod = require("./relative/name");
@@ -278,7 +276,14 @@ define(["my/cart", "my/inventory"],
 
 <p>This form will use Function.prototype.toString() to find the require() calls, and add them to the dependency array, along with "require", so the code will work correctly with relative paths.</p>
 
-<p><strong>Console debugging</strong>: If you need to work with a module you already loaded via a require(["module/name"], function(){}) call in the JavaScript console, then you can use  the require() form that just uses the string name of the module to fetch it:</p>
+<p id="modulenotes-urls"><strong>Generate URLs relative to module</strong>: You may need to generate an URL that is relative to a module. To do so, ask for "require" as a dependency and then use require.toUrl() to generate the URL:</p>
+
+<pre><code>define(["require"], function(require) {
+    var cssUrl = require.toUrl("./style.css");
+});
+</code></pre>
+
+<p id="modulenotes-console"><strong>Console debugging</strong>: If you need to work with a module you already loaded via a require(["module/name"], function(){}) call in the JavaScript console, then you can use  the require() form that just uses the string name of the module to fetch it:</p>
 
 <pre><code>require("module/name").callSomeFunction()
 </code></pre>

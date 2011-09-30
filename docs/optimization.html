@@ -161,6 +161,8 @@ require(mods);</code></pre>
 <p>Since "require" is a reserved dependency name, you create a "requireLib" dependency and map it to the require.js file.</p>
 
 <p>Once that optimization is done, you can then rename the main-built.js file to require.js and your optimized project will only need to make one script request.</p>
+
+<p>If you want to wrap your built file so it can be used in pages that do not have an AMD loader like RequireJS, see the <a href="faq-optimization.html">Optimization FAQ</a>.</p>
 </div>
 
 <div class="section">
