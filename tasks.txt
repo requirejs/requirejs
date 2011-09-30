@@ -15,8 +15,6 @@ Next release
 
 - almond release: look at splice change
 
-- document wrap usage, faq-advanced, mention on optimization page for single file.
-
 - Update docs about plugins have dependencies, note that the dependencies
   should be able to execute ideally in node and java environments, or whatever
   env the developer is targeting for a build.

@@ -24,19 +24,21 @@ of RequireJS, and allows you to export any kind of API that works on a plain web
 
 <p><a href="https://github.com/jrburke/almond">almond</a> is an AMD API shim that is very small, so it can be used in place of require.js
 when all of your modules are built into one file using the RequireJS optimizer. The
-<a href="https://github.com/jrburke/r.js/blob/master/build/example.build.js#L244">wrap</a> build config option allows specifying a function
-wrapper around the code, or you can provide your own wrapper if you need to do extra logic.</p> See the almond project for details on how to
-build with the API shim and with wrap.</p>
+<a href="https://github.com/jrburke/r.js/blob/master/build/example.build.js#L244">wrap</a> build config option will put a function
+wrapper around the code, or you can provide your own wrapper if you need to do extra logic.</p>
 
-<p>If you need to dynamically load code even after a build, then using almond+wrap will not be sufficient as almond cannot dynamically
-load code. Instead, you mean want to namespace your use of require/define. See next section.</p>
+<p>See the almond project for details on how to build with the API shim and with wrap.</p>
+
+<p>If you need to dynamically load code after a build, then using almond+wrap will not be sufficient as almond cannot dynamically
+load code. Instead, you may want to namespace your use of require/define. See next section.</p>
 </div>
 
 <div class="section">
 <h2><a name="namespace">How can I namespace my code to play well in other people's pages?</a><span class="sectionMark">&sect; 3</span></h2>
 
-<p>You may want to provide your code to web sites that may or may not use an AMD loader, and you need to dynamically load code,
-so doing a simple <a href="#wrap">one file build with a wrapper</a> is not enough.</p>
+<p>If you want to provide your code to web sites that may not use an AMD loader, and you need to dynamically load code,
+doing a simple <a href="#wrap">one file build with a wrapper</a> is not enough. You also may want isolate your loading needs from
+the page's AMD loader.</p>
 
 <p>There is a <a href="https://github.com/jrburke/r.js/blob/master/build/example.build.js#L159">namespace</a> build option that
 does the following:</p>
