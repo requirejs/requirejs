@@ -15,13 +15,6 @@ Next release
 
 - almond release: look at splice change
 
-- Update docs about plugins have dependencies, note that the dependencies
-  should be able to execute ideally in node and java environments, or whatever
-  env the developer is targeting for a build.
-
-- For plugins: document writeFile and writeFile.asModule(moduleName, fileName, contents)
-
-
 - test rflorence changes to things like bonzo: https://github.com/ded/bonzo/issues/32
 
 - Overriding modules used in r.js? https://github.com/jrburke/r.js/issues/24
