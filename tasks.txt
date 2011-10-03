@@ -8,9 +8,6 @@ Release Notes
 Next release
 --------------
 
-- Test copyDir normalize change on windows.
-  wrap too.
-
 - mix of types a problem? https://github.com/jrburke/require-cs/issues/5
 
 - almond release: look at splice change

@@ -19,7 +19,7 @@ Go to r.js project and run the following:
 * node allNode.js
 * ./allj.sh
 * node ../../r.js index.js
-* node ../../r.js canvasTest.js (use nave and do the npm installs listed in the JS file)
+* node canvasTest.js (use nave and do the npm installs listed in the JS file)
 * cd ../build/tests
 * ./alln.sh
 * ./allj.sh
