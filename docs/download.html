@@ -122,6 +122,24 @@ logic until the DOM is ready for querying/modification.</p>
 <div class="section">
 <h2><a name="releasenotes">Release Notes</a><span class="sectionMark">&sect; 3</span></h2>
 
+<h3 id="0-27-0">0.27.0</h3>
+
+<p>RequireJS 1.0 release candidate.</p>
+
+<ul>
+    <li><b>require.ready() has been removed</b>. In its place, use the <a href="api.html#pageload">domReady plugin</a>.
+    This allows better interoperability with other AMD loaders and better separation of concerns.</li>
+    <li>A new <a href="faq-optimization.html#wrap">wrap config option</a> for the optimizer is available,
+    for wrapping built code in a function. Allows for better API hiding and tiny builds with the
+    <a href="https://github.com/jrburke/almond">almond API shim</a>.</li>
+    <li>The order plugin is improved for IE.</li>
+    <li>Loader plugins can now have dependencies and they will work in the optimizer, as long as the
+    dependencies work in the optimizer environment (Node, Rhino).</li>
+    <li>The <a href="faq-optimization.html#namespace">namespace config option</a> for the optimizer is more robust.</li>
+    <li>Removed require.def(), use define() instead.</li>
+    <li>Removed module.setExports, use module.exports instead.</li>
+</ul>
+
 <h3 id="0-26-0">0.26.0</h3>
 
 <ul>
