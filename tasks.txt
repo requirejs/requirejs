@@ -1,12 +1,14 @@
 Release Notes
 -------------------
-- removed module.setExports support.
-- removed require.def support
-- removed require.ready, domReady plugin.
-- mention almond release?
+
+
 
 Next release
 --------------
+
+- Update uglifyjs for the release!
+
+- Doc: add info about overriding requirejs.onError.
 
 - mix of types a problem? https://github.com/jrburke/require-cs/issues/5
 

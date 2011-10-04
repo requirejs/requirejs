@@ -619,6 +619,9 @@ This example specifies some dependencies to load as soon as require.js defines r
 &lt;script type="text/javascript" src="scripts/require.js"&gt;&lt;/script&gt;
 </code></pre>
 
+<p><b>Note:</b> It is best to use <code>var require = {}</code> and do not use
+<code>window.require = {}</code>, it will not behave correctly in IE.</p>
+
 <p>Supported configuration options:</p>
 
 <p id="config-baseUrl"><strong>baseUrl</strong>: the root path to use for all module lookups. So in the above example, "my/module"'s script tag will have a src="/another/path/my/module.js". baseUrl is <strong>not</strong> used when loading plain .js files, those strings are used as-is, so a.js and b.js will be loaded from the same directory as the HTML page that contains the above snippet.</p>
