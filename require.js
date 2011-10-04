@@ -1364,7 +1364,11 @@ var requirejs, require, define;
                     for (i = syms.length; i > 0; i--) {
                         parentModule = syms.slice(0, i).join("/");
                         if (paths[parentModule]) {
-                            syms.splice(0, i, paths[parentModule]);
+                            if(isFunction(paths[parentModule])) {
+                                syms.splice(0, i, paths[parentModule]());
+                            } else {
+                                syms.splice(0, i, paths[parentModule]);
+                            }
                             break;
                         } else if ((pkg = pkgs[parentModule])) {
                             //If module name is just the package name, then looking
