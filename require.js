@@ -543,6 +543,13 @@ var requirejs, require, define;
                 execManager(depManager);
 
                 loaded[depManager.id] = true;
+
+                //The loading of this plugin
+                //might have placed other things
+                //in the paused queue. In particular,
+                //a loader plugin that depends on
+                //a different plugin loaded resource.
+                resume();
             };
 
             //Allow plugins to load other code without having to know the

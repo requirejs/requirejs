@@ -47,6 +47,7 @@ load("anon/anon-tests.js");
 load("packages/packages-tests.js");
 load("plugins/sync-tests.js");
 load("plugins/fromText/fromText-tests.js");
+load("plugins/textDepend/textDepend-tests.js");
 load("universal/universal-tests.js");
 load("defineError/defineError-tests.js");
 
