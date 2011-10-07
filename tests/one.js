@@ -15,4 +15,4 @@ define('one',
 
     return one;
   }
-);
+)

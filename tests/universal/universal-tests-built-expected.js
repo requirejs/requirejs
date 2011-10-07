@@ -55,7 +55,7 @@ define("eye", function(){});
         });
     }
 }));
-;
+
 /*jslint strict: false */
 /*global define: false, module: false, require: false, window: false */
 
@@ -88,7 +88,7 @@ define("eye", function(){});
         });
     }
 }));
-;
+
 require({baseUrl: require.isBrowser ? "./" : "./universal/"}, ["spell"], function(spell) {
     doh.register(
         "universal",
@@ -104,5 +104,5 @@ require({baseUrl: require.isBrowser ? "./" : "./universal/"}, ["spell"], functio
 
     doh.run();
 });
-;
+
 define("universal-tests", function(){});

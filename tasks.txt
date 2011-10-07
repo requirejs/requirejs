@@ -6,10 +6,12 @@ Release Notes
 Next release
 --------------
 
-- Work on module adapater format, modify optimizer to see it: https://gist.github.com/1262861
+- Work on module adapter format, modify optimizer to see it: https://gist.github.com/1262861
 - test rflorence changes to things like bonzo: https://github.com/ded/bonzo/issues/32
 
 - Update uglifyjs for the release!
+
+- Do a nodeOverride.uglifyjs/index=uglify-js sort of syntax for the build? https://github.com/jrburke/r.js/issues/24
 
 - Doc: add info about overriding requirejs.onError.
 
