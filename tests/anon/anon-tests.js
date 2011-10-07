@@ -26,22 +26,24 @@ require({
                     //Also try a require call after initial
                     //load that uses already loaded modules,
                     //to be sure the require callback is called.
-                    setTimeout(function () {
-                        require(["blue", "red", "magenta"], function (blue, red) {
-                            doh.register(
-                                "anonSimpleCached",
-                                [
-                                    function colorsCached(t){
-                                        t.is("red", red.name);
-                                        t.is("blue", blue.name);
-                                        t.is("redblue", magenta.name);
-                                        t.is("hello world", magenta.message);
-                                   }
-                                ]
-                            );
-                            doh.run();
-                        });
-                    }, 300);
+                    if (require.isBrowser) {
+                        setTimeout(function () {
+                            require(["blue", "red", "magenta"], function (blue, red) {
+                                doh.register(
+                                    "anonSimpleCached",
+                                    [
+                                        function colorsCached(t){
+                                            t.is("red", red.name);
+                                            t.is("blue", blue.name);
+                                            t.is("redblue", magenta.name);
+                                            t.is("hello world", magenta.message);
+                                       }
+                                    ]
+                                );
+                                doh.run();
+                            });
+                        }, 300);
+                    }
                 }
             ]
         );

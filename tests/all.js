@@ -61,6 +61,10 @@ doh.registerUrl("layers", "../layers/layers.html", 10000);
 
 doh.registerUrl("afterload", "../afterload.html", 10000);
 
+doh.registerUrl("universal", "../universal/universal.html");
+doh.registerUrl("universalBuilt", "../universal/universal-built.html");
+
+
 doh.registerUrl("nestedDefine", "../nestedDefine/nestedDefine.html");
 doh.registerUrl("defineError", "../defineError/defineError.html");
 

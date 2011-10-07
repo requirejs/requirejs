@@ -6,6 +6,9 @@ Release Notes
 Next release
 --------------
 
+- Work on module adapater format, modify optimizer to see it: https://gist.github.com/1262861
+- test rflorence changes to things like bonzo: https://github.com/ded/bonzo/issues/32
+
 - Update uglifyjs for the release!
 
 - Doc: add info about overriding requirejs.onError.
@@ -13,8 +16,6 @@ Next release
 - mix of types a problem? https://github.com/jrburke/require-cs/issues/5
 
 - almond release: look at splice change
-
-- test rflorence changes to things like bonzo: https://github.com/ded/bonzo/issues/32
 
 - Overriding modules used in r.js? https://github.com/jrburke/r.js/issues/24
 
