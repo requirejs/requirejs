@@ -1,5 +1,5 @@
 /**
- * @license RequireJS domReady 0.27.0 Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
+ * @license RequireJS domReady 0.27.1 Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/requirejs for details
  */
@@ -151,7 +151,7 @@ define(function () {
         return domReady;
     };
 
-    domReady.version = '0.27.0';
+    domReady.version = '0.27.1';
 
     /**
      * Loader Plugin API method

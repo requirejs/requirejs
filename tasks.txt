@@ -9,19 +9,14 @@ Next release
 - Work on module adapter format, modify optimizer to see it: https://gist.github.com/1262861
 - test rflorence changes to things like bonzo: https://github.com/ded/bonzo/issues/32
 
-- Update uglifyjs for the release!
-
-- Do a nodeOverride.uglifyjs/index=uglify-js sort of syntax for the build? https://github.com/jrburke/r.js/issues/24
+- Finish backbone branch
 
 - Doc: add info about overriding requirejs.onError.
-
-- mix of types a problem? https://github.com/jrburke/require-cs/issues/5
+  - consider opt in fallback for define calls, detect require, doc.write it...
 
 - almond release: look at splice change
 
-- Overriding modules used in r.js? https://github.com/jrburke/r.js/issues/24
-
-- onModuleLoad, useful?
+- onResourceLoad, useful?
 
 - jQuery 1.7 Beta 1: try it, also need to document define.amd.jQuery flag.
 
