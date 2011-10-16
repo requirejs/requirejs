@@ -41,6 +41,8 @@ doh.registerUrl("jqueryDynamic", "../jquery/jqueryDynamic.html");
 doh.registerUrl("jqueryDynamic2", "../jquery/jqueryDynamic2.html");
 doh.registerUrl("jqueryDynamic-1.6", "../jquery/jqueryDynamic-1.6.html");
 doh.registerUrl("jqueryDynamic2-1.6", "../jquery/jqueryDynamic2-1.6.html");
+doh.registerUrl("jqueryDynamic-1.7", "../jquery/jqueryDynamic-1.7.html");
+doh.registerUrl("jqueryDynamic2-1.7", "../jquery/jqueryDynamic2-1.7.html");
 
 doh.registerUrl("i18nlocaleunknown", "../i18n/i18n.html?bundle=i18n!nls/fr-fr/colors");
 
