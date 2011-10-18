@@ -1,5 +1,5 @@
 /**
- * @license RequireJS text 0.27.1 Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
+ * @license RequireJS text 1.0.0 Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/requirejs for details
  */
@@ -84,7 +84,7 @@
         }
 
         text = {
-            version: '0.27.1',
+            version: '1.0.0',
 
             strip: function (content) {
                 //Strips <?xml ...?> declarations so that external SVG and XML
