@@ -35,8 +35,8 @@
 </ul>
 
 <p>This page talks about the design forces and use of the
-<a href="https://github.com/amdjs/amdjs-api/wiki/AMD">Asynchronous Module Definition (AMD) API</a> for JavaScript modules.
-There is a different page that talks about <a href="why.html">the general utility and loading mechanisms for modules on the web</a>.</p>
+<a href="https://github.com/amdjs/amdjs-api/wiki/AMD">Asynchronous Module Definition (AMD) API</a> for JavaScript modules, the module API supported by RequireJS.
+There is a different page that talks about <a href="why.html">general approach to modules on the web</a>.</p>
 
 </div>
 
@@ -47,7 +47,7 @@ There is a different page that talks about <a href="why.html">the general utilit
 <span class="sectionMark">&sect; 1</span>
 </h2>
 
-<p>What are JavaScript modules? What is their purpose? I see it breaking down into two basic things:</p>
+<p>What are JavaScript modules? What is their purpose?</p>
 
 <ul>
 <li><strong>Definition</strong>: how to encapsulate a piece of code into a useful unit, and how to register its capability/export a value for the module.</li>
@@ -281,7 +281,7 @@ if (someCondition) {
 
 <h2>Verbosity vs. Usefulness</h2>
 
-<p>One of the criticisms I have heard of AMD, at least compared to CJS modules, is that it requires a level of indent and a function wrapping.</p>
+<p>One of the criticisms of AMD, at least compared to CJS modules, is that it requires a level of indent and a function wrapping.</p>
 
 <p>But here is the plain truth: the perceived extra typing and a level of indent to use AMD does not matter. Here is where your time goes when coding:</p>
 
@@ -311,15 +311,15 @@ if (someCondition) {
 <p>AMD and its related APIs, have helped show the following for any future JS module system:</p>
 
 <ul>
-<li>Returning a function, particularly a constructor function, is a useful module property and leads to better API design. Node has module.exports to allow this, but being able to use "return function (){}" is much cleaner. It means not having to get a handle on "module" to do module.exports, and it is a clearer code expression.</li>
-<li>Dynamic code loading (done in AMD systems via <a href="https://github.com/amdjs/amdjs-api/wiki/require">require([], function (){}))</a> is a level 0 requirement. CJS talked about it, had some proposals, but it was not fully embraced. Node does not have any support for this need, instead relying on the synchronous behavior of require(''), which is not portable to the web.</li>
-<li>Being able to selectively map one module to load from another location makes it easy to provide mock objects for testing.</li>
-<li>There should only be one IO action for each module: web browsers are not tolerant of multiple file lookups to find a file. In particular, this argues against the multiple path lookups that Node does now, and avoiding the use of a package.json "main" property. Just use module names that map easily to one location based on the project's location, using a reasonable default convention that does not require verbose configuration, but allow for simple configuration when needed.</li>
-<li><a href="http://requirejs.org/docs/plugins.html">Loader plugins</a> are incredibly useful. It helps avoid the nested brace indenting common in callback-based programming.</li>
-<li>It is best if there is an "opt-in" call that can be done so that older JS code can partcipate in the new system.</li>
+<li><strong>Returning a function as the module value</strong>, particularly a constructor function, leads to better API design. Node has module.exports to allow this, but being able to use "return function (){}" is much cleaner. It means not having to get a handle on "module" to do module.exports, and it is a clearer code expression.</li>
+<li><strong>Dynamic code loading</strong> (done in AMD systems via <a href="https://github.com/amdjs/amdjs-api/wiki/require">require([], function (){}))</a> is a basic requirement. CJS talked about it, had some proposals, but it was not fully embraced. Node does not have any support for this need, instead relying on the synchronous behavior of require(''), which is not portable to the web.</li>
+<li><strong><a href="http://requirejs.org/docs/plugins.html">Loader plugins</a></strong> are incredibly useful. It helps avoid the nested brace indenting common in callback-based programming.</li>
+<li><strong>Selectively mapping one module</strong> to load from another location makes it easy to provide mock objects for testing.</li>
+<li>There should only be at most <strong>one IO action for each module</strong>, and it should be straightforward. Web browsers are not tolerant of multiple IO lookups to find a module. This argues against the multiple path lookups that Node does now, and avoiding the use of a package.json "main" property. Just use module names that map easily to one location based on the project's location, using a reasonable default convention that does not require verbose configuration, but allow for simple configuration when needed.</li>
+<li>It is best if there is an <strong>"opt-in" call</strong> that can be done so that older JS code can partcipate in the new system.</li>
 </ul>
 
-<p>If a JS module system cannot deliver on the above needs, it is at a significant disadvantage as comparted to AMD and its related APIs around <a href="https://github.com/amdjs/amdjs-api/wiki/require">callback-require</a>, <a href="https://github.com/amdjs/amdjs-api/wiki/Loader-Plugins">loader plugins</a>, and paths-based module IDs.</p>
+<p>If a JS module system cannot deliver on the above features, it is at a significant disadvantage when compared to AMD and its related APIs around <a href="https://github.com/amdjs/amdjs-api/wiki/require">callback-require</a>, <a href="https://github.com/amdjs/amdjs-api/wiki/Loader-Plugins">loader plugins</a>, and paths-based module IDs.</p>
 
 </div>
 
@@ -339,7 +339,7 @@ if (someCondition) {
 <li><a href="http://ender.no.de/">Ender</a>-associated modules like <a href="https://github.com/ded/bonzo">bonzo</a>, <a href="https://github.com/ded/qwery">qwery</a>, <a href="https://github.com/fat/bean">bean</a> and <a href="https://github.com/ded/domready">domready</a></li>
 <li>Used by <a href="http://getfirebug.com/">Firebug</a> 1.8+</li>
 <li>The simplified CommonJS wrapper can be used in <a href="https://addons.mozilla.org/en-US/developers/docs/sdk/1.1/">Jetpack/Add-on SDK</a> for Firefox</li>
-<li>Used for parts of sites on <a href="http://www.bbc.co.uk/">the BBC</a> (observed by looking at the source, <strong>not</strong> an official recommendation of AMD/RequireJS :)</li>
+<li>Used for parts of sites on <a href="http://www.bbc.co.uk/">the BBC</a> (observed by looking at the source, not an official recommendation of AMD/RequireJS)</li>
 </ul>
 
 </div>
@@ -350,7 +350,7 @@ if (someCondition) {
 <span class="sectionMark">&sect; 10</span>
 </h2>
 
-<p>If you write applications:</p>
+<p><strong>If you write applications:</strong></p>
 
 <ul>
 <li>Give an AMD loader a try. You have some choices:
@@ -360,13 +360,13 @@ if (someCondition) {
 <li><a href="https://github.com/zazl/lsjs">lsjs</a></li>
 <li><a href="http://dojotoolkit.org/">Dojo</a> 1.7 and <a href="http://mootools.net/">MooTools</a> 2.0 each have their own</li>
 </ul></li>
-<li>If you want to use AMD to write your app code, but still follow the "load one script at the bottom of the HTML page:
+<li>If you want to use AMD but still use the <strong>load one script at the bottom of the HTML page</strong> approach:
 <ul>
 <li>Use the <a href="http://requirejs.org/docs/optimization.html">RequireJS optimizer</a> either in command line mode or as an <a href="https://github.com/jrburke/r.js/blob/master/build/tests/http/httpBuild.js">HTTP service</a> with the <a href="https://github.com/jrburke/almond">almond AMD shim</a>.</li>
 </ul></li>
 </ul>
 
-<p>If you are a script/library author:</p>
+<p><strong>If you are a script/library author</strong>:</p>
 
 <ul>
 <li><a href="https://gist.github.com/1262861">Optionally call define()</a> if it is available. The nice thing is you can still code your library without relying on AMD, just participate if it is available. This allows consumers of your modules to:
@@ -374,14 +374,14 @@ if (someCondition) {
 <li>avoid dumping global variables in the page</li>
 <li>use more options for code loading, delayed loading</li>
 <li>use existing AMD tooling to optimize their project</li>
-<li>participate in a really workable module system for JS in the browser today.</li>
+<li>participate in a workable module system for JS in the browser today.</li>
 </ul></li>
 </ul>
 
-<p>If you write code loaders/engines/environments for JavaScript:</p>
+<p><strong>If you write code loaders/engines/environments for JavaScript:</strong></p>
 
 <ul>
-<li>Implement <a href="https://github.com/amdjs/amdjs-api/wiki/AMD">the AMD API</a>. There is a discussion list and compatibility tests. Feel free to contact me with more info. By implementing AMD, you will reduce multi-module system boilerplate and help prove out a workable JavaScript module system on the web. This can be fed back into the ECMAScript process to build better native module support.</li>
+<li>Implement <a href="https://github.com/amdjs/amdjs-api/wiki/AMD">the AMD API</a>. There is <a href="https://groups.google.com/group/amd-implement">a discussion list</a> and <a href="https://github.com/amdjs/amdjs-tests">compatibility tests</a>. By implementing AMD, you will reduce multi-module system boilerplate and help prove out a workable JavaScript module system on the web. This can be fed back into the ECMAScript process to build better native module support.</li>
 <li>Also support <a href="https://github.com/amdjs/amdjs-api/wiki/require">callback-require</a> and <a href="https://github.com/amdjs/amdjs-api/wiki/Loader-Plugins">loader plugins</a>. Loader plugins are a great way to reduce the nested callback syndrome that can be common in callback/async-style code.</li>
 </ul>
 
