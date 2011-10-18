@@ -350,7 +350,7 @@ if (someCondition) {
 <span class="sectionMark">&sect; 10</span>
 </h2>
 
-<p><strong>If you write applications:</strong></p>
+<p id="doapp"><strong>If you write applications:</strong></p>
 
 <ul>
 <li>Give an AMD loader a try. You have some choices:
@@ -366,7 +366,7 @@ if (someCondition) {
 </ul></li>
 </ul>
 
-<p><strong>If you are a script/library author</strong>:</p>
+<p id="dolib"><strong>If you are a script/library author</strong>:</p>
 
 <ul>
 <li><a href="https://gist.github.com/1262861">Optionally call define()</a> if it is available. The nice thing is you can still code your library without relying on AMD, just participate if it is available. This allows consumers of your modules to:
@@ -378,7 +378,7 @@ if (someCondition) {
 </ul></li>
 </ul>
 
-<p><strong>If you write code loaders/engines/environments for JavaScript:</strong></p>
+<p id="doenv"><strong>If you write code loaders/engines/environments for JavaScript:</strong></p>
 
 <ul>
 <li>Implement <a href="https://github.com/amdjs/amdjs-api/wiki/AMD">the AMD API</a>. There is <a href="https://groups.google.com/group/amd-implement">a discussion list</a> and <a href="https://github.com/amdjs/amdjs-tests">compatibility tests</a>. By implementing AMD, you will reduce multi-module system boilerplate and help prove out a workable JavaScript module system on the web. This can be fed back into the ECMAScript process to build better native module support.</li>
