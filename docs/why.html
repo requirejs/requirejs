@@ -1,5 +1,5 @@
 <div id="directory" class="section">
-<h1>Why RequireJS?</h1>
+<h1>Why Web Modules?</h1>
 
 <ul class="index mono">
     <li class="hbox">
@@ -30,6 +30,11 @@
         <a href="#9">Function wrapping</a><span class="spacer boxFlex"></span><span class="sect">&sect; 9</span>
     </li>
 </ul>
+
+<p>This page discusses why modules on the web are useful and the mechanisms that can be used on the web today to enable them.
+There is a separate page that talks about <a href="whyamd.html">the design forces</a> for the particular function wrapped format
+used by RequireJS.</p>
+
 </div>
 
 <div class="section">
@@ -206,4 +211,7 @@ head.appendChild(script);
 <li>It makes debugging weird, line numbers will be off vs. the source file since the server is injecting a function wrapper.</li>
 <li>It requires more gear. Front-end development should be possible with static files.</li>
 </ul>
+
+<p>More details on the design forces and use cases for this function wrapping format, called Asynchronous Module Definition (AMD), can be found on the
+<a href="whyamd.html">Why AMD?</a> page.
 </div>
