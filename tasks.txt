@@ -6,6 +6,8 @@ Release Notes
 Next release
 --------------
 
+- Try dojo with requirejs
+
 - Work on module adapter format: make sure global for jquery uses jQuery.
     - If OK, then do pull request for backbone branch.
 - clarify commonjs wrapping in amd api page.
