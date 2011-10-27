@@ -22,7 +22,7 @@
 
 <p>The optimizer is part of the <a href="https://github.com/jrburke/r.js">r.js adapter for Node and Rhino</a>, and it is designed to be run as part of a build or packaging step after you are done with development and are ready to deploy the code for your users.</p>
 
-<p>The optimizer will only combine modules that are specified in arrays of string literals that are passed to top-level require and define calls. So, it will not find modules that are loaded via a variable name:</p>
+<p>The optimizer will only combine modules that are specified in arrays of string literals that are passed to top-level require and define calls, or the require('name') string literal calls in a <a href="whyamd.html#sugar">simplified CommonJS wrapping</a>. So, it will not find modules that are loaded via a variable name:</p>
 
 <pre><code>var mods = someCondition ? ['a', 'b'], ['c', 'd'];
 require(mods);</code></pre>
