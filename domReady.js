@@ -112,7 +112,7 @@ define(function () {
 
         //Check if document already complete, and if so, just trigger page load
         //listeners.
-        if (document.readyState === "complete") {
+        if (document.readyState === "complete" || document.readyState === "interactive") {
             pageLoaded();
         }
     }
@@ -151,7 +151,7 @@ define(function () {
         return domReady;
     };
 
-    domReady.version = '1.0.0';
+    domReady.version = '1.0.1';
 
     /**
      * Loader Plugin API method
