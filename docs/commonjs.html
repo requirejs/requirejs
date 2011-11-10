@@ -69,12 +69,7 @@ information.</p>
 });
 </code></pre>
 
-<p>For this approach to work, you <strong>must leave off</strong> the <em>exports</em> and <em>module</em> arguments to the factory function passed to define().</p>
-
-<p>If you include <em>exports</em>, then it is assumed you are doing a traditional CommonJS module wrapping and you wish to assign values to properties on the exports object instead of returning the exported value. If <em>exports</em> is included in the factory arguments, the returned value will be ignored.</p>
-
-<p>If you need <em>exports</em> or <em>module</em> for some reason, but still want to set the exported value, then you can assign a value to module.exports to set the module value to something other than the exports object. If you are using <em>exports</em> and <em>module</em>, remember to always specify the arguments in <a href="#manualconversion">the correct order</a>.</p>
-
+<p>With this approach, then you normally do not need the exports and module function arguments, so you can leave them off the module definition.</p>
 </div>
 
 <div class="section">
