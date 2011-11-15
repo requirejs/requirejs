@@ -1,8 +1,8 @@
-require.def("one", {
+define("one", {
     name: "one"
 });
 
-require.def("two", ["one"], function (one) {
+define("two", ["one"], function (one) {
     return {
         name: "two",
         oneName: "one"

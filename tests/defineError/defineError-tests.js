@@ -17,7 +17,10 @@ require.onError = function (err) {
 };
 
 require({
-        baseUrl: require.isBrowser ? './' : './defineError'
+        baseUrl: require.isBrowser ? './' : './defineError',
+        catchError: {
+            define: true
+        }
     },
     ["main"],
     function(main) {

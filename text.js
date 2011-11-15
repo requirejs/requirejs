@@ -1,5 +1,5 @@
 /**
- * @license RequireJS text 0.24.0 Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
+ * @license RequireJS text 1.0.0 Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/requirejs for details
  */
@@ -13,6 +13,9 @@
         xmlRegExp = /^\s*<\?xml(\s)+version=[\'\"](\d)*.(\d)*[\'\"](\s)*\?>/im,
         bodyRegExp = /<body[^>]*>\s*([\s\S]+)\s*<\/body>/im,
         hasLocation = typeof location !== 'undefined' && location.href,
+        defaultProtocol = hasLocation && location.protocol && location.protocol.replace(/\:/, ''),
+        defaultHostName = hasLocation && location.hostname,
+        defaultPort = hasLocation && (location.port || undefined),
         buildMap = [];
 
     define(function () {
@@ -81,7 +84,7 @@
         }
 
         text = {
-            version: '0.24.0',
+            version: '1.0.0',
 
             strip: function (content) {
                 //Strips <?xml ...?> declarations so that external SVG and XML
@@ -138,7 +141,7 @@
 
             /**
              * Parses a resource name into its component parts. Resource names
-             * look like: module/name.ext?strip, where the ?strip part is
+             * look like: module/name.ext!strip, where the !strip part is
              * optional.
              * @param {String} name the resource name
              * @returns {Object} with properties "moduleName", "ext" and "strip"
@@ -149,7 +152,7 @@
                     modName = name.substring(0, index),
                     ext = name.substring(index + 1, name.length);
 
-                index = ext.indexOf("?");
+                index = ext.indexOf("!");
                 if (index !== -1) {
                     //Pull off the strip arg.
                     strip = ext.substring(index + 1, ext.length);
@@ -174,7 +177,7 @@
              * @param {String} url
              * @returns Boolean
              */
-            canUseXhr: function (url, protocol, hostname, port) {
+            useXhr: function (url, protocol, hostname, port) {
                 var match = text.xdRegExp.exec(url),
                     uProtocol, uHostName, uPort;
                 if (!match) {
@@ -201,7 +204,7 @@
             },
 
             load: function (name, req, onLoad, config) {
-                //Name has format: some.module.filext?strip
+                //Name has format: some.module.filext!strip
                 //The strip part is optional.
                 //if strip is present, then that means only get the string contents
                 //inside a body tag in an HTML string. For XML/SVG content it means
@@ -210,10 +213,12 @@
 
                 var parsed = text.parseName(name),
                     nonStripName = parsed.moduleName + '.' + parsed.ext,
-                    url = req.toUrl(nonStripName);
+                    url = req.toUrl(nonStripName),
+                    useXhr = (config && config.text && config.text.useXhr) ||
+                             text.useXhr;
 
                 //Load the text. Use XHR if possible and in a browser.
-                if (!hasLocation || text.canUseXhr(url)) {
+                if (!hasLocation || useXhr(url, defaultProtocol, defaultHostName, defaultPort)) {
                     text.get(url, function (content) {
                         text.finishLoad(name, parsed.strip, content, onLoad, config);
                     });
@@ -221,7 +226,7 @@
                     //Need to fetch the resource across domains. Assume
                     //the resource has been optimized into a JS module. Fetch
                     //by the module name + extension, but do not include the
-                    //?strip part to avoid file system issues.
+                    //!strip part to avoid file system issues.
                     req([nonStripName], function (content) {
                         text.finishLoad(parsed.moduleName + '.' + parsed.ext,
                                         parsed.strip, content, onLoad, config);
@@ -232,8 +237,10 @@
             write: function (pluginName, moduleName, write, config) {
                 if (moduleName in buildMap) {
                     var content = text.jsEscape(buildMap[moduleName]);
-                    write("define('" + pluginName + "!" + moduleName  +
-                          "', function () { return '" + content + "';});\n");
+                    write.asModule(pluginName + "!" + moduleName,
+                                   "define(function () { return '" +
+                                       content +
+                                   "';});\n");
                 }
             },
 
@@ -247,12 +254,19 @@
 
                 //Leverage own load() method to load plugin value, but only
                 //write out values that do not have the strip argument,
-                //to avoid any potential issues with ? in file names.
+                //to avoid any potential issues with ! in file names.
                 text.load(nonStripName, req, function (value) {
                     //Use own write() method to construct full module value.
-                    text.write(pluginName, nonStripName, function (contents) {
-                        write(fileName, contents);
-                    }, config);
+                    //But need to create shell that translates writeFile's
+                    //write() to the right interface.
+                    var textWrite = function (contents) {
+                        return write(fileName, contents);
+                    };
+                    textWrite.asModule = function (moduleName, contents) {
+                        return write.asModule(moduleName, fileName, contents);
+                    };
+
+                    text.write(pluginName, nonStripName, textWrite, config);
                 }, config);
             }
         };

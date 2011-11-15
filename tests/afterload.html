@@ -15,11 +15,13 @@
         }
 
         require({
-                baseUrl: "./"
+                paths: {
+                    domReady: "../domReady"
+                }
             },
-            ["require", "simple"],
-            function (require, simple) {
-                require.ready(function() {
+            ["require", "simple", "domReady"],
+            function (require, simple, domReady) {
+                domReady(function() {
                     doh.is("blue", simple.color);
 
                     //Now test another script getting loaded will see
@@ -83,28 +85,6 @@
     );
     doh.run();
 
-
-    /*}
-    require({
-            baseUrl: "./"    
-        },
-        ["require", "simple", "dimple"],
-        function(require, simple, dimple) {
-            require.ready(function(){
-                doh.register(
-                    "simple", 
-                    [
-                        function colors(t){
-                            t.is("blue", simple.color);
-                            t.is("dimple-blue", dimple.color);
-                        }
-                    ]
-                );
-                doh.run();			
-            });
-        }
-    );
-    */
     </script>
 </head>
 <body onload="loadRequire()">

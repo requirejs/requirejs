@@ -1,6 +1,6 @@
 //Example layer file.
 
-require.def("alpha",
+define("alpha",
     ["beta", "gamma"],
     function (beta, gamma) {
         return {
@@ -10,7 +10,7 @@ require.def("alpha",
     }
 );
 
-require.def("beta",
+define("beta",
     ["gamma"],
     function (gamma) {
         return {

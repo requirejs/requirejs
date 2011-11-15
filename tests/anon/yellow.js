@@ -1,3 +1,3 @@
-require.def("yellow", {
+define("yellow", {
     name: "yellow"
 });

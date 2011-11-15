@@ -1,4 +1,4 @@
-require.def('req/begin', function() {
+define('req/begin', function() {
 	window.ip = {
 		begin: 'begin',
 		controllers: {},

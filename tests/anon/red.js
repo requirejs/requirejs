@@ -1,4 +1,4 @@
-require.def("red", function () {
+define("red", function () {
     return {
         name: "red"
     };

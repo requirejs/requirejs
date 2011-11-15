@@ -1,4 +1,4 @@
-require.def("epsilon",
+define("epsilon",
     {
         name: "epsilon"
     }

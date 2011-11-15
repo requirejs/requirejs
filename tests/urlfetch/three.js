@@ -1,4 +1,4 @@
-require.def("three", {
+define("three", {
     name: "three"
 });
 

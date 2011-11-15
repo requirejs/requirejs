@@ -2,13 +2,16 @@
 <h1>How to use RequireJS with jQuery</h1>
 <ul class="index mono">
     <li class="hbox">
-        <a href="#1">Get RequireJS</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1</span>
+        <a href="#get">Get RequireJS</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1</span>
     </li>
     <li class="hbox">
-        <a href="#2">Set up your HTML page</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2</span>
+        <a href="#setup">Set up your HTML page</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2</span>
     </li>
     <li class="hbox">
-        <a href="#3">Feel the need for speed</a><span class="spacer boxFlex"></span><span class="sect">&sect; 3</span>
+        <a href="#optimize">Feel the need for speed</a><span class="spacer boxFlex"></span><span class="sect">&sect; 3</span>
+    </li>
+    <li class="hbox">
+        <a href="#advanced">Advanced use</a><span class="spacer boxFlex"></span><span class="sect">&sect; 4</span>
     </li>
 </ul>
 <p>When a project reaches a certain size, managing the script modules for a project starts to get tricky. You need to be sure to sequence the scripts in the right order, and you need to start seriously thinking about combining scripts together into a bundle for deployment, so that only one or a very small number of requests are made to load the scripts.</p>
@@ -22,7 +25,7 @@
 
 <div class="section">
 <h2>
-<a name="1">Get RequireJS</a>
+<a name="get">Get RequireJS</a>
 <span class="sectionMark">&sect; 1</span>
 </h2>
 
@@ -37,7 +40,7 @@
 
 <div class="section">
 <h2>
-<a name="2">Set up your HTML page</a>
+<a name="setup">Set up your HTML page</a>
 <span class="sectionMark">&sect; 2</span>
 </h2>
 
@@ -82,7 +85,7 @@
 
 <div class="section">
 <h2>
-<a name="3">Feel the need for speed</a>
+<a name="optimize">Feel the need for speed</a>
 <span class="sectionMark">&sect; 3</span>
 </h2>
 
@@ -134,4 +137,45 @@
 </code></pre>
 
 <p>Now, in the webapp-build directory, main.js will have the main.js contents, jquery.alpha.js and jquery.beta.js inlined. If you then load the app.html file in the webapp-build directory, you should not see any network requests for jquery.alpha.js and jquery.beta.js.</p>
+</div>
+
+
+<div class="section">
+<h2>
+<a name="advanced">Advanced use</a>
+<span class="sectionMark">&sect; 4</span>
+</h2>
+
+<p>The steps above make it easy start modular development with jQuery, particularly if you are using
+jQuery plugins that assume jQuery is already loaded in the page. The trade-off with the above approach
+is using a combined RequireJS and jQuery file.</p>
+
+<p>Ideally you would not need to include jQuery with RequireJS, and just use RequireJS to load jQuery
+on demand. However, by default scripts can load out of order with RequireJS, and this does not work well
+with jQuery plugins.</p>
+
+<p>Some options:</p>
+
+<ul>
+    <li>Use the <a href="api.html#order">order plugin</a> to load jQuery and the plugins you
+    use in the correct order.</li>
+    <li>Use the priority config to load jQuery before other scripts load. See the
+    <a href="https://github.com/jrburke/require-jquery">Alternate Integration section
+    in the require-jquery project</a> for more information.</li>
+    <li>Wrap the plugins in a define() call.</li>
+</ul>
+
+<p>Ideally all the jQuery plugins you use would optionally call define() to register
+as a module. Some of the plugins you use may already call define() to register as an
+AMD module. If they do not, then you can wrap the code yourself with this wrapper:
+
+<pre><code>define(['jquery'], function ($) {
+    //Plugin code goes here.
+});
+</code></pre>
+
+<p>In addition, you can ask the plugin author to optionally calling define()
+in their code. The <a href="https://github.com/umdjs/umd">umdjs project</a>
+has some resources and examples to help them.</p>
+
 </div>

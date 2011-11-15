@@ -34,23 +34,14 @@ require(
         doh.is("theta", gamma.thetaName);
         doh.is("epsilon", gamma.epsilonName);
         doh.is("epsilon", epsilon.name);
+
+        var regExp = /alpha|beta|gamma|theta/,
+            i,
+            scripts = document.getElementsByTagName("script");
+        for (i = scripts.length - 1; i > -1; i--) {
+            doh.f(regExp.test(scripts[i].src));
+        }
+        master.callback(true);
+
     }
 );
-
-function verifyFunc() {
-    var regExp = /alpha|beta|gamma|theta/,
-        i,
-        scripts = document.getElementsByTagName("script");
-    for (i = scripts.length - 1; i > -1; i--) {
-        doh.f(regExp.test(scripts[i].src));
-    }
-    master.callback(true);
-}
-
-//Account for requiring this test with a version of require.js that
-//does not have require.ready built in.
-if (require.ready) {
-    require.ready(verifyFunc);
-} else {
-    setTimeout(verifyFunc, 3000);
-}

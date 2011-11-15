@@ -57,7 +57,7 @@ information.</p>
 <div class="section">
 <h2><a name="exports">Setting Exported Value</a><span class="sectionMark">&sect; 4</span></h2>
 
-<p>There are some CommonJS systems that allow setting the exported value via module.setExports() or assigning the exported value as module.exports. Both of those idioms are supported by RequireJS, but there is another, easier one that is supported too -- just return the value from the function passed to <strong>define</strong>:</p>
+<p>There are some CommonJS systems, mainly Node, that allow setting the exported value by assigning the exported value as module.exports. That idiom is supported by RequireJS, but there is another, easier way -- just return the value from the function passed to <strong>define</strong>:</p>
 
 <pre><code>define(function (require) {
     var foo = require('foo');

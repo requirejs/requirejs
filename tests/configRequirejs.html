@@ -27,14 +27,15 @@
         var s, d, f,
             requirejs = {
                 baseUrl: "./",
-                deps: ["require", "simple", "dimple", "func"],
-                callback: function (require, simple, dimple, func) {
+                paths: {
+                    domReady: '../domReady'
+                },
+                deps: ["require", "simple", "dimple", "func", "domReady"],
+                callback: function (require, simple, dimple, func, domReady) {
                     s = simple;
                     d = dimple;
                     f = func;
-                },
-                ready: function() {
-                    done();
+                    domReady.withResources(done);
                 }
             };
     </script>

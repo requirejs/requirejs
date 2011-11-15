@@ -1,3 +1,3 @@
-require.def(function () {
+define(function () {
     return 'beta';
 });

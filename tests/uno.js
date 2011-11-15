@@ -1,4 +1,4 @@
-require.def("uno",
+define("uno",
   ["dos", "tres"],
   function(dos, tres) {
     return {

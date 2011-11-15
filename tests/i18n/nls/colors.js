@@ -1,4 +1,4 @@
-require.def({
+define({
     "root": {
         red: "red",
         blue: "blue",

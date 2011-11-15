@@ -1,4 +1,4 @@
-require.def({
+define({
     red: "rouge",
     blue: "bleu"
 });

@@ -1,4 +1,4 @@
-require.def("omega",
+define("omega",
   function() {
     return {
       version: 2
