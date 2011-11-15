@@ -13,7 +13,7 @@
 <li class="hbox"><a href="#options">All configuration options</a><span class="spacer boxFlex"></span><span class="sect">&sect; 9</span></li>
 </ul>
 
-<span class="note">Note: RequireJS has an optimization tool that does the following</span>
+<p>RequireJS has an optimization tool that does the following</p>
 
 <ul class="serif">
 <li>Combines related scripts together into build layers and minifies them via <a href="https://github.com/mishoo/UglifyJS">UglifyJS</a>  (the default) or <a href="http://code.google.com/closure/compiler/">Closure Compiler</a> (an option when using Java).</li>
@@ -21,6 +21,22 @@
 </ul>
 
 <p>The optimizer is part of the <a href="https://github.com/jrburke/r.js">r.js adapter for Node and Rhino</a>, and it is designed to be run as part of a build or packaging step after you are done with development and are ready to deploy the code for your users.</p>
+
+<p>The optimizer will only combine modules that are specified in arrays of string literals that are passed to top-level require and define calls, or the require('name') string literal calls in a <a href="whyamd.html#sugar">simplified CommonJS wrapping</a>. So, it will not find modules that are loaded via a variable name:</p>
+
+<pre><code>var mods = someCondition ? ['a', 'b'], ['c', 'd'];
+require(mods);</code></pre>
+
+<p>but 'a' and 'b' will be included if specified like so:</p>
+
+<pre><code>require(['a', 'b']);</code></pre>
+
+<p>or:</p>
+
+<pre><code>define(['a', 'b'], function (a, b) {});</code></pre>
+
+<p>This behavior allows dynamic loading of modules even after optimization. You can always explicitly add modules that are not found via the optimizer's static analysis by using the <strong>include</strong> option.</p>
+
 </div>
 
 <div class="section">
@@ -38,13 +54,29 @@
 
 <p>Node is the preferred execution environment. The optimizer runs <strong>much faster</strong> with Node.</p>
 
-<p>All the example commands in this page assume Node usage, and running on a Linux/OS X command line. See the <a href="https://github.com/jrburke/r.js/blob/master/README.md">r.js README</a> for how to run it in Java.</p>
+<p>All the example commands in this page assume Node usage, and running on a Linux/OS X command line. See the <a href="https://github.com/jrburke/r.js">r.js README</a> for how to run it in Java.</p>
 </div>
 
 <div class="section">
 <h2><a name="download">Download</a><span class="sectionMark">&sect; 2</span></h2>
 
-<p>You can download the tool on <a href="download.html#rjs">the download page</a>.</p>
+<p>1) You can download the tool on <a href="download.html#rjs">the download page</a>.</p>
+
+<p>2) If you are using Node with NPM, you can install r.js as part of the "requirejs" package in NPM:</p>
+
+<pre><code>&gt; npm install requirejs
+&gt; r.js -o app.build.js
+</code></pre>
+
+<p>That will work for a project based in in the directory in which "npm install" is run. You can also install it globally via the -g option to npm:</p>
+
+<pre><code>&gt; npm install -g requirejs
+</code></pre>
+
+<p>If you install the requirejs npm package, you can also <a href="node.html#optimizer">use the optimizer via a function call</a> inside a node program.</p>
+
+<p>The rest of this page assumes that r.js is just downloaded manually from the download page. It is normally the clearest, most portable way to use the optimizer.</p>
+
 </div>
 
 <div class="section">
@@ -129,6 +161,8 @@
 <p>Since "require" is a reserved dependency name, you create a "requireLib" dependency and map it to the require.js file.</p>
 
 <p>Once that optimization is done, you can then rename the main-built.js file to require.js and your optimized project will only need to make one script request.</p>
+
+<p>If you want to wrap your built file so it can be used in pages that do not have an AMD loader like RequireJS, see the <a href="faq-optimization.html">Optimization FAQ</a>.</p>
 </div>
 
 <div class="section">
@@ -152,13 +186,14 @@
         &lt;link rel="stylesheet" type="text/css" href="css/main.css"&gt;
         &lt;script src="scripts/require.js"&gt;&lt;/script&gt;
         &lt;script&gt;
-            require({
+            require.config({
                 paths: {
                     //Comment out this line to go back to loading
                     //the non-optimized main.js source file.
                     "main": "main-built"
                 }
-            }, ["main"]);
+            });
+            require(["main"]);
         &lt;/script&gt;
     &lt;/head&gt;
     &lt;body&gt;
@@ -260,9 +295,7 @@ if (true) {
 }
 </code></pre>
 
-<p>Then, if you use the <b>optimize</b> setting that uses Closure Compiler (when run under Java), Closure Compiler will optimize out the dead code branch! So you can do custom builds of your code that are optimized for a set of has() tests.</p>
-
-<span class="note">The default optimize setting, "uglify", does <strong>not</strong> do dead code branch removal at this time. It is hoped that UglifyJS will implement that feature at some point.</span>
+<p>Then, if you use the default optimize setting of "uglify" in r.js 0.26.0 or later, or if the <b>optimize</b> setting is set to "closure" (when <a href="https://github.com/jrburke/r.js">run under Java</a>), the minifier will optimize out the dead code branch! So you can do custom builds of your code that are optimized for a set of has() tests.</p>
 
 </div>
 

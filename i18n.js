@@ -1,5 +1,5 @@
 /**
- * @license RequireJS i18n 0.24.0 Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
+ * @license RequireJS i18n 1.0.0 Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/requirejs for details
  */
@@ -79,7 +79,7 @@
     }
 
     define({
-        version: '0.24.0',
+        version: '1.0.0',
         /**
          * Called when a dependency needs to be loaded.
          */
@@ -123,8 +123,10 @@
                     current += (current ? "-" : "") + part;
                     addIfExists(req, current, toLoad, prefix, suffix);
                 }
-                req(toLoad);
-                onLoad();
+
+                req(toLoad, function () {
+                    onLoad();
+                });
             } else {
                 //First, fetch the master bundle, it knows what locales are available.
                 req([masterName], function (master) {

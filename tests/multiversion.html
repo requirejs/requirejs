@@ -49,11 +49,11 @@
 			    }
 			);
 
-			require(
+			require.config(
 			    {
 				context: "version2",
 				baseUrl: "version2/"
-			    },
+			    })(
 			    ["require", "alpha", "beta", "version2/epsilon.js"],
 			    function(require, alpha, beta) {
 				//Notice no module arg name for epsilon in the function call.
@@ -72,8 +72,7 @@
 					}
 				    );
 				}, 100);
-			    }
-			);
+			    });
 
 			return master;
 		    }

@@ -1,4 +1,4 @@
-require.def("map",
+define("map",
   function() {
     return {
       name: "map"

@@ -43,26 +43,16 @@
             doh.is("leaf", tree.leafName);
             doh.is("bark", tree.barkName);
             doh.is("flower", bush.name);
+
+            var regExp = /bark/,
+                i,
+                scripts = document.getElementsByTagName("script");
+            for (i = scripts.length - 1; i > -1; i--) {
+                doh.f(regExp.test(scripts[i].src));
+            }
+            master.callback(true);
         }
     );
-
-    function verifyFunc() {
-        var regExp = /bark/,
-            i,
-            scripts = document.getElementsByTagName("script");
-        for (i = scripts.length - 1; i > -1; i--) {
-            doh.f(regExp.test(scripts[i].src));
-        }
-        master.callback(true);
-    }
-
-    //Account for requiring this test with a version of require.js that
-    //does not have require.ready built in.
-    if (require.ready) {
-        require.ready(verifyFunc);
-    } else {
-        setTimeout(verifyFunc, 3000);
-    }
     </script>
 </head>
 <body>

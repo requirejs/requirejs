@@ -7,7 +7,7 @@
     <script>
         function done() {
             doh.register(
-                        "config", 
+                        "config",
                         [
                             function config(t){
                                 t.is("blue", s.color);
@@ -22,13 +22,14 @@
         var s, d, f,
             require = {
                 baseUrl: "./",
-                deps: ["require", "simple", "dimple", "func"],
-                callback: function (require, simple, dimple, func) {
+                paths: {
+                    domReady: '../domReady'
+                },
+                deps: ["require", "simple", "dimple", "func", "domReady!"],
+                callback: function (require, simple, dimple, func, doc) {
                     s = simple;
                     d = dimple;
                     f = func;
-                },
-                ready: function() {
                     done();
                 }
             };
@@ -37,7 +38,7 @@
 </head>
 <body>
     <h1>require.js: Config Test</h1>
-    <p>Tests require being defined as an object with init and ready configuration.</p>
+    <p>Tests require being defined as an object with init and domReady plugin usage in configuration.</p>
     <p>Check console for messages.</p>
 </body>
 </html>

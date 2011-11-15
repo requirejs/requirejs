@@ -1,4 +1,4 @@
-require.def("tres",
+define("tres",
   function() {
     return {
       name: "tres"

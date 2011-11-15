@@ -1,4 +1,4 @@
 //Tests overriding a package path with a more specific mapping.
-require.def({
+define({
     name: 'fake/alpha/replace'
 });

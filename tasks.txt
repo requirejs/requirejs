@@ -1,22 +1,48 @@
 Release Notes
 -------------------
-- bumps in the api, moving towards interop.
-- includeRequire is removed, use paths: {requireLib: "../../require"} to get require in it.
-  See the optimization.html for the requireLib example.
-- New optimizer/node/rhino adapter: r.js
-- Removed support for lib in packages.
-- relative IDs are now relative to the module ID.
-- text plugin API changed? Uses ?strip instead of !strip now. But why? Only in multiWrite
-- isDefined is now defined() and there is a specified() that is available of of context-sensitive require.
-- support plugin resources built as separate files via the writeFile method
-- requirejs global object, chromeless.
-- amd tests, discussion on new list.
-- new error page diagnostics.
+
+
 
 Next release
 --------------
 
+- Try dojo with requirejs
+
+- Work on module adapter format: make sure global for jquery uses jQuery.
+    - If OK, then do pull request for backbone branch.
+- clarify commonjs wrapping in amd api page.
+- add amd test for dynamic that uses commonjs wrapper, remove dynamic from list of APIs require.js supports.
+
+- Doc: add info about overriding requirejs.onError.
+  - consider opt in fallback for define calls, detect require, doc.write it...
+
+- Need to document define.amd.jQuery flag.
+
+--------
+
+- onResourceLoad, useful?
+
+- cdnjs: how to use with fallback
+
+- has() source trimming, needs brace matching?
+
+
+- need to surface pragmasOnSave better?
+
+- example using backbone and such.
+
+- example that shows how to do a "include *" in a build.
+
+- coffeescript: extend duplication: https://github.com/jrburke/require-cs/issues/7
+
+- integrate properly with cpm
+
+- A way to support local file/other kinds of caches?
+http://groups.google.com/group/requirejs/browse_thread/thread/77092307ac6b9acb
+http://www.html5rocks.com/en/tutorials/file/filesystem/#toc-filesystemurls
+
 Docs:
+
 - Pointer to motivations behind current thing, reason for dependencies.
 
 - Update the coffeescript plugin to use the writeFile API?
@@ -25,56 +51,16 @@ Docs:
 
 - https://github.com/jrburke/requirejs/issues/104: define as a special dependency?
 
-- mingw on windows build: weird path issue/file not found? Tim's example.
-
-
-- domReady plugin
-  - Update docs
-    - remove the config.ready support.
-    - remove require.ready
-    - add domReady docs.
-  - add domReady tests? Or tested already in the tests.
-    - Need waitForLoader test
-    - Need to add a boolean to indicate if if scripts are done.
-  - require.s.isDone used in Node and Rhino adapters?
-
-- check priority tests on Safari 3, in the non-domReady branch.
-  In master, it has occasional failures too.
-
 - replacement for modify that intercepts callbacks, holds off until another module loads them?
   - A way to show dependency graph too?
 - Minify the require.js files with UglifyJS.
 
-- Test DOMContentLoaded work related to dojo-contributors "bring back skipIeDomLoaded" thread,
-  selenium tests.
-  - http://trac.dojotoolkit.org/ticket/13113
-
 - https://github.com/jrburke/requirejs/pull/71: process by 2/21
-
-- r.js: do not find require calls inside define calls, to allow dynamic loading to
-  happen without var req = require gymnastics.
 
 - If any other info: IE checkLoaded recursion? https://github.com/jrburke/requirejs/issues/82
 
-- build tool to rename require and define calls to other names?
-- Confirm: From Richard Backhouse: As an FYI I have been doing my own investigation of using UglifyJS for compression
-and one thing I found when trying to compress dojo 1.5 code was that I had ensure that "make_seqs"
-flag was set to false when calling ast_squeeze. If I left this flag set to true the code would not load.
-
-- https://github.com/jrburke/r.js/issues/1
-  Why can't plugins have dependencies? It is because the dependency is not fully evaluated.
-  Maybe rethink it, there have been some cases where creating a plugin that uses the
-  text plugin would be useful. However, would that mean the optimized result would include
-  the string twice in the output? Well for the text plugin, could allow other plugins to
-  indicate "do not inline this dependency" to help with that.
-- localeList for i18n.js support, for better Dojo support.
-
-
 Bugs to work on
 ------------------
-
-
-- File bug for UglifyJS on dead code removal.
 
 - Update AMD page to mention require scanning means only do them at the top.
 
@@ -82,8 +68,6 @@ Bugs to work on
   - removing scanning
   - add amd object
   - add plugins?
-
-- Allow specifying the use of a plugin in the data-main property? gets weird for built cases.
 
 - building with packages.build.js, the alpha/replace path mapping does not work out?
 

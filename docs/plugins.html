@@ -9,7 +9,8 @@
         <li class="hbox"><a href="#apiload">load</a><span class="spacer boxFlex"></span><span class="sect">&sect; 3.1</span></li>
         <li class="hbox"><a href="#apinormalize">normalize</a><span class="spacer boxFlex"></span><span class="sect">&sect; 3.2</span></li>
         <li class="hbox"><a href="#apiwrite">write</a><span class="spacer boxFlex"></span><span class="sect">&sect; 3.3</span></li>
-        <li class="hbox"><a href="#apipluginbuilder">pluginBuilder</a><span class="spacer boxFlex"></span><span class="sect">&sect; 3.4</span></li>
+        <li class="hbox"><a href="#apiwritefile">writeFile</a><span class="spacer boxFlex"></span><span class="sect">&sect; 3.4</span></li>
+        <li class="hbox"><a href="#apipluginbuilder">pluginBuilder</a><span class="spacer boxFlex"></span><span class="sect">&sect; 3.5</span></li>
     </ul>
 </ul>
 </div>
@@ -31,7 +32,9 @@ Plugin Names
 <span class="sectionMark">&sect; 2</span>
 </h2>
 
-<p>Loader plugins are just another module, but they implement a specific API. Loader plugins can also participate in the optimizer optimizations, allowing the resources they load to be inlined in an optimized build. However, when a plugin runs in the optimizer, it <strong>cannot</strong> have any dependencies (see the <a href="#apipluginbuilder">pluginBuilder</a> approach to make that easier).</p>
+<p>Loader plugins are just another module, but they implement a specific API. Loader plugins can also participate in the optimizer optimizations, allowing the resources they load to be inlined in an optimized build.</p>
+
+<p><b>Note</b>: the plugin and its dependencies should be able to run in non-browser environments like Node and Rhino. If they cannot, you should use an alternate <a href="#apipluginbuilder">plugin builder</a> module that can run in those environments.</p>
 
 <p>You can reference your plugin by putting its module name before a ! in the dependency. For instance, if you create a plugin with the name "foo.js", you would use it like so:</p>
 
@@ -255,8 +258,30 @@ write: function (pluginName, moduleName, write) {
 </code></pre>
 
 <h3>
-<a name="apipluginbuilder">pluginBuilder</a>
+<a name="apiwritefile">writeFile: function (pluginName, moduleName, write)</a>
 <span class="sectionMark">&sect; 3.4</span>
+</h3>
+
+<p><b>writeFile</b> is only used by the optimizer, and it only needs to be implemented if the plugin needs to write out an alternate version of a dependency that is handled by the plugin. It is a bit expensive to scan all modules in a project to look for all plugin dependencies, so this writeFile method will only be called if <b>optimizeAllPluginResources: true</b> is in the build profile for the RequireJS optimizer. writeFile is called with the following arguments:</p>
+
+<ul>
+    <li><b>pluginName</b>: String. The <b>normalized</b> name for the plugin. Most plugins will not be authored with a name (they will be anonymous plugins) so it is useful to know the normalized name for the plugin module for use in the optimized file.</li>
+    <li><b>name</b>: String. The <b>normalized</b> resource name.</li>
+    <li><b>parentRequire</b>: Function. A local "require" function. The main use of this in writeFile is for calling parentRequire.toUrl() to generate file paths that are inside the build directory.</li>
+    <li><b>write</b>: Function. A function to be called with two arguments:
+        <ul>
+            <li><b>fileName</b>: String. The name of the file to write. You can use parentRequire.toUrl() with a relative path to generate a file name that will be inside the build output directory.</li>
+            <li><b>text</b>: String. The contents of the file. Must be UTF-8 encoded.</li>
+        </ul>
+        This function also contains a property function, <b>write.asModule(moduleName, fileName, text)</b>. asModule can be used to write out a module that may have an anonymous define call in there that needs name insertion or/and contains implicit require("") dependencies that need to be pulled out for the optimized file.</li>
+        <li><b>config</b>: Object. A configuration object. This is a way for the optimizer to pass configuration information to the plugin.</li>
+</ul>
+
+<p>See the <a href="https://github.com/jrburke/requirejs/blob/master/text.js">text! plugin</a> for an example of writeFile.</p>
+
+<h3>
+<a name="apipluginbuilder">pluginBuilder</a>
+<span class="sectionMark">&sect; 3.5</span>
 </h3>
 
 <p><b>pluginBuilder</b> can be a string that points to another module to use instead of the current plugin when the plugin is used as part of an optimizer build.</p>

@@ -1,4 +1,4 @@
-require.def('req/config', [
+define('req/config', [
 	'req/begin'
 ], function() {
 	var config = {

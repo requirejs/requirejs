@@ -1,6 +1,6 @@
 //Example layer file.
 
-require.def("gamma",
+define("gamma",
     ["theta", "epsilon"],
     function (theta, epsilon) {
         return {
@@ -11,7 +11,7 @@ require.def("gamma",
     }
 );
 
-require.def("theta",
+define("theta",
     function () {
         return {
             name: "theta"

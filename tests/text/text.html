@@ -7,12 +7,13 @@
     <script type="text/javascript" src="../doh/_browserRunner.js"></script>
     <script type="text/javascript">
     require({
-            baseUrl: "./",
-            paths: {
-                text: "../../text"
-            } //, priority: ['widgetlayer']
-        },
-        ["require", "widget", "local", "text!resources/sample.html?strip"],
+        baseUrl: "./",
+        paths: {
+            text: "../../text"
+        } //, priority: ['widgetlayer']
+    });
+    require(
+        ["require", "widget", "local", "text!resources/sample.html!strip"],
         function(require, widget, local, sampleText) {
             doh.register(
                 "text",
@@ -28,13 +29,13 @@
 
                     function textLocalXhr(t){
                         var text = require('text');
-                        t.is(true, text.canUseXhr('./some/thing.html', 'http', 'some.domain.com'));
-                        t.is(false, text.canUseXhr('https://some.domain.com/some/thing.html', 'http', 'some.domain.com'));
-                        t.is(false, text.canUseXhr('http://domain.com/some/thing.html', 'http', 'some.domain.com'));
-                        t.is(true, text.canUseXhr('//some.domain.com/some/thing.html', 'http', 'some.domain.com'));
-                        t.is(true, text.canUseXhr('https://some.domain.com:444/some/thing.html', 'https', 'some.domain.com', '444'));
-                        t.is(false, text.canUseXhr('https://some.domain.com/some/thing.html', 'https', 'some.domain.com', '444'));
-
+                        t.is(true, text.useXhr('./some/thing.html', 'http', 'some.domain.com'));
+                        t.is(false, text.useXhr('https://some.domain.com/some/thing.html', 'http', 'some.domain.com'));
+                        t.is(false, text.useXhr('http://domain.com/some/thing.html', 'http', 'some.domain.com'));
+                        t.is(true, text.useXhr('//some.domain.com/some/thing.html', 'http', 'some.domain.com'));
+                        t.is(true, text.useXhr('https://some.domain.com:444/some/thing.html', 'https', 'some.domain.com', '444'));
+                        t.is(false, text.useXhr('https://some.domain.com/some/thing.html', 'https', 'some.domain.com', '444'));
+                        t.is(true, text.useXhr('http://localhost/some/thing.html', 'http', 'localhost'));
                     }
                 ]
             );

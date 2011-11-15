@@ -31,3 +31,8 @@ cp ../r.js/r.js ../r.no.de/server.js
 echo "Updating jqueryui-amd"
 cp ../require-jquery/jquery-require-sample/webapp/scripts/require-jquery.js ../jqueryui-amd/example/webapp/scripts/require-jquery.js
 cp ../r.js/r.js ../jqueryui-amd/example/r.js
+
+# The npm container stuff
+echo "Updating requirejs-npm"
+cp require.js ../requirejs-npm/requirejs/require.js
+cp ../r.js/r.js ../requirejs-npm/requirejs/bin/r.js

@@ -41,6 +41,8 @@ doh.registerUrl("jqueryDynamic", "../jquery/jqueryDynamic.html");
 doh.registerUrl("jqueryDynamic2", "../jquery/jqueryDynamic2.html");
 doh.registerUrl("jqueryDynamic-1.6", "../jquery/jqueryDynamic-1.6.html");
 doh.registerUrl("jqueryDynamic2-1.6", "../jquery/jqueryDynamic2-1.6.html");
+doh.registerUrl("jqueryDynamic-1.7", "../jquery/jqueryDynamic-1.7.html");
+doh.registerUrl("jqueryDynamic2-1.7", "../jquery/jqueryDynamic2-1.7.html");
 
 doh.registerUrl("i18nlocaleunknown", "../i18n/i18n.html?bundle=i18n!nls/fr-fr/colors");
 
@@ -61,17 +63,28 @@ doh.registerUrl("layers", "../layers/layers.html", 10000);
 
 doh.registerUrl("afterload", "../afterload.html", 10000);
 
+doh.registerUrl("universal", "../universal/universal.html");
+doh.registerUrl("universalBuilt", "../universal/universal-built.html");
+
+
+doh.registerUrl("nestedDefine", "../nestedDefine/nestedDefine.html");
 doh.registerUrl("defineError", "../defineError/defineError.html");
 
 doh.registerUrl("pluginsSync", "../plugins/sync.html");
 doh.registerUrl("doublePluginCall", "../plugins/double.html");
+doh.registerUrl("pluginsNameOnly", "../plugins/nameOnly.html");
 doh.registerUrl("pluginsFromText", "../plugins/fromText/fromText.html");
+doh.registerUrl("pluginsTextDepend", "../plugins/textDepend/textDepend.html");
+
 doh.registerUrl("text", "../text/text.html");
 doh.registerUrl("textOnly", "../text/textOnly.html");
+doh.registerUrl("textBuilt", "../text/textBuilt.html");
 doh.registerUrl("jsonp", "../jsonp/jsonp.html");
 doh.registerUrl("order", "../order/order.html");
+doh.registerUrl("domReadyWithResources", "../domReady/withResources.html");
 
 doh.registerUrl("relative", "../relative/relative.html");
+doh.registerUrl("remoteUrls", "../remoteUrls/remoteUrls.html");
 
 //Hmm, PS3 does not like exports test? assign2 is undefined?
 doh.registerUrl("exports", "../exports/exports.html");

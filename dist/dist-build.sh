@@ -35,6 +35,7 @@ cp ../r.js/r.js ../r.js/dist/r-$version.js
 # Copy over basic script deliverables
 cp $myDir/../require.js $version/comments/require.js
 cp $myDir/../text.js $version/comments/text.js
+cp $myDir/../domReady.js $version/comments/domReady.js
 cp $myDir/../order.js $version/comments/order.js
 cp $myDir/../i18n.js $version/comments/i18n.js
 
@@ -42,6 +43,7 @@ cp $myDir/../i18n.js $version/comments/i18n.js
 cd $version/comments
 java -jar ../../../r.js/lib/closure/compiler.jar --js require.js --js_output_file ../minified/require.js
 java -jar ../../../r.js/lib/closure/compiler.jar --js text.js --js_output_file ../minified/text.js
+java -jar ../../../r.js/lib/closure/compiler.jar --js domReady.js --js_output_file ../minified/domReady.js
 java -jar ../../../r.js/lib/closure/compiler.jar --js order.js --js_output_file ../minified/order.js
 java -jar ../../../r.js/lib/closure/compiler.jar --js i18n.js --js_output_file ../minified/i18n.js
 

@@ -1,5 +1,5 @@
 var globalLeafName = "leaf";
 
-require.def("leaf", {
+define("leaf", {
     name: globalLeafName
 });

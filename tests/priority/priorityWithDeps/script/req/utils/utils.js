@@ -1,4 +1,4 @@
-require.def('req/utils/utils', [
+define('req/utils/utils', [
 	'req/begin',
 	'req/config'
 ], function() {
