@@ -1053,7 +1053,16 @@ var requirejs, require, define;
                             //Regular dependency.
                             if (!urlFetched[url] && !loaded[fullName]) {
                                 req.load(context, fullName, url);
-                                urlFetched[url] = true;
+
+                                //Mark the URL as fetched, but only if it is
+                                //not an empty: URL, used by the optimizer.
+                                //In that case we need to be sure to call
+                                //load() for each module that is mapped to
+                                //empty: so that dependencies are satisfied
+                                //correctly.
+                                if (url.indexOf('empty:') !== 0) {
+                                    urlFetched[url] = true;
+                                }
                             }
                         }
                     }
