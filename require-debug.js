@@ -164,6 +164,10 @@ require.onDebug = function()
  */
 require.onError = function(exc)
 {
+    var stack = exc.stack;  // Web Inspector does not show stack 
+    if (stack) exc._stack = stack.split('\n');
     require.onDebug.apply(require, arguments);
     throw exc;
 }
+
+require({waitSeconds: 0});  // disable the timeout
