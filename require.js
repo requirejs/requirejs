@@ -1799,9 +1799,10 @@ var requirejs, require, define;
             } else {
                 node.addEventListener("load", callback, false);
                 node.addEventListener("error", function scriptError(event){
-                    context = contexts[contextName];
-                    loaded = context.loaded;
-                    loaded[moduleName] = true;  // Mark loaded to avoid timeout loop
+                    if (context) {
+                        loaded = context.loaded;
+                        loaded[moduleName] = true;  // Mark loaded to avoid timeout loop
+                    }
                     var err = makeError("network", "Could not resolve "+event.target.src);
                     err.requireType = "network";
                     req.onError(err);
