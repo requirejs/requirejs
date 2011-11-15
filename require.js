@@ -461,7 +461,7 @@ var requirejs, require, define;
                 //May just be an object definition for the module. Only
                 //worry about defining if have a module name.
 
-                if (cb) {  // set only if the object is truthy
+                if (cb || jsSuffixRegExp.test(fullName)) {  // set only if the object is truthy or we are not using modules
                     ret = defined[fullName] = cb;
                 }
 
@@ -1675,12 +1675,7 @@ var requirejs, require, define;
      * @private
      */
     req.execCb = function (name, callback, args, exports) {
-        try {
             return callback.apply(exports, args);
-        } catch (exc) {
-            req.onError(exc);
-        }
-
     };
 
 
@@ -1822,9 +1817,10 @@ var requirejs, require, define;
             } else {
                 node.addEventListener("load", callback, false);
                 node.addEventListener("error", function scriptError(event){
-                    context = contexts[contextName];
-                    loaded = context.loaded;
-                    loaded[moduleName] = true;  // Mark loaded to avoid timeout loop
+                    if (context) {
+                      loaded = context.loaded;
+                      loaded[moduleName] = true;  // Mark loaded to avoid timeout loop
+                    } // else I don't understand why we don't have a context jjb
                     var err = makeError("network", "Could not resolve "+event.target.src);
                     err.requireType = "network";
                     req.onError(err);
