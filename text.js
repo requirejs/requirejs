@@ -197,7 +197,7 @@
 
             finishLoad: function (name, strip, content, onLoad, config) {
                 content = strip ? text.strip(content) : content;
-                if (config.isBuild && config.inlineText) {
+                if (config.isBuild) {
                     buildMap[name] = content;
                 }
                 onLoad(content);
@@ -210,6 +210,13 @@
                 //inside a body tag in an HTML string. For XML/SVG content it means
                 //removing the <?xml ...?> declarations so the content can be inserted
                 //into the current doc without problems.
+
+                // Do not bother with the work if a build and text will
+                // not be inlined.
+                if (config.isBuild && !config.inlineText) {
+                    onLoad();
+                    return;
+                }
 
                 var parsed = text.parseName(name),
                     nonStripName = parsed.moduleName + '.' + parsed.ext,
