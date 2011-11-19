@@ -41,6 +41,7 @@ load('doh/_' + env + 'Runner.js');
 load("simple-tests.js");
 load("circular-tests.js");
 load("relative/relative-tests.js");
+load("relative/relativeBaseUrl-tests.js");
 load("exports/exports-tests.js");
 load("exports/moduleAndExports-tests.js");
 load("anon/anon-tests.js");
