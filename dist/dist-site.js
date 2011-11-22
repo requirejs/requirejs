@@ -25,8 +25,6 @@ var files, htmlFile, transFile, fileContents,
 
 //Copy all the text files to a dist directory
 //file.deleteFile("./dist-site/");
-file.copyFile("main.css", "./dist-site/main.css");
-file.copyFile("ie.css", "./dist-site/ie.css");
 file.copyFile("init.js", "./dist-site/init.js");
 file.copyDir("fonts", "./dist-site/fonts", /\w/);
 file.copyFile("../index.html", "./dist-site/index.html");
