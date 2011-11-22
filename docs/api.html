@@ -461,12 +461,12 @@ define({
 
 <p>To use a JSONP service in RequireJS, specify "define" as the callback parameter's value. This means you can get the value of a JSONP URL as if it was a module definition.</p>
 
-<p>Here is an example that calls a twitter API endpoint. In this example, the JSONP callback parameter is called "callback", so "callback=define" tells the API to wrap the JSON response in a "define()" wrapper:</p>
+<p>Here is an example that calls a JSONP API endpoint. In this example, the JSONP callback parameter is called "callback", so "callback=define" tells the API to wrap the JSON response in a "define()" wrapper:</p>
 
-<pre><code>require(["http://search.twitter.com/trends/current.json?callback=define"],
-    function (trends) {
-        //The trends object will be the API response for the
-        //Twitter trends/current API
+<pre><code>require(["http://example.com/api/data.json?callback=define"],
+    function (data) {
+        //The dta object will be the API response for the
+        //JSONP data call.
         console.log(trends);
     }
 );
