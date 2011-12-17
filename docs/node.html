@@ -101,6 +101,56 @@ function   (foo,   bar) {
 
 <p>To see a more complete example that loads a module via RequireJS but uses Node-native modules for other things, see the <a href="https://github.com/jrburke/r.js/tree/master/tests/node/embedded">embedded test</a> in the r.js repo.</p>
 
+<h3 id="nodeModules">Building node modules with AMD or RequireJS</h3>
+
+<p>If you want to code a module so that it works with RequireJS and in Node, without requiring users of your library in Node to use RequireJS, then you can use the <a href="https://github.com/jrburke/amdefine">amdefine</a> package to do this:</p>
+
+<pre><code>if (typeof define !== 'function') {
+    var define = (require('amdefine'))(module);
+}
+
+define(function(require) {
+    var dep = require('dependency');
+
+    //The value returned from the function is
+    //used as the module export visible to Node.
+    return function () {};
+});
+</code></pre>
+
+<p>The RequireJS optimizer, as of version 1.0.3, will strip out the use of 'amdefine' above, so it is safe to use this module for your web-based projects too. Just be sure to use <strong>the exact 'amdefine' if() test and contents as shown above</strong>. Differences in spaces/line breaks are allowed. See the <a href="https://github.com/jrburke/amdefine">amdefine project</a> for more information.</p>
+
+<p>If you want to use RequireJS directly to code your module, and then export a module value to node so that it can be used in other Node programs without requiring that app to use RequireJS, you can use the code mentioned above in the <a href="#usage">basic usage section</a> with a few modifications.</p>
+
+<p>It is best to set the baseUrl specifically to the directory containing the module, so that it works properly when nested inside a node_modules heirarchy. Then use Node's module.exports to export your module value:</p>
+
+<pre><code>var requirejs = require('requirejs');
+
+requirejs.config({
+    //Use node's special variable __dirname to
+    //get the directory containing this file.
+    //Useful if building a library that will
+    //be used in node but does not require the
+    //use of node outside
+    baseUrl: __dirname,
+
+    //Pass the top-level main.js/index.js require
+    //function to requirejs so that node modules
+    //are loaded relative to the top-level JS file.
+    nodeRequire: require
+});
+
+requirejs(['foo', 'bar'],
+function   (foo,   bar) {
+    //foo and bar are loaded according to requirejs
+    //config, but if not found, then node's require
+    //is used to load the module.
+
+    //Now export a value visible to Node.
+    module.exports = function () {};
+});
+</code></pre>
+
 <h3 id="optimizer">Using the optimizer as a node module</h3>
 
 <p>The node module also exposes the RequireJS Optimizer as an <strong>optimize</strong> method for using the <a href="optimization.html">RequireJS optimizer</a> via a function call instead of a command line tool:</p>
