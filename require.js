@@ -1939,10 +1939,6 @@ var requirejs, require, define;
             //global queue, assign them to this context.
             ctx.takeGlobalQueue();
 
-            //Allow for jQuery to be loaded/already in the page, and if jQuery 1.4.3,
-            //make sure to hold onto it for readyWait triggering.
-            ctx.jQueryCheck();
-
             if (!ctx.scriptCount) {
                 ctx.resume();
             }
