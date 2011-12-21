@@ -7,10 +7,11 @@
 <li class="hbox"><a href="#setup">Example Setup</a><span class="spacer boxFlex"></span><span class="sect">&sect; 3</span></li>
 <li class="hbox"><a href="#onejs">Optimizing one JavaScript file</a><span class="spacer boxFlex"></span><span class="sect">&sect; 4</span></li>
 <li class="hbox"><a href="#shallow">Shallow exclusions for fast development</a><span class="spacer boxFlex"></span><span class="sect">&sect; 5</span></li>
-<li class="hbox"><a href="#onecss">Optimizing one CSS file</a><span class="spacer boxFlex"></span><span class="sect">&sect; 6</span></li>
-<li class="hbox"><a href="#wholeproject">Optimizing a whole project</a><span class="spacer boxFlex"></span><span class="sect">&sect; 7</span></li>
-<li class="hbox"><a href="#hasjs">Integration with has.js</a><span class="spacer boxFlex"></span><span class="sect">&sect; 8</span></li>
-<li class="hbox"><a href="#options">All configuration options</a><span class="spacer boxFlex"></span><span class="sect">&sect; 9</span></li>
+<li class="hbox"><a href="#empty">empty: paths for network/CDN resources</a><span class="spacer boxFlex"></span><span class="sect">&sect; 6</span></li>
+<li class="hbox"><a href="#onecss">Optimizing one CSS file</a><span class="spacer boxFlex"></span><span class="sect">&sect; 7</span></li>
+<li class="hbox"><a href="#wholeproject">Optimizing a whole project</a><span class="spacer boxFlex"></span><span class="sect">&sect; 8</span></li>
+<li class="hbox"><a href="#hasjs">Integration with has.js</a><span class="spacer boxFlex"></span><span class="sect">&sect; 9</span></li>
+<li class="hbox"><a href="#options">All configuration options</a><span class="spacer boxFlex"></span><span class="sect">&sect; 10</span></li>
 </ul>
 
 <p>RequireJS has an optimization tool that does the following</p>
@@ -206,7 +207,48 @@ require(mods);</code></pre>
 </div>
 
 <div class="section">
-<h2><a name="onecss">Optimizing one CSS file</a><span class="sectionMark">&sect; 6</span></h2>
+<h2><a name="empty">empty: paths for network/CDN resources</a><span class="sectionMark">&sect; 6</span></h2>
+
+<p>You may have a script you want to load from a <a href="http://en.wikipedia.org/wiki/Content_delivery_network">Content Delivery Network (CDN)</a> or any other server on a different domain.</p>
+
+<p>The optimizer cannot load network resources, so if you want it included in the build, be sure to create a <a href="api.html#config-paths">paths config</a> to map the file to a module name. Then, for running the optimizer, download the CDN script and pass a paths config to the optimizer that maps the module name to the local file path.</p>
+
+<p>However, it is more likely that you do not want to include that resource in the build. If the script does not have any dependencies, or you do not want to include its dependencies or will be including them in another way, then you can use the special <strong>'empty:' scheme</strong> in the paths config to just skip the file when doing an optimization.</p>
+
+<p>In your main.js file, create a paths config that gives the script a module name. This can be done even if the script does not define a module via a call to define(). paths config are just used to map short module/script IDs to an URL. This allows you to use a a different paths config for the optimization. In main.js:</p>
+
+<pre><code>requirejs.config({
+    paths: {
+        'jquery': 'https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min'
+    }
+});
+
+require(['jquery'], function ($) {
+});
+</code></pre>
+
+<p>Then, when running the optimizer, use 'empty:' for the paths config:</p>
+
+<pre><code>node ../../r.js -o name=main out=main-built.js baseUrl=. paths.jquery=empty:
+</code></pre>
+
+<p>Or, in a <a href="#wholeproject">build profile</a>:</p>
+
+<pre><code>({
+    baseUrl: ".",
+    name: "main",
+    out: "main-built.js",
+    paths: {
+        jquery: "empty:"
+    }
+})
+</code></pre>
+
+</div>
+
+
+<div class="section">
+<h2><a name="onecss">Optimizing one CSS file</a><span class="sectionMark">&sect; 7</span></h2>
 
 <p>Use the above example setup, if you just wanted to optimize main.css, you could use this command, from inside the <strong>appdirectory/css</strong> directory:</p>
 
@@ -221,7 +263,7 @@ require(mods);</code></pre>
 </div>
 
 <div class="section">
-<h2><a name="wholeproject">Optimizing a whole project</a><span class="sectionMark">&sect; 7</span></h2>
+<h2><a name="wholeproject">Optimizing a whole project</a><span class="sectionMark">&sect; 8</span></h2>
 
 <p>The optimizer can take care of optimizing all the CSS and JS files in your project by using a build profile.</p>
 
@@ -256,7 +298,7 @@ require(mods);</code></pre>
 </div>
 
 <div class="section">
-<h2><a name="hasjs">Integration with has.js</a><span class="sectionMark">&sect; 8</span></h2>
+<h2><a name="hasjs">Integration with has.js</a><span class="sectionMark">&sect; 9</span></h2>
 
 <p><a href="https://github.com/phiggins42/has.js">has.js</a> is a great tool to that adds easy feature detection for your project. There is some optimizer support for optimizing code paths for has.js tests.</p>
 
@@ -300,7 +342,7 @@ if (true) {
 </div>
 
 <div class="section">
-<h2><a name="options">All configuration options</a><span class="sectionMark">&sect; 9</span></h2>
+<h2><a name="options">All configuration options</a><span class="sectionMark">&sect; 10</span></h2>
 
 <p>There is an <a href="https://github.com/jrburke/r.js/blob/master/build/example.build.js">example.build.js</a> file in the requirejs/build directory that details all of the allowed optimizer configuration options.</p>
 </div>
