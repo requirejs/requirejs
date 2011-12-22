@@ -1321,11 +1321,6 @@ var requirejs, require, define;
                                 } : null]);
                 }
 
-                //If a global jQuery is defined, check for it. Need to do it here
-                //instead of main() since stock jQuery does not register as
-                //a module via define.
-                jQueryCheck();
-
                 //Doing this scriptCount decrement branching because sync envs
                 //need to decrement after resume, otherwise it looks like
                 //loading is complete after the first dependency is fetched.

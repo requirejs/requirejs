@@ -9,25 +9,25 @@
             require({
                     baseUrl: "./scripts/",
                     paths: {
-                        jquery: "jquery-1.5.2"
+                        jquery: "jquery-1.4.4"
                     },
                     jQuery: "1.4.4"
-                },
-                ["require", "jquery-1.4.4"],
-                function(require) {
-                    require(["require", "jquery"], function (require) {
-                        doh.register(
-                            "jqueryVersion2",
-                            [
-                                function jqueryVersion2(t){
-                                    t.is("1.4.4", require('jquery').fn.jquery);
-                                }
-                            ]
-                        );
-                        doh.run();
-                    });
-                }
-            );
+                });
+        </script>
+        <!-- This script calls define but for a different version of jQuery -->
+        <script type="text/javascript" src="scripts/jquery-1.7b2.js"></script>
+        <script>
+            require(["require", "jquery"], function (require) {
+                doh.register(
+                    "jqueryVersion2",
+                    [
+                        function jqueryVersion2(t){
+                            t.is("1.4.4", require('jquery').fn.jquery);
+                        }
+                    ]
+                );
+                doh.run();
+            });
         </script>
     </head>
     <body>
