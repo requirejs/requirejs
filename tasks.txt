@@ -1,8 +1,20 @@
 Release Notes
 -------------------
 
+- check for latest uglifyjs before releasing.
+
+1.1 items?
+--------------
+- map stuff
+- remove special jquery detection, only do it for define() calls.
+- check bug list
+- robust handling for anon modules loaded outside loader.
+
+
 Next release
 --------------
+
+- global and local? nocontext thing?
 
 - almond update for jQuery
   - Test example with underscore and backbone
@@ -20,7 +32,6 @@ Next release
 
 - Generic design for gladius approach, using has, and the multiversion configs.
 
-- update underscore patch.
 
 - paths entry for socket.io to remote domain/port, but then do a require.toUrl('socket.io') and it returns
   a local path instead of the remote path?
