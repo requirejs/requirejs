@@ -1,26 +1,64 @@
 Release Notes
--------------------
+-----
+- make sure to get latest uglify, has 1.1.1 now.
 
-Next release
---------------
+1.1 candidates
+---------
+
+- Read main.js config instead of requiring copying of config in build profile?
+  - ask for configModule: 'main', but anything in build profile takes precedent.
+
+- map: support
+- require {define: {}} support? more like paths: config: {} support.
+- combo loader?
+- Make require.js robust against anon modules that are not loaded through loader.
+  - just give them temporary IDs and console.log the issue.
+
+---------
+
+- traceFiles r.js branch?
+
+- empty: config, need to update the doc.
+
+http://requirejs.org/docs/api.html#config-paths
+
+----
+
+- Check ender, make sure after backbone amd, it can work in that environment.
 
 - almond update for jQuery
   - Test example with underscore and backbone
 
+--------------
+
+- has tests
+
+- Dev approach, no server thing. Why is that important?
+
+- module to spin up require in a worker
+- standard mixin for worker postmessage transport.
+
+- Article on why not a script loader.
+
+- Need a better illustration of building complex plugins, like templating/transpiling.
+
 - make a decision matrix of when to use what. Mention lowercase names for file name convention.
 
-- Feedback to ES group
+- Better document the need for local require when doing relative paths.
+
+- Feedback to ES group:
+  - Function.prototype.toString()
+  - path resolution, config.
+  - loader plugins
+
+- spell out command line args to build properties setup.
+  http://requirejs.org/docs/optimization.html#onejs
 
 - Constructive feedback for node community:
   - amd as wrapped format
   - proposal for extension to allow amd in modules via plugin api.
 
-- Make require.js robust against anon modules that are not loaded through loader.
-  - just give them temporary IDs and console.log the issue.
-
 - Generic design for gladius approach, using has, and the multiversion configs.
-
-- update underscore patch.
 
 - paths entry for socket.io to remote domain/port, but then do a require.toUrl('socket.io') and it returns
   a local path instead of the remote path?

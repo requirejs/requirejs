@@ -38,7 +38,7 @@
                  process.versions &&
                  !!process.versions.node) {
             //Using special require.nodeRequire, something added by r.js.
-            fs = require.nodeRequire('fs');
+            fs = (require.nodeRequire || require)('fs');
 
             get = function (url, callback) {
                 callback(fs.readFileSync(url, 'utf8'));
