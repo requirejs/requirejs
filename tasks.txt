@@ -1,23 +1,20 @@
 Release Notes
 -------------------
 
-- check for latest uglifyjs before releasing.
-
 1.1 items?
 --------------
 - map stuff
 - remove special jquery detection, only do it for define() calls.
 - check bug list
 - robust handling for anon modules loaded outside loader.
-
+- read config from main.js file for build?
 
 Next release
 --------------
 
-- global and local? nocontext thing?
+- update optimization page to mention copying config to build.
 
-- almond update for jQuery
-  - Test example with underscore and backbone
+- global and local? nocontext thing?
 
 - make a decision matrix of when to use what. Mention lowercase names for file name convention.
 

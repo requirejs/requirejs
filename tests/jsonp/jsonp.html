@@ -12,26 +12,18 @@
                 require: "../../require"
             }
         },
-        ["require", "lamp", "http://www.google.com/jsapi?callback=define"],
-        function (require, lamp, googleAjaxReady) {
-            //JSAPI is now loaded, load the language API pack
-            google.load("language", "1", {
-                callback: function () {
-                    //Language API pack now loaded, use it.
-                    google.language.translate("book", "en", "es", function(result) {
-                        doh.register(
-                            "jsonp",
-                            [
-                                function jsonp(t){
-                                    t.is("libro", result.translation);
-                                    t.is('blue', lamp.color);
-                                }
-                            ]
-                        );
-                        doh.run();
-                    });
-                }
-            });
+        ["require", "lamp", "https://api.twitter.com/1/users/show.json?screen_name=jrburke&callback=define"],
+        function (require, lamp, user) {
+            doh.register(
+                "jsonp",
+                [
+                    function jsonp(t){
+                        t.is("James Burke", user.name);
+                        t.is('blue', lamp.color);
+                    }
+                ]
+            );
+            doh.run();
         }
     );
     </script>
@@ -39,7 +31,7 @@
 <body>
     <h1>require.js: JSONP Test</h1>
     <p>Test for usage of a JSONP URL as a dependency.</p>
-    <strong>REQUIRES access to internet/Google to run the test. Otherwise it will fail.</strong>
+    <strong>REQUIRES access to internet/Twitter to run the test. Otherwise it will fail.</strong>
     <p>Check console for messages</p>
 </body>
 </html>
