@@ -323,7 +323,15 @@ var requirejs, require, define;
                     url = urlMap[normalizedName];
                     if (!url) {
                         //Calculate url for the module, if it has a name.
-                        url = context.nameToUrl(normalizedName, null, parentModuleMap);
+                        //Use name here since nameToUrl also calls normalize,
+                        //and for relative names that are outside the baseUrl
+                        //this causes havoc. Was thinking of just removing
+                        //parentModuleMap to avoid extra normalization, but
+                        //normalize() still does a dot removal because of
+                        //issue #142, so just pass in name here and redo
+                        //the normalization. Paths outside baseUrl are just
+                        //messy to support.
+                        url = context.nameToUrl(name, null, parentModuleMap);
 
                         //Store the URL mapping for later.
                         urlMap[normalizedName] = url;

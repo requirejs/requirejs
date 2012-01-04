@@ -84,6 +84,9 @@ doh.registerUrl("order", "../order/order.html");
 doh.registerUrl("domReadyWithResources", "../domReady/withResources.html");
 
 doh.registerUrl("relative", "../relative/relative.html");
+doh.registerUrl("relativeBaseUrl", "../relative/relativeBaseUrl.html");
+doh.registerUrl("relativeOutsideBaseUrl", "../relative/outsideBaseUrl/a/outsideBaseUrl.html");
+
 doh.registerUrl("remoteUrls", "../remoteUrls/remoteUrls.html");
 
 //Hmm, PS3 does not like exports test? assign2 is undefined?

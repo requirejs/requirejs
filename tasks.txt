@@ -4,13 +4,25 @@ Release Notes
 1.1 items?
 --------------
 - map stuff
+  - with config:
+    http://groups.google.com/group/requirejs/browse_thread/thread/b382d90534f883db#
+    https://groups.google.com/group/amd-implement/browse_thread/thread/c36e284a7f85021a/2290754c54b3ddad?#2290754c54b3ddad
+
 - remove special jquery detection, only do it for define() calls.
 - check bug list
 - robust handling for anon modules loaded outside loader.
 - read config from main.js file for build?
+- baseUrl and name optional in optimizer? r.js -o include=a,b out=foo.js
+- globals: config to help underscore case?
 
 Next release
 --------------
+
+- 1.0.4 bugs
+  - what about onError cleanup: https://github.com/jrburke/requirejs/issues/156?
+
+
+- coffeescript 1.2 released, switch over the cs plugin.
 
 - update optimization page to mention copying config to build.
 
