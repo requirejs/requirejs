@@ -660,6 +660,8 @@ This example specifies some dependencies to load as soon as require.js defines r
 <p id="config-jQuery"><strong>jQuery</strong>: (RequireJS 0.25.0+) specify an exact version match for the version of jQuery that should be allowed to register as the 'jquery' dependency. This is useful in environments where multiple jQuery files could be loaded but you want
 to be sure to get the right version of jQuery for your loading context. Normally you do not need to set this if you are only loading one version of jQuery in a page. However, if you use third party libraries that may also load jQuery, it is best to set this option.</p>
 
+<p id="config-scriptType"><strong>scriptType</strong>: (RequireJS 1.0.4+) specify the value for the type="" attribute used for script tags inserted into the document by RequireJS. Default is "text/javascript". To use Firefox's JavaScript 1.8 features, use "text/javascript;version=1.8".</p>
+
 <p id="config-catchError"><strong>catchError</strong>: (RequireJS 0.26.0+) Normally, errors evaluating define() factory functions are not caught, to allow easy debugging during development. However, for some scenarios and production deployments, it is useful to have the errors caught. By specifying catchError.define = true, the errors will be caught and passed to require.onError(). Normally require.onError() throws the error, but you can override the definition of require.onError() to do something different.</p>
 
 </div>

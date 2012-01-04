@@ -1745,7 +1745,8 @@ var requirejs, require, define;
             node = context && context.config && context.config.xhtml ?
                     document.createElementNS("http://www.w3.org/1999/xhtml", "html:script") :
                     document.createElement("script");
-            node.type = type || "text/javascript";
+            node.type = type || (context && context.config.scriptType) ||
+                        "text/javascript";
             node.charset = "utf-8";
             //Use async so Gecko does not block on executing the script if something
             //like a long-polling comet tag is being run first. Gecko likes
