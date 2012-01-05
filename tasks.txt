@@ -1,6 +1,7 @@
 Release Notes
 -------------------
 
+
 1.1 items?
 --------------
 - map stuff
@@ -18,8 +19,19 @@ Release Notes
 Next release
 --------------
 
-- 1.0.4 bugs
-  - what about onError cleanup: https://github.com/jrburke/requirejs/issues/156?
+- what about onError cleanup: https://github.com/jrburke/requirejs/issues/156?
+
+/**
+ * "undefines" a module. Acts like it has not loaded yet.
+ */
+function undef(fullName, url) {
+    delete defined[fullName];
+    delete specified[fullName];
+    delete loaded[fullName];
+    delete urlMap[fullName];
+    delete urlFetched[url];
+}
+
 
 
 - coffeescript 1.2 released, switch over the cs plugin.
