@@ -74,7 +74,7 @@ There is a different page that talks about <a href="why.html">general approach t
 
 <ul>
     <li>Defined via an immediately executed factory function.</li>
-    <li>References to dependencies are done via global variable names that was loaded via an HTML script tag.</li>
+    <li>References to dependencies are done via global variable names that were loaded via an HTML script tag.</li>
     <li>The dependencies are very weakly stated: the developer needs to know the right dependency order. For instance, The file containing Backbone cannot come before the jQuery tag.</li>
     <li>It requires extra tooling to substitute a set of script tags into one tag for optimized deployment.</li>
 </ul>
@@ -164,7 +164,7 @@ exports.myExample = function () {};
 
 <ul>
 <li>Register the factory function by calling define(), instead of immediately executing it.</li>
-<li>Pass dependencies as an arry of string values, do not grab globals.</li>
+<li>Pass dependencies as an array of string values, do not grab globals.</li>
 <li>Only execute the factory function once all the dependencies have been loaded and executed.</li>
 <li>Pass the dependent modules as arguments to the factory function.</li>
 </ul>
