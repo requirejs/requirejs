@@ -636,7 +636,7 @@ var requirejs, require, define;
                 prefix = map.prefix,
                 plugin = prefix ? plugins[prefix] ||
                                 (plugins[prefix] = defined[prefix]) : null,
-                manager, created, pluginManager;
+                manager, created, pluginManager, prefixMap;
 
             if (fullName) {
                 manager = managerCallbacks[fullName];
@@ -674,7 +674,18 @@ var requirejs, require, define;
             //If there is a plugin needed, but it is not loaded,
             //first load the plugin, then continue on.
             if (prefix && !plugin) {
-                pluginManager = getManager(makeModuleMap(prefix), true);
+                prefixMap = makeModuleMap(prefix);
+
+                //Clear out defined and urlFetched if the plugin was previously
+                //loaded/defined, but not as full module (as in a build
+                //situation). However, only do this work if the plugin is in
+                //defined but does not have a module export value.
+                if (prefix in defined && !defined[prefix]) {
+                    delete defined[prefix];
+                    delete urlFetched[prefixMap.url];
+                }
+
+                pluginManager = getManager(prefixMap, true);
                 pluginManager.add(function (plugin) {
                     //Create a new manager for the normalized
                     //resource ID and have it call this manager when
