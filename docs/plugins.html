@@ -45,7 +45,7 @@ require(['foo!something/for/foo'], function (something) {
 });
 </code></pre>
 
-<p>So, the plugin's module name comes before the ! separator. The part after the ! separator is called the <b>resource name</b>. The resource name may look like a normal module name. THe plugin's module name can be any valid module name, so for instance, you could use a relative indicator:</p>
+<p>So, the plugin's module name comes before the ! separator. The part after the ! separator is called the <b>resource name</b>. The resource name may look like a normal module name. The plugin's module name can be any valid module name, so for instance, you could use a relative indicator:</p>
 
 <pre><code>
 require(['./foo!something/for/foo'], function (something) {
@@ -69,7 +69,7 @@ API
 <span class="sectionMark">&sect; 3</span>
 </h2>
 
-<p>RequireJS will load the plugin module first, then pass it the rest of the dependency name to a load() method on the plugin. There are also some methods to help with module name normalization and for making use of the plugin as part of the <a href="optimization.html">optimizer</a>.</p>
+<p>RequireJS will load the plugin module first, then pass the rest of the dependency name to a load() method on the plugin. There are also some methods to help with module name normalization and for making use of the plugin as part of the <a href="optimization.html">optimizer</a>.</p>
 
 <p>The complete Plugin API:</p>
 
