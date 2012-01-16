@@ -19,6 +19,22 @@ Release Notes
 Next release
 --------------
 
+- Need to talk about main: arg in the example.build.js, backlink to optimization page.
+
+- https://github.com/jrburke/r.js/issues/81 share config with main.js
+- uselib merge for r.js
+
+- dojo stuff
+- anon module errors
+- almond+order.js
+- require-cs circular ref.
+- latest q, its define does not get a name.
+
+- jquery mobile:
+  - jquery.mobile.support.js, get rid of named module
+  - why is order needed?
+
+
 - what about onError cleanup: https://github.com/jrburke/requirejs/issues/156?
 
 /**
@@ -53,6 +69,8 @@ function undef(fullName, url) {
 
 - Generic design for gladius approach, using has, and the multiversion configs.
 
+- order plugin not work with phantomjs build?
+  CentOS 5.6 (Final), PhantomJS 1.4.1, Qt 4.7
 
 - paths entry for socket.io to remote domain/port, but then do a require.toUrl('socket.io') and it returns
   a local path instead of the remote path?
