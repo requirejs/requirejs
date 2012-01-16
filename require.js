@@ -37,8 +37,13 @@ var requirejs, require, define;
         interactiveScript = null,
         checkLoadedDepth = 0,
         useInteractive = false,
+        reservedDependencies = {
+            require: true,
+            module: true,
+            exports: true
+        },
         req, cfg = {}, currentlyAddingScript, s, head, baseElement, scripts, script,
-        src, subPath, mainScript, dataMain, i, ctx, jQueryCheck, checkLoadedTimeoutId;
+        src, subPath, mainScript, dataMain, globalI, ctx, jQueryCheck, checkLoadedTimeoutId;
 
     function isFunction(it) {
         return ostring.call(it) === "[object Function]";
@@ -874,14 +879,61 @@ var requirejs, require, define;
             }
         };
 
-        function forceExec(manager, traced) {
-            if (manager.isDone) {
-                return undefined;
+        function findCycle(manager, traced) {
+            var fullName = manager.map.fullName,
+                depArray = manager.depArray,
+                fullyLoaded = true,
+                i, depName, depManager, result;
+
+            if (manager.isDone || !fullName || !loaded[fullName]) {
+                return result;
             }
 
+            //Found the cycle.
+            if (traced[fullName]) {
+                return manager;
+            }
+
+            traced[fullName] = true;
+
+            //Trace through the dependencies.
+            if (depArray) {
+                for (i = 0; i < depArray.length; i++) {
+                    //Some array members may be null, like if a trailing comma
+                    //IE, so do the explicit [i] access and check if it has a value.
+                    depName = depArray[i];
+                    if (!loaded[depName] && !reservedDependencies[depName]) {
+                        fullyLoaded = false;
+                        break;
+                    }
+                    depManager = waiting[depName];
+                    if (depManager && !depManager.isDone && loaded[depName]) {
+                        result = findCycle(depManager, traced);
+                        if (result) {
+                            break;
+                        }
+                    }
+                }
+                if (!fullyLoaded) {
+                    //Discard the cycle that was found, since it cannot
+                    //be forced yet. Also clear this module from traced.
+                    result = undefined;
+                    delete traced[fullName];
+                }
+            }
+
+            return result;
+        }
+
+        function forceExec(manager, traced) {
             var fullName = manager.map.fullName,
                 depArray = manager.depArray,
                 i, depName, depManager, prefix, prefixManager, value;
+
+
+            if (manager.isDone || !fullName || !loaded[fullName]) {
+                return undefined;
+            }
 
             if (fullName) {
                 if (traced[fullName]) {
@@ -913,7 +965,7 @@ var requirejs, require, define;
                 }
             }
 
-            return fullName ? defined[fullName] : undefined;
+            return defined[fullName];
         }
 
         /**
@@ -926,8 +978,9 @@ var requirejs, require, define;
             var waitInterval = config.waitSeconds * 1000,
                 //It is possible to disable the wait interval by using waitSeconds of 0.
                 expired = waitInterval && (context.startTime + waitInterval) < new Date().getTime(),
-                noLoads = "", hasLoadedProp = false, stillLoading = false, prop,
-                err, manager;
+                noLoads = "", hasLoadedProp = false, stillLoading = false,
+                onlyPluginResourceLoading = true,
+                i, prop, err, manager, cycleManager;
 
             //If there are items still in the paused queue processing wait.
             //This is particularly important in the sync case where each paused
@@ -957,7 +1010,15 @@ var requirejs, require, define;
                             noLoads += prop + " ";
                         } else {
                             stillLoading = true;
-                            break;
+                            if (prop.indexOf('!') === -1) {
+                                onlyPluginResourceLoading = false;
+                                //No reason to keep looking for unfinished
+                                //loading. If the only stillLoading is a
+                                //plugin resource though, keep going,
+                                //because it may be that a plugin resource
+                                //is waiting on a non-plugin cycle.
+                                break;
+                            }
                         }
                     }
                 }
@@ -976,7 +1037,11 @@ var requirejs, require, define;
                 err.requireModules = noLoads;
                 return req.onError(err);
             }
-            if (stillLoading || context.scriptCount) {
+
+            //If still waiting on loads, and the waiting load is something
+            //other than a plugin resource, or there are still outstanding
+            //scripts, then just try back later.
+            if ((stillLoading && !onlyPluginResourceLoading) || context.scriptCount) {
                 //Something is still waiting to load. Wait for it, but only
                 //if a timeout is not already in effect.
                 if ((isBrowser || isWebWorker) && !checkLoadedTimeoutId) {
@@ -999,7 +1064,10 @@ var requirejs, require, define;
             if (context.waitCount) {
                 //Cycle through the waitAry, and call items in sequence.
                 for (i = 0; (manager = waitAry[i]); i++) {
-                    forceExec(manager, {});
+                    if ((cycleManager = findCycle(manager, {}))) {
+                        forceExec(cycleManager, {});
+                        break;
+                    }
                 }
 
                 //If anything got placed in the paused queue, run it down.
@@ -1842,7 +1910,7 @@ var requirejs, require, define;
         //Figure out baseUrl. Get it from the script tag with require.js in it.
         scripts = document.getElementsByTagName("script");
 
-        for (i = scripts.length - 1; i > -1 && (script = scripts[i]); i--) {
+        for (globalI = scripts.length - 1; globalI > -1 && (script = scripts[globalI]); globalI--) {
             //Set the "head" where we can append children by
             //using the script's parent.
             if (!head) {
