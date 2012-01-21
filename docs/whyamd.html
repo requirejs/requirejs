@@ -43,7 +43,7 @@ There is a different page that talks about <a href="why.html">general approach t
 
 <div class="section">
 <h2>
-<a name="purposes">Module Purposes</a>
+<a href="#purposes" name="purposes">Module Purposes</a>
 <span class="sectionMark">&sect; 1</span>
 </h2>
 
@@ -59,7 +59,7 @@ There is a different page that talks about <a href="why.html">general approach t
 
 <div class="section">
 <h2>
-<a name="today">The Web Today</a>
+<a href="#today" name="today">The Web Today</a>
 <span class="sectionMark">&sect; 2</span>
 </h2>
 
@@ -85,7 +85,7 @@ There is a different page that talks about <a href="why.html">general approach t
 
 <div class="section">
 <h2>
-<a name="commonjs">CommonJS</a>
+<a href="#commonjs" name="commonjs">CommonJS</a>
 <span class="sectionMark">&sect; 3</span>
 </h2>
 
@@ -115,7 +115,7 @@ exports.myExample = function () {};
 
 <div class="section">
 <h2>
-<a name="amd">AMD</a>
+<a href="#amd" name="amd">AMD</a>
 <span class="sectionMark">&sect; 4</span>
 </h2>
 
@@ -147,11 +147,11 @@ exports.myExample = function () {};
 
 <div class="section">
 <h2>
-<a name="definition">Module Definition</a>
+<a href="#definition" name="definition">Module Definition</a>
 <span class="sectionMark">&sect; 5</span>
 </h2>
 
-<p>The basic kernel of AMD, the function, is already well understood as a unit of encapsulation. It has also been documented as the <a href="http://www.adequatelygood.com/2010/3/JavaScript-Module-Pattern-In-Depth">module pattern</a>:</p>
+<p>Using JavaScript functions for encapsulation has been documented as the <a href="http://www.adequatelygood.com/2010/3/JavaScript-Module-Pattern-In-Depth">module pattern</a>:</p>
 
 <pre><code>(function () {
    this.myGlobal = function () {};
@@ -181,11 +181,13 @@ define(['dep1', 'dep2'], function (dep1, dep2) {
 
 <div class="section">
 <h2>
-<a name="namedmodules">Named Modules</a>
+<a href="#namedmodules" name="namedmodules">Named Modules</a>
 <span class="sectionMark">&sect; 6</span>
 </h2>
 
-<p>The above example works well if the file only contains that one define call -- the AMD loader has enough information about the loaded script to give the module a name/ID. However, for best performance, you will want to concatenate a few modules together into one file. So, to allow that, define() allows passing a string as the first argument to specify the module's name:</p>
+<p>Notice that the above module does not declare a name for itself. This is makes the module very portable. It allows a developer to place the module in a different path to give it a different ID/name. The AMD loader will give the module an ID based on how it is referenced by other scripts.</p>
+
+<p>However, tools that combine multiple modules together for performance need a way to give names to each module in the optimized file. For that, AMD allows a string as the first argument to define():</p>
 
 <pre><code>//Calling define with module ID, dependency array, and factory function
 define('myModule', ['dep1', 'dep2'], function (dep1, dep2) {
@@ -195,17 +197,13 @@ define('myModule', ['dep1', 'dep2'], function (dep1, dep2) {
 }});
 </code></pre>
 
-<p>If you are defining just one module in a file, it is more flexible to use anonymous modules since it makes it easier to move them and change their file name without having to modify the source code.</p>
-
-<p>However, for some popular JS libraries in use on the web now, defining an anonymous module might be hazardous since they could be loaded on a page, without using an AMD loader. If there happens to be an AMD loader on the page, the AMD loader will not have enough information to give the module a name. jQuery and underscore are examples of scripts that fall in this category.</p>
-
-<p>For those kinds of popular web-based JS libraries, using a named define() call is best to avoid errors when they are used in complex pages that load many third party scripts.</p>
+<p>You should avoid naming modules yourself, and only place one module in a file while developing. However, for tooling and performance, a module solution needs a way to identify modules in built resources.</p>
 
 </div>
 
 <div class="section">
 <h2>
-<a name="sugar">Sugar</a>
+<a href="#sugar" name="sugar">Sugar</a>
 <span class="sectionMark">&sect; 7</span>
 </h2>
 
@@ -254,7 +252,7 @@ function (require,   $,        object,         fn,         rdapi,
 
 <div class="section">
 <h2>
-<a name="commonjscompat">CommonJS Compatibility</a>
+<a href="#commonjscompat" name="commonjscompat">CommonJS Compatibility</a>
 <span class="sectionMark">&sect; 8</span>
 </h2>
 
@@ -325,7 +323,7 @@ if (someCondition) {
 
 <div class="section">
 <h2>
-<a name="amdtoday">AMD Used Today</a>
+<a href="#amdtoday" name="amdtoday">AMD Used Today</a>
 <span class="sectionMark">&sect; 9</span>
 </h2>
 
@@ -346,7 +344,7 @@ if (someCondition) {
 
 <div class="section">
 <h2>
-<a name="youcando">What You Can Do</a>
+<a href="#youcando" name="youcando">What You Can Do</a>
 <span class="sectionMark">&sect; 10</span>
 </h2>
 
@@ -369,7 +367,7 @@ if (someCondition) {
 <p id="dolib"><strong>If you are a script/library author</strong>:</p>
 
 <ul>
-<li><a href="https://gist.github.com/1262861">Optionally call define()</a> if it is available. The nice thing is you can still code your library without relying on AMD, just participate if it is available. This allows consumers of your modules to:
+<li><a href="https://github.com/umdjs/umd">Optionally call define()</a> if it is available. The nice thing is you can still code your library without relying on AMD, just participate if it is available. This allows consumers of your modules to:
 <ul>
 <li>avoid dumping global variables in the page</li>
 <li>use more options for code loading, delayed loading</li>
