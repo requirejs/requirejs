@@ -1041,7 +1041,7 @@ var requirejs, require, define;
             //If still waiting on loads, and the waiting load is something
             //other than a plugin resource, or there are still outstanding
             //scripts, then just try back later.
-            if ((stillLoading && !onlyPluginResourceLoading) || context.scriptCount) {
+            if (!expired && ((stillLoading && !onlyPluginResourceLoading) || context.scriptCount)) {
                 //Something is still waiting to load. Wait for it, but only
                 //if a timeout is not already in effect.
                 if ((isBrowser || isWebWorker) && !checkLoadedTimeoutId) {
