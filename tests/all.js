@@ -69,6 +69,7 @@ doh.registerUrl("universalBuilt", "../universal/universal-built.html");
 
 
 doh.registerUrl("nestedDefine", "../nestedDefine/nestedDefine.html");
+doh.registerUrl("nestedDefine2", "../nestedDefine/nestedDefine2.html");
 doh.registerUrl("defineError", "../defineError/defineError.html");
 
 doh.registerUrl("pluginsSync", "../plugins/sync.html");

@@ -1102,6 +1102,9 @@ var requirejs, require, define;
         resume = function () {
             var manager, map, url, i, p, args, fullName;
 
+            //Any defined modules in the global queue, intake them now.
+            context.takeGlobalQueue();
+
             resumeDepth += 1;
 
             if (context.scriptCount <= 0) {
@@ -1265,8 +1268,7 @@ var requirejs, require, define;
                     context.requireWait = false;
                     //But first, call resume to register any defined modules that may
                     //be in a data-main built file before the priority config
-                    //call. Also grab any waiting define calls for this context.
-                    context.takeGlobalQueue();
+                    //call.
                     resume();
 
                     context.require(cfg.priority);
@@ -1343,10 +1345,6 @@ var requirejs, require, define;
                 //then resume the dependency processing.
                 if (!context.requireWait) {
                     while (!context.scriptCount && context.paused.length) {
-                        //For built layers, there can be some defined
-                        //modules waiting for intake into the context,
-                        //in particular module plugins. Take them.
-                        context.takeGlobalQueue();
                         resume();
                     }
                 }
@@ -2017,10 +2015,6 @@ var requirejs, require, define;
         ctx.requireWait = true;
         setTimeout(function () {
             ctx.requireWait = false;
-
-            //Any modules included with the require.js file will be in the
-            //global queue, assign them to this context.
-            ctx.takeGlobalQueue();
 
             if (!ctx.scriptCount) {
                 ctx.resume();
