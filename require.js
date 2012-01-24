@@ -188,6 +188,7 @@ var requirejs, require, define;
             urlMap = {},
             defined = {},
             loaded = {},
+            undefListeners = {},
             waiting = {},
             waitAry = [],
             urlFetched = {},
@@ -665,6 +666,13 @@ var requirejs, require, define;
                     add: managerAdd
                 };
 
+                //If this manager previously existed, but was wiped out by,
+                //a requirejs.undef() call, restore any listeners.
+                if (fullName && undefListeners[fullName]) {
+                    manager.listeners = undefListeners[fullName];
+                    delete undefListeners[fullName];
+                }
+
                 specified[manager.id] = true;
 
                 //Only track the manager/reuse it if this is a non-plugin
@@ -968,6 +976,19 @@ var requirejs, require, define;
             return defined[fullName];
         }
 
+        function removeScript(name) {
+            var scripts = document.getElementsByTagName('script'),
+                i, scriptNode;
+            for (i = 0; (scriptNode = scripts[i]); i++) {
+                if (scriptNode.getAttribute('data-requiremodule') === name &&
+                    scriptNode.getAttribute('data-requirecontext') === context.contextName) {
+                    scriptNode.parentNode.removeChild(scriptNode);
+                    context.scriptCount -= 1;
+                    break;
+                }
+            }
+        }
+
         /**
          * Checks if all modules for a context are loaded, and if so, evaluates the
          * new ones in right dependency order.
@@ -1008,6 +1029,9 @@ var requirejs, require, define;
                     if (!loaded[prop]) {
                         if (expired) {
                             noLoads += prop + " ";
+                            if (isBrowser) {
+                                removeScript(prop);
+                            }
                         } else {
                             stillLoading = true;
                             if (prop.indexOf('!') === -1) {
@@ -1351,6 +1375,40 @@ var requirejs, require, define;
                 return context.require;
             },
 
+            undef: function (name) {
+
+                var manager = managerCallbacks[name],
+                    i;
+
+                delete defined[name];
+                delete specified[name];
+                delete loaded[name];
+                delete urlMap[name];
+                delete urlFetched[context.toUrl(name + '.js')];
+
+                //Save the listeners off in case the module gets redefined with a new
+                //config by handling a timeout error.
+                if (manager) {
+                    if (manager.listeners.length) {
+                        undefListeners[name] = (undefListeners[name] || [])
+                                                 .concat(manager.listeners);
+                    }
+                    delete managerCallbacks[name];
+                }
+
+                if (waiting[name]) {
+                    delete waiting[name];
+
+                    for (i = 0; i < waitAry.length; i++) {
+                        if (waitAry[i].map.fullName === name) {
+                            waitAry.splice(i, 1);
+                            context.waitCount -= 1;
+                            break;
+                        }
+                    }
+                }
+            },
+
             /**
              * Internal method to transfer globalQueue items to this context's
              * defQueue.
@@ -1571,6 +1629,17 @@ var requirejs, require, define;
      */
     req.toUrl = function (moduleNamePlusExt) {
         return contexts[defContextName].toUrl(moduleNamePlusExt);
+    };
+
+    /**
+     * Global require.undef(), to allow undefining a module, and resetting
+     * internal state to act like it was not loaded. It *does not* clean up
+     * any script tag that may have been used to load the module. So, if
+     * the undef() is called as part of a script timeout, the script may
+     * still load later.
+     */
+    req.undef = function (name, contextName) {
+        contexts[contextName || defContextName].undef(name);
     };
 
     req.version = version;
