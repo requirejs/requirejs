@@ -1,21 +1,5 @@
 require({
-        baseUrl: require.isBrowser ? './' : './circular/complexPlugin',
-        paths: {
-            order: '../../../order',
-            text: '../../../text'
-        },
-        use: {
-            "underscore": {
-              attach: "_"
-            },
-
-            "backbone": {
-              deps: ["use!underscore", "jquery"],
-              attach: function(_, $) {
-                return this.Backbone.noConflict();
-              }
-            }
-        }
+        baseUrl: require.isBrowser ? './' : './circular/complexPlugin'
     },
     ["require", "main"],
     function(require, main) {
@@ -24,8 +8,12 @@ require({
             [
                 function circularComplexPlugin(t) {
                     t.is("main", main.name);
-                    t.is('toolbar', main.toolbar.className);
-                }
+                    t.is('viewport', main.viewport.name);
+                    t.is('viewportTemplate', main.viewport.template);
+                    t.is('toolbar', main.viewport.toolbar.name);
+                    t.is('toolbarTemplate', main.viewport.toolbar.template);
+                    t.is('helper', main.helper.name);
+                 }
             ]
         );
         doh.run();

@@ -1,7 +1,8 @@
-define(['toolbar', 'viewport'], function (toolbar, viewport) {
+define(['viewport', 'helper'], function (viewport, helper) {
 
     return {
         name: 'main',
-        toolbar: viewport.toolbar
+        viewport: viewport,
+        helper: helper
     };
 });

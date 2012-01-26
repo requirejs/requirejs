@@ -1,5 +1,8 @@
 Release Notes
 -------------------
+- mention requirejs.undef to 1.1
+- mainConfigFile
+
 
 
 1.1 items?
@@ -15,44 +18,33 @@ Release Notes
 - read config from main.js file for build?
 - baseUrl and name optional in optimizer? r.js -o include=a,b out=foo.js
 - globals: config to help underscore case?
+- remove packagePaths config.
+- Just remove packages config altogether, suggest volojs for making adapter modules.
+- requirejs.undef
+    - example of requirejs.onError for fallback.
+    - what about onError cleanup: https://github.com/jrburke/requirejs/issues/156?
+
 
 Next release
 --------------
 
-- Need to talk about main: arg in the example.build.js, backlink to optimization page.
+- Update API doc to mention requirejs().
+
+- optimization guidelines
+  - create the build file and target optimization outside of baseUrl/appDir
+  - do not have name: '../' that go outside the baseUrl.
 
 - https://github.com/jrburke/r.js/issues/81 share config with main.js
-- uselib merge for r.js
 
-- dojo stuff
-- anon module errors
-- almond+order.js
-- require-cs circular ref.
-- latest q, its define does not get a name.
+- require-cs circular ref: https://github.com/jrburke/require-cs/issues/13
 
-- jquery mobile:
-  - jquery.mobile.support.js, get rid of named module
-  - why is order needed?
+- Split plugins and their docs into separate repos with READMEs, keep the
+  tests in requirejs repo for now.
 
-
-- what about onError cleanup: https://github.com/jrburke/requirejs/issues/156?
-
-/**
- * "undefines" a module. Acts like it has not loaded yet.
- */
-function undef(fullName, url) {
-    delete defined[fullName];
-    delete specified[fullName];
-    delete loaded[fullName];
-    delete urlMap[fullName];
-    delete urlFetched[url];
-}
-
-
+- Consider an "advanced" doc that explains some of the inner workings, like
+  when function tostring scanning is done: https://gist.github.com/1663422
 
 - coffeescript 1.2 released, switch over the cs plugin.
-
-- update optimization page to mention copying config to build.
 
 - global and local? nocontext thing?
 
