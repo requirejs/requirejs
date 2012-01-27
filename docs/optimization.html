@@ -385,14 +385,14 @@ if (true) {
 
 <p><strong>Config settings in your main JS file are not read by default by the optimizer</strong></p>
 
-<p>This is because the config settings for a build can be very different, with multiple optimization targets.</p>
+<p>This is because the config settings for a build can be very different, with multiple optimization targets. So a separate set of config options need to be specified for the optimizer.</p>
 
-<p>However, in version 1.0.5+ of the optimizer, there is now a <strong><a href="https://github.com/jrburke/r.js/blob/master/build/example.build.js#L27">mainConfigFile</a></strong> option. If specified with the path to your main JS file, any <code>requirejs({}), requirejs.config({}), require({}), or require.config({})</code> call will have the config parsed out and used in the build:</p>
+<p>In version 1.0.5+ of the optimizer, there is now a <strong><a href="https://github.com/jrburke/r.js/blob/master/build/example.build.js#L27">mainConfigFile</a></strong> option. If specified with the path to your main JS file, the first <code>requirejs({}), requirejs.config({}), require({}), or require.config({})</code> found in that file will be parsed out and used as part of the configuration options passed to the optimizer:</p>
 
-<pre><code>paths: {
-    main: '../main'
-}
+<pre><code>mainConfigFile: 'path/to/main.js'
 </code></pre>
+
+<p>The precedence for config: command line, build profile, mainConfigFile. In other words, the mainConfigFile configuration has the lowest priority.</p>
 
 <p><strong>Do not specify the output directory to within the source area for your JavaScript</strong></p>
 
