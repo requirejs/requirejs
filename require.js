@@ -1,17 +1,15 @@
 /** vim: et:ts=4:sw=4:sts=4
- * @license RequireJS 1.0.4+ Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
+ * @license RequireJS 1.0.5 Copyright (c) 2010-2012, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/requirejs for details
  */
 /*jslint strict: false, plusplus: false, sub: true */
-/*global window: false, navigator: false, document: false, importScripts: false,
-  jQuery: false, clearInterval: false, setInterval: false, self: false,
-  setTimeout: false, opera: false */
+/*global window, navigator, document, importScripts, jQuery, setTimeout, opera */
 
 var requirejs, require, define;
 (function () {
     //Change this version number for each release.
-    var version = "1.0.4+",
+    var version = "1.0.5",
         commentRegExp = /(\/\*([\s\S]*?)\*\/|([^:]|^)\/\/(.*)$)/mg,
         cjsRequireRegExp = /require\(\s*["']([^'"\s]+)["']\s*\)/g,
         currDirRegExp = /^\.\//,

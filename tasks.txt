@@ -2,6 +2,7 @@ Release Notes
 -------------------
 - mention requirejs.undef to 1.1
 - mainConfigFile
+- node on windows
 
 
 
@@ -30,6 +31,8 @@ Next release
 
 - problem with just require(['./relative/id']) inside a define call, the relative
   parentMap is not used because missing a function callback?
+
+- test latest ie 10, see if it is still good
 
 - require-cs circular ref: https://github.com/jrburke/require-cs/issues/13
 
