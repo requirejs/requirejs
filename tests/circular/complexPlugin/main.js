@@ -1,8 +1,6 @@
-define(['viewport', 'helper'], function (viewport, helper) {
+define(['exports', 'viewport', 'helper'], function (exports, viewport, helper) {
 
-    return {
-        name: 'main',
-        viewport: viewport,
-        helper: helper
-    };
+    exports.name = 'main';
+    exports.viewport = viewport;
+    exports.helper = helper;
 });

@@ -2,6 +2,6 @@ define(function(require) {
     return {
         name: 'viewport',
         template: require('slowText!viewport.html'),
-        toolbar: toolbar
+        toolbar: require('toolbar')
     };
 });

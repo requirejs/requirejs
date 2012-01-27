@@ -396,8 +396,8 @@ var requirejs, require, define;
          * per module because of the implication of path mappings that may
          * need to be relative to the module name.
          */
-        function makeRequire(relModuleMap, enableBuildCallback) {
-            var modRequire = makeContextModuleFunc(context.require, relModuleMap, enableBuildCallback);
+        function makeRequire(relModuleMap, enableBuildCallback, altRequire) {
+            var modRequire = makeContextModuleFunc(altRequire || context.require, relModuleMap, enableBuildCallback);
 
             mixin(modRequire, {
                 nameToUrl: makeContextModuleFunc(context.nameToUrl, relModuleMap),
@@ -612,7 +612,22 @@ var requirejs, require, define;
                 //Use parentName here since the plugin's name is not reliable,
                 //could be some weird string with no path that actually wants to
                 //reference the parentName's path.
-                plugin.load(name, makeRequire(map.parentMap, true), load, config);
+                plugin.load(name, makeRequire(map.parentMap, true, function (deps, cb) {
+                    var moduleDeps = [],
+                        i, dep, depMap;
+                    //Convert deps to full names and hold on to them
+                    //for reference later, when figuring out if they
+                    //are blocked by a circular dependency.
+                    for (i = 0; (dep = deps[i]); i++) {
+                        depMap = makeModuleMap(dep, map.parentMap);
+                        deps[i] = depMap.fullName;
+                        if (!depMap.prefix) {
+                            moduleDeps.push(deps[i]);
+                        }
+                    }
+                    depManager.moduleDeps = (depManager.moduleDeps || []).concat(moduleDeps);
+                    return context.require(deps, cb);
+                }), load, config);
             }
         }
 
@@ -979,8 +994,8 @@ var requirejs, require, define;
                 //It is possible to disable the wait interval by using waitSeconds of 0.
                 expired = waitInterval && (context.startTime + waitInterval) < new Date().getTime(),
                 noLoads = "", hasLoadedProp = false, stillLoading = false,
-                onlyPluginResourceLoading = true,
-                i, prop, err, manager, cycleManager;
+                cycleDeps = [],
+                i, prop, err, manager, cycleManager, moduleDeps;
 
             //If there are items still in the paused queue processing wait.
             //This is particularly important in the sync case where each paused
@@ -1011,13 +1026,18 @@ var requirejs, require, define;
                         } else {
                             stillLoading = true;
                             if (prop.indexOf('!') === -1) {
-                                onlyPluginResourceLoading = false;
                                 //No reason to keep looking for unfinished
                                 //loading. If the only stillLoading is a
                                 //plugin resource though, keep going,
                                 //because it may be that a plugin resource
                                 //is waiting on a non-plugin cycle.
+                                cycleDeps = [];
                                 break;
+                            } else {
+                                moduleDeps = managerCallbacks[prop] && managerCallbacks[prop].moduleDeps;
+                                if (moduleDeps) {
+                                    cycleDeps.push.apply(cycleDeps, moduleDeps);
+                                }
                             }
                         }
                     }
@@ -1038,10 +1058,22 @@ var requirejs, require, define;
                 return req.onError(err);
             }
 
+            //If still loading but a plugin is waiting on a regular module cycle
+            //break the cycle.
+            if (stillLoading && cycleDeps.length) {
+                for (i = 0; (manager = waiting[cycleDeps[i]]); i++) {
+                    if ((cycleManager = findCycle(manager, {}))) {
+                        forceExec(cycleManager, {});
+                        break;
+                    }
+                }
+
+            }
+
             //If still waiting on loads, and the waiting load is something
             //other than a plugin resource, or there are still outstanding
             //scripts, then just try back later.
-            if (!expired && ((stillLoading && !onlyPluginResourceLoading) || context.scriptCount)) {
+            if (!expired && (stillLoading || context.scriptCount)) {
                 //Something is still waiting to load. Wait for it, but only
                 //if a timeout is not already in effect.
                 if ((isBrowser || isWebWorker) && !checkLoadedTimeoutId) {
@@ -1064,10 +1096,7 @@ var requirejs, require, define;
             if (context.waitCount) {
                 //Cycle through the waitAry, and call items in sequence.
                 for (i = 0; (manager = waitAry[i]); i++) {
-                    if ((cycleManager = findCycle(manager, {}))) {
-                        forceExec(cycleManager, {});
-                        break;
-                    }
+                    forceExec(manager, {});
                 }
 
                 //If anything got placed in the paused queue, run it down.
