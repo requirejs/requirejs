@@ -51,7 +51,9 @@
 <span class="sectionMark">&sect; 1.1</span>
 </h3>
 
-<p>If you just want to load some JavaScript files, do the following inside the HEAD tag in an HTML document:</p>
+<p>If you just want to load some JavaScript files, use the <code>require()</code> API. If there is already a <code>require()</code> in the page, you can use <code>requirejs()</code> to access the RequireJS API for loading scripts.</p>
+
+<p>Here is a simple example of calling <code>require()</code>, ideally placed inside the HEAD tag in an HTML document:</p>
 
 <pre><code>&lt;script src="scripts/require.js"&gt;&lt;/script&gt;
 &lt;script&gt;

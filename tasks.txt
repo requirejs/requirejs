@@ -28,38 +28,17 @@ Release Notes
 Next release
 --------------
 
-- Update API doc to mention requirejs().
-
-- optimization guidelines
-  - create the build file and target optimization outside of baseUrl/appDir
-  - do not have name: '../' that go outside the baseUrl.
-
-- https://github.com/jrburke/r.js/issues/81 share config with main.js
+- problem with just require(['./relative/id']) inside a define call, the relative
+  parentMap is not used because missing a function callback?
 
 - require-cs circular ref: https://github.com/jrburke/require-cs/issues/13
 
 - Split plugins and their docs into separate repos with READMEs, keep the
   tests in requirejs repo for now.
 
-- Consider an "advanced" doc that explains some of the inner workings, like
-  when function tostring scanning is done: https://gist.github.com/1663422
-
 - coffeescript 1.2 released, switch over the cs plugin.
 
-- global and local? nocontext thing?
-
 - make a decision matrix of when to use what. Mention lowercase names for file name convention.
-
-- Feedback to ES group
-
-- Constructive feedback for node community:
-  - amd as wrapped format
-  - proposal for extension to allow amd in modules via plugin api.
-
-- Make require.js robust against anon modules that are not loaded through loader.
-  - just give them temporary IDs and console.log the issue.
-
-- Generic design for gladius approach, using has, and the multiversion configs.
 
 - order plugin not work with phantomjs build?
   CentOS 5.6 (Final), PhantomJS 1.4.1, Qt 4.7
@@ -131,88 +110,7 @@ Docs:
 
 - If any other info: IE checkLoaded recursion? https://github.com/jrburke/requirejs/issues/82
 
-Bugs to work on
-------------------
-
-- Update AMD page to mention require scanning means only do them at the top.
-
-- Consider patches in jetpack for:
-  - removing scanning
-  - add amd object
-  - add plugins?
-
-- building with packages.build.js, the alpha/replace path mapping does not work out?
-
-- build's name insertion if there is comment between define( and the [dependencies]
-
-- ending slash in paths should throw error: https://github.com/jrburke/requirejs/issues/issue/49/
-
-- Document new closure compiler options from neonstalwart
 - require.modify alternative syntax/patch.
 - has.js plugins
-- require.def patch: https://github.com/jrburke/requirejs/pull/50
 
-- Visualization of dependencies, highlighting circular dependencies: RobbertAtWork
-
-- email on jsonp removal, toUrl and package names.
-
-- Nested package config: https://github.com/jrburke/requirejs/pull/28
-
-- IE, on errors, hits script onload, but need to make sure it is treated as a failure?
-
-- https://github.com/jrburke/requirejs/issues#issue/26:
-  spider: throw with isCheckLoaded: maybe pass for refactor branch?
-
-https://github.com/jrburke/requirejs/issues/issue/9
-- Optimizer cannot include order! plugins in a build at the moment.
-
-Optimizer improvements:
-2) Investigate the issue with main.js baseUrl overriding the one in app.build.js
-4) See if the pathing can be made simpler (abde's comment).
-
-- Figure out if isCheckLoaded can be avoided. Not likely, but revisit.
-
-- Finish PS3 work, investigate test failures, document level of support.
-
-- Check out blackberry emulators at:
-https://www.blackberry.com/Downloads/entry.do?code=060AD92489947D410D897474079C1477
-
-- Building a lib that has its own lookup paths, so it can be self-contained?
-  but what if want to share code? Maybe just make it an option, you can do it,
-  but lose out on shared common.
-
-- For function(require, exports, module) form, do not pass exports if the function
-  does not ask  for it, to allow the function to set the exported value by returning.
-
-- Figure out why priorityOrder test does not work, and if it should be supported.
-  Loading a plugin while waiting for a priority load may not be worth supporting,
-  it also means it will be slower. A priority module can include plugins but just
-  use a plugin to load the priorit module.
-
-- DOH updates
-  - get latest code
-  - fix rendering in IE 9 standards? How to get it to render in IE9 standard mode?
-
-- Allow module names that match Object.prototype method names?
-- browser test for loading css?
-
-- Best practices/architecture guide
-
-- consider removing require.isBrowser and require.s.isBrowser, check the tests, and send email to list first.
-
-- Make sure text plugin works offline.
-- Get Blackberry simulator. Blackberry greater than 4.6, and particulary with the Blackberry 9500 simulator (with OS v4.7),
-install and launch Blackberry MDS service simulator before running simulator to get network.
-
-- trying to find path of the file executed, as given to rhino:
-http://groups.google.com/group/jsdoc-2/msg/b1dd2f8991156fa0
-
-- with appName, and no native require, setting path to be outside the baseUrl meant that the require path was really
-  relative to the output folder name?
-
-- Use JSDoc to document a full module?
-
-- When doing docs via jsdoc, using {some/module} as return types? How does JSDoc deal with the nested objects?
-  Probably needs custom work to get it recognize the module concept thing.
-
-- To validate with Caja: http://caja.appspot.com/ and paste the code inside a script tag.
+- Visualization of dependencies, highlighting circular dependencies
