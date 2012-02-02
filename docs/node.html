@@ -23,6 +23,8 @@
 
 <p>Yes <a href="http://nodejs.org">Node</a> does. That loader uses the CommonJS module format. The CommonJS module format is <a href="why.html">non-optimal for the browser</a>, and I do not agree with <a href="http://tagneto.blogspot.com/2010/03/commonjs-module-trade-offs.html">some of the trade-offs made in the CommonJS module format</a>. By using RequireJS on the server, you can use one format for all your modules, whether they are running server side or in the browser. That way you can preserve the speed benefits and easy debugging you get with RequireJS in the browser, and not have to worry about extra translation costs for moving between two formats.</p>
 
+<p>If you want to use define() for your modules but still run them in Node without needing to run RequireJS on the server, see <a href="#nodeModules">the section below</a> about using <a href="https://github.com/jrburke/amdefine">amdefine</a>.</p>
+
 </div>
 
 <div class="section">
@@ -104,7 +106,7 @@ function   (foo,   bar) {
 <p>If you want to code a module so that it works with RequireJS and in Node, without requiring users of your library in Node to use RequireJS, then you can use the <a href="https://github.com/jrburke/amdefine">amdefine</a> package to do this:</p>
 
 <pre><code>if (typeof define !== 'function') {
-    var define = (require('amdefine'))(module);
+    var define = require('amdefine')(module);
 }
 
 define(function(require) {
