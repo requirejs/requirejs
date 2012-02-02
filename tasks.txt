@@ -1,10 +1,5 @@
 Release Notes
 -------------------
-- mention requirejs.undef to 1.1
-- mainConfigFile
-- node on windows
-
-
 
 1.1 items?
 --------------
