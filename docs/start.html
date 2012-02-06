@@ -88,12 +88,15 @@
 
 <p>Inside of main.js, you can use require() to load any other scripts you need to run:</p>
 
-<pre><code>require(["helper/util"], function() {
+<pre><code>require(["helper/util"], function(util) {
     //This function is called when scripts/helper/util.js is loaded.
+    //If util.js calls define(), then this function is not fired until
+    //util's dependencies have loaded, and the util argument will hold
+    //the module value for "helper/util".
 });
 </code></pre>
 
-<p>That is it! Check out the <a href="api.html">API docs</a> to learn more about require().</p>
+<p>That is it! Check out the <a href="api.html">API docs</a> to learn more about require() and define().</p>
 </div>
 
 <div class="section">

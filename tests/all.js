@@ -27,6 +27,8 @@ if (location.href.indexOf('http://127.0.0.1/requirejs/') === 0) {
 
 
 doh.registerUrl("circular", "../circular.html");
+doh.registerUrl("circularPlugin", "../circular/circularPlugin.html");
+doh.registerUrl("circularComplexPlugin", "../circular/complexPlugin/complexPlugin.html");
 doh.registerUrl("depoverlap", "../depoverlap.html");
 doh.registerUrl("urlfetch", "../urlfetch/urlfetch.html");
 doh.registerUrl("uniques", "../uniques/uniques.html");
@@ -68,6 +70,7 @@ doh.registerUrl("universalBuilt", "../universal/universal-built.html");
 
 
 doh.registerUrl("nestedDefine", "../nestedDefine/nestedDefine.html");
+doh.registerUrl("nestedDefine2", "../nestedDefine/nestedDefine2.html");
 doh.registerUrl("defineError", "../defineError/defineError.html");
 
 doh.registerUrl("pluginsSync", "../plugins/sync.html");
@@ -84,6 +87,9 @@ doh.registerUrl("order", "../order/order.html");
 doh.registerUrl("domReadyWithResources", "../domReady/withResources.html");
 
 doh.registerUrl("relative", "../relative/relative.html");
+doh.registerUrl("relativeBaseUrl", "../relative/relativeBaseUrl.html");
+doh.registerUrl("relativeOutsideBaseUrl", "../relative/outsideBaseUrl/a/outsideBaseUrl.html");
+
 doh.registerUrl("remoteUrls", "../remoteUrls/remoteUrls.html");
 
 //Hmm, PS3 does not like exports test? assign2 is undefined?

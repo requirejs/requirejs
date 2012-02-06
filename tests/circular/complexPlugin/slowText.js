@@ -1,3 +1,6 @@
+//Like text.js but does a setTimeout before returning a value, to simulate
+//slow template fetching.
+
 /**
  * @license RequireJS text 1.0.2 Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
@@ -6,7 +9,7 @@
 /*jslint regexp: false, nomen: false, plusplus: false, strict: false */
 /*global require: false, XMLHttpRequest: false, ActiveXObject: false,
   define: false, window: false, process: false, Packages: false,
-  java: false, location: false */
+  java: false, location: false, setTimeout */
 
 (function () {
     var progIds = ['Msxml2.XMLHTTP', 'Microsoft.XMLHTTP', 'Msxml2.XMLHTTP.4.0'],
@@ -200,7 +203,10 @@
                 if (config.isBuild) {
                     buildMap[name] = content;
                 }
-                onLoad(content);
+
+                setTimeout(function () {
+                    onLoad(content);
+                }, 500);
             },
 
             load: function (name, req, onLoad, config) {

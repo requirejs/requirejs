@@ -1,5 +1,5 @@
 /**
- * @license RequireJS order 1.0.0 Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
+ * @license RequireJS order 1.0.5 Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/requirejs for details
  */
@@ -120,11 +120,20 @@
     }
 
     define({
-        version: '1.0.0',
+        version: '1.0.5',
 
         load: function (name, req, onLoad, config) {
-            var url = req.nameToUrl(name, null),
-                node, context;
+            var hasToUrl = !!req.nameToUrl,
+                url, node, context;
+
+            //If no nameToUrl, then probably a build with a loader that
+            //does not support it, and all modules are inlined.
+            if (!hasToUrl) {
+                req([name], onLoad);
+                return;
+            }
+
+            url = req.nameToUrl(name, null);
 
             //Make sure the async attribute is not set for any pathway involving
             //this script.

@@ -4,13 +4,15 @@
 <ul class="index mono">
 <li class="hbox"><a href="#requirements">Requirements</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1</span></li>
 <li class="hbox"><a href="#download">Download</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2</span></li>
-<li class="hbox"><a href="#setup">Example Setup</a><span class="spacer boxFlex"></span><span class="sect">&sect; 3</span></li>
+<li class="hbox"><a href="#setup">Example setup</a><span class="spacer boxFlex"></span><span class="sect">&sect; 3</span></li>
 <li class="hbox"><a href="#onejs">Optimizing one JavaScript file</a><span class="spacer boxFlex"></span><span class="sect">&sect; 4</span></li>
 <li class="hbox"><a href="#shallow">Shallow exclusions for fast development</a><span class="spacer boxFlex"></span><span class="sect">&sect; 5</span></li>
-<li class="hbox"><a href="#onecss">Optimizing one CSS file</a><span class="spacer boxFlex"></span><span class="sect">&sect; 6</span></li>
-<li class="hbox"><a href="#wholeproject">Optimizing a whole project</a><span class="spacer boxFlex"></span><span class="sect">&sect; 7</span></li>
-<li class="hbox"><a href="#hasjs">Integration with has.js</a><span class="spacer boxFlex"></span><span class="sect">&sect; 8</span></li>
-<li class="hbox"><a href="#options">All configuration options</a><span class="spacer boxFlex"></span><span class="sect">&sect; 9</span></li>
+<li class="hbox"><a href="#empty">empty: paths for network/CDN resources</a><span class="spacer boxFlex"></span><span class="sect">&sect; 6</span></li>
+<li class="hbox"><a href="#onecss">Optimizing one CSS file</a><span class="spacer boxFlex"></span><span class="sect">&sect; 7</span></li>
+<li class="hbox"><a href="#wholeproject">Optimizing a whole project</a><span class="spacer boxFlex"></span><span class="sect">&sect; 8</span></li>
+<li class="hbox"><a href="#hasjs">Integration with has.js</a><span class="spacer boxFlex"></span><span class="sect">&sect; 9</span></li>
+<li class="hbox"><a href="#options">All configuration options</a><span class="spacer boxFlex"></span><span class="sect">&sect; 10</span></li>
+<li class="hbox"><a href="#pitfalls">Common pitfalls</a><span class="spacer boxFlex"></span><span class="sect">&sect; 11</span></li>
 </ul>
 
 <p>RequireJS has an optimization tool that does the following</p>
@@ -41,7 +43,7 @@ require(mods);</code></pre>
 
 <div class="section">
 <h2>
-<a name="requirements">Requirements</a>
+<a href="#requirements" name="requirements">Requirements</a>
 <span class="sectionMark">&sect; 1</span>
 </h2>
 
@@ -55,10 +57,11 @@ require(mods);</code></pre>
 <p>Node is the preferred execution environment. The optimizer runs <strong>much faster</strong> with Node.</p>
 
 <p>All the example commands in this page assume Node usage, and running on a Linux/OS X command line. See the <a href="https://github.com/jrburke/r.js">r.js README</a> for how to run it in Java.</p>
+
 </div>
 
 <div class="section">
-<h2><a name="download">Download</a><span class="sectionMark">&sect; 2</span></h2>
+<h2><a href="#download" name="download">Download</a><span class="sectionMark">&sect; 2</span></h2>
 
 <p>1) You can download the tool on <a href="download.html#rjs">the download page</a>.</p>
 
@@ -80,7 +83,7 @@ require(mods);</code></pre>
 </div>
 
 <div class="section">
-<h2><a name="setup">Example Setup</a><span class="sectionMark">&sect; 3</span></h2>
+<h2><a href="#setup" name="setup">Example setup</a><span class="sectionMark">&sect; 3</span></h2>
 
 <p>The examples in this page will assume you downloaded and saved r.js in a directory that is a sibling to your project directory. The optimizer that is part of r.js can live anywhere you want, but you will likely need to adjust the paths accordingly in these examples.</p>
 
@@ -140,7 +143,7 @@ require(mods);</code></pre>
 
 <div class="section">
 <h2>
-<a name="onejs">Optimizing one JavaScript file</a>
+<a href="#onejs" name="onejs">Optimizing one JavaScript file</a>
 <span class="sectionMark">&sect; 4</span>
 </h2>
 
@@ -166,7 +169,7 @@ require(mods);</code></pre>
 </div>
 
 <div class="section">
-<h2><a name="shallow">Shallow exclusions for fast development</a><span class="sectionMark">&sect; 5</span> </h2>
+<h2><a href="#shallow" name="shallow">Shallow exclusions for fast development</a><span class="sectionMark">&sect; 5</span> </h2>
 
 <p>You can use the <a href="#onejs">one JavaScript file optimization</a> approach to make your development experience faster. By optimizing all the modules in your project into one file, except the one you are currently developing, you can reload your project quickly in the browser, but still give you the option of fine grained debugging in a module.</p>
 
@@ -206,7 +209,48 @@ require(mods);</code></pre>
 </div>
 
 <div class="section">
-<h2><a name="onecss">Optimizing one CSS file</a><span class="sectionMark">&sect; 6</span></h2>
+<h2><a href="#empty" name="empty">empty: paths for network/CDN resources</a><span class="sectionMark">&sect; 6</span></h2>
+
+<p>You may have a script you want to load from a <a href="http://en.wikipedia.org/wiki/Content_delivery_network">Content Delivery Network (CDN)</a> or any other server on a different domain.</p>
+
+<p>The optimizer cannot load network resources, so if you want it included in the build, be sure to create a <a href="api.html#config-paths">paths config</a> to map the file to a module name. Then, for running the optimizer, download the CDN script and pass a paths config to the optimizer that maps the module name to the local file path.</p>
+
+<p>However, it is more likely that you do not want to include that resource in the build. If the script does not have any dependencies, or you do not want to include its dependencies or will be including them in another way, then you can use the special <strong>'empty:' scheme</strong> in the paths config to just skip the file when doing an optimization.</p>
+
+<p>In your main.js file, create a paths config that gives the script a module name. This can be done even if the script does not define a module via a call to define(). paths config are just used to map short module/script IDs to an URL. This allows you to use a a different paths config for the optimization. In main.js:</p>
+
+<pre><code>requirejs.config({
+    paths: {
+        'jquery': 'https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min'
+    }
+});
+
+require(['jquery'], function ($) {
+});
+</code></pre>
+
+<p>Then, when running the optimizer, use 'empty:' for the paths config:</p>
+
+<pre><code>node ../../r.js -o name=main out=main-built.js baseUrl=. paths.jquery=empty:
+</code></pre>
+
+<p>Or, in a <a href="#wholeproject">build profile</a>:</p>
+
+<pre><code>({
+    baseUrl: ".",
+    name: "main",
+    out: "main-built.js",
+    paths: {
+        jquery: "empty:"
+    }
+})
+</code></pre>
+
+</div>
+
+
+<div class="section">
+<h2><a href="#onecss" name="onecss">Optimizing one CSS file</a><span class="sectionMark">&sect; 7</span></h2>
 
 <p>Use the above example setup, if you just wanted to optimize main.css, you could use this command, from inside the <strong>appdirectory/css</strong> directory:</p>
 
@@ -221,7 +265,7 @@ require(mods);</code></pre>
 </div>
 
 <div class="section">
-<h2><a name="wholeproject">Optimizing a whole project</a><span class="sectionMark">&sect; 7</span></h2>
+<h2><a href="#wholeproject" name="wholeproject">Optimizing a whole project</a><span class="sectionMark">&sect; 8</span></h2>
 
 <p>The optimizer can take care of optimizing all the CSS and JS files in your project by using a build profile.</p>
 
@@ -256,7 +300,7 @@ require(mods);</code></pre>
 </div>
 
 <div class="section">
-<h2><a name="hasjs">Integration with has.js</a><span class="sectionMark">&sect; 8</span></h2>
+<h2><a href="#hasjs" name="hasjs">Integration with has.js</a><span class="sectionMark">&sect; 9</span></h2>
 
 <p><a href="https://github.com/phiggins42/has.js">has.js</a> is a great tool to that adds easy feature detection for your project. There is some optimizer support for optimizing code paths for has.js tests.</p>
 
@@ -300,7 +344,77 @@ if (true) {
 </div>
 
 <div class="section">
-<h2><a name="options">All configuration options</a><span class="sectionMark">&sect; 9</span></h2>
+<h2><a href="#options" name="options">All configuration options</a><span class="sectionMark">&sect; 10</span></h2>
 
 <p>There is an <a href="https://github.com/jrburke/r.js/blob/master/build/example.build.js">example.build.js</a> file in the requirejs/build directory that details all of the allowed optimizer configuration options.</p>
+</div>
+
+<div class="section">
+<h2><a href="#pitfalls" name="pitfalls">Common pitfalls</a><span class="sectionMark">&sect; 11</span></h2>
+
+<p>If you are having trouble with the examples below, here are some common pitfalls that might be the source of the problem:</p>
+
+<p><strong>Command line arguments are interchangeable with a build profile properties</strong></p>
+
+<p>You can either specify options on the command line:</p>
+
+<pre><code>node r.js -o baseUrl=. paths.jquery=some/other/jquery name=main out=main-built.js
+</code></pre>
+
+<p>or in a build profile. In a <strong>build.js</strong>, the same command line arguments can be specified like so:</p>
+
+<pre><code>({
+    baseUrl: ".",
+    paths: {
+        jquery: "some/other/jquery"
+    }
+    name: "main",
+    out: "main-built.js"
+})
+</code></pre>
+
+<p>then just pass the build profile's file name to the optimizer:</p>
+
+<pre><code>node r.js -o build.js
+</code></pre>
+
+<p>Command line arguments take precedence over build profile settings, and you can mix them together:</p>
+
+<pre><code>node r.js -o build.js optimize=none
+</code></pre>
+
+<p><strong>Config settings in your main JS file are not read by default by the optimizer</strong></p>
+
+<p>This is because the config settings for a build can be very different, with multiple optimization targets. So a separate set of config options need to be specified for the optimizer.</p>
+
+<p>In version 1.0.5+ of the optimizer, there is now a <strong><a href="https://github.com/jrburke/r.js/blob/master/build/example.build.js#L27">mainConfigFile</a></strong> option. If specified with the path to your main JS file, the first <code>requirejs({}), requirejs.config({}), require({}), or require.config({})</code> found in that file will be parsed out and used as part of the configuration options passed to the optimizer:</p>
+
+<pre><code>mainConfigFile: 'path/to/main.js'
+</code></pre>
+
+<p>The precedence for config: command line, build profile, mainConfigFile. In other words, the mainConfigFile configuration has the lowest priority.</p>
+
+<p><strong>Do not specify the output directory to within the source area for your JavaScript</strong></p>
+
+<p>For instance, if your baseUrl is 'js' and your build output goes into 'js/build', there will likely be problems with extra, nested files generated on each optimization run. This guidance is only for optimizations that are not single file optimizations.</p>
+
+<p><strong>Avoid optimization names that are outside the baseUrl</strong></p>
+
+<p>For instance, if your baseUrl is 'js', and your optimization targets:</p>
+
+<pre><code>name: '../main'</code></pre>
+
+<p>the optimization could overwrite or place files outside the output directory. For those cases, create a <strong>paths</strong> config to map that file to a local name, like:</p>
+
+<pre><code>paths: {
+    main: '../main'
+}
+</code></pre>
+
+<p>then use name:</p>
+
+<pre><code>name: 'main'</code></pre>
+
+<p>for the optimization target.</p>
+
 </div>
