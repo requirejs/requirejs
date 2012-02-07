@@ -75,69 +75,11 @@ require.onDebugDAG = function(fullName, deps, url)
     var arr = [];
     for (var p in deps)
         arr.push(p);
-    require.depsNamesByName[fullName] = arr;
+    require.depsNamesByName[fullName] = deps.slice(0);
     require.urlByFullName[fullName] = url;
 }
 
-/* Calls require.log to record dependency analysis.
- * Call this function from your main require.js callback function
- * @param none
- *
- */
-require.analyzeDependencyTree = function()
-{
-    require.log("Firebug module list: ", require.depsNamesByName);
 
-    // For each deps item create an object referencing dependencies
-    function linkArrayItems(id, depNamesByName, path)
-    {
-        var deps = depNamesByName[id];
-        var result = {};
-        for (var i = 0; i < deps.length; i++)
-        {
-            var depID = deps[i];
-            if (path.indexOf(":" + depID + ":") == -1) // Then depId is not already an dependent
-                result[depID] = linkArrayItems(depID, depNamesByName, path + ":" + depID + ":");
-            else
-                require.log("Circular dependency: " + path + ":" + depID + ":");
-        }
-        return result;
-    }
-
-    var linkedDependencies = {};
-    var dependents = {}; // reversed list, dependents by name
-    var depNamesByName = require.depsNamesByName;
-    for (var name in depNamesByName)
-    {
-        var depArray = depNamesByName[name];
-
-        if (name === "undefined") {
-            linkedDependencies["__main__"] = linkArrayItems(name, depNamesByName, "");
-            name = "__main__";
-        }
-        for (var i = 0; i < depArray.length; i++)
-        {
-            var dependent = depArray[i];
-            if (!dependents[dependent])
-                dependents[dependent] = [];
-            dependents[dependent].push(name);
-        }
-    }
-    var minimal = [];
-    var mainDeps = depNamesByName["undefined"];
-    for (var i = 0; i < mainDeps.length; i++)
-    {
-        var dependencyOfMain = mainDeps[i];
-        var dependentsOfDependencyOfMain = dependents[dependencyOfMain];
-        if (dependentsOfDependencyOfMain.length === 1)
-            minimal.push(dependencyOfMain);
-    }
-
-    require.log("Firebug module dependency tree: ", linkedDependencies);
-    require.log("Firebug dependents: ", dependents);
-    require.log("Firebug minimal modules list: ", minimal);
-    require.log("Firebug URLs: ", require.urlByFullName);
-}
 
 /*
  * Calls require.log for warning and debug of require.js.
@@ -164,10 +106,20 @@ require.onDebug = function()
  */
 require.onError = function(exc)
 {
+    if(exc.module) {
+      var errantModule = exc.module;
+      var dependents = [];
+      Object.keys(require.depsNamesByName).forEach(function(fullName) {
+        var depsNames = require.depsNamesByName[fullName];
+        if (depsNames.indexOf(errantModule) !== -1) {
+          dependents.push(fullName);
+        }
+      });
+      exc.dependents = dependents;
+    }
     var stack = exc.stack;  // Web Inspector does not show stack 
     if (stack) exc._stack = stack.split('\n');
-    require.onDebug.apply(require, arguments);
-    throw exc;
-}
+    console.error(exc.toString(), exc);
+};
 
-require({waitSeconds: 0});  // disable the timeout
+require({waitSeconds: 10});  // disable the timeout
