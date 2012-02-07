@@ -425,10 +425,6 @@ var requirejs, require, define;
                 listeners = manager.listeners,
                 cjsModule;
 
-            if (req.onDebugDAG) {
-                req.onDebugDAG(fullName, manager.deps, makeModuleMap(fullName).url);
-            }
-
             //Call the callback to define the module, if necessary.
             if (cb && isFunction(cb)) {
                 if (config.catchError.define) {
@@ -787,6 +783,11 @@ var requirejs, require, define;
             //for a module.
             manager.depArray = depArray;
             manager.callback = callback;
+            
+            if (req.onDebugDAG) {
+                var url = fullName ? makeModuleMap(fullName).url : id;
+                req.onDebugDAG(fullName || id, depArray, url);
+            }
 
             //Add the dependencies to the deps field, and register for callbacks
             //on the dependencies.
@@ -1935,6 +1936,7 @@ var requirejs, require, define;
                     } // else I don't understand why we don't have a context jjb
                     var err = makeError("network", "Could not resolve "+event.target.src);
                     err.requireType = "network";
+                    err.module = event.target.getAttribute('data-requiremodule');
                     req.onError(err);
                 }, false);
             }
