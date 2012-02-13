@@ -1,5 +1,5 @@
 /**
- * @license RequireJS text 1.0.2 Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
+ * @license RequireJS text 1.0.6 Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/requirejs for details
  */
@@ -42,8 +42,8 @@
 
             get = function (url, callback) {
                 var file = fs.readFileSync(url, 'utf8')
-                //We use utf-8, so remove BOM (Byte Mark Order)
-                if (file.charCodeAt(0) == 65279) {
+                //Remove BOM (Byte Mark Order) from utf8 files if it is there.
+                if (file.indexOf('\uFEFF') === 0) {
                     file = file.substring(1);
                 }
                 callback(file);
@@ -89,7 +89,7 @@
         }
 
         text = {
-            version: '1.0.2',
+            version: '1.0.6',
 
             strip: function (content) {
                 //Strips <?xml ...?> declarations so that external SVG and XML
