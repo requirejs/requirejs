@@ -19,13 +19,19 @@ Release Notes
 - requirejs.undef
     - example of requirejs.onError for fallback.
     - what about onError cleanup: https://github.com/jrburke/requirejs/issues/156?
-
+- allow error handler either per context, or per top-level require call.
+- Config options: "main" and rename "deps" to "include" to match how build can read config now.
 
 Next release
 --------------
 
+- add pluginBuilder to the load api
+
 - problem with just require(['./relative/id']) inside a define call, the relative
   parentMap is not used because missing a function callback?
+
+- make a note: order plugin is only useful for some top level dependencies that
+do not use define/require api. otherwise mixing is bad.
 
 - test latest ie 10, see if it is still good
 
