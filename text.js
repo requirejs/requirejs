@@ -41,7 +41,12 @@
             fs = require.nodeRequire('fs');
 
             get = function (url, callback) {
-                callback(fs.readFileSync(url, 'utf8'));
+                var file = fs.readFileSync(url, 'utf8')
+                //We use utf-8, so remove BOM (Byte Mark Order)
+                if (file.charCodeAt(0) == 65279) {
+                    file = file.substring(1);
+                }
+                callback(file);
             };
         } else if (typeof Packages !== 'undefined') {
             //Why Java, why is this so awkward?
