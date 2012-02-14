@@ -41,7 +41,7 @@
             fs = require.nodeRequire('fs');
 
             get = function (url, callback) {
-                var file = fs.readFileSync(url, 'utf8')
+                var file = fs.readFileSync(url, 'utf8');
                 //Remove BOM (Byte Mark Order) from utf8 files if it is there.
                 if (file.indexOf('\uFEFF') === 0) {
                     file = file.substring(1);
