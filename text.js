@@ -188,6 +188,9 @@
                 if (!match) {
                     return true;
                 }
+                if (typeof XMLHttpRequest !== "undefined" && "withCredentials" in XMLHttpRequest) {
+                  return true;
+                }
                 uProtocol = match[2];
                 uHostName = match[3];
 
