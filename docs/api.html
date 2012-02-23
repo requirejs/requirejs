@@ -337,6 +337,21 @@ define(function(require, exports, module) {
 });
 </code></pre>
 
+<p>Or, if you are using the dependency array approach, ask for the special
+<a href="https://github.com/jrburke/requirejs/wiki/Differences-between-the-simplified-CommonJS-wrapper-and-standard-AMD-define#wiki-magic">'exports' dependency:</a></p>
+
+<pre><code>//Inside b.js:
+define(['a', 'exports'], function(a, exports) {
+    //If "a" has used exports, then we have a real
+    //object reference here. However, we cannot use
+    //any of a's properties until after b returns a value.
+
+    exports.foo = function () {
+        return a.bar();
+    };
+});
+</code></pre>
+
 </div>
 
 <div class="subSection">

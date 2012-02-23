@@ -25,6 +25,10 @@ Release Notes
 Next release
 --------------
 
+- ie 10, order plugin not working?
+
+https://github.com/jrburke/requirejs/issues/185
+
 - add pluginBuilder to the load api
 
 - problem with just require(['./relative/id']) inside a define call, the relative
@@ -32,8 +36,6 @@ Next release
 
 - make a note: order plugin is only useful for some top level dependencies that
 do not use define/require api. otherwise mixing is bad.
-
-- test latest ie 10, see if it is still good
 
 - require-cs circular ref: https://github.com/jrburke/require-cs/issues/13
 
