@@ -7,7 +7,7 @@
 /*global window, navigator, document, importScripts, jQuery, setTimeout, opera */
 
 var requirejs, require, define;
-(function () {
+(function (undefined) {
     //Change this version number for each release.
     var version = "1.0.7",
         commentRegExp = /(\/\*([\s\S]*?)\*\/|([^:]|^)\/\/(.*)$)/mg,
