@@ -1,15 +1,16 @@
 /** vim: et:ts=4:sw=4:sts=4
- * @license RequireJS 1.0.7 Copyright (c) 2010-2012, The Dojo Foundation All Rights Reserved.
+ * @license RequireJS 1.1.0dev Copyright (c) 2010-2012, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/requirejs for details
  */
-/*jslint strict: false, plusplus: false, sub: true */
+/*jslint regexp: true, nomen: true */
 /*global window, navigator, document, importScripts, jQuery, setTimeout, opera */
 
 var requirejs, require, define;
 (function () {
+    'use strict';
     //Change this version number for each release.
-    var version = "1.0.7",
+    var version = "1.1.0dev",
         commentRegExp = /(\/\*([\s\S]*?)\*\/|([^:]|^)\/\/(.*)$)/mg,
         cjsRequireRegExp = /require\(\s*["']([^'"\s]+)["']\s*\)/g,
         currDirRegExp = /^\.\//,
@@ -29,7 +30,6 @@ var requirejs, require, define;
         defContextName = "_",
         //Oh the tragedy, detecting opera. See the usage of isOpera for reason.
         isOpera = typeof opera !== "undefined" && opera.toString() === "[object Opera]",
-        empty = {},
         contexts = {},
         globalDefQueue = [],
         interactiveScript = null,
@@ -59,12 +59,27 @@ var requirejs, require, define;
      * trigger a problem related to that.
      */
     function mixin(target, source, force) {
-        for (var prop in source) {
-            if (!(prop in empty) && (!(prop in target) || force)) {
+        var prop;
+        for (prop in source) {
+            if(source.hasOwnProperty(prop) &&
+              (force || !target.hasOwnProperty(prop))) {
                 target[prop] = source[prop];
             }
         }
         return req;
+    }
+
+    /**
+     * Helper function for iterating over an array. If the func returns
+     * a true value, it will break out of the loop.
+     */
+    function each(ary, func) {
+        var i;
+        for (i = 0; i < ary.length; i += 1) {
+            if (func(ary[i], i, ary)) {
+                break;
+            }
+        }
     }
 
     /**
@@ -90,9 +105,9 @@ var requirejs, require, define;
      * @param {String} [dir] a prefix dir to use.
      */
     function configurePackageDir(pkgs, currentPackages, dir) {
-        var i, location, pkgObj;
+        var location;
 
-        for (i = 0; (pkgObj = currentPackages[i]); i++) {
+        each(currentPackages, function (pkgObj) {
             pkgObj = typeof pkgObj === "string" ? { name: pkgObj } : pkgObj;
             location = pkgObj.location;
 
@@ -116,7 +131,7 @@ var requirejs, require, define;
                       .replace(currDirRegExp, '')
                       .replace(jsSuffixRegExp, '')
             };
-        }
+        });
     }
 
     /**
@@ -209,7 +224,8 @@ var requirejs, require, define;
          */
         function trimDots(ary) {
             var i, part;
-            for (i = 0; (part = ary[i]); i++) {
+            for (i = 0; ary[i]; i+= 1) {
+                part = ary[i];
                 if (part === ".") {
                     ary.splice(i, 1);
                     i -= 1;
@@ -357,15 +373,15 @@ var requirejs, require, define;
          */
         function isPriorityDone() {
             var priorityDone = true,
-                priorityWait = config.priorityWait,
-                priorityName, i;
+                priorityWait = config.priorityWait;
+
             if (priorityWait) {
-                for (i = 0; (priorityName = priorityWait[i]); i++) {
+                each(priorityWait, function (priorityName) {
                     if (!loaded[priorityName]) {
                         priorityDone = false;
-                        break;
+                        return true;
                     }
-                }
+                });
                 if (priorityDone) {
                     delete config.priorityWait;
                 }
@@ -417,7 +433,7 @@ var requirejs, require, define;
         }
 
         function execManager(manager) {
-            var i, ret, err, errFile, errModuleTree,
+            var ret, err, errFile, errModuleTree,
                 cb = manager.callback,
                 map = manager.map,
                 fullName = map.fullName,
@@ -511,9 +527,9 @@ var requirejs, require, define;
             }
 
             //Let listeners know of this manager's value.
-            for (i = 0; (cb = listeners[i]); i++) {
+            each(listeners, function(cb) {
                 cb(ret);
-            }
+            });
 
             return undefined;
         }
@@ -545,9 +561,12 @@ var requirejs, require, define;
             var map = depManager.map,
                 fullName = map.fullName,
                 name = map.name,
-                plugin = plugins[pluginName] ||
-                        (plugins[pluginName] = defined[pluginName]),
+                plugin = plugins[pluginName],
                 load;
+
+            if (!plugin) {
+                plugin = plugins[pluginName] = defined[pluginName];
+            }
 
             //No need to continue if the manager is already
             //in the process of loading.
@@ -604,26 +623,28 @@ var requirejs, require, define;
 
             //No need to continue if the plugin value has already been
             //defined by a build.
-            if (fullName in defined) {
+            if (defined.hasOwnProperty(fullName)) {
                 load(defined[fullName]);
             } else {
                 //Use parentName here since the plugin's name is not reliable,
                 //could be some weird string with no path that actually wants to
                 //reference the parentName's path.
                 plugin.load(name, makeRequire(map.parentMap, true, function (deps, cb) {
-                    var moduleDeps = [],
-                        i, dep, depMap;
-                    //Convert deps to full names and hold on to them
-                    //for reference later, when figuring out if they
-                    //are blocked by a circular dependency.
-                    for (i = 0; (dep = deps[i]); i++) {
-                        depMap = makeModuleMap(dep, map.parentMap);
-                        deps[i] = depMap.fullName;
-                        if (!depMap.prefix) {
-                            moduleDeps.push(deps[i]);
-                        }
+                    var moduleDeps = [], depMap;
+
+                    if (isArray(deps)) {
+                        //Convert deps to full names and hold on to them
+                        //for reference later, when figuring out if they
+                        //are blocked by a circular dependency.
+                        each(deps, function (dep, i) {
+                            depMap = makeModuleMap(dep, map.parentMap);
+                            deps[i] = depMap.fullName;
+                            if (!depMap.prefix) {
+                                moduleDeps.push(deps[i]);
+                            }
+                        });
+                        depManager.moduleDeps = (depManager.moduleDeps || []).concat(moduleDeps);
                     }
-                    depManager.moduleDeps = (depManager.moduleDeps || []).concat(moduleDeps);
                     return context.require(deps, cb);
                 }), load, config);
             }
@@ -641,20 +662,17 @@ var requirejs, require, define;
             }
         }
 
-        /**
-         * Function added to every manager object. Created out here
-         * to avoid new function creation for each manager instance.
-         */
-        function managerAdd(cb) {
-            this.listeners.push(cb);
-        }
-
         function getManager(map, shouldQueue) {
             var fullName = map.fullName,
                 prefix = map.prefix,
-                plugin = prefix ? plugins[prefix] ||
-                                (plugins[prefix] = defined[prefix]) : null,
-                manager, created, pluginManager, prefixMap;
+                plugin, manager, created, pluginManager, prefixMap;
+
+            if (prefix) {
+                plugin = plugins[prefix];
+                if (!plugin) {
+                    plugin = plugins[prefix] = defined[prefix];
+                }
+            }
 
             if (fullName) {
                 manager = managerCallbacks[fullName];
@@ -667,15 +685,17 @@ var requirejs, require, define;
                     //for a plugin that has not been loaded,
                     //then add an ID counter to it.
                     id: (prefix && !plugin ?
-                        (managerCounter++) + '__p@:' : '') +
-                        (fullName || '__r@' + (managerCounter++)),
+                        (managerCounter += 1) + '__p@:' : '') +
+                        (fullName || '__r@' + (managerCounter += 1)),
                     map: map,
                     depCount: 0,
                     depDone: [],
                     depCallbacks: [],
                     deps: [],
                     listeners: [],
-                    add: managerAdd
+                    add: function (cb) {
+                        this.listeners.push(cb);
+                    }
                 };
 
                 specified[manager.id] = true;
@@ -698,13 +718,13 @@ var requirejs, require, define;
                 //loaded/defined, but not as full module (as in a build
                 //situation). However, only do this work if the plugin is in
                 //defined but does not have a module export value.
-                if (prefix in defined && !defined[prefix]) {
+                if (defined.hasOwnProperty(prefix) && !defined[prefix]) {
                     delete defined[prefix];
                     delete urlFetched[prefixMap.url];
                 }
 
                 pluginManager = getManager(prefixMap, true);
-                pluginManager.add(function (plugin) {
+                pluginManager.add(function () {
                     //Create a new manager for the normalized
                     //resource ID and have it call this manager when
                     //done.
@@ -741,13 +761,13 @@ var requirejs, require, define;
                 manager = getManager(moduleMap),
                 id = manager.id,
                 deps = manager.deps,
-                i, depArg, depName, depPrefix, cjsMod;
+                depName, depPrefix, cjsMod;
 
             if (fullName) {
                 //If module already defined for context, or already loaded,
                 //then leave. Also leave if jQuery is registering but it does
                 //not match the desired version number in the config.
-                if (fullName in defined || loaded[id] === true ||
+                if (defined.hasOwnProperty(fullName) || loaded[id] === true ||
                     (fullName === "jquery" && config.jQuery &&
                      config.jQuery !== callback().fn.jquery)) {
                     return;
@@ -775,7 +795,7 @@ var requirejs, require, define;
 
             //Add the dependencies to the deps field, and register for callbacks
             //on the dependencies.
-            for (i = 0; i < depArray.length; i++) {
+            each(depArray, function (depArg, i) {
                 depArg = depArray[i];
                 //There could be cases like in IE, where a trailing comma will
                 //introduce a null dependency, so only treat a real dependency
@@ -804,9 +824,10 @@ var requirejs, require, define;
                             uri: name ? context.nameToUrl(name, null, relModuleMap) : undefined,
                             exports: defined[fullName]
                         };
-                    } else if (depName in defined && !(depName in waiting) &&
-                               (!(fullName in needFullExec) ||
-                                (fullName in needFullExec && fullExec[depName]))) {
+                    } else if (defined.hasOwnProperty(depName) &&
+                               !waiting.hasOwnProperty(depName) &&
+                               (!needFullExec.hasOwnProperty(fullName) ||
+                                (needFullExec.hasOwnProperty(fullName) && fullExec[depName]))) {
                         //Module already defined, and not in a build situation
                         //where the module is a something that needs full
                         //execution and this dependency has not been fully
@@ -816,7 +837,7 @@ var requirejs, require, define;
                     } else {
                         //Mark this dependency as needing full exec if
                         //the current module needs full exec.
-                        if (fullName in needFullExec) {
+                        if (needFullExec.hasOwnProperty(fullName)) {
                             needFullExec[depName] = true;
                             //Reset state so fully executed code will get
                             //picked up correctly.
@@ -832,7 +853,7 @@ var requirejs, require, define;
                         getManager(depArg, true).add(manager.depCallbacks[i]);
                     }
                 }
-            }
+            });
 
             //Do not bother tracking the manager if it is all done.
             if (!manager.depCount) {
@@ -871,7 +892,7 @@ var requirejs, require, define;
                         return;
                     }
 
-                    if ("holdReady" in $ || "readyWait" in $) {
+                    if ($.hasOwnProperty('holdReady') || $.hasOwnProperty('readyWait')) {
                         context.jQuery = $;
 
                         //Manually create a "jquery" module entry if not one already
@@ -896,7 +917,7 @@ var requirejs, require, define;
             var fullName = manager.map.fullName,
                 depArray = manager.depArray,
                 fullyLoaded = true,
-                i, depName, depManager, result;
+                depManager, result;
 
             if (manager.isDone || !fullName || !loaded[fullName]) {
                 return result;
@@ -911,22 +932,19 @@ var requirejs, require, define;
 
             //Trace through the dependencies.
             if (depArray) {
-                for (i = 0; i < depArray.length; i++) {
-                    //Some array members may be null, like if a trailing comma
-                    //IE, so do the explicit [i] access and check if it has a value.
-                    depName = depArray[i];
+                each(depArray, function (depName) {
                     if (!loaded[depName] && !reservedDependencies[depName]) {
                         fullyLoaded = false;
-                        break;
+                        return true;
                     }
                     depManager = waiting[depName];
                     if (depManager && !depManager.isDone && loaded[depName]) {
                         result = findCycle(depManager, traced);
                         if (result) {
-                            break;
+                            return true;
                         }
                     }
-                }
+                });
                 if (!fullyLoaded) {
                     //Discard the cycle that was found, since it cannot
                     //be forced yet. Also clear this module from traced.
@@ -941,7 +959,7 @@ var requirejs, require, define;
         function forceExec(manager, traced) {
             var fullName = manager.map.fullName,
                 depArray = manager.depArray,
-                i, depName, depManager, prefix, prefixManager, value;
+                depManager, prefix, value;
 
 
             if (manager.isDone || !fullName || !loaded[fullName]) {
@@ -958,16 +976,13 @@ var requirejs, require, define;
 
             //Trace through the dependencies.
             if (depArray) {
-                for (i = 0; i < depArray.length; i++) {
-                    //Some array members may be null, like if a trailing comma
-                    //IE, so do the explicit [i] access and check if it has a value.
-                    depName = depArray[i];
+                each(depArray, function (depName, i) {
                     if (depName) {
                         //First, make sure if it is a plugin resource that the
                         //plugin is not blocked.
                         prefix = makeModuleMap(depName).prefix;
-                        if (prefix && (prefixManager = waiting[prefix])) {
-                            forceExec(prefixManager, traced);
+                        if (prefix && waiting[prefix]) {
+                            forceExec(waiting[prefix], traced);
                         }
                         depManager = waiting[depName];
                         if (depManager && !depManager.isDone && loaded[depName]) {
@@ -975,7 +990,7 @@ var requirejs, require, define;
                             manager.depCallbacks[i](value);
                         }
                     }
-                }
+                });
             }
 
             return defined[fullName];
@@ -993,7 +1008,7 @@ var requirejs, require, define;
                 expired = waitInterval && (context.startTime + waitInterval) < new Date().getTime(),
                 noLoads = "", hasLoadedProp = false, stillLoading = false,
                 cycleDeps = [],
-                i, prop, err, manager, cycleManager, moduleDeps;
+                prop, err, moduleDeps;
 
             //If there are items still in the paused queue processing wait.
             //This is particularly important in the sync case where each paused
@@ -1016,7 +1031,7 @@ var requirejs, require, define;
 
             //See if anything is still in flight.
             for (prop in loaded) {
-                if (!(prop in empty)) {
+                if (loaded.hasOwnProperty(prop)) {
                     hasLoadedProp = true;
                     if (!loaded[prop]) {
                         if (expired) {
@@ -1060,13 +1075,15 @@ var requirejs, require, define;
             //If still loading but a plugin is waiting on a regular module cycle
             //break the cycle.
             if (stillLoading && cycleDeps.length) {
-                for (i = 0; (manager = waiting[cycleDeps[i]]); i++) {
-                    if ((cycleManager = findCycle(manager, {}))) {
-                        forceExec(cycleManager, {});
-                        break;
-                    }
-                }
+                each(cycleDeps, function (cycleDepName) {
+                    var manager = waiting[cycleDepName],
+                        cycleManager = findCycle(manager, {});
 
+                    if (cycleManager) {
+                        forceExec(cycleManager, {});
+                        return true;
+                    }
+                });
             }
 
             //If still waiting on loads, and the waiting load is something
@@ -1094,9 +1111,9 @@ var requirejs, require, define;
             //again.
             if (context.waitCount) {
                 //Cycle through the waitAry, and call items in sequence.
-                for (i = 0; (manager = waitAry[i]); i++) {
+                each(waitAry, function (manager) {
                     forceExec(manager, {});
-                }
+                });
 
                 //If anything got placed in the paused queue, run it down.
                 if (context.paused.length) {
@@ -1124,11 +1141,51 @@ var requirejs, require, define;
             return undefined;
         }
 
+        function runPaused() {
+            var map, url, p, fullName;
+
+            p = context.paused;
+            context.pausedCount += p.length;
+            //Reset paused list
+            context.paused = [];
+
+            each(p, function (manager) {
+                map = manager.map;
+                url = map.url;
+                fullName = map.fullName;
+
+                //If the manager is for a plugin managed resource,
+                //ask the plugin to load it now.
+                if (map.prefix) {
+                    callPlugin(map.prefix, manager);
+                } else {
+                    //Regular dependency.
+                    if (!urlFetched[url] && !loaded[fullName]) {
+                        req.load(context, fullName, url);
+
+                        //Mark the URL as fetched, but only if it is
+                        //not an empty: URL, used by the optimizer.
+                        //In that case we need to be sure to call
+                        //load() for each module that is mapped to
+                        //empty: so that dependencies are satisfied
+                        //correctly.
+                        if (url.indexOf('empty:') !== 0) {
+                            urlFetched[url] = true;
+                        }
+                    }
+                }
+            });
+
+            //Move the start time for timeout forward.
+            context.startTime = (new Date()).getTime();
+            context.pausedCount -= p.length;
+        }
+
         /**
          * Resumes tracing of dependencies and then checks if everything is loaded.
          */
         resume = function () {
-            var manager, map, url, i, p, args, fullName;
+            var args;
 
             //Any defined modules in the global queue, intake them now.
             context.takeGlobalQueue();
@@ -1157,41 +1214,7 @@ var requirejs, require, define;
             //if current context is in priority wait.
             if (!config.priorityWait || isPriorityDone()) {
                 while (context.paused.length) {
-                    p = context.paused;
-                    context.pausedCount += p.length;
-                    //Reset paused list
-                    context.paused = [];
-
-                    for (i = 0; (manager = p[i]); i++) {
-                        map = manager.map;
-                        url = map.url;
-                        fullName = map.fullName;
-
-                        //If the manager is for a plugin managed resource,
-                        //ask the plugin to load it now.
-                        if (map.prefix) {
-                            callPlugin(map.prefix, manager);
-                        } else {
-                            //Regular dependency.
-                            if (!urlFetched[url] && !loaded[fullName]) {
-                                req.load(context, fullName, url);
-
-                                //Mark the URL as fetched, but only if it is
-                                //not an empty: URL, used by the optimizer.
-                                //In that case we need to be sure to call
-                                //load() for each module that is mapped to
-                                //empty: so that dependencies are satisfied
-                                //correctly.
-                                if (url.indexOf('empty:') !== 0) {
-                                    urlFetched[url] = true;
-                                }
-                            }
-                        }
-                    }
-
-                    //Move the start time for timeout forward.
-                    context.startTime = (new Date()).getTime();
-                    context.pausedCount -= p.length;
+                    runPaused();
                 }
             }
 
@@ -1259,7 +1282,7 @@ var requirejs, require, define;
                 //Adjust paths if necessary.
                 if (cfg.paths) {
                     for (prop in cfg.paths) {
-                        if (!(prop in empty)) {
+                        if (cfg.paths.hasOwnProperty(prop)) {
                             paths[prop] = cfg.paths[prop];
                         }
                     }
@@ -1271,7 +1294,7 @@ var requirejs, require, define;
                     //Convert packagePaths into a packages config.
                     if (packagePaths) {
                         for (prop in packagePaths) {
-                            if (!(prop in empty)) {
+                            if (packagePaths.hasOwnProperty(prop)) {
                                 configurePackageDir(pkgs, packagePaths[prop], prop);
                             }
                         }
@@ -1322,11 +1345,11 @@ var requirejs, require, define;
             },
 
             requireDefined: function (moduleName, relModuleMap) {
-                return makeModuleMap(moduleName, relModuleMap).fullName in defined;
+                return defined.hasOwnProperty(makeModuleMap(moduleName, relModuleMap).fullName);
             },
 
             requireSpecified: function (moduleName, relModuleMap) {
-                return makeModuleMap(moduleName, relModuleMap).fullName in specified;
+                return specified.hasOwnProperty(makeModuleMap(moduleName, relModuleMap).fullName);
             },
 
             require: function (deps, callback, relModuleMap) {
@@ -1354,7 +1377,7 @@ var requirejs, require, define;
                     moduleMap = makeModuleMap(moduleName, relModuleMap);
                     fullName = moduleMap.fullName;
 
-                    if (!(fullName in defined)) {
+                    if (!defined.hasOwnProperty(fullName)) {
                         return req.onError(makeError("notloaded", "Module name '" +
                                     moduleMap.fullName +
                                     "' has not been loaded yet for context: " +
@@ -1365,7 +1388,7 @@ var requirejs, require, define;
 
                 //Call main but only if there are dependencies or
                 //a callback to call.
-                if (deps && deps.length || callback) {
+                if ((deps && deps.length) || callback) {
                     main(null, deps, callback, relModuleMap);
                 }
 
@@ -1484,7 +1507,7 @@ var requirejs, require, define;
                     //Just a plain path, not module name lookup, so just return it.
                     //Add extension if it is included. This is a bit wonky, only non-.js things pass
                     //an extension, this method probably needs to be reworked.
-                    url = moduleName + (ext ? ext : "");
+                    url = moduleName + (ext || "");
                 } else {
                     //A module that needs to be converted to a path.
                     paths = config.paths;
@@ -1494,12 +1517,13 @@ var requirejs, require, define;
                     //For each module name segment, see if there is a path
                     //registered for it. Start with most specific name
                     //and work up from it.
-                    for (i = syms.length; i > 0; i--) {
+                    for (i = syms.length; i > 0; i -= 1) {
                         parentModule = syms.slice(0, i).join("/");
+                        pkg = pkgs[parentModule];
                         if (paths[parentModule]) {
                             syms.splice(0, i, paths[parentModule]);
                             break;
-                        } else if ((pkg = pkgs[parentModule])) {
+                        } else if (pkg) {
                             //If module name is just the package name, then looking
                             //for the main module.
                             if (moduleName === pkg.name) {
@@ -1545,7 +1569,7 @@ var requirejs, require, define;
      * on a require that are not standardized), and to give a short
      * name for minification/local scope use.
      */
-    req = requirejs = function (deps, callback) {
+    req = requirejs = function (deps, callback, possibleCallback) {
 
         //Find the right context, use default
         var contextName = defContextName,
@@ -1558,7 +1582,7 @@ var requirejs, require, define;
             if (isArray(callback)) {
                 // Adjust args if there are dependencies
                 deps = callback;
-                callback = arguments[2];
+                callback = possibleCallback;
             } else {
                 deps = [];
             }
@@ -1568,8 +1592,10 @@ var requirejs, require, define;
             contextName = config.context;
         }
 
-        context = contexts[contextName] ||
-                  (contexts[contextName] = newContext(contextName));
+        context = contexts[contextName];
+        if (!context) {
+            context = contexts[contextName] = newContext(contextName);
+        }
 
         if (config) {
             context.configure(config);
@@ -1663,13 +1689,12 @@ var requirejs, require, define;
         }
 
         scripts = document.getElementsByTagName('script');
-        for (i = scripts.length - 1; i > -1 && (script = scripts[i]); i--) {
+        for (i = scripts.length - 1; i > -1; i -= 1) {
+            script = scripts[i];
             if (script.readyState === 'interactive') {
                 return (interactiveScript = script);
             }
         }
-
-        return null;
     }
 
     /**
@@ -1892,7 +1917,7 @@ var requirejs, require, define;
                     //when the event fires and the node is not attached
                     //to the DOM, the evt.srcElement is null, so use
                     //a closure to remember the node.
-                    node.onreadystatechange = function (evt) {
+                    node.onreadystatechange = function () {
                         //Script loaded but not executed.
                         //Clear loaded handler, set the real one that
                         //waits for script execution.
@@ -1928,7 +1953,6 @@ var requirejs, require, define;
             //Account for anonymous modules
             context.completeLoad(moduleName);
         }
-        return null;
     };
 
     //Look for a data-main script attribute, which could also adjust the baseUrl.
@@ -1936,7 +1960,9 @@ var requirejs, require, define;
         //Figure out baseUrl. Get it from the script tag with require.js in it.
         scripts = document.getElementsByTagName("script");
 
-        for (globalI = scripts.length - 1; globalI > -1 && (script = scripts[globalI]); globalI--) {
+        for (globalI = scripts.length - 1; globalI > -1; globalI -= 1) {
+            script = scripts[globalI];
+
             //Set the "head" where we can append children by
             //using the script's parent.
             if (!head) {
@@ -1946,7 +1972,8 @@ var requirejs, require, define;
             //Look for a data-main attribute to set main script for the page
             //to load. If it is there, the path to data main becomes the
             //baseUrl, if it is not already set.
-            if ((dataMain = script.getAttribute('data-main'))) {
+            dataMain = script.getAttribute('data-main');
+            if (dataMain) {
                 if (!cfg.baseUrl) {
                     //Pull off the directory of data-main for use as the
                     //baseUrl.
@@ -1974,7 +2001,7 @@ var requirejs, require, define;
     req.checkReadyState = function () {
         var contexts = s.contexts, prop;
         for (prop in contexts) {
-            if (!(prop in empty)) {
+            if (contexts.hasOwnProperty(prop)) {
                 if (contexts[prop].waitCount) {
                     return;
                 }
@@ -1999,7 +2026,7 @@ var requirejs, require, define;
             //If jQuery with DOM ready delayed, release it now.
             contexts = s.contexts;
             for (prop in contexts) {
-                if (!(prop in empty)) {
+                if (contexts.hasOwnProperty(prop)) {
                     context = contexts[prop];
                     if (context.jQueryIncremented) {
                         jQueryHoldReady(context.jQuery, false);
