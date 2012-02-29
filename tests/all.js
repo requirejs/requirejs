@@ -33,6 +33,8 @@ doh.registerUrl("depoverlap", "../depoverlap.html");
 doh.registerUrl("urlfetch", "../urlfetch/urlfetch.html");
 doh.registerUrl("uniques", "../uniques/uniques.html");
 doh.registerUrl("multiversion", "../multiversion.html", 10000);
+doh.registerUrl("undef", "../undef/undef.html", 8000);
+
 doh.registerUrl("jquery", "../jquery/jquery.html");
 doh.registerUrl("jqueryPriority", "../jquery/jqueryPriority.html");
 doh.registerUrl("jqueryVersion", "../jquery/jqueryVersion.html");
