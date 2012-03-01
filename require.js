@@ -1364,6 +1364,8 @@ var requirejs, require, define;
                 if (!context.requireWait && !context.scriptCount && context.paused.length) {
                     resume();
                 }
+
+                return context.require;
             },
 
             undef: function (name) {

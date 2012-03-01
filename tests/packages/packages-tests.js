@@ -3,22 +3,25 @@ require({
         paths: {
             'alpha/replace' : 'replace'
         },
-        packagePaths: {
-            'pkgs': [
-                'alpha',
-                {
-                    name: 'beta',
-                    location: 'beta/0.2/scripts',
-                    main: 'beta'
-                },
-                'dojox/chair',
-                {
-                    name: 'dojox/table',
-                    main: 'table'
-                }
-            ]
-        },
         packages: [
+            {
+                name: 'alpha',
+                location: 'pkgs/alpha'
+            },
+            {
+                name: 'beta',
+                location: 'pkgs/beta/0.2/scripts',
+                main: 'beta'
+            },
+            {
+                name: 'dojox/chair',
+                location: 'pkgs/dojox/chair'
+            },
+            {
+                name: 'dojox/table',
+                location: 'pkgs/dojox/table',
+                main: 'table'
+            },
             {
                 name: 'bar',
                 location: 'bar/0.4',

@@ -1,11 +1,18 @@
 require.config({
-     packagePaths: {
-        'packages': [
-            'engine',
-            'tires',
-            'fuel'
-        ]
-    }
+    packages: [
+        {
+            name: 'engine',
+            location: 'packages/engine'
+        },
+        {
+            name: 'tires',
+            location: 'packages/tires'
+        },
+        {
+            name: 'fuel',
+            location: 'packages/fuel'
+        }
+    ]
 });
 
 define(['engine', 'tires', 'fuel'], function (engine, tires, fuel) {
