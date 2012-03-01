@@ -1361,12 +1361,9 @@ var requirejs, require, define;
 
                 //If the require call does not trigger anything new to load,
                 //then resume the dependency processing.
-                if (!context.requireWait) {
-                    while (!context.scriptCount && context.paused.length) {
-                        resume();
-                    }
+                if (!context.requireWait && !context.scriptCount && context.paused.length) {
+                    resume();
                 }
-                return context.require;
             },
 
             undef: function (name) {
