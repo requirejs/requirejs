@@ -41,7 +41,7 @@ var requirejs, require, define;
             exports: true
         },
         req, cfg = {}, currentlyAddingScript, s, head, baseElement, scripts, script,
-        src, subPath, mainScript, dataMain, globalI, ctx, jQueryCheck, checkLoadedTimeoutId;
+        src, subPath, mainScript, dataMain, globalI, ctx, checkLoadedTimeoutId;
 
     function isFunction(it) {
         return ostring.call(it) === "[object Function]";
@@ -60,13 +60,14 @@ var requirejs, require, define;
      */
     function mixin(target, source, force) {
         var prop;
-        for (prop in source) {
-            if(source.hasOwnProperty(prop) &&
-              (force || !target.hasOwnProperty(prop))) {
-                target[prop] = source[prop];
+        if (source) {
+            for (prop in source) {
+                if(source.hasOwnProperty(prop) &&
+                  (force || !target.hasOwnProperty(prop))) {
+                    target[prop] = source[prop];
+                }
             }
         }
-        return req;
     }
 
     /**
@@ -96,58 +97,6 @@ var requirejs, require, define;
             e.originalError = err;
         }
         return e;
-    }
-
-    /**
-     * Used to set up package paths from a packagePaths or packages config object.
-     * @param {Object} pkgs the object to store the new package config
-     * @param {Array} currentPackages an array of packages to configure
-     * @param {String} [dir] a prefix dir to use.
-     */
-    function configurePackageDir(pkgs, currentPackages, dir) {
-        var location;
-
-        each(currentPackages, function (pkgObj) {
-            pkgObj = typeof pkgObj === "string" ? { name: pkgObj } : pkgObj;
-            location = pkgObj.location;
-
-            //Add dir to the path, but avoid paths that start with a slash
-            //or have a colon (indicates a protocol)
-            if (dir && (!location || (location.indexOf("/") !== 0 && location.indexOf(":") === -1))) {
-                location = dir + "/" + (location || pkgObj.name);
-            }
-
-            //Create a brand new object on pkgs, since currentPackages can
-            //be passed in again, and config.pkgs is the internal transformed
-            //state for all package configs.
-            pkgs[pkgObj.name] = {
-                name: pkgObj.name,
-                location: location || pkgObj.name,
-                //Remove leading dot in main, so main paths are normalized,
-                //and remove any trailing .js, since different package
-                //envs have different conventions: some use a module name,
-                //some use a file name.
-                main: (pkgObj.main || "main")
-                      .replace(currDirRegExp, '')
-                      .replace(jsSuffixRegExp, '')
-            };
-        });
-    }
-
-    /**
-     * jQuery 1.4.3-1.5.x use a readyWait/ready() pairing to hold DOM
-     * ready callbacks, but jQuery 1.6 supports a holdReady() API instead.
-     * At some point remove the readyWait/ready() support and just stick
-     * with using holdReady.
-     */
-    function jQueryHoldReady($, shouldHold) {
-        if ($.holdReady) {
-            $.holdReady(shouldHold);
-        } else if (shouldHold) {
-            $.readyWait += 1;
-        } else {
-            $.ready(true);
-        }
     }
 
     if (typeof define !== "undefined") {
@@ -762,6 +711,37 @@ var requirejs, require, define;
             return manager;
         }
 
+        /**
+         * jQuery 1.4.3+ supports ways to hold off calling
+         * calling jQuery ready callbacks until all scripts are loaded. Be sure
+         * to track it if the capability exists.. Also, since jQuery 1.4.3 does
+         * not register as a module, need to do some global inference checking.
+         * Even if it does register as a module, not guaranteed to be the precise
+         * name of the global. If a jQuery is tracked for this context, then go
+         * ahead and register it as a module too, if not already in process.
+         */
+        function jQueryCheck($) {
+            if (!context.jQuery) {
+                if ($) {
+                    //If a specific version of jQuery is wanted, make sure to only
+                    //use this jQuery if it matches.
+                    if (config.jQuery && $.fn.jquery !== config.jQuery) {
+                        return;
+                    }
+
+                    if ($.hasOwnProperty('holdReady')) {
+                        context.jQuery = $;
+
+                        //Ask jQuery to hold DOM ready callbacks.
+                        if (context.scriptCount) {
+                            $.holdReady(true);
+                            context.jQueryIncremented = true;
+                        }
+                    }
+                }
+            }
+        }
+
         function main(inName, depArray, callback, relModuleMap) {
             var moduleMap = makeModuleMap(inName, relModuleMap),
                 name = moduleMap.name,
@@ -880,46 +860,6 @@ var requirejs, require, define;
             main.apply(null, args);
         }
 
-        /**
-         * jQuery 1.4.3+ supports ways to hold off calling
-         * calling jQuery ready callbacks until all scripts are loaded. Be sure
-         * to track it if the capability exists.. Also, since jQuery 1.4.3 does
-         * not register as a module, need to do some global inference checking.
-         * Even if it does register as a module, not guaranteed to be the precise
-         * name of the global. If a jQuery is tracked for this context, then go
-         * ahead and register it as a module too, if not already in process.
-         */
-        jQueryCheck = function (jqCandidate) {
-            if (!context.jQuery) {
-                var $ = jqCandidate || (typeof jQuery !== "undefined" ? jQuery : null);
-
-                if ($) {
-                    //If a specific version of jQuery is wanted, make sure to only
-                    //use this jQuery if it matches.
-                    if (config.jQuery && $.fn.jquery !== config.jQuery) {
-                        return;
-                    }
-
-                    if ($.hasOwnProperty('holdReady') || $.hasOwnProperty('readyWait')) {
-                        context.jQuery = $;
-
-                        //Manually create a "jquery" module entry if not one already
-                        //or in process. Note this could trigger an attempt at
-                        //a second jQuery registration, but does no harm since
-                        //the first one wins, and it is the same value anyway.
-                        callDefMain(["jquery", [], function () {
-                            return jQuery;
-                        }]);
-
-                        //Ask jQuery to hold DOM ready callbacks.
-                        if (context.scriptCount) {
-                            jQueryHoldReady($, true);
-                            context.jQueryIncremented = true;
-                        }
-                    }
-                }
-            }
-        };
 
         function findCycle(manager, traced) {
             var fullName = manager.map.fullName,
@@ -1007,7 +947,8 @@ var requirejs, require, define;
         function removeScript(name) {
             var scripts = document.getElementsByTagName('script'),
                 i, scriptNode;
-            for (i = 0; (scriptNode = scripts[i]); i++) {
+            for (i = 0; i < scripts.length; i += 1) {
+                scriptNode = scripts[i];
                 if (scriptNode.getAttribute('data-requiremodule') === name &&
                     scriptNode.getAttribute('data-requirecontext') === context.contextName) {
                     scriptNode.parentNode.removeChild(scriptNode);
@@ -1284,7 +1225,7 @@ var requirejs, require, define;
              * @param {Object} cfg config object to integrate.
              */
             configure: function (cfg) {
-                var paths, prop, packages, pkgs, packagePaths, requireWait;
+                var paths, prop, packages, pkgs, requireWait;
 
                 //Make sure the baseUrl ends in a slash.
                 if (cfg.baseUrl) {
@@ -1303,31 +1244,33 @@ var requirejs, require, define;
                 //existing ones in context.config.
                 mixin(config, cfg, true);
 
-                //Adjust paths if necessary.
-                if (cfg.paths) {
-                    for (prop in cfg.paths) {
-                        if (cfg.paths.hasOwnProperty(prop)) {
-                            paths[prop] = cfg.paths[prop];
-                        }
-                    }
-                    config.paths = paths;
-                }
+                //Merge paths.
+                mixin(paths, cfg.paths, true);
+                config.paths = paths;
 
-                packagePaths = cfg.packagePaths;
-                if (packagePaths || cfg.packages) {
-                    //Convert packagePaths into a packages config.
-                    if (packagePaths) {
-                        for (prop in packagePaths) {
-                            if (packagePaths.hasOwnProperty(prop)) {
-                                configurePackageDir(pkgs, packagePaths[prop], prop);
-                            }
-                        }
-                    }
+                //Adjust packages if necessary.
+                if (cfg.packages) {
+                    each(cfg.packages, function (pkgObj) {
+                        var location;
 
-                    //Adjust packages if necessary.
-                    if (cfg.packages) {
-                        configurePackageDir(pkgs, cfg.packages);
-                    }
+                        pkgObj = typeof pkgObj === "string" ? { name: pkgObj } : pkgObj;
+                        location = pkgObj.location;
+
+                        //Create a brand new object on pkgs, since currentPackages can
+                        //be passed in again, and config.pkgs is the internal transformed
+                        //state for all package configs.
+                        pkgs[pkgObj.name] = {
+                            name: pkgObj.name,
+                            location: location || pkgObj.name,
+                            //Remove leading dot in main, so main paths are normalized,
+                            //and remove any trailing .js, since different package
+                            //envs have different conventions: some use a module name,
+                            //some use a file name.
+                            main: (pkgObj.main || "main")
+                                  .replace(currDirRegExp, '')
+                                  .replace(jsSuffixRegExp, '')
+                        };
+                    });
 
                     //Done with modifications, assing packages back to context config
                     config.pkgs = pkgs;
@@ -1428,8 +1371,7 @@ var requirejs, require, define;
 
             undef: function (name) {
 
-                var manager = managerCallbacks[name],
-                    i;
+                var manager = managerCallbacks[name];
 
                 delete defined[name];
                 delete specified[name];
@@ -1450,13 +1392,13 @@ var requirejs, require, define;
                 if (waiting[name]) {
                     delete waiting[name];
 
-                    for (i = 0; i < waitAry.length; i++) {
-                        if (waitAry[i].map.fullName === name) {
+                    each(waitAry, function (item, i) {
+                        if (item.map.fullName === name) {
                             waitAry.splice(i, 1);
                             context.waitCount -= 1;
-                            break;
+                            return true;
                         }
-                    }
+                    });
                 }
             },
 
@@ -1607,7 +1549,6 @@ var requirejs, require, define;
 
         //Make these visible on the context so can be called at the very
         //end of the file to bootstrap
-        context.jQueryCheck = jQueryCheck;
         context.resume = resume;
 
         return context;
@@ -1746,7 +1687,7 @@ var requirejs, require, define;
         //are put on hold to prevent its ready callbacks from
         //triggering too soon.
         if (context.jQuery && !context.jQueryIncremented) {
-            jQueryHoldReady(context.jQuery, true);
+            context.jQuery.holdReady(true);
             context.jQueryIncremented = true;
         }
     };
@@ -2098,7 +2039,7 @@ var requirejs, require, define;
                 if (contexts.hasOwnProperty(prop)) {
                     context = contexts[prop];
                     if (context.jQueryIncremented) {
-                        jQueryHoldReady(context.jQuery, false);
+                        context.jQuery.holdReady(false);
                         context.jQueryIncremented = false;
                     }
                 }
