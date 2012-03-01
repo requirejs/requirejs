@@ -1446,12 +1446,8 @@ var requirejs, require, define;
                     callDefMain(args);
                 } else {
                     //A script that does not call define(), so just simulate
-                    //the call for it. Special exception for jQuery dynamic load.
-                    callDefMain([moduleName, [],
-                                moduleName === "jquery" && typeof jQuery !== "undefined" ?
-                                function () {
-                                    return jQuery;
-                                } : null]);
+                    //the call for it.
+                    callDefMain([moduleName, [], null]);
                 }
 
                 //Doing this scriptCount decrement branching because sync envs
