@@ -231,6 +231,11 @@
 
                 //Load the text. Use XHR if possible and in a browser.
                 if (!hasLocation || useXhr(url, defaultProtocol, defaultHostName, defaultPort)) {
+                  
+                    if (config.textDir) {
+                        url = config.textDir + url;
+                    }
+
                     text.get(url, function (content) {
                         text.finishLoad(name, parsed.strip, content, onLoad, config);
                     });
