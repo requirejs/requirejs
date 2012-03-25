@@ -8,6 +8,14 @@ Things to mention about 1.1/TODOC:
 - jquery check only for holdReady jquerys that explicitly call define().
 
 
+Implementation notes
+--------
+* Cannot get rid of interactive stuff for IE because requirejs supports loading
+plain JS files that may not call define(). Since they do not call define, if
+they are loaded in between anon define call scripts, since onload on scripts
+do not fire immediately after script execution, the wrong names can be associated
+with scripts.
+
 1.1 items?
 --------------
 - map stuff
