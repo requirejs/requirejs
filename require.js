@@ -423,18 +423,19 @@ var requirejs, require, define;
                 fullName = map.fullName,
                 args = manager.deps,
                 listeners = manager.listeners,
+                execCb = config.requireExecCb || req.execCb,
                 cjsModule;
 
             //Call the callback to define the module, if necessary.
             if (cb && isFunction(cb)) {
                 if (config.catchError.define) {
                     try {
-                        ret = req.execCb(fullName, manager.callback, args, defined[fullName]);
+                        ret = execCb(fullName, manager.callback, args, defined[fullName]);
                     } catch (e) {
                         err = e;
                     }
                 } else {
-                    ret = req.execCb(fullName, manager.callback, args, defined[fullName]);
+                    ret = execCb(fullName, manager.callback, args, defined[fullName]);
                 }
 
                 if (fullName) {
@@ -1174,7 +1175,7 @@ var requirejs, require, define;
                         } else {
                             //Regular dependency.
                             if (!urlFetched[url] && !loaded[fullName]) {
-                                req.load(context, fullName, url);
+                                (config.requireLoad || req.load)(context, fullName, url);
 
                                 //Mark the URL as fetched, but only if it is
                                 //not an empty: URL, used by the optimizer.
