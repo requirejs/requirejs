@@ -34,6 +34,16 @@ with scripts.
 - Just remove packages config altogether, suggest volojs for making adapter modules.
 - allow error handler either per context, or per top-level require call.
 - Config options: "main" and rename "deps" to "include" to match how build can read config now.
+- allow define(function(require, exports, module, define)) where that local define
+  only defines modules visible to the current module, to help with builds of projects
+  that wrap up all of their defines in a file but still want it usuable to other
+  modules?
+- !removing priority config
+- !Remove resourcesReady and jQuery callback holding
+
+DOC updates:
+- Talk about paths and baseUrl first,
+- remove require() references, focus on doing data-main and define() instead.
 
 Next release
 --------------

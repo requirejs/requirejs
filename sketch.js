@@ -33,7 +33,10 @@ var requirejs, require, define;
         isOpera = typeof opera !== "undefined" && opera.toString() === "[object Opera]",
         contexts = {},
         cfg = {},
-        req;
+        globalDefQueue = [],
+        useInteractive = false,
+        req, s, head, baseElement, scripts, globalI, script, dataMain, src,
+        interactiveScript, currentlyAddingScript, mainScript, subPath;
 
     function isFunction(it) {
         return ostring.call(it) === "[object Function]";
@@ -54,7 +57,7 @@ var requirejs, require, define;
         var prop;
         if (source) {
             for (prop in source) {
-                if(source.hasOwnProperty(prop) &&
+                if (source.hasOwnProperty(prop) &&
                   (force || !target.hasOwnProperty(prop))) {
                     target[prop] = source[prop];
                 }
@@ -136,6 +139,8 @@ var requirejs, require, define;
             defined = {},
             paused = [],
             urlMap = {},
+            urlFetched = {},
+            defQueue = [],
             requireCounter = 1,
             Module, context, handlers;
 
@@ -234,15 +239,19 @@ var requirejs, require, define;
          * @returns {Object}
          */
         function makeModuleMap(name, parentModuleMap) {
-            //If no name, then it means it is a require call, generate an
-            //internal name.
-            name = name || '_@r' + (requireCounter += 1);
-
             var index = name ? name.indexOf("!") : -1,
                 prefix = null,
                 parentName = parentModuleMap ? parentModuleMap.name : null,
                 originalName = name,
+                isDefine = true,
                 normalizedName, url, pluginModule;
+
+            //If no name, then it means it is a require call, generate an
+            //internal name.
+            if (!name) {
+                isDefine = false;
+                name = '_@r' + (requireCounter += 1);
+            }
 
             if (index !== -1) {
                 prefix = name.substring(0, index);
@@ -294,6 +303,7 @@ var requirejs, require, define;
                 parentMap: parentModuleMap,
                 url: url,
                 originalName: originalName,
+                isDefine: isDefine,
                 id: prefix ? prefix + "!" + (normalizedName || '') : normalizedName
             };
         }
@@ -322,10 +332,6 @@ var requirejs, require, define;
                 mod.enabled = true;
                 mod.check();
             }
-        }
-
-        function exec(obj, fn, args) {
-            return fn.apply(obj, args);
         }
 
         function on(depMap, name, fn) {
@@ -378,6 +384,7 @@ var requirejs, require, define;
                 return makeRequire(mod);
             },
             'exports': function (mod) {
+                mod.usingExports = true;
                 return (mod.exports = {});
             },
             'module': function (mod) {
@@ -398,12 +405,15 @@ var requirejs, require, define;
                this.enabled
             */
 
-            paused.push(map);
+            paused.push(this);
         };
 
         Module.prototype = {
             init: function(depMaps, factory, errback, options) {
                 options = options || {};
+
+                //Indicate this module has be initialized
+                this.inited = true;
 
                 if (options.enabled) {
                     this.enabled = true;
@@ -453,24 +463,59 @@ var requirejs, require, define;
                 }));
 
                 this.check();
-
-    //.inited check in paused dont do if inited
             },
 
             check: function () {
-                if (this.depCount === 0) {
-                    if (this.enabled) {
-                        var exports = exec(this.exports, this.factory, this.depExports);
-                        //TODO do module.exports vs return value stuff
-                        // here
+                if (this.depCount === 0 && this.enabled) {
+                    var id = this.map.id,
+                        depExports = this.depExports,
+                        exports = this.exports,
+                        factory = this.factory,
+                        err, cjsModule;
 
-                        this.emit('defined', this.exports);
+                    if (factory !== undefined) {
+                        if (isFunction(factory)) {
+                            if (config.catchError.define) {
+                                try {
+                                    exports = req.execCb(id, factory, depExports, exports);
+                                } catch (e) {
+                                    err = e;
+                                }
+                            } else {
+                                exports = req.execCb(id, factory, depExports, exports);
+                            }
+
+                            if (this.map.isDefine) {
+                                //If setting exports via "module" is in play,
+                                //favor that over return value and exports. After that,
+                                //favor a non-undefined return value over exports use.
+                                cjsModule = this.module;
+                                if (cjsModule &&
+                                    cjsModule.exports !== undefined &&
+                                    //Make sure it is not already the exports value
+                                    cjsModule.exports !== this.exports) {
+                                    exports = cjsModule.exports;
+                                } else if (exports === undefined && this.usingExports) {
+                                    //exports already set the defined value.
+                                    exports = this.exports;
+                                }
+                            }
+                        } else {
+                            //Just a literal value
+                            exports = factory;
+                        }
                     }
+
+                    if (this.map.isDefine) {
+                        defined[this.map.id] = exports;
+                    }
+
+                    //Notify listeners the module is defined.
+                    this.emit('defined', exports);
+
+                    //Clean up
+                    delete registry[this.map.id];
                 }
-            },
-
-            require: function () {
-
             },
 
             on: function(name, fn) {
@@ -487,6 +532,63 @@ var requirejs, require, define;
                 });
             }
         };
+
+        function runPaused() {
+            var p = context.paused;
+
+            //Reset paused list
+            context.paused = [];
+
+            each(p, function (mod) {
+                var map = mod.map,
+                url = map.url,
+                id = map.id;
+
+                //If the manager is for a plugin managed resource,
+                //ask the plugin to load it now.
+                //if (map.prefix) {
+                    //callPlugin(map.prefix, mod);
+                //} else {
+                    //Regular dependency.
+                    if (!urlFetched[url] && !mod.inited) {
+                        req.load(context, id, url);
+
+                        //Mark the URL as fetched, but only if it is
+                        //not an empty: URL, used by the optimizer.
+                        //In that case we need to be sure to call
+                        //load() for each module that is mapped to
+                        //empty: so that dependencies are satisfied
+                        //correctly.
+                        if (url.indexOf('empty:') !== 0) {
+                            urlFetched[url] = true;
+                        }
+                    }
+                //}
+            });
+        }
+
+        function resume() {
+            var args;
+
+            //Any defined modules in the global queue, intake them now.
+            context.takeGlobalQueue();
+
+            //Make sure any remaining defQueue items get properly processed.
+            while (defQueue.length) {
+                args = defQueue.shift();
+                if (args[0] === null) {
+                    return req.onError(makeError('mismatch', 'Mismatched anonymous define() module: ' + args[args.length - 1]));
+                } else {
+                    //args are id, deps, factory. Should be normalized by the
+                    //define() function.
+                    getModule(makeModuleMap(args[0])).init(args[1], args[2]);
+                }
+            }
+
+            while (context.paused.length) {
+                runPaused();
+            }
+        }
 
         return (context = {
             require: function (deps, callback, errback, relMap) {
@@ -531,14 +633,476 @@ var requirejs, require, define;
                 }
 
                 //Mark all the dependencies as needing to be loaded.
-                map = makeModuleMap(null, relMap);
-                requireMod = getModule(map);
+                requireMod = getModule(makeModuleMap(null, relMap));
                 requireMod.init(depMaps, callback, errback, {
                     enabled: true
                 });
 
+                resume();
+
                 return context.require;
+            },
+
+            /**
+             * Internal method to transfer globalQueue items to this context's
+             * defQueue.
+             */
+            takeGlobalQueue: function () {
+                //Push all the globalDefQueue items into the context's defQueue
+                if (globalDefQueue.length) {
+                    //Array splice in the values since the context code has a
+                    //local var ref to defQueue, so cannot just reassign the one
+                    //on context.
+                    apsp.apply(defQueue,
+                               [defQueue.length - 1, 0].concat(globalDefQueue));
+                    globalDefQueue = [];
+                }
             }
         });
     }
+
+    /**
+     * Main entry point.
+     *
+     * If the only argument to require is a string, then the module that
+     * is represented by that string is fetched for the appropriate context.
+     *
+     * If the first argument is an array, then it will be treated as an array
+     * of dependency string names to fetch. An optional function callback can
+     * be specified to execute when all of those dependencies are available.
+     *
+     * Make a local req variable to help Caja compliance (it assumes things
+     * on a require that are not standardized), and to give a short
+     * name for minification/local scope use.
+     */
+    req = requirejs = function (deps, callback, possibleCallback) {
+
+        //Find the right context, use default
+        var contextName = defContextName,
+            context, config;
+
+        // Determine if have config object in the call.
+        if (!isArray(deps) && typeof deps !== "string") {
+            // deps is a config object
+            config = deps;
+            if (isArray(callback)) {
+                // Adjust args if there are dependencies
+                deps = callback;
+                callback = possibleCallback;
+            } else {
+                deps = [];
+            }
+        }
+
+        if (config && config.context) {
+            contextName = config.context;
+        }
+
+        context = contexts[contextName];
+        if (!context) {
+            context = contexts[contextName] = newContext(contextName);
+        }
+
+        if (config) {
+            context.configure(config);
+        }
+
+        return context.require(deps, callback);
+    };
+
+    /**
+     * Support require.config() to make it easier to cooperate with other
+     * AMD loaders on globally agreed names.
+     */
+    req.config = function (config) {
+        return req(config);
+    };
+
+    /**
+     * Export require as a global, but only if it does not already exist.
+     */
+    if (!require) {
+        require = req;
+    }
+
+    /**
+     * Global require.toUrl(), to match global require, mostly useful
+     * for debugging/work in the global space.
+     */
+    req.toUrl = function (moduleNamePlusExt) {
+        return contexts[defContextName].toUrl(moduleNamePlusExt);
+    };
+
+    /**
+     * Global require.undef(), to allow undefining a module, and resetting
+     * internal state to act like it was not loaded. It *does not* clean up
+     * any script tag that may have been used to load the module. So, if
+     * the undef() is called as part of a script timeout, the script may
+     * still load later.
+     */
+    req.undef = function (name, contextName) {
+        contexts[contextName || defContextName].undef(name);
+    };
+
+    req.version = version;
+
+    //Used to filter out dependencies that are already paths.
+    req.jsExtRegExp = /^\/|:|\?|\.js$/;
+    s = req.s = {
+        contexts: contexts,
+        //Stores a list of URLs that should not get async script tag treatment.
+        skipAsync: {}
+    };
+
+    req.isAsync = req.isBrowser = isBrowser;
+    if (isBrowser) {
+        head = s.head = document.getElementsByTagName("head")[0];
+        //If BASE tag is in play, using appendChild is a problem for IE6.
+        //When that browser dies, this can be removed. Details in this jQuery bug:
+        //http://dev.jquery.com/ticket/2709
+        baseElement = document.getElementsByTagName("base")[0];
+        if (baseElement) {
+            head = s.head = baseElement.parentNode;
+        }
+    }
+
+    /**
+     * Any errors that require explicitly generates will be passed to this
+     * function. Intercept/override it if you want custom error handling.
+     * @param {Error} err the error object.
+     */
+    req.onError = function (err) {
+        throw err;
+    };
+
+    /**
+     * Does the request to load a module for the browser case.
+     * Make this a separate function to allow other environments
+     * to override it.
+     *
+     * @param {Object} context the require context to find state.
+     * @param {String} moduleName the name of the module.
+     * @param {Object} url the URL to the module.
+     */
+    req.load = function (context, moduleName, url) {
+        context.scriptCount += 1;
+        req.attach(url, context, moduleName);
+    };
+
+    function getInteractiveScript() {
+        var scripts, i, script;
+        if (interactiveScript && interactiveScript.readyState === 'interactive') {
+            return interactiveScript;
+        }
+
+        scripts = document.getElementsByTagName('script');
+        for (i = scripts.length - 1; i > -1; i -= 1) {
+            script = scripts[i];
+            if (script.readyState === 'interactive') {
+                return (interactiveScript = script);
+            }
+        }
+    }
+
+    /**
+     * Adds a node to the DOM. Public function since used by the order plugin.
+     * This method should not normally be called by outside code.
+     */
+    req.addScriptToDom = function (node) {
+        //For some cache cases in IE 6-8, the script executes before the end
+        //of the appendChild execution, so to tie an anonymous define
+        //call to the module name (which is stored on the node), hold on
+        //to a reference to this node, but clear after the DOM insertion.
+        currentlyAddingScript = node;
+        if (baseElement) {
+            head.insertBefore(node, baseElement);
+        } else {
+            head.appendChild(node);
+        }
+        currentlyAddingScript = null;
+    };
+
+    /**
+     * callback for script loads, used to check status of loading.
+     *
+     * @param {Event} evt the event from the browser for the script
+     * that was loaded.
+     *
+     * @private
+     */
+    req.onScriptLoad = function (evt) {
+        //Using currentTarget instead of target for Firefox 2.0's sake. Not
+        //all old browsers will be supported, but this one was easy enough
+        //to support and still makes sense.
+        var node = evt.currentTarget || evt.srcElement, contextName, moduleName,
+            context;
+
+        if (evt.type === "load" || (node && readyRegExp.test(node.readyState))) {
+            //Reset interactive script so a script node is not held onto for
+            //to long.
+            interactiveScript = null;
+
+            //Pull out the name of the module and the context.
+            contextName = node.getAttribute("data-requirecontext");
+            moduleName = node.getAttribute("data-requiremodule");
+            context = contexts[contextName];
+
+            contexts[contextName].completeLoad(moduleName);
+
+            //Clean up script binding. Favor detachEvent because of IE9
+            //issue, see attachEvent/addEventListener comment elsewhere
+            //in this file.
+            if (node.detachEvent && !isOpera) {
+                //Probably IE. If not it will throw an error, which will be
+                //useful to know.
+                node.detachEvent("onreadystatechange", req.onScriptLoad);
+            } else {
+                node.removeEventListener("load", req.onScriptLoad, false);
+            }
+        }
+    };
+
+    /**
+     * Attaches the script represented by the URL to the current
+     * environment. Right now only supports browser loading,
+     * but can be redefined in other environments to do the right thing.
+     * @param {String} url the url of the script to attach.
+     * @param {Object} context the context that wants the script.
+     * @param {moduleName} the name of the module that is associated with the script.
+     * @param {Function} [callback] optional callback, defaults to require.onScriptLoad
+     * @param {String} [type] optional type, defaults to text/javascript
+     * @param {Function} [fetchOnlyFunction] optional function to indicate the script node
+     * should be set up to fetch the script but do not attach it to the DOM
+     * so that it can later be attached to execute it. This is a way for the
+     * order plugin to support ordered loading in IE. Once the script is fetched,
+     * but not executed, the fetchOnlyFunction will be called.
+     */
+    req.attach = function (url, context, moduleName, callback, type, fetchOnlyFunction) {
+        var node;
+        if (isBrowser) {
+            //In the browser so use a script tag
+            callback = callback || req.onScriptLoad;
+            node = context && context.config && context.config.xhtml ?
+                    document.createElementNS("http://www.w3.org/1999/xhtml", "html:script") :
+                    document.createElement("script");
+            node.type = type || (context && context.config.scriptType) ||
+                        "text/javascript";
+            node.charset = "utf-8";
+            //Use async so Gecko does not block on executing the script if something
+            //like a long-polling comet tag is being run first. Gecko likes
+            //to evaluate scripts in DOM order, even for dynamic scripts.
+            //It will fetch them async, but only evaluate the contents in DOM
+            //order, so a long-polling script tag can delay execution of scripts
+            //after it. But telling Gecko we expect async gets us the behavior
+            //we want -- execute it whenever it is finished downloading. Only
+            //Helps Firefox 3.6+
+            //Allow some URLs to not be fetched async. Mostly helps the order!
+            //plugin
+            node.async = !s.skipAsync[url];
+
+            if (context) {
+                node.setAttribute("data-requirecontext", context.contextName);
+            }
+            node.setAttribute("data-requiremodule", moduleName);
+
+            //Set up load listener. Test attachEvent first because IE9 has
+            //a subtle issue in its addEventListener and script onload firings
+            //that do not match the behavior of all other browsers with
+            //addEventListener support, which fire the onload event for a
+            //script right after the script execution. See:
+            //https://connect.microsoft.com/IE/feedback/details/648057/script-onload-event-is-not-fired-immediately-after-script-execution
+            //UNFORTUNATELY Opera implements attachEvent but does not follow the script
+            //script execution mode.
+            if (node.attachEvent && !isOpera) {
+                //Probably IE. IE (at least 6-8) do not fire
+                //script onload right after executing the script, so
+                //we cannot tie the anonymous define call to a name.
+                //However, IE reports the script as being in "interactive"
+                //readyState at the time of the define call.
+                useInteractive = true;
+
+
+                if (fetchOnlyFunction) {
+                    //Need to use old school onreadystate here since
+                    //when the event fires and the node is not attached
+                    //to the DOM, the evt.srcElement is null, so use
+                    //a closure to remember the node.
+                    node.onreadystatechange = function () {
+                        //Script loaded but not executed.
+                        //Clear loaded handler, set the real one that
+                        //waits for script execution.
+                        if (node.readyState === 'loaded') {
+                            node.onreadystatechange = null;
+                            node.attachEvent("onreadystatechange", callback);
+                            fetchOnlyFunction(node);
+                        }
+                    };
+                } else {
+                    node.attachEvent("onreadystatechange", callback);
+                }
+            } else {
+                node.addEventListener("load", callback, false);
+            }
+            node.src = url;
+
+            //Fetch only means waiting to attach to DOM after loaded.
+            if (!fetchOnlyFunction) {
+                req.addScriptToDom(node);
+            }
+
+            return node;
+        } else if (isWebWorker) {
+            //In a web worker, use importScripts. This is not a very
+            //efficient use of importScripts, importScripts will block until
+            //its script is downloaded and evaluated. However, if web workers
+            //are in play, the expectation that a build has been done so that
+            //only one script needs to be loaded anyway. This may need to be
+            //reevaluated if other use cases become common.
+            importScripts(url);
+
+            //Account for anonymous modules
+            context.completeLoad(moduleName);
+        }
+    };
+
+    //Look for a data-main script attribute, which could also adjust the baseUrl.
+    if (isBrowser) {
+        //Figure out baseUrl. Get it from the script tag with require.js in it.
+        scripts = document.getElementsByTagName("script");
+
+        for (globalI = scripts.length - 1; globalI > -1; globalI -= 1) {
+            script = scripts[globalI];
+
+            //Set the "head" where we can append children by
+            //using the script's parent.
+            if (!head) {
+                head = script.parentNode;
+            }
+
+            //Look for a data-main attribute to set main script for the page
+            //to load. If it is there, the path to data main becomes the
+            //baseUrl, if it is not already set.
+            dataMain = script.getAttribute('data-main');
+            if (dataMain) {
+                if (!cfg.baseUrl) {
+                    //Pull off the directory of data-main for use as the
+                    //baseUrl.
+                    src = dataMain.split('/');
+                    mainScript = src.pop();
+                    subPath = src.length ? src.join('/')  + '/' : './';
+
+                    //Set final config.
+                    cfg.baseUrl = subPath;
+                    //Strip off any trailing .js since dataMain is now
+                    //like a module name.
+                    dataMain = mainScript.replace(jsSuffixRegExp, '');
+                }
+
+                //Put the data-main script in the files to load.
+                cfg.deps = cfg.deps ? cfg.deps.concat(dataMain) : [dataMain];
+
+                break;
+            }
+        }
+    }
+
+    /**
+     * The function that handles definitions of modules. Differs from
+     * require() in that a string for the module should be the first argument,
+     * and the function to execute after dependencies are loaded should
+     * return a value to define the module corresponding to the first argument's
+     * name.
+     */
+    define = function (name, deps, callback) {
+        var node, context;
+
+        //Allow for anonymous functions
+        if (typeof name !== 'string') {
+            //Adjust args appropriately
+            callback = deps;
+            deps = name;
+            name = null;
+        }
+
+        //This module may not have dependencies
+        if (!isArray(deps)) {
+            callback = deps;
+            deps = [];
+        }
+
+        //If no name, and callback is a function, then figure out if it a
+        //CommonJS thing with dependencies.
+        if (!deps.length && isFunction(callback)) {
+            //Remove comments from the callback string,
+            //look for require calls, and pull them into the dependencies,
+            //but only if there are function args.
+            if (callback.length) {
+                callback
+                    .toString()
+                    .replace(commentRegExp, "")
+                    .replace(cjsRequireRegExp, function (match, dep) {
+                        deps.push(dep);
+                    });
+
+                //May be a CommonJS thing even without require calls, but still
+                //could use exports, and module. Avoid doing exports and module
+                //work though if it just needs require.
+                //REQUIRES the function to expect the CommonJS variables in the
+                //order listed below.
+                deps = (callback.length === 1 ? ["require"] : ["require", "exports", "module"]).concat(deps);
+            }
+        }
+
+        //If in IE 6-8 and hit an anonymous define() call, do the interactive
+        //work.
+        if (useInteractive) {
+            node = currentlyAddingScript || getInteractiveScript();
+            if (node) {
+                if (!name) {
+                    name = node.getAttribute("data-requiremodule");
+                }
+                context = contexts[node.getAttribute("data-requirecontext")];
+            }
+        }
+
+        //Always save off evaluating the def call until the script onload handler.
+        //This allows multiple modules to be in a file without prematurely
+        //tracing dependencies, and allows for anonymous module support,
+        //where the module name is not known until the script onload event
+        //occurs. If no context, use the global queue, and get it processed
+        //in the onscript load callback.
+        (context ? context.defQueue : globalDefQueue).push([name, deps, callback]);
+
+        return undefined;
+    };
+
+    define.amd = {
+        multiversion: true,
+        plugins: true,
+        jQuery: true
+    };
+
+
+    /**
+     * Executes the text. Normally just uses eval, but can be modified
+     * to use a better, environment-specific call. Only used for transpiling
+     * loader plugins, not for plain JS modules.
+     * @param {String} text the text to execute/evaluate.
+     */
+    req.exec = function (text) {
+        /*jslint evil: true */
+        return eval(text);
+    };
+
+    /**
+     * Executes a module callack function. Broken out as a separate function
+     * solely to allow the build system to sequence the files in the built
+     * layer in the right sequence.
+     *
+     * @private
+     */
+    req.execCb = function (name, callback, args, exports) {
+        return callback.apply(exports, args);
+    };
+
 }());
