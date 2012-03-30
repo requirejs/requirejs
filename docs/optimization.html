@@ -26,7 +26,7 @@
 
 <p>The optimizer will only combine modules that are specified in arrays of string literals that are passed to top-level require and define calls, or the require('name') string literal calls in a <a href="whyamd.html#sugar">simplified CommonJS wrapping</a>. So, it will not find modules that are loaded via a variable name:</p>
 
-<pre><code>var mods = someCondition ? ['a', 'b'], ['c', 'd'];
+<pre><code>var mods = someCondition ? ['a', 'b'] : ['c', 'd'];
 require(mods);</code></pre>
 
 <p>but 'a' and 'b' will be included if specified like so:</p>
