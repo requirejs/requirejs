@@ -21,20 +21,7 @@
     define(function () {
         var text, get, fs;
 
-        if (typeof window !== "undefined" && window.navigator && window.document) {
-            get = function (url, callback) {
-                var xhr = text.createXhr();
-                xhr.open('GET', url, true);
-                xhr.onreadystatechange = function (evt) {
-                    //Do not explicitly handle errors, those should be
-                    //visible via console output in the browser.
-                    if (xhr.readyState === 4) {
-                        callback(xhr.responseText);
-                    }
-                };
-                xhr.send(null);
-            };
-        } else if (typeof process !== "undefined" &&
+        if (typeof process !== "undefined" &&
                  process.versions &&
                  !!process.versions.node) {
             //Using special require.nodeRequire, something added by r.js.
@@ -47,6 +34,19 @@
                     file = file.substring(1);
                 }
                 callback(file);
+            };
+        } else if (typeof window !== "undefined" && window.navigator && window.document) {
+            get = function (url, callback) {
+                var xhr = text.createXhr();
+                xhr.open('GET', url, true);
+                xhr.onreadystatechange = function (evt) {
+                    //Do not explicitly handle errors, those should be
+                    //visible via console output in the browser.
+                    if (xhr.readyState === 4) {
+                        callback(xhr.responseText);
+                    }
+                };
+                xhr.send(null);
             };
         } else if (typeof Packages !== 'undefined') {
             //Why Java, why is this so awkward?
