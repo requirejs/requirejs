@@ -137,7 +137,6 @@ var requirejs, require, define;
             },
             registry = {},
             defined = {},
-            paused = [],
             urlMap = {},
             urlFetched = {},
             defQueue = [],
@@ -316,7 +315,7 @@ var requirejs, require, define;
                 throw new Error(id + ' is already defined');
             }
 
-            if (mod) {
+            if (!mod) {
                 mod = registry[id] = new Module(depMap);
             }
 
@@ -399,18 +398,19 @@ var requirejs, require, define;
         Module = function (map) {
             this.events = {};
             this.map = map;
+            this.depExports = [];
 
             /* this.exports this.factory this.depCount
-               this.depMaps = [], this.depExports = []
-               this.enabled
+               this.depMaps = [],
+               this.enabled, this.fetched
             */
-
-            paused.push(this);
         };
 
         Module.prototype = {
             init: function(depMaps, factory, errback, options) {
                 options = options || {};
+
+                this.factory = factory;
 
                 //Indicate this module has be initialized
                 this.inited = true;
@@ -435,8 +435,7 @@ var requirejs, require, define;
                         depMap = makeModuleMap(depMap, this.map);
                     }
 
-                    var depExports = this.depExports,
-                        handler = handlers[depMap.id];
+                    var handler = handlers[depMap.id];
 
                     if (handler) {
                         this.depExports[i] = handler(this);
@@ -465,84 +464,15 @@ var requirejs, require, define;
                 this.check();
             },
 
-            check: function () {
-                if (this.depCount === 0 && this.enabled) {
-                    var id = this.map.id,
-                        depExports = this.depExports,
-                        exports = this.exports,
-                        factory = this.factory,
-                        err, cjsModule;
-
-                    if (factory !== undefined) {
-                        if (isFunction(factory)) {
-                            if (config.catchError.define) {
-                                try {
-                                    exports = req.execCb(id, factory, depExports, exports);
-                                } catch (e) {
-                                    err = e;
-                                }
-                            } else {
-                                exports = req.execCb(id, factory, depExports, exports);
-                            }
-
-                            if (this.map.isDefine) {
-                                //If setting exports via "module" is in play,
-                                //favor that over return value and exports. After that,
-                                //favor a non-undefined return value over exports use.
-                                cjsModule = this.module;
-                                if (cjsModule &&
-                                    cjsModule.exports !== undefined &&
-                                    //Make sure it is not already the exports value
-                                    cjsModule.exports !== this.exports) {
-                                    exports = cjsModule.exports;
-                                } else if (exports === undefined && this.usingExports) {
-                                    //exports already set the defined value.
-                                    exports = this.exports;
-                                }
-                            }
-                        } else {
-                            //Just a literal value
-                            exports = factory;
-                        }
-                    }
-
-                    if (this.map.isDefine) {
-                        defined[this.map.id] = exports;
-                    }
-
-                    //Notify listeners the module is defined.
-                    this.emit('defined', exports);
-
-                    //Clean up
-                    delete registry[this.map.id];
+            fetch: function () {
+                if (this.fetched) {
+                    return;
                 }
-            },
+                this.fetched = true;
 
-            on: function(name, fn) {
-                var cbs = this.events[name];
-                if (!cbs) {
-                    cbs = this.events[name] = [];
-                }
-                cbs.push(cbs);
-            },
-
-            emit: function (name, evt) {
-                each(this.events[name], function (cb) {
-                    cb(evt);
-                });
-            }
-        };
-
-        function runPaused() {
-            var p = context.paused;
-
-            //Reset paused list
-            context.paused = [];
-
-            each(p, function (mod) {
-                var map = mod.map,
-                url = map.url,
-                id = map.id;
+                var map = this.map,
+                    url = map.url,
+                    id = map.id;
 
                 //If the manager is for a plugin managed resource,
                 //ask the plugin to load it now.
@@ -550,7 +480,7 @@ var requirejs, require, define;
                     //callPlugin(map.prefix, mod);
                 //} else {
                     //Regular dependency.
-                    if (!urlFetched[url] && !mod.inited) {
+                    if (!urlFetched[url] && !this.inited) {
                         req.load(context, id, url);
 
                         //Mark the URL as fetched, but only if it is
@@ -564,35 +494,151 @@ var requirejs, require, define;
                         }
                     }
                 //}
-            });
-        }
+            },
 
-        function resume() {
-            var args;
+            check: function () {
+                if (this.enabled) {
+                    if (!this.fetched) {
+                        this.fetch();
+                    } else if (this.depCount === 0) {
+                        var id = this.map.id,
+                            depExports = this.depExports,
+                            exports = this.exports,
+                            factory = this.factory,
+                            err, cjsModule;
 
-            //Any defined modules in the global queue, intake them now.
-            context.takeGlobalQueue();
+                        if (factory !== undefined) {
+                            if (isFunction(factory)) {
+                                if (config.catchError.define) {
+                                    try {
+                                        exports = req.execCb(id, factory, depExports, exports);
+                                    } catch (e) {
+                                        err = e;
+                                    }
+                                } else {
+                                    exports = req.execCb(id, factory, depExports, exports);
+                                }
 
-            //Make sure any remaining defQueue items get properly processed.
-            while (defQueue.length) {
-                args = defQueue.shift();
-                if (args[0] === null) {
-                    return req.onError(makeError('mismatch', 'Mismatched anonymous define() module: ' + args[args.length - 1]));
-                } else {
-                    //args are id, deps, factory. Should be normalized by the
-                    //define() function.
-                    getModule(makeModuleMap(args[0])).init(args[1], args[2]);
+                                if (this.map.isDefine) {
+                                    //If setting exports via "module" is in play,
+                                    //favor that over return value and exports. After that,
+                                    //favor a non-undefined return value over exports use.
+                                    cjsModule = this.module;
+                                    if (cjsModule &&
+                                        cjsModule.exports !== undefined &&
+                                        //Make sure it is not already the exports value
+                                        cjsModule.exports !== this.exports) {
+                                        exports = cjsModule.exports;
+                                    } else if (exports === undefined && this.usingExports) {
+                                        //exports already set the defined value.
+                                        exports = this.exports;
+                                    }
+                                }
+                            } else {
+                                //Just a literal value
+                                exports = factory;
+                            }
+                        }
+
+                        if (this.map.isDefine) {
+                            defined[this.map.id] = exports;
+                        }
+
+                        //Notify listeners the module is defined.
+                        this.emit('defined', exports);
+
+                        //Clean up
+                        delete registry[this.map.id];
+                    }
                 }
-            }
+            },
 
-            while (context.paused.length) {
-                runPaused();
+            on: function(name, cb) {
+                var cbs = this.events[name];
+                if (!cbs) {
+                    cbs = this.events[name] = [];
+                }
+                cbs.push(cb);
+            },
+
+            emit: function (name, evt) {
+                each(this.events[name], function (cb) {
+                    cb(evt);
+                });
             }
-        }
+        };
 
         return (context = {
+            config: config,
+            contextName: '_',
+
+            /**
+             * Set a configuration for the context.
+             * @param {Object} cfg config object to integrate.
+             */
+            configure: function (cfg) {
+                var paths, packages, pkgs;
+
+                //Make sure the baseUrl ends in a slash.
+                if (cfg.baseUrl) {
+                    if (cfg.baseUrl.charAt(cfg.baseUrl.length - 1) !== "/") {
+                        cfg.baseUrl += "/";
+                    }
+                }
+
+                //Save off the paths and packages since they require special processing,
+                //they are additive.
+                paths = config.paths;
+                packages = config.packages;
+                pkgs = config.pkgs;
+
+                //Mix in the config values, favoring the new values over
+                //existing ones in context.config.
+                mixin(config, cfg, true);
+
+                //Merge paths.
+                mixin(paths, cfg.paths, true);
+                config.paths = paths;
+
+                //Adjust packages if necessary.
+                if (cfg.packages) {
+                    each(cfg.packages, function (pkgObj) {
+                        var location;
+
+                        pkgObj = typeof pkgObj === "string" ? { name: pkgObj } : pkgObj;
+                        location = pkgObj.location;
+
+                        //Create a brand new object on pkgs, since currentPackages can
+                        //be passed in again, and config.pkgs is the internal transformed
+                        //state for all package configs.
+                        pkgs[pkgObj.name] = {
+                            name: pkgObj.name,
+                            location: location || pkgObj.name,
+                            //Remove leading dot in main, so main paths are normalized,
+                            //and remove any trailing .js, since different package
+                            //envs have different conventions: some use a module name,
+                            //some use a file name.
+                            main: (pkgObj.main || "main")
+                                  .replace(currDirRegExp, '')
+                                  .replace(jsSuffixRegExp, '')
+                        };
+                    });
+
+                    //Done with modifications, assing packages back to context config
+                    config.pkgs = pkgs;
+                }
+
+                //If a deps array or a config callback is specified, then call
+                //require with those args. This is useful when require is defined as a
+                //config object before require.js is loaded.
+                if (cfg.deps || cfg.callback) {
+                    context.require(cfg.deps || [], cfg.callback);
+                }
+            },
+
             require: function (deps, callback, errback, relMap) {
-                var moduleName, id, map, depMaps, requireMod;
+                var depMaps = [],
+                    moduleName, id, map, requireMod, args;
                 if (typeof deps === "string") {
                     if (isFunction(callback)) {
                         //Invalid call
@@ -632,13 +678,32 @@ var requirejs, require, define;
                     errback = undefined;
                 }
 
+                //Any defined modules in the global queue, intake them now.
+                context.takeGlobalQueue();
+
+                //Make sure any remaining defQueue items get properly processed.
+                while (defQueue.length) {
+                    args = defQueue.shift();
+                    if (args[0] === null) {
+                        return req.onError(makeError('mismatch', 'Mismatched anonymous define() module: ' + args[args.length - 1]));
+                    } else {
+                        //args are id, deps, factory. Should be normalized by the
+                        //define() function.
+                        getModule(makeModuleMap(args[0])).init(args[1], args[2]);
+                    }
+                }
+
                 //Mark all the dependencies as needing to be loaded.
                 requireMod = getModule(makeModuleMap(null, relMap));
+
+                //Convert dependency strings into moduleMaps.
+                each(deps, function (dep) {
+                    depMaps.push(makeModuleMap(dep, relMap));
+                });
+
                 requireMod.init(depMaps, callback, errback, {
                     enabled: true
                 });
-
-                resume();
 
                 return context.require;
             },
@@ -657,6 +722,67 @@ var requirejs, require, define;
                                [defQueue.length - 1, 0].concat(globalDefQueue));
                     globalDefQueue = [];
                 }
+            },
+
+            /**
+             * Converts a module name + .extension into an URL path.
+             * *Requires* the use of a module name. It does not support using
+             * plain URLs like nameToUrl.
+             */
+            toUrl: function (moduleNamePlusExt, relModuleMap) {
+                var index = moduleNamePlusExt.lastIndexOf("."),
+                    ext = null;
+
+                if (index !== -1) {
+                    ext = moduleNamePlusExt.substring(index, moduleNamePlusExt.length);
+                    moduleNamePlusExt = moduleNamePlusExt.substring(0, index);
+                }
+
+                return context.nameToUrl(moduleNamePlusExt, ext, relModuleMap);
+            },
+
+            /**
+             * Converts a module name to a file path. Supports cases where
+             * moduleName may actually be just an URL.
+             */
+            nameToUrl: function (moduleName, ext, relModuleMap) {
+                var paths, syms, i, parentModule, url;
+
+                //Normalize module name if have a base relative module name to work from.
+                moduleName = normalize(moduleName, relModuleMap && relModuleMap.fullName);
+
+                //If a colon is in the URL, it indicates a protocol is used and it is just
+                //an URL to a file, or if it starts with a slash or ends with .js, it is just a plain file.
+                //The slash is important for protocol-less URLs as well as full paths.
+                if (req.jsExtRegExp.test(moduleName)) {
+                    //Just a plain path, not module name lookup, so just return it.
+                    //Add extension if it is included. This is a bit wonky, only non-.js things pass
+                    //an extension, this method probably needs to be reworked.
+                    url = moduleName + (ext || "");
+                } else {
+                    //A module that needs to be converted to a path.
+                    paths = config.paths;
+
+                    syms = moduleName.split("/");
+                    //For each module name segment, see if there is a path
+                    //registered for it. Start with most specific name
+                    //and work up from it.
+                    for (i = syms.length; i > 0; i -= 1) {
+                        parentModule = syms.slice(0, i).join("/");
+                        if (paths[parentModule]) {
+                            syms.splice(0, i, paths[parentModule]);
+                            break;
+                        }
+                    }
+
+                    //Join the path parts together, then figure out if baseUrl is needed.
+                    url = syms.join("/") + (ext || ".js");
+                    url = (url.charAt(0) === '/' || url.match(/^\w+:/) ? "" : config.baseUrl) + url;
+                }
+
+                return config.urlArgs ? url +
+                                        ((url.indexOf('?') === -1 ? '?' : '&') +
+                                         config.urlArgs) : url;
             }
         });
     }

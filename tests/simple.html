@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>require.js: Simple Test</title>
-    <script type="text/javascript" src="../require.js"></script>
+    <script type="text/javascript" src="../sketch.js"></script>
     <script type="text/javascript" src="doh/runner.js"></script>
     <script type="text/javascript" src="doh/_browserRunner.js"></script>
     <script>moreSimpleTests = true</script>
@@ -16,16 +16,16 @@
 
         require([path, noProtocolPath], function() {
             doh.register(
-                        "fooBar", 
+                        "fooBar",
                         [
                             function fooBar(t){
-                                t.is("foo", foo.name); 
-                                t.is("bar", bar.name); 
+                                t.is("foo", foo.name);
+                                t.is("bar", bar.name);
                             }
                         ]
                     );
             doh.run();
-            
+
         });
     </script>
 </head>

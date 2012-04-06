@@ -32,6 +32,7 @@ with scripts.
 - globals: config to help underscore case?
 - remove packagePaths config.
 - Just remove packages config altogether, suggest volojs for making adapter modules.
+  -> Allow 'module': '' and 'module/': '' config instead of packages config.
 - allow error handler either per context, or per top-level require call.
 - Config options: "main" and rename "deps" to "include" to match how build can read config now.
 - allow define(function(require, exports, module, define)) where that local define
