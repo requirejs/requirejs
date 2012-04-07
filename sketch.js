@@ -139,7 +139,6 @@ var requirejs, require, define;
             defined = {},
             urlMap = {},
             urlFetched = {},
-            defQueue = [],
             requireCounter = 1,
             Module, context, handlers;
 
@@ -399,8 +398,9 @@ var requirejs, require, define;
             this.events = {};
             this.map = map;
             this.depExports = [];
+            this.depCount = 0;
 
-            /* this.exports this.factory this.depCount
+            /* this.exports this.factory
                this.depMaps = [],
                this.enabled, this.fetched
             */
@@ -448,7 +448,7 @@ var requirejs, require, define;
                         enable(depMap);
                     }
 
-                    on(depMap, 'define', bind(this, function (depExports) {
+                    on(depMap, 'defined', bind(this, function (depExports) {
                         this.depExports[i] = depExports;
                         this.depCount -= 1;
                         this.check();
@@ -568,9 +568,18 @@ var requirejs, require, define;
             }
         };
 
+        function callGetModule(args) {
+            getModule(makeModuleMap(args[0])).init(args[1], args[2]);
+        }
+
         return (context = {
             config: config,
             contextName: '_',
+            registry: registry,
+            defined: defined,
+            urlMap: urlMap,
+            urlFetched: urlFetched,
+            defQueue: [],
 
             /**
              * Set a configuration for the context.
@@ -682,14 +691,14 @@ var requirejs, require, define;
                 context.takeGlobalQueue();
 
                 //Make sure any remaining defQueue items get properly processed.
-                while (defQueue.length) {
-                    args = defQueue.shift();
+                while (context.defQueue.length) {
+                    args = context.defQueue.shift();
                     if (args[0] === null) {
                         return req.onError(makeError('mismatch', 'Mismatched anonymous define() module: ' + args[args.length - 1]));
                     } else {
                         //args are id, deps, factory. Should be normalized by the
                         //define() function.
-                        getModule(makeModuleMap(args[0])).init(args[1], args[2]);
+                        callGetModule(args);
                     }
                 }
 
@@ -718,9 +727,46 @@ var requirejs, require, define;
                     //Array splice in the values since the context code has a
                     //local var ref to defQueue, so cannot just reassign the one
                     //on context.
-                    apsp.apply(defQueue,
-                               [defQueue.length - 1, 0].concat(globalDefQueue));
+                    apsp.apply(context.defQueue,
+                               [context.defQueue.length - 1, 0].concat(globalDefQueue));
                     globalDefQueue = [];
+                }
+            },
+
+            /**
+             * Internal method used by environment adapters to complete a load event.
+             * A load event could be a script load or just a load pass from a synchronous
+             * load call.
+             * @param {String} moduleName the name of the module to potentially complete.
+             */
+            completeLoad: function (moduleName) {
+                var args;
+
+                context.takeGlobalQueue();
+
+                while (context.defQueue.length) {
+                    args = context.defQueue.shift();
+                    if (args[0] === null) {
+                        args[0] = moduleName;
+                        break;
+                    } else if (args[0] === moduleName) {
+                        //Found matching define call for this script!
+                        break;
+                    } else {
+                        //Some other named define call, most likely the result
+                        //of a build layer that included many define calls.
+                        callGetModule(args);
+                        args = null;
+                    }
+                }
+                if (args) {
+                    callGetModule(args);
+                } else {
+                    //A script that does not call define(), so just simulate
+                    //the call for it.
+                    if (!defined[moduleName]) {
+                        callGetModule([moduleName, [], null]);
+                    }
                 }
             },
 
@@ -911,7 +957,6 @@ var requirejs, require, define;
      * @param {Object} url the URL to the module.
      */
     req.load = function (context, moduleName, url) {
-        context.scriptCount += 1;
         req.attach(url, context, moduleName);
     };
 
