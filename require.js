@@ -476,9 +476,9 @@ var requirejs, require, define;
 
                 //If the manager is for a plugin managed resource,
                 //ask the plugin to load it now.
-                //if (map.prefix) {
-                    //callPlugin(map.prefix, mod);
-                //} else {
+                if (map.prefix) {
+                    this.callPlugin();
+                } else {
                     //Regular dependency.
                     if (!urlFetched[url] && !this.inited) {
                         req.load(context, id, url);
@@ -493,7 +493,7 @@ var requirejs, require, define;
                             urlFetched[url] = true;
                         }
                     }
-                //}
+                }
             },
 
             check: function () {
@@ -551,6 +551,52 @@ var requirejs, require, define;
                         delete registry[this.map.id];
                     }
                 }
+            },
+
+            callPlugin: function() {
+                var map = this.map;
+
+                on(makeModuleMap(map.prefix), 'defined', bind(this, function (plugin) {
+                    var load;
+
+                    load = bind(this, function (ret) {
+                        this.factory = ret;
+                        this.check();
+                    });
+
+                    //Allow plugins to load other code without having to know the
+                    //context or how to "complete" the load.
+                    load.fromText = function (moduleName, text) {
+                        /*jslint evil: true */
+                        var hasInteractive = useInteractive;
+
+                        //Indicate this is not a "real" module, so do not track it
+                        //for builds, it does not map to a real file.
+                        context.fake[moduleName] = true;
+
+                        //Turn off interactive script matching for IE for any define
+                        //calls in the text, then turn it back on at the end.
+                        if (hasInteractive) {
+                            useInteractive = false;
+                        }
+
+                        req.exec(text);
+
+                        if (hasInteractive) {
+                            useInteractive = true;
+                        }
+
+                        //Support anonymous modules.
+                        context.completeLoad(moduleName);
+                    };
+
+                    //Use parentName here since the plugin's name is not reliable,
+                    //could be some weird string with no path that actually wants to
+                    //reference the parentName's path.
+                    plugin.load(map.name, makeRequire(map.parentMap, true, function (deps, cb) {
+                        return context.require(deps, cb);
+                    }), load, config);
+                }));
             },
 
             on: function(name, cb) {
