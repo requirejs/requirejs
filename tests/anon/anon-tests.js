@@ -13,7 +13,7 @@ require({
             [
                 function colors(t){
                     t.is("redblue", magenta.name);
-                    t.is((require.isBrowser ? "./foo.html" : "anon/foo.html"), magenta.path);
+                    t.is((requirejs.isBrowser ? "./foo.html" : "anon/foo.html"), magenta.path);
                     t.is("red", red.name);
                     t.is("blue", blue.name);
                     t.is("green", green.name);

@@ -971,6 +971,7 @@ var requirejs, require, define;
 
     //Used to filter out dependencies that are already paths.
     req.jsExtRegExp = /^\/|:|\?|\.js$/;
+    req.isBrowser = isBrowser;
     s = req.s = {
         contexts: contexts,
         //Stores a list of URLs that should not get async script tag treatment.

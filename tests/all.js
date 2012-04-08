@@ -36,7 +36,6 @@ doh.registerUrl("multiversion", "../multiversion.html", 10000);
 doh.registerUrl("undef", "../undef/undef.html", 8000);
 
 doh.registerUrl("jquery", "../jquery/jquery.html");
-doh.registerUrl("jqueryPriority", "../jquery/jqueryPriority.html");
 
 //Next three tests fail in PS3
 doh.registerUrl("jqueryDynamic", "../jquery/jqueryDynamic.html");
@@ -92,11 +91,6 @@ doh.registerUrl("remoteUrls", "../remoteUrls/remoteUrls.html");
 doh.registerUrl("exports", "../exports/exports.html");
 
 doh.registerUrl("moduleAndExports", "../exports/moduleAndExports.html");
-
-doh.registerUrl("priority", "../priority/priority.html");
-doh.registerUrl("priorityOptimized", "../priority/priorityOptimized.html");
-doh.registerUrl("priorityWithDeps", "../priority/priorityWithDeps/priorityWithDeps.html");
-doh.registerUrl("prioritySingleCall", "../priority/prioritySingleCall.html");
 
 if (typeof Worker !== "undefined") {
     doh.registerUrl("workers", "../workers.html");
