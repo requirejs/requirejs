@@ -366,7 +366,7 @@ var requirejs, require, define;
          * need to be relative to the module name.
          */
         function makeRequire(mod, enableBuildCallback, altRequire) {
-            var relMap = mod.map,
+            var relMap = mod && mod.map,
                 modRequire = makeContextModuleFunc(altRequire || context.require, relMap, enableBuildCallback);
 
             mixin(modRequire, {
@@ -414,6 +414,7 @@ var requirejs, require, define;
 
                 //Indicate this module has be initialized
                 this.inited = true;
+
 
                 if (options.enabled) {
                     this.enabled = true;
@@ -498,7 +499,7 @@ var requirejs, require, define;
 
             check: function () {
                 if (this.enabled) {
-                    if (!this.fetched) {
+                    if (!this.inited) {
                         this.fetch();
                     } else if (this.depCount === 0) {
                         var id = this.map.id,
@@ -554,14 +555,16 @@ var requirejs, require, define;
             },
 
             callPlugin: function() {
-                var map = this.map;
+                var map = this.map,
+                    pluginMap = makeModuleMap(map.prefix);
 
-                on(makeModuleMap(map.prefix), 'defined', bind(this, function (plugin) {
+                on(pluginMap, 'defined', bind(this, function (plugin) {
                     var load;
 
                     load = bind(this, function (ret) {
-                        this.factory = ret;
-                        this.check();
+                        this.init([], ret, null, {
+                            enabled: true
+                        });
                     });
 
                     //Allow plugins to load other code without having to know the
@@ -597,6 +600,8 @@ var requirejs, require, define;
                         return context.require(deps, cb);
                     }), load, config);
                 }));
+
+                enable(pluginMap);
             },
 
             on: function(name, cb) {
