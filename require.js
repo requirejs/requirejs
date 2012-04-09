@@ -14,8 +14,8 @@ var requirejs, require, define;
     var version = "1.1.0dev",
         commentRegExp = /(\/\*([\s\S]*?)\*\/|([^:]|^)\/\/(.*)$)/mg,
         cjsRequireRegExp = /require\(\s*["']([^'"\s]+)["']\s*\)/g,
-        currDirRegExp = /^\.\//,
         jsSuffixRegExp = /\.js$/,
+        currDirRegExp = /^\.\//,
         ostring = Object.prototype.toString,
         ap = Array.prototype,
         aps = ap.slice,
@@ -36,7 +36,8 @@ var requirejs, require, define;
         globalDefQueue = [],
         useInteractive = false,
         req, s, head, baseElement, scripts, globalI, script, dataMain, src,
-        interactiveScript, currentlyAddingScript, mainScript, subPath;
+        interactiveScript, currentlyAddingScript, mainScript, subPath,
+        checkLoadedTimeoutId;
 
     function isFunction(it) {
         return ostring.call(it) === "[object Function]";
@@ -394,10 +395,181 @@ var requirejs, require, define;
             }
         };
 
+        function removeScript(name) {
+            var scripts = document.getElementsByTagName('script'),
+                i, scriptNode;
+            for (i = 0; i < scripts.length; i += 1) {
+                scriptNode = scripts[i];
+                if (scriptNode.getAttribute('data-requiremodule') === name &&
+                    scriptNode.getAttribute('data-requirecontext') === context.contextName) {
+                    scriptNode.parentNode.removeChild(scriptNode);
+                    context.scriptCount -= 1;
+                    break;
+                }
+            }
+        }
+
+        function findCycle(mod, traced) {
+            var id = mod.map.id,
+                depArray = mod.depMaps,
+                fullyLoaded = true,
+                result;
+
+            //Found the cycle.
+            if (traced[id]) {
+                return mod;
+            }
+
+            traced[id] = true;
+
+            //Trace through the dependencies.
+            each(depArray, function (depMap) {
+                var depId = depMap.id,
+                    depMod = registry[depId];
+
+                if (!depMod) {
+                    return;
+                }
+
+                if (!depMod.inited) {
+                    fullyLoaded = false;
+                    return true;
+                }
+
+                result = findCycle(depMod, traced);
+                if (result) {
+                    return true;
+                }
+            });
+
+            if (!fullyLoaded) {
+                //Discard the cycle that was found, since it cannot
+                //be forced yet. Also clear this module from traced.
+                result = undefined;
+                delete traced[id];
+            }
+
+            return result;
+        }
+
+        function forceExec(mod, traced) {
+            var id = mod.map.id,
+                depArray = mod.depMaps,
+                prefix;
+
+            if (traced[id]) {
+                mod.emit('defined', defined[id]);
+            }
+
+            traced[id] = true;
+
+            //Trace through the dependencies.
+            each(depArray, function (depMap) {
+                var depMod;
+
+                if (depMap) {
+                    //First, make sure if it is a plugin resource that the
+                    //plugin is not blocked.
+                    prefix = depMap.prefix;
+                    if (prefix && registry[prefix]) {
+                        forceExec(registry[prefix], traced);
+                    }
+                    depMod = registry[depMap.id];
+                    if (depMod) {
+                        forceExec(depMod, traced);
+                    }
+                }
+            });
+        }
+
+        function checkLoaded() {
+            var waitInterval = config.waitSeconds * 1000,
+                //It is possible to disable the wait interval by using waitSeconds of 0.
+                expired = waitInterval && (context.startTime + waitInterval) < new Date().getTime(),
+                noLoads = '',
+                stillLoading = false,
+                cycleDeps = [],
+                prop, mod, map, modId, err;
+
+            //Figure out the state of all the modules.
+            for (prop in registry) {
+                if (registry.hasOwnProperty(prop)) {
+                    mod = registry[prop];
+                    map = mod.map;
+                    modId = map.id;
+                    //If the module should be executed, and it has not
+                    //been inited and time is up, remember it.
+                    if (mod.enabled && !mod.inited && expired) {
+                        noLoads += ' ' + modId;
+                        if (isBrowser) {
+                            removeScript(modId);
+                        }
+                    } else if (mod.fetched && map.isDefine) {
+                        stillLoading = true;
+                        if (map.prefix === -1) {
+                            //No reason to keep looking for unfinished
+                            //loading. If the only stillLoading is a
+                            //plugin resource though, keep going,
+                            //because it may be that a plugin resource
+                            //is waiting on a non-plugin cycle.
+                            cycleDeps = [];
+                            break;
+                        } else if (mod.inited) {
+                            if (mod.depMaps && mod.depCount) {
+                                cycleDeps.push.apply(cycleDeps, mod.depMaps);
+                            }
+                        }
+                    }
+
+                }
+            }
+
+            if (expired && noLoads) {
+                //If wait time expired, throw error of unloaded modules.
+                err = makeError("timeout", "Load timeout for modules: " + noLoads);
+                err.requireType = "timeout";
+                err.requireModules = noLoads;
+                err.contextName = context.contextName;
+//TODO: trigger error handlers for modules.
+                return req.onError(err);
+            }
+
+            //Not expired, check for a cycle.
+//TODO: test two separate cycles that are waiting, particularly in a sync build.
+            if (stillLoading && cycleDeps.length) {
+                each(cycleDeps, function (depMap) {
+                    var mod = registry[depMap.id],
+                        cycleMod = findCycle(mod, {});
+
+                    if (cycleMod) {
+                        forceExec(cycleMod, {});
+                        return true;
+                    }
+                });
+            }
+
+
+            //If still waiting on loads, and the waiting load is something
+            //other than a plugin resource, or there are still outstanding
+            //scripts, then just try back later.
+            if (!expired && stillLoading) {
+                //Something is still waiting to load. Wait for it, but only
+                //if a timeout is not already in effect.
+                if ((isBrowser || isWebWorker) && !checkLoadedTimeoutId) {
+                    checkLoadedTimeoutId = setTimeout(function () {
+                        checkLoadedTimeoutId = 0;
+                        checkLoaded();
+                    }, 50);
+                }
+                return;
+            }
+        }
+
         Module = function (map) {
             this.events = {};
             this.map = map;
             this.depExports = [];
+            this.depMaps = [];
             this.depCount = 0;
 
             /* this.exports this.factory
@@ -434,6 +606,7 @@ var requirejs, require, define;
                 each(depMaps, bind(this, function (depMap, i) {
                     if (typeof depMap === 'string') {
                         depMap = makeModuleMap(depMap, this.map);
+                        this.depMaps.push(depMap);
                     }
 
                     var handler = handlers[depMap.id];
@@ -471,6 +644,8 @@ var requirejs, require, define;
                 }
                 this.fetched = true;
 
+                context.startTime = (new Date()).getTime();
+
                 var map = this.map,
                     url = map.url,
                     id = map.id;
@@ -501,55 +676,58 @@ var requirejs, require, define;
                 if (this.enabled) {
                     if (!this.inited) {
                         this.fetch();
-                    } else if (this.depCount === 0) {
-                        var id = this.map.id,
-                            depExports = this.depExports,
-                            exports = this.exports,
-                            factory = this.factory,
-                            err, cjsModule;
+                    } else {
+                        if (this.depCount === 0) {
+                            var id = this.map.id,
+                                depExports = this.depExports,
+                                exports = this.exports,
+                                factory = this.factory,
+                                err, cjsModule;
 
-                        if (factory !== undefined) {
-                            if (isFunction(factory)) {
-                                if (config.catchError.define) {
-                                    try {
+                            if (factory !== undefined) {
+                                if (isFunction(factory)) {
+                                    if (config.catchError.define) {
+                                        try {
+                                            exports = req.execCb(id, factory, depExports, exports);
+                                        } catch (e) {
+                                            err = e;
+                                        }
+                                    } else {
                                         exports = req.execCb(id, factory, depExports, exports);
-                                    } catch (e) {
-                                        err = e;
+                                    }
+
+                                    if (this.map.isDefine) {
+                                        //If setting exports via "module" is in play,
+                                        //favor that over return value and exports. After that,
+                                        //favor a non-undefined return value over exports use.
+                                        cjsModule = this.module;
+                                        if (cjsModule &&
+                                            cjsModule.exports !== undefined &&
+                                            //Make sure it is not already the exports value
+                                            cjsModule.exports !== this.exports) {
+                                            exports = cjsModule.exports;
+                                        } else if (exports === undefined && this.usingExports) {
+                                            //exports already set the defined value.
+                                            exports = this.exports;
+                                        }
                                     }
                                 } else {
-                                    exports = req.execCb(id, factory, depExports, exports);
+                                    //Just a literal value
+                                    exports = factory;
                                 }
-
-                                if (this.map.isDefine) {
-                                    //If setting exports via "module" is in play,
-                                    //favor that over return value and exports. After that,
-                                    //favor a non-undefined return value over exports use.
-                                    cjsModule = this.module;
-                                    if (cjsModule &&
-                                        cjsModule.exports !== undefined &&
-                                        //Make sure it is not already the exports value
-                                        cjsModule.exports !== this.exports) {
-                                        exports = cjsModule.exports;
-                                    } else if (exports === undefined && this.usingExports) {
-                                        //exports already set the defined value.
-                                        exports = this.exports;
-                                    }
-                                }
-                            } else {
-                                //Just a literal value
-                                exports = factory;
                             }
+
+                            if (this.map.isDefine) {
+                                defined[this.map.id] = exports;
+                            }
+
+                            //Notify listeners the module is defined.
+                            this.emit('defined', exports);
+
+                            //Clean up
+                            delete registry[this.map.id];
                         }
-
-                        if (this.map.isDefine) {
-                            defined[this.map.id] = exports;
-                        }
-
-                        //Notify listeners the module is defined.
-                        this.emit('defined', exports);
-
-                        //Clean up
-                        delete registry[this.map.id];
+                        checkLoaded();
                     }
                 }
             },
@@ -843,10 +1021,10 @@ var requirejs, require, define;
              * moduleName may actually be just an URL.
              */
             nameToUrl: function (moduleName, ext, relModuleMap) {
-                var paths, syms, i, parentModule, url;
+                var paths, pkgs, pkg, pkgPath, syms, i, parentModule, url;
 
                 //Normalize module name if have a base relative module name to work from.
-                moduleName = normalize(moduleName, relModuleMap && relModuleMap.fullName);
+                moduleName = normalize(moduleName, relModuleMap && relModuleMap.id);
 
                 //If a colon is in the URL, it indicates a protocol is used and it is just
                 //an URL to a file, or if it starts with a slash or ends with .js, it is just a plain file.
@@ -859,6 +1037,7 @@ var requirejs, require, define;
                 } else {
                     //A module that needs to be converted to a path.
                     paths = config.paths;
+                    pkgs = config.pkgs;
 
                     syms = moduleName.split("/");
                     //For each module name segment, see if there is a path
@@ -866,8 +1045,19 @@ var requirejs, require, define;
                     //and work up from it.
                     for (i = syms.length; i > 0; i -= 1) {
                         parentModule = syms.slice(0, i).join("/");
+                        pkg = pkgs[parentModule];
                         if (paths[parentModule]) {
                             syms.splice(0, i, paths[parentModule]);
+                            break;
+                        } else if (pkg) {
+                            //If module name is just the package name, then looking
+                            //for the main module.
+                            if (moduleName === pkg.name) {
+                                pkgPath = pkg.location + '/' + pkg.main;
+                            } else {
+                                pkgPath = pkg.location;
+                            }
+                            syms.splice(0, i, pkgPath);
                             break;
                         }
                     }
