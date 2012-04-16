@@ -1,5 +1,5 @@
 require({
-        baseUrl: require.isBrowser ? './' : './plugins/textDepend',
+        baseUrl: requirejs.isBrowser ? './' : './plugins/textDepend',
         paths: {
             'text': '../../../text'
         }

@@ -1,5 +1,5 @@
 require({
-        baseUrl: require.isBrowser ? "./" : "./remoteUrls/"
+        baseUrl: requirejs.isBrowser ? "./" : "./remoteUrls/"
     },
     ["require", "jqwrap"],
     function(require, jqwrap) {

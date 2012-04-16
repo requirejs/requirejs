@@ -3,7 +3,7 @@
 require.relativeBaseUrlCounter = 0;
 
 require({
-        baseUrl: require.isBrowser ? "./" : "./relative/"
+        baseUrl: requirejs.isBrowser ? "./" : "./relative/"
     },
     ["./top", "top"],
     function(top1, top2) {

@@ -1,5 +1,5 @@
 require({
-        baseUrl: require.isBrowser ? "./" : "./exports/"
+        baseUrl: requirejs.isBrowser ? "./" : "./exports/"
     },
     ['am'],
     function(am) {

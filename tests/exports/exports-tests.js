@@ -1,5 +1,5 @@
 require.config({
-    baseUrl: require.isBrowser ? "./" : "./exports/"
+    baseUrl: requirejs.isBrowser ? "./" : "./exports/"
 });
 
 require(

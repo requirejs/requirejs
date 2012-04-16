@@ -1,5 +1,5 @@
 require({
-        baseUrl: require.isBrowser ? "./" : "./packages/",
+        baseUrl: requirejs.isBrowser ? "./" : "./packages/",
         paths: {
             'alpha/replace' : 'replace'
         },
@@ -71,7 +71,7 @@ function(require,   alpha,   replace,         beta,   util,        bar,   baz,
                 t.is("foo", foo.name);
                 t.is("alpha", foo.alphaName);
                 t.is("foo/second", second.name);
-                t.is((require.isBrowser ? "./foo/lib/../data.html" : "./packages/foo/lib/../data.html"), dataUrl);
+                t.is((requirejs.isBrowser ? "./foo/lib/../data.html" : "./packages/foo/lib/../data.html"), dataUrl);
                 t.is('dojox/chair', chair.name);
                 t.is('dojox/chair/legs', chair.legsName);
                 t.is('dojox/table', table.name);

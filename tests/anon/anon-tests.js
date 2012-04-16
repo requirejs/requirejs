@@ -1,5 +1,5 @@
 require({
-        baseUrl: require.isBrowser ? "./" : "anon/",
+        baseUrl: requirejs.isBrowser ? "./" : "anon/",
         paths: {
             text: "../../text",
             i18n: "../../i18n"
@@ -26,7 +26,7 @@ require({
                     //Also try a require call after initial
                     //load that uses already loaded modules,
                     //to be sure the require callback is called.
-                    if (require.isBrowser) {
+                    if (requirejs.isBrowser) {
                         setTimeout(function () {
                             require(["blue", "red", "magenta"], function (blue, red) {
                                 doh.register(

@@ -87,7 +87,7 @@ define("eye", function(){});
     }
 }));
 
-require({baseUrl: require.isBrowser ? "./" : "./universal/"}, ["spell"], function(spell) {
+require({baseUrl: requirejs.isBrowser ? "./" : "./universal/"}, ["spell"], function(spell) {
     doh.register(
         "universal",
         [

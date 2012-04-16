@@ -1,5 +1,5 @@
 require({
-        baseUrl: require.isBrowser ? './' : './circular'
+        baseUrl: requirejs.isBrowser ? './' : './circular'
     },
     ["require", "plugin!a"],
     function(require, a) {

@@ -1,5 +1,5 @@
 require({
-        baseUrl: require.isBrowser ? './' : './circular/complexPlugin'
+        baseUrl: requirejs.isBrowser ? './' : './circular/complexPlugin'
     },
     ["require", "main"],
     function(require, main) {

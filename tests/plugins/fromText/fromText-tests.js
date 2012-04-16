@@ -1,5 +1,5 @@
 require({
-        baseUrl: require.isBrowser ? './' : './plugins/fromText',
+        baseUrl: requirejs.isBrowser ? './' : './plugins/fromText',
         paths: {
             'text': '../../../text'
         }

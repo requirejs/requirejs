@@ -1,5 +1,5 @@
 require({
-        baseUrl: require.isBrowser ? "./" : "./plugins/"
+        baseUrl: requirejs.isBrowser ? "./" : "./plugins/"
 },      ['require', 'earth', 'prime/earth'],
 function (require,   earth,   primeEarth) {
 
