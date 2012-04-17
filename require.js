@@ -36,8 +36,7 @@ var requirejs, require, define;
         globalDefQueue = [],
         useInteractive = false,
         req, s, head, baseElement, scripts, globalI, script, dataMain, src,
-        interactiveScript, currentlyAddingScript, mainScript, subPath,
-        checkLoadedTimeoutId;
+        interactiveScript, currentlyAddingScript, mainScript, subPath;
 
     function isFunction(it) {
         return ostring.call(it) === "[object Function]";
@@ -155,7 +154,7 @@ var requirejs, require, define;
             urlMap = {},
             urlFetched = {},
             requireCounter = 1,
-            inCycle, Module, context, handlers;
+            inCycle, Module, context, handlers, checkLoadedTimeoutId;
 
         /**
          * Trims the . and .. from an array of path segments.
@@ -337,13 +336,8 @@ var requirejs, require, define;
         }
 
         function enable(depMap) {
-            var id = depMap.id,
-                mod;
-
-            if (!defined.hasOwnProperty(id)) {
-                mod = getModule(depMap);
-                mod.enabled = true;
-                mod.check();
+            if (!defined.hasOwnProperty(depMap.id)) {
+                getModule(depMap).enable();
             }
         }
 
@@ -406,7 +400,7 @@ var requirejs, require, define;
                 return (mod.module = {
                     id: mod.map.id,
                     uri: mod.map.url,
-                    exports: undefined
+                    exports: defined[mod.map.id]
                 });
             }
         };
@@ -585,11 +579,14 @@ var requirejs, require, define;
             init: function(depMaps, factory, errback, options) {
                 options = options || {};
 
-                this.factory = factory;
-
-                if (options.enabled) {
-                    this.enabled = true;
+                //Do not do more inits if already done. Can happen if there
+                //are multiple define calls for the same module. That is not
+                //a normal, common case, but it is also not unexpected.
+                if (this.inited) {
+                    return;
                 }
+
+                this.factory = factory;
 
                 if (errback) {
                     //Register for errors on this module.
@@ -618,10 +615,6 @@ var requirejs, require, define;
 
                     this.depCount += 1;
 
-                    if (this.enabled) {
-                        enable(depMap);
-                    }
-
                     on(depMap, 'defined', bind(this, function (depExports) {
                         this.defineDep(i, depExports);
                         this.check();
@@ -636,7 +629,18 @@ var requirejs, require, define;
 
                 //Indicate this module has be initialized
                 this.inited = true;
-                this.check();
+
+                //Could have option to init this module in enabled mode,
+                //or could have been previously marked as enabled. However,
+                //the dependencies are not known until init is called. So
+                //if enabled previously, now trigger dependencies as enabled.
+                if (options.enabled || this.enabled) {
+                    //Enable this module and dependencies.
+                    //Will call this.check()
+                    this.enable();
+                } else {
+                    this.check();
+                }
             },
 
             defineDepById: function (id, depExports) {
@@ -821,6 +825,17 @@ var requirejs, require, define;
                 enable(pluginMap);
             },
 
+            enable: function () {
+                this.enabled = true;
+                each(this.depMaps, function (map) {
+                    //Skip special modules like 'require', 'exports', 'module'
+                    if (!handlers[map.id]) {
+                        enable(map);
+                    }
+                });
+                this.check();
+            },
+
             on: function(name, cb) {
                 var cbs = this.events[name];
                 if (!cbs) {
@@ -1002,7 +1017,7 @@ var requirejs, require, define;
              * @param {String} moduleName the name of the module to potentially complete.
              */
             completeLoad: function (moduleName) {
-                var args;
+                var found, args;
 
                 context.takeGlobalQueue();
 
@@ -1010,25 +1025,25 @@ var requirejs, require, define;
                     args = context.defQueue.shift();
                     if (args[0] === null) {
                         args[0] = moduleName;
-                        break;
+                        //If already found an anonymous module and bound it
+                        //to this name, then this is some other anon module
+                        //waiting for its completeLoad to fire.
+                        if (found) {
+                            break;
+                        }
+                        found = true;
                     } else if (args[0] === moduleName) {
                         //Found matching define call for this script!
-                        break;
-                    } else {
-                        //Some other named define call, most likely the result
-                        //of a build layer that included many define calls.
-                        callGetModule(args);
-                        args = null;
+                        found = true;
                     }
-                }
-                if (args) {
+
                     callGetModule(args);
-                } else {
+                }
+
+                if (!found && !defined[moduleName]) {
                     //A script that does not call define(), so just simulate
                     //the call for it.
-                    if (!defined[moduleName]) {
-                        callGetModule([moduleName, [], null]);
-                    }
+                    callGetModule([moduleName, [], null]);
                 }
             },
 
