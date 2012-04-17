@@ -154,6 +154,7 @@ var requirejs, require, define;
             urlMap = {},
             urlFetched = {},
             requireCounter = 1,
+            unnormalizedCounter = 1,
             inCycle, Module, context, handlers, checkLoadedTimeoutId;
 
         /**
@@ -256,7 +257,7 @@ var requirejs, require, define;
                 parentName = parentModuleMap ? parentModuleMap.name : null,
                 originalName = name,
                 isDefine = true,
-                normalizedName, url, pluginModule;
+                normalizedName, url, pluginModule, suffix;
 
             //If no name, then it means it is a require call, generate an
             //internal name.
@@ -309,14 +310,24 @@ var requirejs, require, define;
                 }
             }
 
+            //If the id is a plugin id that cannot be determined if it needs
+            //normalization, stamp it with a unique ID so two matching relative
+            //ids that may conflict can be separate.
+            suffix = prefix && !pluginModule ?
+                     '_unnormalized' + (unnormalizedCounter += 1) :
+                     '';
+
             return {
                 prefix: prefix,
                 name: normalizedName,
                 parentMap: parentModuleMap,
+                unnormalized: !!suffix,
                 url: url,
                 originalName: originalName,
                 isDefine: isDefine,
-                id: prefix ? prefix + "!" + (normalizedName || '') : normalizedName
+                id: (prefix ?
+                    prefix + "!" + (normalizedName || '') :
+                    normalizedName) + suffix
             };
         }
 
@@ -630,6 +641,8 @@ var requirejs, require, define;
                 //Indicate this module has be initialized
                 this.inited = true;
 
+                this.ignore = options.ignore;
+
                 //Could have option to init this module in enabled mode,
                 //or could have been previously marked as enabled. However,
                 //the dependencies are not known until init is called. So
@@ -755,7 +768,9 @@ var requirejs, require, define;
                             }
                         }
 
-                        if (this.map.isDefine) {
+                        this.exports = exports;
+
+                        if (this.map.isDefine && !this.ignore) {
                             defined[id] = exports;
                         }
 
@@ -768,7 +783,7 @@ var requirejs, require, define;
                     if (!silent) {
                         if (this.defined && !this.defineEmitted) {
                             this.defineEmitted = true;
-                            this.emit('defined', defined[id]);
+                            this.emit('defined', this.exports);
                         }
                         checkLoaded();
                     }
@@ -780,10 +795,35 @@ var requirejs, require, define;
                     pluginMap = makeModuleMap(map.prefix);
 
                 on(pluginMap, 'defined', bind(this, function (plugin) {
-                    var load;
+                    var name = this.map.name,
+                        parentName = this.map.parentMap ? this.map.parentMap.name : null,
+                        normalizedName, load, normalizedMap;
 
-                    load = bind(this, function (ret) {
-                        this.init([], ret, null, {
+                    //Normalize the ID if the plugin allows it.
+                    if (plugin.normalize) {
+                        normalizedName = plugin.normalize(name, function (name) {
+                            return normalize(name, parentName);
+                        });
+                    }
+
+                    //If the name was normalized to something else, then wait
+                    //for that normalized name to load instead of continuing.
+                    if ((normalizedName && normalizedName !== name) || this.map.unnormalized) {
+                        normalizedMap = makeModuleMap(map.prefix + '!' + (normalizedName || name));
+                        on(normalizedMap,
+                           'defined', bind(this, function (value) {
+                            this.init([], value, null, {
+                                enabled: true,
+                                ignore: true
+                            });
+                        }));
+                        enable(normalizedMap);
+
+                        return;
+                    }
+
+                    load = bind(this, function (value) {
+                        this.init([], value, null, {
                             enabled: true
                         });
                     });
