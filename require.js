@@ -154,6 +154,9 @@ var requirejs, require, define;
             defined = {},
             urlMap = {},
             urlFetched = {},
+            needFullExec = {},
+            fullExec = {},
+            plugins = {},
             requireCounter = 1,
             unnormalizedCounter = 1,
             inCheckLoaded, inCycle, Module, context, handlers,
@@ -350,9 +353,15 @@ var requirejs, require, define;
             return mod;
         }
 
-        function enable(depMap) {
-            if (!defined.hasOwnProperty(depMap.id)) {
-                getModule(depMap).enable();
+        function enable(depMap, needFullExec) {
+            var id = depMap.id;
+            if (!defined.hasOwnProperty(id)) {
+                getModule(depMap).enable(needFullExec);
+            } else if (needFullExec && !fullExec[id]) {
+                //The full exec was not done on a defined module,
+                //undefine and try again.
+                context.undef(id, context);
+                getModule(depMap).enable(needFullExec);
             }
         }
 
@@ -779,6 +788,14 @@ var requirejs, require, define;
 
                         if (this.map.isDefine && !this.ignore) {
                             defined[id] = exports;
+                            //If build needed a full execution, indicate it
+                            //has been done now.
+                            if (needFullExec[id]) {
+                                fullExec[id] = true;
+                            }
+                            if (req.onResourceLoad) {
+                                req.onResourceLoad(context, this.map, this.depMaps);
+                            }
                         }
 
                         //Clean up
@@ -800,6 +817,8 @@ var requirejs, require, define;
             callPlugin: function() {
                 var map = this.map,
                     pluginMap = makeModuleMap(map.prefix);
+
+                context.plugins[pluginMap.id] = true;
 
                 on(pluginMap, 'defined', bind(this, function (plugin) {
                     var name = this.map.name,
@@ -870,6 +889,7 @@ var requirejs, require, define;
 
             enable: function () {
                 this.enabled = true;
+                var needFullExec = this.needFullExec;
                 each(this.depMaps, function (map) {
                     var id = map.id,
                         mod = registry[id];
@@ -877,7 +897,7 @@ var requirejs, require, define;
                     //Also, don't call enable if it is already enabled,
                     //important in circular dependency cases.
                     if (!handlers[id] && mod && !mod.enabled) {
-                        enable(map);
+                        enable(map, needFullExec);
                     }
                 });
                 this.check();
@@ -909,6 +929,11 @@ var requirejs, require, define;
             defined: defined,
             urlMap: urlMap,
             urlFetched: urlFetched,
+            //Used to indicate which modules in a build scenario
+            //need to be full executed.
+            needFullExec: needFullExec,
+            fullExec: fullExec,
+            plugins: plugins,
             defQueue: [],
 
             /**
@@ -1049,6 +1074,7 @@ var requirejs, require, define;
                 delete urlMap[id];
                 delete urlFetched[map.url];
                 delete undefEvents[id];
+                delete plugins[id];
 
                 if (mod) {
                     delete registry[id];
