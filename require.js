@@ -395,6 +395,7 @@ var requirejs, require, define;
 
             mixin(modRequire, {
                 toUrl: makeContextModuleFunc(context.toUrl, relMap),
+                nameToUrl: makeContextModuleFunc(context.nameToUrl, relMap),
                 defined: makeContextModuleFunc(context.requireDefined, relMap),
                 specified: makeContextModuleFunc(context.requireSpecified, relMap)
             });
@@ -818,7 +819,7 @@ var requirejs, require, define;
                         normalizedMap = makeModuleMap(map.prefix + '!' + (normalizedName || name));
                         on(normalizedMap,
                            'defined', bind(this, function (value) {
-                            this.init([], value, null, {
+                            this.init([], function () { return value; }, null, {
                                 enabled: true,
                                 ignore: true
                             });
@@ -829,7 +830,7 @@ var requirejs, require, define;
                     }
 
                     load = bind(this, function (value) {
-                        this.init([], value, null, {
+                        this.init([], function () { return value; }, null, {
                             enabled: true
                         });
                     });

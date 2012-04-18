@@ -3,33 +3,30 @@
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/requirejs for details
  */
-/*jslint strict: false, plusplus: false */
+/*jslint */
 /*global require: false, define: false, requirejs: false,
   window: false, clearInterval: false, document: false,
   self: false, setInterval: false */
 
 
 define(function () {
+    'use strict';
+
     var isBrowser = typeof window !== "undefined" && window.document,
         isPageLoaded = !isBrowser,
         doc = isBrowser ? document : null,
         readyCalls = [],
-        readyLoaderCalls = [],
-        //Bind to a specific implementation, but if not there, try a
-        //a generic one under the "require" name.
-        req = requirejs || require || {},
-        oldResourcesReady = req.resourcesReady,
         scrollIntervalId;
 
     function runCallbacks(callbacks) {
-        for (var i = 0, callback; (callback = callbacks[i]); i++) {
-            callback(doc);
+        var i;
+        for (i = 0; i < callbacks.length; i++) {
+            callbacks[i](doc);
         }
     }
 
     function callReady() {
-        var callbacks = readyCalls,
-            loaderCallbacks = readyLoaderCalls;
+        var callbacks = readyCalls;
 
         if (isPageLoaded) {
             //Call the DOM ready callbacks
@@ -37,32 +34,7 @@ define(function () {
                 readyCalls = [];
                 runCallbacks(callbacks);
             }
-
-            //Now handle DOM ready + loader ready callbacks.
-            if (req.resourcesDone && loaderCallbacks.length) {
-                readyLoaderCalls = [];
-                runCallbacks(loaderCallbacks);
-            }
         }
-    }
-
-    /**
-     * Add a method to require to get callbacks if there are loader resources still
-     * being loaded. If so, then hold off calling "withResources" callbacks.
-     *
-     * @param {Boolean} isReady: pass true if all resources have been loaded.
-     */
-    if ('resourcesReady' in req) {
-        req.resourcesReady = function (isReady) {
-            //Call the old function if it is around.
-            if (oldResourcesReady) {
-                oldResourcesReady(isReady);
-            }
-
-            if (isReady) {
-                callReady();
-            }
-        };
     }
 
     /**
@@ -132,24 +104,6 @@ define(function () {
         }
         return domReady;
     }
-
-    /**
-     * Callback that waits for DOM ready as well as any outstanding
-     * loader resources. Useful when there are implicit dependencies.
-     * This method should be avoided, and always use explicit
-     * dependency resolution, with just regular DOM ready callbacks.
-     * The callback passed to this method will be called immediately
-     * if the DOM and loader are already ready.
-     * @param {Function} callback
-     */
-    domReady.withResources = function (callback) {
-        if (isPageLoaded && req.resourcesDone) {
-            callback(doc);
-        } else {
-            readyLoaderCalls.push(callback);
-        }
-        return domReady;
-    };
 
     domReady.version = '1.0.0';
 

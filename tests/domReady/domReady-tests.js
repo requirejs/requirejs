@@ -17,9 +17,24 @@ requirejs(['domReady'], function (domReady) {
     requirejs(['two'], function (two) {
         domReady(function () {
             two.addToDom();
+
+            doh.register(
+                "domReadyWithResources",
+                [
+                    function domReadyWithResources(t) {
+                        t.is('one', document.getElementById('one').getAttribute('data-name'));
+                        t.is('two', document.getElementById('two').getAttribute('data-name'));
+                    }
+                ]
+            );
+            doh.run();
+
         });
+
+
     });
 
+/*
     domReady.withResources(function () {
         doh.register(
             "domReadyWithResources",
@@ -32,5 +47,6 @@ requirejs(['domReady'], function (domReady) {
         );
         doh.run();
     });
+*/
 
 });
