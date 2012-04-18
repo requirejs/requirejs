@@ -19,7 +19,7 @@
 
         requirejs.onError = function (err) {
             if (err.requireType === 'timeout') {
-                var id = err.requireModules.split(' ')[0],
+                var id = err.requireModules[0],
                     config = {paths: {}};
 
                 requirejs.undef(id);

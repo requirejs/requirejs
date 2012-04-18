@@ -150,12 +150,14 @@ var requirejs, require, define;
                 catchError: {}
             },
             registry = {},
+            undefEvents = {},
             defined = {},
             urlMap = {},
             urlFetched = {},
             requireCounter = 1,
             unnormalizedCounter = 1,
-            inCycle, Module, context, handlers, checkLoadedTimeoutId;
+            inCheckLoaded, inCycle, Module, context, handlers,
+            checkLoadedTimeoutId;
 
         /**
          * Trims the . and .. from an array of path segments.
@@ -498,15 +500,17 @@ var requirejs, require, define;
             var waitInterval = config.waitSeconds * 1000,
                 //It is possible to disable the wait interval by using waitSeconds of 0.
                 expired = waitInterval && (context.startTime + waitInterval) < new Date().getTime(),
-                noLoads = '',
+                noLoads = [],
                 stillLoading = false,
                 cycleDeps = [],
                 map, modId, err;
 
             //Do not bother if this call was a result of a cycle break.
-            if (inCycle) {
+            if (inCycle || inCheckLoaded) {
                 return;
             }
+
+            inCheckLoaded = true;
 
             //Figure out the state of all the modules.
             eachProp(registry, function (mod) {
@@ -515,7 +519,7 @@ var requirejs, require, define;
                 //If the module should be executed, and it has not
                 //been inited and time is up, remember it.
                 if (mod.enabled && !mod.inited && expired) {
-                    noLoads += ' ' + modId;
+                    noLoads.push(modId);
                     if (isBrowser) {
                         removeScript(modId);
                     }
@@ -537,7 +541,7 @@ var requirejs, require, define;
                 }
             });
 
-            if (expired && noLoads) {
+            if (expired && noLoads.length) {
                 //If wait time expired, throw error of unloaded modules.
                 err = makeError("timeout", "Load timeout for modules: " + noLoads);
                 err.requireType = "timeout";
@@ -557,7 +561,6 @@ var requirejs, require, define;
                 });
             }
 
-
             //If still waiting on loads, and the waiting load is something
             //other than a plugin resource, or there are still outstanding
             //scripts, then just try back later.
@@ -570,12 +573,13 @@ var requirejs, require, define;
                         checkLoaded();
                     }, 50);
                 }
-                return;
             }
+
+            inCheckLoaded = false;
         }
 
         Module = function (map) {
-            this.events = {};
+            this.events = undefEvents[map.id] || {};
             this.map = map;
             this.depExports = [];
             this.depMaps = [];
@@ -895,7 +899,7 @@ var requirejs, require, define;
 
         return (context = {
             config: config,
-            contextName: '_',
+            contextName: contextName,
             registry: registry,
             defined: defined,
             urlMap: urlMap,
@@ -1030,6 +1034,27 @@ var requirejs, require, define;
                 });
 
                 return context.require;
+            },
+
+            undef: function (id) {
+                var map = makeModuleMap(id, null, true),
+                    mod = registry[id];
+
+                delete defined[id];
+                delete urlMap[id];
+                delete urlFetched[map.url];
+                delete undefEvents[id];
+
+                if (mod) {
+                    delete registry[id];
+
+                    //Hold on to listeners in case the
+                    //module will be attempted to be reloaded
+                    //using a different config.
+                    if (mod.events.defined) {
+                        undefEvents[id] = mod.events;
+                    }
+                }
             },
 
             /**
@@ -1235,9 +1260,8 @@ var requirejs, require, define;
     /**
      * Global require.undef(), to allow undefining a module, and resetting
      * internal state to act like it was not loaded. It *does not* clean up
-     * any script tag that may have been used to load the module. So, if
-     * the undef() is called as part of a script timeout, the script may
-     * still load later.
+     * any script tag that may have been used to load the module, unless the
+     * script timed out from loading via a waitSeconds expiration.
      */
     req.undef = function (name, contextName) {
         contexts[contextName || defContextName].undef(name);
