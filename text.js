@@ -188,6 +188,14 @@
                 if (!match) {
                     return true;
                 }
+                
+                if( typeof location !=='undefined' && location.hostname )
+                {
+                  protocol = protocol || location.protocol.substr( 0, location.protocol.length-1) ;
+                	hostname = hostname || location.hostname ;
+                	port = port || location.port ;
+                }                
+                
                 uProtocol = match[2];
                 uHostName = match[3];
 
@@ -197,7 +205,7 @@
 
                 return (!uProtocol || uProtocol === protocol) &&
                        (!uHostName || uHostName === hostname) &&
-                       ((!uPort && !uHostName) || uPort === port);
+                       (!uPort || uPort === port);
             },
 
             finishLoad: function (name, strip, content, onLoad, config) {
