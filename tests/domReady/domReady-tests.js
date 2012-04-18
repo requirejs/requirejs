@@ -1,4 +1,4 @@
-/*jslint strict: false */
+/*jslint */
 /*global requirejs: false, doh: false, document: false */
 
 requirejs.config({
@@ -19,9 +19,9 @@ requirejs(['domReady'], function (domReady) {
             two.addToDom();
 
             doh.register(
-                "domReadyWithResources",
+                "domReady",
                 [
-                    function domReadyWithResources(t) {
+                    function domReady(t) {
                         t.is('one', document.getElementById('one').getAttribute('data-name'));
                         t.is('two', document.getElementById('two').getAttribute('data-name'));
                     }
@@ -30,23 +30,5 @@ requirejs(['domReady'], function (domReady) {
             doh.run();
 
         });
-
-
     });
-
-/*
-    domReady.withResources(function () {
-        doh.register(
-            "domReadyWithResources",
-            [
-                function domReadyWithResources(t) {
-                    t.is('one', document.getElementById('one').getAttribute('data-name'));
-                    t.is('two', document.getElementById('two').getAttribute('data-name'));
-                }
-            ]
-        );
-        doh.run();
-    });
-*/
-
 });

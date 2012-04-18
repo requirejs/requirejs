@@ -3,7 +3,7 @@
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/requirejs for details
  */
-/*jslint nomen: false, plusplus: false, strict: false */
+/*jslint nomen: true, plusplus: true */
 /*global require: false, define: false, window: false, document: false,
   setTimeout: false */
 
@@ -12,7 +12,7 @@
 /*requirejs namespace: true */
 
 (function () {
-
+    'use strict';
     //Sadly necessary browser inference due to differences in the way
     //that browsers load and execute dynamically inserted javascript
     //and whether the script/cache method works when ordered execution is
@@ -149,13 +149,9 @@
                 //ordered execution should go away after a long while.
                 context = require.s.contexts._;
 
-                if (!context.urlFetched[url] && !context.loaded[name]) {
+                if (!context.urlFetched[url]) {
                     //Indicate the script is being fetched.
                     context.urlFetched[url] = true;
-
-                    //Stuff from require.load
-                    require.resourcesReady(false);
-                    context.scriptCount += 1;
 
                     //Fetch the script now, remember it.
                     node = require.attach(url, context, name, null, null, onFetchOnly);

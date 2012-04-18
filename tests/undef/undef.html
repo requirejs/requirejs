@@ -37,7 +37,9 @@
             throw err;
         };
 
-        requirejs({waitSeconds: 2}, ['dep'], function (dep) {
+        requirejs({
+            waitSeconds: 2
+        }, ['dep'], function (dep) {
             doh.is("real", dep.name);
             done();
         });
