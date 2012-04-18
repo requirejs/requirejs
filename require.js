@@ -871,8 +871,12 @@ var requirejs, require, define;
             enable: function () {
                 this.enabled = true;
                 each(this.depMaps, function (map) {
+                    var id = map.id,
+                        mod = registry[id];
                     //Skip special modules like 'require', 'exports', 'module'
-                    if (!handlers[map.id]) {
+                    //Also, don't call enable if it is already enabled,
+                    //important in circular dependency cases.
+                    if (!handlers[id] && mod && !mod.enabled) {
                         enable(map);
                     }
                 });
