@@ -248,10 +248,12 @@ var requirejs, require, define;
          * @param {String} name the module name
          * @param {String} [parentModuleMap] parent module map
          * for the module name, used to resolve relative names.
+         * @param {Boolean} isNormalized: is the ID already normalized.
+         * This is true if this call is done for a define() module ID.
          *
          * @returns {Object}
          */
-        function makeModuleMap(name, parentModuleMap) {
+        function makeModuleMap(name, parentModuleMap, isNormalized) {
             var index = name ? name.indexOf("!") : -1,
                 prefix = null,
                 parentName = parentModuleMap ? parentModuleMap.name : null,
@@ -313,7 +315,7 @@ var requirejs, require, define;
             //If the id is a plugin id that cannot be determined if it needs
             //normalization, stamp it with a unique ID so two matching relative
             //ids that may conflict can be separate.
-            suffix = prefix && !pluginModule ?
+            suffix = prefix && !pluginModule && !isNormalized ?
                      '_unnormalized' + (unnormalizedCounter += 1) :
                      '';
 
@@ -834,10 +836,6 @@ var requirejs, require, define;
                         /*jslint evil: true */
                         var hasInteractive = useInteractive;
 
-                        //Indicate this is not a "real" module, so do not track it
-                        //for builds, it does not map to a real file.
-                        context.fake[moduleName] = true;
-
                         //Turn off interactive script matching for IE for any define
                         //calls in the text, then turn it back on at the end.
                         if (hasInteractive) {
@@ -892,7 +890,7 @@ var requirejs, require, define;
         };
 
         function callGetModule(args) {
-            getModule(makeModuleMap(args[0])).init(args[1], args[2]);
+            getModule(makeModuleMap(args[0], null, true)).init(args[1], args[2]);
         }
 
         return (context = {
