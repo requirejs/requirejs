@@ -342,10 +342,6 @@ var requirejs, require, define;
             var id = depMap.id,
                 mod = registry[id];
 
-            if (defined.hasOwnProperty(id)) {
-                throw new Error(id + ' is already defined');
-            }
-
             if (!mod) {
                 mod = registry[id] = new Module(depMap);
             }
@@ -354,8 +350,10 @@ var requirejs, require, define;
         }
 
         function enable(depMap, needFullExec) {
-            var id = depMap.id;
-            if (!defined.hasOwnProperty(id)) {
+            var id = depMap.id,
+                mod = registry[id];
+
+            if (mod) {
                 getModule(depMap).enable(needFullExec);
             } else if (needFullExec && !fullExec[id]) {
                 //The full exec was not done on a defined module,
@@ -366,9 +364,11 @@ var requirejs, require, define;
         }
 
         function on(depMap, name, fn) {
-            var id = depMap.id;
+            var id = depMap.id,
+                mod = registry[id];
 
-            if (defined.hasOwnProperty(id)) {
+            if (defined.hasOwnProperty(id) &&
+                (!mod || mod.defineEmitComplete)) {
                 if (name === 'defined') {
                     fn(defined[id]);
                 }
@@ -449,8 +449,9 @@ var requirejs, require, define;
                 depArray = mod.depMaps,
                 foundModule;
 
-            //Do not bother with unitialized modules
-            if (!mod.inited) {
+            //Do not bother with unitialized modules or not yet enabled
+            //modules.
+            if (!mod.inited || !mod.enabled) {
                 return;
             }
 
@@ -526,16 +527,22 @@ var requirejs, require, define;
             eachProp(registry, function (mod) {
                 map = mod.map;
                 modId = map.id;
+
+                //Skip things that are not enabled.
+                if (!mod.enabled) {
+                    return;
+                }
+
                 //If the module should be executed, and it has not
                 //been inited and time is up, remember it.
-                if (mod.enabled && !mod.inited && expired) {
+                if (!mod.inited && expired) {
                     noLoads.push(modId);
                     if (isBrowser) {
                         removeScript(modId);
                     }
-                } else if (mod.fetched && map.isDefine) {
+                } else if (!mod.inited && mod.fetched && map.isDefine) {
                     stillLoading = true;
-                    if (map.prefix === -1) {
+                    if (!map.prefix) {
                         //No reason to keep looking for unfinished
                         //loading. If the only stillLoading is a
                         //plugin resource though, keep going,
@@ -543,10 +550,10 @@ var requirejs, require, define;
                         //is waiting on a non-plugin cycle.
                         cycleDeps = [];
                         return true;
-                    } else if (mod.inited) {
-                        if (mod.depMaps && mod.depCount) {
-                            cycleDeps.push.apply(cycleDeps, mod.depMaps);
-                        }
+                    }
+                } else if (mod.inited && map.isDefine) {
+                    if (mod.depMaps && mod.depCount) {
+                        cycleDeps.push.apply(cycleDeps, mod.depMaps);
                     }
                 }
             });
@@ -562,7 +569,7 @@ var requirejs, require, define;
             }
 
             //Not expired, check for a cycle.
-            if (stillLoading && cycleDeps.length) {
+            if (cycleDeps.length) {
                 each(cycleDeps, function (depMap) {
                     var mod = registry[depMap.id];
                     if (mod) {
@@ -594,6 +601,7 @@ var requirejs, require, define;
             this.depExports = [];
             this.depMaps = [];
             this.depMatched = [];
+            this.pluginMaps = {};
             this.depCount = 0;
 
             /* this.exports this.factory
@@ -808,6 +816,7 @@ var requirejs, require, define;
                         if (this.defined && !this.defineEmitted) {
                             this.defineEmitted = true;
                             this.emit('defined', this.exports);
+                            this.defineEmitComplete = true;
                         }
                         checkLoaded();
                     }
@@ -885,11 +894,14 @@ var requirejs, require, define;
                 }));
 
                 enable(pluginMap);
+                this.pluginMaps[pluginMap.id] = pluginMap;
             },
 
             enable: function () {
                 this.enabled = true;
                 var needFullExec = this.needFullExec;
+
+                //Enable each dependency
                 each(this.depMaps, function (map) {
                     var id = map.id,
                         mod = registry[id];
@@ -900,6 +912,16 @@ var requirejs, require, define;
                         enable(map, needFullExec);
                     }
                 });
+
+                //Enable each plugin that is used in
+                //a dependency
+                eachProp(this.pluginMaps, function (pluginMap) {
+                    var mod = registry[pluginMap.id];
+                    if (mod && !mod.enabled) {
+                        enable(pluginMap, needFullExec);
+                    }
+                });
+
                 this.check();
             },
 
@@ -935,6 +957,7 @@ var requirejs, require, define;
             fullExec: fullExec,
             plugins: plugins,
             defQueue: [],
+            makeModuleMap: makeModuleMap,
 
             /**
              * Set a configuration for the context.
