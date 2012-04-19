@@ -1479,7 +1479,8 @@ var requirejs, require, define;
                 moduleName = normalize(moduleName, relModuleMap && relModuleMap.fullName);
 
                 //If a colon is in the URL, it indicates a protocol is used and it is just
-                //an URL to a file, or if it starts with a slash or ends with .js, it is just a plain file.
+                //an URL to a file, or if it starts with a slash, contains a query arg (i.e. ?)
+                //or ends with .js, then assume the user meant to use an url and not a module id.
                 //The slash is important for protocol-less URLs as well as full paths.
                 if (req.jsExtRegExp.test(moduleName)) {
                     //Just a plain path, not module name lookup, so just return it.
@@ -1879,8 +1880,8 @@ var requirejs, require, define;
             //https://connect.microsoft.com/IE/feedback/details/648057/script-onload-event-is-not-fired-immediately-after-script-execution
             //UNFORTUNATELY Opera implements attachEvent but does not follow the script
             //script execution mode.
-            if (node.attachEvent && 
-                // check if node.attachEvent is artificially added by custom script or 
+            if (node.attachEvent &&
+                // check if node.attachEvent is artificially added by custom script or
                 // natively supported by browser
                 // read https://github.com/jrburke/requirejs/issues/187
                 // if we can NOT find [native code] then it must NOT natively supported.
