@@ -1518,6 +1518,10 @@ var requirejs, require, define;
                     url = syms.join("/") + (ext || ".js");
                     url = (url.charAt(0) === '/' || url.match(/^[\w\+\.\-]+:/) ? "" : config.baseUrl) + url;
                 }
+                //Give an option to the users to make a final change to the url
+                if(typeof config.urlFilter === "function"){
+                    url = config.urlFilter(url);
+                }
 
                 return config.urlArgs ? url +
                                         ((url.indexOf('?') === -1 ? '?' : '&') +
