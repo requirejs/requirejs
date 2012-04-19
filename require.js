@@ -454,6 +454,12 @@ var requirejs, require, define;
                     } else {
                         //Use the return value from the function.
                         defined[fullName] = ret;
+                        if (!ret) {
+                            if (req.onDebug && typeof(jQuery) === "undefined") {
+                                var noReturn = makeError("noreturn", "The module \'"+fullName+"\' has false return value");
+                                req.onDebug(noReturn);
+                            }
+                        }
                         //If this module needed full execution in a build
                         //environment, mark that now.
                         if (needFullExec[fullName]) {
@@ -462,9 +468,14 @@ var requirejs, require, define;
                     }
                 }
             } else if (fullName) {
+                // Syntax errors in script elements end up here because cb will be null,
+                // but lots of special cases also have cb null.
                 //May just be an object definition for the module. Only
                 //worry about defining if have a module name.
-                ret = defined[fullName] = cb;
+
+                if (cb || jsSuffixRegExp.test(fullName)) {  // set only if the object is truthy or we are not using modules
+                    ret = defined[fullName] = cb;
+                }
 
                 //If this module needed full execution in a build
                 //environment, mark that now.
@@ -773,6 +784,11 @@ var requirejs, require, define;
             //for a module.
             manager.depArray = depArray;
             manager.callback = callback;
+            
+            if (req.onDebugDAG) {
+                var url = fullName ? makeModuleMap(fullName).url : id;
+                req.onDebugDAG(fullName || id, depArray, url);
+            }
 
             //Add the dependencies to the deps field, and register for callbacks
             //on the dependencies.
@@ -1021,7 +1037,8 @@ var requirejs, require, define;
                     hasLoadedProp = true;
                     if (!loaded[prop]) {
                         if (expired) {
-                            noLoads += prop + " ";
+                            var url = urlMap[prop] || makeModuleMap(prop).url;
+                            noLoads += prop + " ("+url+") ";
                         } else {
                             stillLoading = true;
                             if (prop.indexOf('!') === -1) {
@@ -1051,7 +1068,7 @@ var requirejs, require, define;
             }
             if (expired && noLoads) {
                 //If wait time expired, throw error of unloaded modules.
-                err = makeError("timeout", "Load timeout for modules: " + noLoads);
+                err = makeError("timeout", "Load timeout in "+window.location+" for modules: " + noLoads);
                 err.requireType = "timeout";
                 err.requireModules = noLoads;
                 err.contextName = context.contextName;
@@ -1148,7 +1165,7 @@ var requirejs, require, define;
             while (defQueue.length) {
                 args = defQueue.shift();
                 if (args[0] === null) {
-                    return req.onError(makeError('mismatch', 'Mismatched anonymous define() module: ' + args[args.length - 1]));
+                    return req.onError(makeError('mismatch', 'Second anonymous define(): ' + args[args.length - 1]));
                 } else {
                     callDefMain(args);
                 }
@@ -1358,6 +1375,7 @@ var requirejs, require, define;
                     if (!(fullName in defined)) {
                         return req.onError(makeError("notloaded", "Module name '" +
                                     moduleMap.fullName +
+                                    "(" + moduleMap.url + ")" +
                                     "' has not been loaded yet for context: " +
                                     contextName));
                     }
@@ -1515,7 +1533,12 @@ var requirejs, require, define;
 
                     //Join the path parts together, then figure out if baseUrl is needed.
                     url = syms.join("/") + (ext || ".js");
-                    url = (url.charAt(0) === '/' || url.match(/^\w+:/) ? "" : config.baseUrl) + url;
+                    if ( url.charAt(0) !== '/' && ! url.match(/^\w+:/) ) {
+                        if (config.baseUrl === null || typeof(config.baseUrl) === 'undefined') {
+                            req.onError("No baseUrl, needed for URL: "+url);
+                        }
+                        url = config.baseUrl + url;
+                    }
                 }
 
                 return config.urlArgs ? url +
@@ -1766,7 +1789,7 @@ var requirejs, require, define;
      * @private
      */
     req.execCb = function (name, callback, args, exports) {
-        return callback.apply(exports, args);
+            return callback.apply(exports, args);
     };
 
 
@@ -1908,6 +1931,16 @@ var requirejs, require, define;
                 }
             } else {
                 node.addEventListener("load", callback, false);
+                node.addEventListener("error", function scriptError(event){
+                    if (context) {
+                        loaded = context.loaded;
+                        loaded[moduleName] = true;  // Mark loaded to avoid timeout loop
+                    } // else I don't understand why we don't have a context jjb
+                    var err = makeError("network", "Could not resolve "+event.target.src);
+                    err.requireType = "network";
+                    err.module = event.target.getAttribute('data-requiremodule');
+                    req.onError(err);
+                }, false);
             }
             node.src = url;
 
@@ -1962,10 +1995,14 @@ var requirejs, require, define;
                     dataMain = mainScript.replace(jsSuffixRegExp, '');
                 }
 
+                if (cfg.dataMain) {
+                    req.onError("Two data-main scripts, 1) "+cfg.dataMain+" 2) "+dataMain);
+                    break; // obey the first one if we did not throw in onError
+                }
+
                 //Put the data-main script in the files to load.
                 cfg.deps = cfg.deps ? cfg.deps.concat(dataMain) : [dataMain];
-
-                break;
+                cfg.dataMain = dataMain;
             }
         }
     }
