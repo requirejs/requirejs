@@ -7,7 +7,7 @@
 /*global window, navigator, document, importScripts, jQuery, setTimeout, opera */
 
 var requirejs, require, define;
-(function () {
+(function (undefined) {
     //Change this version number for each release.
     var version = "1.0.7",
         commentRegExp = /(\/\*([\s\S]*?)\*\/|([^:]|^)\/\/(.*)$)/mg,
@@ -1879,7 +1879,15 @@ var requirejs, require, define;
             //https://connect.microsoft.com/IE/feedback/details/648057/script-onload-event-is-not-fired-immediately-after-script-execution
             //UNFORTUNATELY Opera implements attachEvent but does not follow the script
             //script execution mode.
-            if (node.attachEvent && !isOpera) {
+            if (node.attachEvent && 
+                // check if node.attachEvent is artificially added by custom script or 
+                // natively supported by browser
+                // read https://github.com/jrburke/requirejs/issues/187
+                // if we can NOT find [native code] then it must NOT natively supported.
+                // in IE8, node.attachEvent does not have toString()
+                // TODO: a better way to check interactive mode
+                !(node.attachEvent.toString && node.attachEvent.toString().indexOf('[native code]') < 0) &&
+                !isOpera) {
                 //Probably IE. IE (at least 6-8) do not fire
                 //script onload right after executing the script, so
                 //we cannot tie the anonymous define call to a name.
