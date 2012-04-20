@@ -175,7 +175,8 @@ var requirejs, require, define;
                 baseUrl: "./",
                 paths: {},
                 pkgs: {},
-                catchError: {}
+                catchError: {},
+                charset: "utf-8"
             },
             defQueue = [],
             specified = {
@@ -1854,7 +1855,7 @@ var requirejs, require, define;
                     document.createElement("script");
             node.type = type || (context && context.config.scriptType) ||
                         "text/javascript";
-            node.charset = "utf-8";
+            node.charset = context.config.charset;
             //Use async so Gecko does not block on executing the script if something
             //like a long-polling comet tag is being run first. Gecko likes
             //to evaluate scripts in DOM order, even for dynamic scripts.
