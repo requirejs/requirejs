@@ -158,6 +158,11 @@ var requirejs, require, define;
             plugins = {},
             requireCounter = 1,
             unnormalizedCounter = 1,
+            //Used to track the order in which modules
+            //should be executed, by the order they
+            //load. Important for consistent cycle resolution
+            //behavior.
+            waitAry = [],
             inCheckLoaded, inCycle, Module, context, handlers,
             checkLoadedTimeoutId;
 
@@ -446,11 +451,12 @@ var requirejs, require, define;
         function findCycle(mod, traced) {
             var id = mod.map.id,
                 depArray = mod.depMaps,
+                fullLoaded = true,
                 foundModule;
 
             //Do not bother with unitialized modules or not yet enabled
             //modules.
-            if (!mod.inited || !mod.enabled) {
+            if (!mod.inited) {
                 return;
             }
 
@@ -464,46 +470,77 @@ var requirejs, require, define;
             //Trace through the dependencies.
             each(depArray, function (depMap) {
                 var depId = depMap.id,
-                    depMod = registry[depId],
-                    foundId;
+                    depMod = registry[depId];
 
                 if (!depMod) {
                     return;
                 }
 
                 if (!depMod.inited) {
+                    //Dependency is not inited, so this cannot
+                    //be used to determine a cycle.
+                    foundModule = null;
+                    delete traced[id];
                     return true;
                 }
 
-                foundModule = findCycle(depMod, traced);
-                if (foundModule) {
-                    //Bingo, break the deadlock by informing the current module
-                    //of the known value, perhaps via exports, of the
-                    //foundModule
-                    inCycle = true;
-                    foundId = foundModule.map.id;
-
-                    //Inject currently known values and trigger module
-                    //definition via check(), but do not notify consumers,
-                    //so pass true to check.
-                    //Do found module first, then module, since that was the
-                    //order of discovery.
-                    foundModule.defineDepById(id, defined[id]);
-                    foundModule.check(true);
-                    mod.defineDepById(foundId, defined[foundId]);
-                    mod.check(true);
-
-                    //Notify subscribers.
-                    foundModule.check();
-                    mod.check();
-
-                    inCycle = false;
-
-                    return true;
-                }
+                return (foundModule = findCycle(depMod, traced));
             });
 
             return foundModule;
+        }
+
+        function forceExec(mod, traced, uninited) {
+            var id = mod.map.id,
+                depArray = mod.depMaps;
+
+            if (!mod.inited || !mod.map.isDefine) {
+                return;
+            }
+
+            if (traced[id]) {
+                return defined[id];
+            }
+
+            traced[id] = mod;
+
+            each(depArray, function(depMap) {
+                var depId = depMap.id,
+                    depMod = registry[depId],
+                    value, pluginMod;
+
+                if (handlers[depId]) {
+                    return;
+                }
+
+                if (depMod) {
+                    if (!depMod.inited) {
+                        //Dependency is not inited,
+                        //so this module cannot be
+                        //given a forced value yet.
+                        uninited[id] = true;
+                        return;
+                    }
+
+                    //Get the value for the current dependency
+                    value = forceExec(depMod, traced, uninited);
+
+                    //Even with forcing it may not be done,
+                    //in particular if the module is waiting
+                    //on a plugin resource.
+                    if (!uninited[depId]) {
+                        mod.defineDepById(depId, value);
+                    }
+                }
+            });
+
+            mod.check(true);
+
+            return defined[id];
+        }
+
+        function modCheck(mod) {
+            mod.check();
         }
 
         function checkLoaded() {
@@ -512,7 +549,7 @@ var requirejs, require, define;
                 expired = waitInterval && (context.startTime + waitInterval) < new Date().getTime(),
                 noLoads = [],
                 stillLoading = false,
-                cycleDeps = [],
+                needCycleCheck = true,
                 map, modId, err;
 
             //Do not bother if this call was a result of a cycle break.
@@ -547,12 +584,7 @@ var requirejs, require, define;
                         //plugin resource though, keep going,
                         //because it may be that a plugin resource
                         //is waiting on a non-plugin cycle.
-                        cycleDeps = [];
-                        return true;
-                    }
-                } else if (mod.inited && map.isDefine) {
-                    if (mod.depMaps && mod.depCount) {
-                        cycleDeps.push.apply(cycleDeps, mod.depMaps);
+                        return (needCycleCheck = false);
                     }
                 }
             });
@@ -568,13 +600,32 @@ var requirejs, require, define;
             }
 
             //Not expired, check for a cycle.
-            if (cycleDeps.length) {
-                each(cycleDeps, function (depMap) {
-                    var mod = registry[depMap.id];
-                    if (mod) {
-                        findCycle(mod, {});
+            if (needCycleCheck) {
+
+                each(waitAry, function (mod) {
+                    if (mod.defined) {
+                        return;
+                    }
+
+                    var cycleMod = findCycle(mod, {}),
+                        traced = {};
+
+                    if (cycleMod) {
+                        forceExec(cycleMod, traced, {});
+
+                        //traced modules may have been
+                        //removed from the registry, but
+                        //their listeners still need to
+                        //be called.
+                        eachProp(traced, modCheck);
                     }
                 });
+
+                //Now that dependencies have
+                //been satisfied, trigger the
+                //completion check that then
+                //notifies listeners.
+                eachProp(registry, modCheck);
             }
 
             //If still waiting on loads, and the waiting load is something
@@ -800,7 +851,7 @@ var requirejs, require, define;
                             if (needFullExec[id]) {
                                 fullExec[id] = true;
                             }
-                            console.log(this.map.id + ' is defined now: ', this.depMaps);
+
                             if (req.onResourceLoad) {
                                 req.onResourceLoad(context, this.map, this.depMaps);
                             }
@@ -810,6 +861,11 @@ var requirejs, require, define;
                         delete registry[id];
 
                         this.defined = true;
+                        context.waitCount -= 1;
+                        if (context.waitCount === 0) {
+                            //Clear the wait array used for cycles.
+                            waitAry = [];
+                        }
                     }
 
                     if (!silent) {
@@ -901,6 +957,12 @@ var requirejs, require, define;
                 this.enabled = true;
                 var needFullExec = this.needFullExec;
 
+                if (!this.waitPushed) {
+                    waitAry.push(this);
+                    context.waitCount += 1;
+                    this.waitPushed = true;
+                }
+
                 //Enable each dependency
                 each(this.depMaps, function (map) {
                     var id = map.id,
@@ -956,6 +1018,7 @@ var requirejs, require, define;
             needFullExec: needFullExec,
             fullExec: fullExec,
             plugins: plugins,
+            waitCount: 0,
             defQueue: [],
             makeModuleMap: makeModuleMap,
 
