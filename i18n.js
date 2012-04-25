@@ -74,6 +74,9 @@
         for (var prop in source) {
             if (!(prop in empty) && (!(prop in target) || force)) {
                 target[prop] = source[prop];
+            } else if(source[prop] != null && typeof(source[prop]) == 'object'){
+                //recursively mixin for "groups"
+                mixin(target[prop], source[prop], force);
             }
         }
     }
