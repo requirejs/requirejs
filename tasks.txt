@@ -48,6 +48,11 @@ DOC updates:
 - local require.isBrowser (any other props?) removed. requirejs.isBrowser still available.
 - domReady.withResources removed, no more loader done messages?
 
+Tests to write:
+- error, but then ask for more things to load after that. Make sure the error
+thing stays in hibernation, out of the way. Implies that the cycle breaker skips
+them, and that they do not trigger checkLoaded setTimeouts.
+
 Next release
 --------------
 
