@@ -34,13 +34,6 @@ doh.registerUrl("urlfetch", "../urlfetch/urlfetch.html");
 doh.registerUrl("uniques", "../uniques/uniques.html");
 doh.registerUrl("multiversion", "../multiversion.html", 10000);
 
-doh.registerUrl("undef", "../undef/undef.html", 8000);
-doh.registerUrl("undefLocal", "../undef/undefLocal.html", 8000);
-doh.registerUrl("errorContinue", "../error/errorContinue.html", 8000);
-doh.registerUrl("errorContinueLocal", "../error/errorContinueLocal.html", 8000);
-doh.registerUrl("defineErrorLocal", "../error/defineErrorLocal.html");
-
-
 doh.registerUrl("jquery", "../jquery/jquery.html");
 
 //Next three tests fail in PS3
@@ -100,3 +93,11 @@ doh.registerUrl("moduleAndExports", "../exports/moduleAndExports.html");
 if (typeof Worker !== "undefined") {
     doh.registerUrl("workers", "../workers.html");
 }
+
+doh.registerUrl("undef", "../undef/undef.html", 8000);
+doh.registerUrl("undefLocal", "../undef/undefLocal.html", 8000);
+doh.registerUrl("errorContinue", "../error/errorContinue.html", 8000);
+doh.registerUrl("errorContinueLocal", "../error/errorContinueLocal.html", 8000);
+doh.registerUrl("pluginErrorContinue", "../error/pluginErrorContinue.html", 8000);
+doh.registerUrl("pluginErrorContinueLocal", "../error/pluginErrorContinueLocal.html", 8000);
+doh.registerUrl("defineErrorLocal", "../error/defineErrorLocal.html");

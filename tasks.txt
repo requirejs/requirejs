@@ -49,7 +49,7 @@ DOC updates:
 - domReady.withResources removed, no more loader done messages?
 - catchError.define removed, now just pass localized error handler.
 - Update api.html#errors to mention new local errors, requireType, requireModules.
-- plugins: load.error()
+- plugins: load.error(). Once called, there is no resetting from it, no undef.
 
 Tests to write:
 - error, plugins load error

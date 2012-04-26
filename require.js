@@ -451,6 +451,21 @@ var requirejs, require, define;
             }
         }
 
+        function removeWaiting(id) {
+            //Clean up machinery used for waiting modules.
+            delete registry[id];
+
+            each(waitAry, function (mod, i) {
+                if (mod.map.id === id) {
+                    waitAry.splice(i, 1);
+                    if (!mod.defined) {
+                        context.waitCount -= 1;
+                    }
+                    return true;
+                }
+            });
+        }
+
         function findCycle(mod, traced) {
             var id = mod.map.id,
                 depArray = mod.depMaps,
@@ -566,7 +581,7 @@ var requirejs, require, define;
                 map = mod.map;
                 modId = map.id;
 
-                //Skip things that are not enabled.
+                //Skip things that are not enabled or in error state.
                 if (!mod.enabled) {
                     return;
                 }
@@ -597,7 +612,6 @@ var requirejs, require, define;
                 err.requireType = "timeout";
                 err.requireModules = noLoads;
                 err.contextName = context.contextName;
-//TODO: trigger error handlers for modules.
                 return onError(err);
             }
 
@@ -681,9 +695,9 @@ var requirejs, require, define;
                 } else if (this.events.error) {
                     //If no errback already, but there are error listeners
                     //on this module, set up an errback to pass to the deps.
-                    errback = function (err) {
+                    errback = bind(this, function (err) {
                         this.emit('error', err);
-                    };
+                    });
                 }
 
                 each(depMaps, bind(this, function (depMap, i) {
@@ -708,9 +722,7 @@ var requirejs, require, define;
                     }));
 
                     if (errback) {
-                        on(depMap, 'error', function (err) {
-                            errback(err);
-                        });
+                        on(depMap, 'error', errback);
                     }
                 }));
 
@@ -878,24 +890,25 @@ var requirejs, require, define;
 
             callPlugin: function() {
                 var map = this.map,
+                    id = map.id,
                     pluginMap = makeModuleMap(map.prefix);
 
                 on(pluginMap, 'defined', bind(this, function (plugin) {
                     var name = this.map.name,
                         parentName = this.map.parentMap ? this.map.parentMap.name : null,
-                        normalizedName, load, normalizedMap;
+                        load, normalizedMap, normalizedMod;
 
-                    //Normalize the ID if the plugin allows it.
-                    if (plugin.normalize) {
-                        normalizedName = plugin.normalize(name, function (name) {
-                            return normalize(name, parentName);
-                        });
-                    }
+                    //If current map is not normalized, wait for that
+                    //normalized name to load instead of continuing.
+                    if (this.map.unnormalized) {
+                        //Normalize the ID if the plugin allows it.
+                        if (plugin.normalize) {
+                            name = plugin.normalize(name, function (name) {
+                                return normalize(name, parentName);
+                            });
+                        }
 
-                    //If the name was normalized to something else, then wait
-                    //for that normalized name to load instead of continuing.
-                    if ((normalizedName && normalizedName !== name) || this.map.unnormalized) {
-                        normalizedMap = makeModuleMap(map.prefix + '!' + (normalizedName || name));
+                        normalizedMap = makeModuleMap(map.prefix + '!' + name);
                         on(normalizedMap,
                            'defined', bind(this, function (value) {
                             this.init([], function () { return value; }, null, {
@@ -903,7 +916,15 @@ var requirejs, require, define;
                                 ignore: true
                             });
                         }));
-                        context.enable(normalizedMap);
+                        normalizedMod = registry[normalizedMap.id];
+                        if (normalizedMod) {
+                            if (this.events.error) {
+                                normalizedMod.on('error', bind(this, function (err) {
+                                    this.emit('error', err);
+                                }));
+                            }
+                            normalizedMod.enable();
+                        }
 
                         return;
                     }
@@ -912,6 +933,22 @@ var requirejs, require, define;
                         this.init([], function () { return value; }, null, {
                             enabled: true
                         });
+                    });
+
+                    load.error = bind(this, function (err) {
+                        this.inited = true;
+                        this.error = err;
+                        err.requireModules = [id];
+
+                        //Remove temp unnormalized modules for this module,
+                        //since they will never be resolved otherwise now.
+                        eachProp(registry, function (mod) {
+                            if (mod.map.id.indexOf(id + '_unnormalized') === 0) {
+                                removeWaiting(mod.map.id);
+                            }
+                        });
+
+                        onError(err);
                     });
 
                     //Allow plugins to load other code without having to know the
@@ -1160,14 +1197,14 @@ var requirejs, require, define;
                 delete undefEvents[id];
 
                 if (mod) {
-                    delete registry[id];
-
                     //Hold on to listeners in case the
                     //module will be attempted to be reloaded
                     //using a different config.
                     if (mod.events.defined) {
                         undefEvents[id] = mod.events;
                     }
+
+                    removeWaiting(id);
                 }
             },
 
