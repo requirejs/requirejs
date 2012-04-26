@@ -153,9 +153,6 @@ var requirejs, require, define;
             defined = {},
             urlMap = {},
             urlFetched = {},
-            needFullExec = {},
-            fullExec = {},
-            plugins = {},
             requireCounter = 1,
             unnormalizedCounter = 1,
             //Used to track the order in which modules
@@ -347,24 +344,10 @@ var requirejs, require, define;
                 mod = registry[id];
 
             if (!mod) {
-                mod = registry[id] = new Module(depMap);
+                mod = registry[id] = new context.Module(depMap);
             }
 
             return mod;
-        }
-
-        function enable(depMap, needFullExec) {
-            var id = depMap.id,
-                mod = registry[id];
-
-            if (mod) {
-                getModule(depMap).enable(needFullExec);
-            } else if (needFullExec && !fullExec[id]) {
-                //The full exec was not done on a defined module,
-                //undefine and try again.
-                context.undef(id, context);
-                getModule(depMap).enable(needFullExec);
-            }
         }
 
         function on(depMap, name, fn) {
@@ -451,7 +434,6 @@ var requirejs, require, define;
         function findCycle(mod, traced) {
             var id = mod.map.id,
                 depArray = mod.depMaps,
-                fullLoaded = true,
                 foundModule;
 
             //Do not bother with unitialized modules or not yet enabled
@@ -507,7 +489,7 @@ var requirejs, require, define;
             each(depArray, function(depMap) {
                 var depId = depMap.id,
                     depMod = registry[depId],
-                    value, pluginMod;
+                    value;
 
                 if (handlers[depId]) {
                     return;
@@ -803,7 +785,7 @@ var requirejs, require, define;
                     depExports = this.depExports,
                     exports = this.exports,
                     factory = this.factory,
-                    err, cjsModule;
+                    err, cjsModule, errFile, errModuleTree;
 
                 if (!this.inited) {
                     this.fetch();
@@ -836,6 +818,21 @@ var requirejs, require, define;
                                         exports = this.exports;
                                     }
                                 }
+
+
+                                if (err) {
+                                    errFile = err.fileName || err.sourceURL || id;
+                                    errModuleTree = err.moduleTree;
+                                    err.moduleName = (errModuleTree && errModuleTree[0]) || id;
+                                    err = makeError('defineerror', 'Error evaluating ' +
+                                                    'module "' + err.moduleName + '" at location "' +
+                                                    errFile + '":\n' +
+                                                    err + '\nfileName:' + errFile +
+                                                    '\nlineNumber: ' + (err.lineNumber || err.line), err);
+                                    err.moduleTree = errModuleTree;
+                                    return req.onError(err);
+                                }
+
                             } else {
                                 //Just a literal value
                                 exports = factory;
@@ -846,11 +843,6 @@ var requirejs, require, define;
 
                         if (this.map.isDefine && !this.ignore) {
                             defined[id] = exports;
-                            //If build needed a full execution, indicate it
-                            //has been done now.
-                            if (needFullExec[id]) {
-                                fullExec[id] = true;
-                            }
 
                             if (req.onResourceLoad) {
                                 req.onResourceLoad(context, this.map, this.depMaps);
@@ -883,8 +875,6 @@ var requirejs, require, define;
                 var map = this.map,
                     pluginMap = makeModuleMap(map.prefix);
 
-                context.plugins[pluginMap.id] = true;
-
                 on(pluginMap, 'defined', bind(this, function (plugin) {
                     var name = this.map.name,
                         parentName = this.map.parentMap ? this.map.parentMap.name : null,
@@ -908,7 +898,7 @@ var requirejs, require, define;
                                 ignore: true
                             });
                         }));
-                        enable(normalizedMap);
+                        context.enable(normalizedMap);
 
                         return;
                     }
@@ -949,13 +939,12 @@ var requirejs, require, define;
                     }), load, config);
                 }));
 
-                enable(pluginMap);
+                context.enable(pluginMap, this);
                 this.pluginMaps[pluginMap.id] = pluginMap;
             },
 
             enable: function () {
                 this.enabled = true;
-                var needFullExec = this.needFullExec;
 
                 if (!this.waitPushed) {
                     waitAry.push(this);
@@ -964,25 +953,25 @@ var requirejs, require, define;
                 }
 
                 //Enable each dependency
-                each(this.depMaps, function (map) {
+                each(this.depMaps, bind(this, function (map) {
                     var id = map.id,
                         mod = registry[id];
                     //Skip special modules like 'require', 'exports', 'module'
                     //Also, don't call enable if it is already enabled,
                     //important in circular dependency cases.
                     if (!handlers[id] && mod && !mod.enabled) {
-                        enable(map, needFullExec);
+                        context.enable(map, this);
                     }
-                });
+                }));
 
                 //Enable each plugin that is used in
                 //a dependency
-                eachProp(this.pluginMaps, function (pluginMap) {
+                eachProp(this.pluginMaps, bind(this, function (pluginMap) {
                     var mod = registry[pluginMap.id];
                     if (mod && !mod.enabled) {
-                        enable(pluginMap, needFullExec);
+                        context.enable(pluginMap, this);
                     }
-                });
+                }));
 
                 this.check();
             },
@@ -1013,13 +1002,9 @@ var requirejs, require, define;
             defined: defined,
             urlMap: urlMap,
             urlFetched: urlFetched,
-            //Used to indicate which modules in a build scenario
-            //need to be full executed.
-            needFullExec: needFullExec,
-            fullExec: fullExec,
-            plugins: plugins,
             waitCount: 0,
             defQueue: [],
+            Module: Module,
             makeModuleMap: makeModuleMap,
 
             /**
@@ -1160,7 +1145,6 @@ var requirejs, require, define;
                 delete urlMap[id];
                 delete urlFetched[map.url];
                 delete undefEvents[id];
-                delete plugins[id];
 
                 if (mod) {
                     delete registry[id];
@@ -1171,6 +1155,18 @@ var requirejs, require, define;
                     if (mod.events.defined) {
                         undefEvents[id] = mod.events;
                     }
+                }
+            },
+
+            /**
+             * Called to enable a module if it is still in the registry
+             * awaiting enablement. parent module is passed in for context,
+             * used by the optimizer.
+             */
+            enable: function (depMap, parent) {
+                var mod = registry[depMap.id];
+                if (mod) {
+                    getModule(depMap).enable();
                 }
             },
 
@@ -1342,7 +1338,7 @@ var requirejs, require, define;
 
         context = contexts[contextName];
         if (!context) {
-            context = contexts[contextName] = newContext(contextName);
+            context = contexts[contextName] = req.s.newContext(contextName);
         }
 
         if (config) {
@@ -1392,6 +1388,7 @@ var requirejs, require, define;
     req.isBrowser = isBrowser;
     s = req.s = {
         contexts: contexts,
+        newContext: newContext,
         //Stores a list of URLs that should not get async script tag treatment.
         skipAsync: {}
     };
@@ -1726,8 +1723,6 @@ var requirejs, require, define;
     };
 
     define.amd = {
-        multiversion: true,
-        plugins: true,
         jQuery: true
     };
 
