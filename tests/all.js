@@ -33,8 +33,13 @@ doh.registerUrl("depoverlap", "../depoverlap.html");
 doh.registerUrl("urlfetch", "../urlfetch/urlfetch.html");
 doh.registerUrl("uniques", "../uniques/uniques.html");
 doh.registerUrl("multiversion", "../multiversion.html", 10000);
+
 doh.registerUrl("undef", "../undef/undef.html", 8000);
 doh.registerUrl("undefLocal", "../undef/undefLocal.html", 8000);
+doh.registerUrl("errorContinue", "../error/errorContinue.html", 8000);
+doh.registerUrl("errorContinueLocal", "../error/errorContinueLocal.html", 8000);
+doh.registerUrl("defineErrorLocal", "../error/defineErrorLocal.html");
+
 
 doh.registerUrl("jquery", "../jquery/jquery.html");
 
@@ -67,7 +72,6 @@ doh.registerUrl("universalBuilt", "../universal/universal-built.html");
 
 doh.registerUrl("nestedDefine", "../nestedDefine/nestedDefine.html");
 doh.registerUrl("nestedDefine2", "../nestedDefine/nestedDefine2.html");
-doh.registerUrl("defineError", "../defineError/defineError.html");
 
 doh.registerUrl("pluginsSync", "../plugins/sync.html");
 doh.registerUrl("doublePluginCall", "../plugins/double.html");

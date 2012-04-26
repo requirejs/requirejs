@@ -145,8 +145,7 @@ var requirejs, require, define;
                 waitSeconds: 7,
                 baseUrl: "./",
                 paths: {},
-                pkgs: {},
-                catchError: {}
+                pkgs: {}
             },
             registry = {},
             undefEvents = {},
@@ -797,14 +796,18 @@ var requirejs, require, define;
                     depExports = this.depExports,
                     exports = this.exports,
                     factory = this.factory,
-                    err, cjsModule, errFile, errModuleTree;
+                    err, cjsModule;
 
                 if (!this.inited) {
                     this.fetch();
+                } else if (this.error) {
+                    this.emit('error', this.error);
                 } else {
                     if (this.depCount < 1 && !this.defined) {
                         if (isFunction(factory)) {
-                            if (config.catchError.define) {
+                            //If there is an error listener, favor passing
+                            //to that instead of throwing an error.
+                            if (this.events.error) {
                                 try {
                                     exports = context.execCb(id, factory, depExports, exports);
                                 } catch (e) {
@@ -830,18 +833,11 @@ var requirejs, require, define;
                                 }
                             }
 
-
                             if (err) {
-                                errFile = err.fileName || err.sourceURL || id;
-                                errModuleTree = err.moduleTree;
-                                err.requireModules = [(errModuleTree && errModuleTree[0]) || id];
-                                err = makeError('defineerror', 'Error evaluating ' +
-                                                'module "' + err.requireModules[0] + '" at location "' +
-                                                errFile + '":\n' +
-                                                err + '\nfileName:' + errFile +
-                                                '\nlineNumber: ' + (err.lineNumber || err.line), err);
-                                err.moduleTree = errModuleTree;
-                                return onError(err);
+                                err.requireMap = this.map;
+                                err.requireModules = [this.map.id];
+                                err.requireType = 'define';
+                                return onError((this.error = err));
                             }
 
                         } else {
@@ -997,6 +993,12 @@ var requirejs, require, define;
                 each(this.events[name], function (cb) {
                     cb(evt);
                 });
+                if (name === 'error') {
+                    //Now that the error handler was triggered, remove
+                    //the listeners, since this broken Module instance
+                    //can stay around for a while in the registry/waitAry.
+                    delete this.events[name];
+                }
             }
         };
 
