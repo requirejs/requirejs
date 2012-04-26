@@ -755,17 +755,8 @@ var requirejs, require, define;
                 } else {
                     //Regular dependency.
                     if (!urlFetched[url] && !this.inited) {
-                        req.load(context, id, url);
-
-                        //Mark the URL as fetched, but only if it is
-                        //not an empty: URL, used by the optimizer.
-                        //In that case we need to be sure to call
-                        //load() for each module that is mapped to
-                        //empty: so that dependencies are satisfied
-                        //correctly.
-                        if (url.indexOf('empty:') !== 0) {
-                            urlFetched[url] = true;
-                        }
+                        urlFetched[url] = true;
+                        context.load(context, id, url);
                     }
                 }
             },
@@ -795,12 +786,12 @@ var requirejs, require, define;
                             if (isFunction(factory)) {
                                 if (config.catchError.define) {
                                     try {
-                                        exports = req.execCb(id, factory, depExports, exports);
+                                        exports = context.execCb(id, factory, depExports, exports);
                                     } catch (e) {
                                         err = e;
                                     }
                                 } else {
-                                    exports = req.execCb(id, factory, depExports, exports);
+                                    exports = context.execCb(id, factory, depExports, exports);
                                 }
 
                                 if (this.map.isDefine) {
@@ -1295,6 +1286,23 @@ var requirejs, require, define;
                 return config.urlArgs ? url +
                                         ((url.indexOf('?') === -1 ? '?' : '&') +
                                          config.urlArgs) : url;
+            },
+
+            //Delegates to req.load. Broken out as a separate function to
+            //allow overriding in the optimizer.
+            load: function (context, id, url) {
+                req.load(context, id, url);
+            },
+
+            /**
+             * Executes a module callack function. Broken out as a separate function
+             * solely to allow the build system to sequence the files in the built
+             * layer in the right sequence.
+             *
+             * @private
+             */
+            execCb: function (name, callback, args, exports) {
+                return callback.apply(exports, args);
             }
         });
     }
@@ -1736,17 +1744,6 @@ var requirejs, require, define;
     req.exec = function (text) {
         /*jslint evil: true */
         return eval(text);
-    };
-
-    /**
-     * Executes a module callack function. Broken out as a separate function
-     * solely to allow the build system to sequence the files in the built
-     * layer in the right sequence.
-     *
-     * @private
-     */
-    req.execCb = function (name, callback, args, exports) {
-        return callback.apply(exports, args);
     };
 
     //Set up default context. If require was a configuration object, use that as base config.
