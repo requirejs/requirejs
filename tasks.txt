@@ -50,9 +50,12 @@ DOC updates:
 - catchError.define removed, now just pass localized error handler.
 - Update api.html#errors to mention new local errors, requireType, requireModules.
 - plugins: load.error(). Once called, there is no resetting from it, no undef.
+- module.config()
+
+Almond updates:
+- Support module.config.
 
 Tests to write:
-- error, plugins load error
 - IE error: introduce a "throw on undefined module" error?
 
 Next release

@@ -54,6 +54,7 @@ doh.registerUrl("i18ncommonlocale", "../i18n/common.html?locale=en-us-surfer");
 
 
 doh.registerUrl("paths", "../paths/paths.html");
+doh.registerUrl("moduleConfig", "../moduleConfig/moduleConfig.html");
 
 doh.registerUrl("layers", "../layers/layers.html", 10000);
 
