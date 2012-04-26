@@ -42,6 +42,8 @@ with scripts.
 - !removing priority config
 - !Remove resourcesReady and jQuery callback holding
 
+- modify plugins to use module.config() for some things.
+
 DOC updates:
 - Talk about paths and baseUrl first,
 - remove require() references, focus on doing data-main and define() instead.
