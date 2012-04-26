@@ -160,7 +160,7 @@ var requirejs, require, define;
             //load. Important for consistent cycle resolution
             //behavior.
             waitAry = [],
-            inCheckLoaded, inCycle, Module, context, handlers,
+            inCheckLoaded, Module, context, handlers,
             checkLoadedTimeoutId;
 
         /**
@@ -458,7 +458,7 @@ var requirejs, require, define;
                     return;
                 }
 
-                if (!depMod.inited) {
+                if (!depMod.inited || !depMod.enabled) {
                     //Dependency is not inited, so this cannot
                     //be used to determine a cycle.
                     foundModule = null;
@@ -496,7 +496,7 @@ var requirejs, require, define;
                 }
 
                 if (depMod) {
-                    if (!depMod.inited) {
+                    if (!depMod.inited || !depMod.enabled) {
                         //Dependency is not inited,
                         //so this module cannot be
                         //given a forced value yet.
@@ -535,7 +535,7 @@ var requirejs, require, define;
                 map, modId, err;
 
             //Do not bother if this call was a result of a cycle break.
-            if (inCycle || inCheckLoaded) {
+            if (inCheckLoaded) {
                 return;
             }
 
@@ -857,7 +857,6 @@ var requirejs, require, define;
                             this.emit('defined', this.exports);
                             this.defineEmitComplete = true;
                         }
-                        checkLoaded();
                     }
                 }
             },
@@ -1125,6 +1124,8 @@ var requirejs, require, define;
                     enabled: true
                 });
 
+                checkLoaded();
+
                 return context.require;
             },
 
@@ -1212,6 +1213,8 @@ var requirejs, require, define;
                     //the call for it.
                     callGetModule([moduleName, [], null]);
                 }
+
+                checkLoaded();
             },
 
             /**
