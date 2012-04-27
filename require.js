@@ -204,7 +204,9 @@ var requirejs, require, define;
          * @returns {String} normalized name
          */
         function normalize(name, baseName) {
-            var pkgName, pkgConfig;
+            var baseParts = baseName && baseName.split("/"),
+                map = config.map,
+                pkgName, pkgConfig, mapValue, nameParts, i;
 
             //Adjust any relative paths.
             if (name && name.charAt(0) === ".") {
@@ -215,18 +217,17 @@ var requirejs, require, define;
                     if (config.pkgs[baseName]) {
                         //If the baseName is a package name, then just treat it as one
                         //name to concat the name with.
-                        baseName = [baseName];
+                        baseParts = [baseName];
                     } else {
                         //Convert baseName to array, and lop off the last part,
                         //so that . matches that "directory" and not name of the baseName's
                         //module. For instance, baseName of "one/two/three", maps to
                         //"one/two/three.js", but we want the directory, "one/two" for
                         //this normalization.
-                        baseName = baseName.split("/");
-                        baseName = baseName.slice(0, baseName.length - 1);
+                        baseParts = baseParts.slice(0, baseParts.length - 1);
                     }
 
-                    name = baseName.concat(name.split("/"));
+                    name = baseParts.concat(name.split("/"));
                     trimDots(name);
 
                     //Some use of packages may use a . path to reference the
@@ -242,6 +243,30 @@ var requirejs, require, define;
                     name = name.substring(2);
                 }
             }
+
+            //Apply map config if available.
+            if (baseParts && map) {
+                nameParts = name.split('/');
+
+                //Find the longest baseName segment match in the config.
+                //So, do joins on the biggest to smallest lengths of baseParts.
+                for (i = baseParts.length; i > 0; i -= 1) {
+                    mapValue = map[baseParts.slice(0, i).join('/')];
+
+                    //baseName segment has  config, find if it has one for
+                    //this name.
+                    if (mapValue) {
+                        mapValue = mapValue[nameParts[0]];
+                        if (mapValue) {
+                            //Match, update name to the new value.
+                            nameParts[0] = mapValue;
+                            name = nameParts.join('/');
+                            break;
+                        }
+                    }
+                }
+            }
+
             return name;
         }
 
@@ -1089,8 +1114,6 @@ var requirejs, require, define;
              * @param {Object} cfg config object to integrate.
              */
             configure: function (cfg) {
-                var paths, packages, pkgs, legacy;
-
                 //Make sure the baseUrl ends in a slash.
                 if (cfg.baseUrl) {
                     if (cfg.baseUrl.charAt(cfg.baseUrl.length - 1) !== "/") {
@@ -1100,10 +1123,10 @@ var requirejs, require, define;
 
                 //Save off the paths and packages since they require special processing,
                 //they are additive.
-                paths = config.paths;
-                packages = config.packages;
-                pkgs = config.pkgs;
-                legacy = config.legacy;
+                var paths = config.paths,
+                    pkgs = config.pkgs,
+                    legacy = config.legacy,
+                    map = config.map || {};
 
                 //Mix in the config values, favoring the new values over
                 //existing ones in context.config.
@@ -1112,6 +1135,12 @@ var requirejs, require, define;
                 //Merge paths.
                 mixin(paths, cfg.paths, true);
                 config.paths = paths;
+
+                //Merge map
+                if (cfg.map) {
+                    mixin(map, cfg.map, true);
+                    config.map = map;
+                }
 
                 //Merge legacy
                 if (cfg.legacy) {

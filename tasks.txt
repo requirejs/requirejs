@@ -48,7 +48,7 @@ DOC updates:
 - Talk about paths and baseUrl first,
 - remove require() references, focus on doing data-main and define() instead.
 - local require.isBrowser (any other props?) removed. requirejs.isBrowser still available.
-- domReady.withResources removed, no more loader done messages?
+- domReady.withResources removed, no more loader done messages? jquery hooks removed too.
 - catchError.define removed, now just pass localized error handler.
 - Update api.html#errors to mention new local errors, requireType, requireModules.
 - plugins: load.error(). Once called, there is no resetting from it, no undef.
@@ -61,6 +61,7 @@ Almond updates:
 
 Tests to write:
 - IE error: introduce a "throw on undefined module" error?
+- mapConfig test for packages.
 
 Next release
 --------------

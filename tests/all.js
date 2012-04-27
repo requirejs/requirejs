@@ -59,6 +59,9 @@ doh.registerUrl("legacyBasicBuilt", "../legacy/built/basic-built.html");
 doh.registerUrl("paths", "../paths/paths.html");
 doh.registerUrl("moduleConfig", "../moduleConfig/moduleConfig.html");
 
+doh.registerUrl("mapConfig", "../mapConfig/mapConfig.html");
+doh.registerUrl("mapConfigBuilt", "../mapConfig/built/mapConfigBuilt.html");
+
 doh.registerUrl("layers", "../layers/layers.html", 10000);
 
 doh.registerUrl("afterload", "../afterload.html", 10000);
