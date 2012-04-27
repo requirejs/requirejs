@@ -1504,9 +1504,7 @@ var requirejs, require, define;
     req.isBrowser = isBrowser;
     s = req.s = {
         contexts: contexts,
-        newContext: newContext,
-        //Stores a list of URLs that should not get async script tag treatment.
-        skipAsync: {}
+        newContext: newContext
     };
 
     req.isAsync = req.isBrowser = isBrowser;
@@ -1625,13 +1623,8 @@ var requirejs, require, define;
      * @param {moduleName} the name of the module that is associated with the script.
      * @param {Function} [callback] optional callback, defaults to require.onScriptLoad
      * @param {String} [type] optional type, defaults to text/javascript
-     * @param {Function} [fetchOnlyFunction] optional function to indicate the script node
-     * should be set up to fetch the script but do not attach it to the DOM
-     * so that it can later be attached to execute it. This is a way for the
-     * order plugin to support ordered loading in IE. Once the script is fetched,
-     * but not executed, the fetchOnlyFunction will be called.
      */
-    req.attach = function (url, context, moduleName, callback, type, fetchOnlyFunction) {
+    req.attach = function (url, context, moduleName, callback, type) {
         var node;
         if (isBrowser) {
             //In the browser so use a script tag
@@ -1642,17 +1635,6 @@ var requirejs, require, define;
             node.type = type || (context && context.config.scriptType) ||
                         "text/javascript";
             node.charset = "utf-8";
-            //Use async so Gecko does not block on executing the script if something
-            //like a long-polling comet tag is being run first. Gecko likes
-            //to evaluate scripts in DOM order, even for dynamic scripts.
-            //It will fetch them async, but only evaluate the contents in DOM
-            //order, so a long-polling script tag can delay execution of scripts
-            //after it. But telling Gecko we expect async gets us the behavior
-            //we want -- execute it whenever it is finished downloading. Only
-            //Helps Firefox 3.6+
-            //Allow some URLs to not be fetched async. Mostly helps the order!
-            //plugin
-            node.async = !s.skipAsync[url];
 
             if (context) {
                 node.setAttribute("data-requirecontext", context.contextName);
@@ -1684,33 +1666,14 @@ var requirejs, require, define;
                 useInteractive = true;
 
 
-                if (fetchOnlyFunction) {
-                    //Need to use old school onreadystate here since
-                    //when the event fires and the node is not attached
-                    //to the DOM, the evt.srcElement is null, so use
-                    //a closure to remember the node.
-                    node.onreadystatechange = function () {
-                        //Script loaded but not executed.
-                        //Clear loaded handler, set the real one that
-                        //waits for script execution.
-                        if (node.readyState === 'loaded') {
-                            node.onreadystatechange = null;
-                            node.attachEvent("onreadystatechange", callback);
-                            fetchOnlyFunction(node);
-                        }
-                    };
-                } else {
-                    node.attachEvent("onreadystatechange", callback);
-                }
+                node.attachEvent("onreadystatechange", callback);
             } else {
                 node.addEventListener("load", callback, false);
             }
             node.src = url;
 
             //Fetch only means waiting to attach to DOM after loaded.
-            if (!fetchOnlyFunction) {
-                req.addScriptToDom(node);
-            }
+            req.addScriptToDom(node);
 
             return node;
         } else if (isWebWorker) {

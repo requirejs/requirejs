@@ -54,6 +54,7 @@ DOC updates:
 - plugins: load.error(). Once called, there is no resetting from it, no undef.
 - module.config()
 - legacy: use, always need to use mainConfigFile.
+- removed order
 
 Almond updates:
 - Support module.config.
