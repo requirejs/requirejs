@@ -788,7 +788,7 @@ var requirejs, require, define;
                 if (map.prefix) {
                     this.callPlugin();
                 } else if (this.legacy) {
-                    makeRequire(this)(this.legacy.deps || [], bind(this, function () {
+                    makeRequire(this, true)(this.legacy.deps || [], bind(this, function () {
                         this.load();
                     }));
                 } else {
@@ -1057,18 +1057,6 @@ var requirejs, require, define;
             getModule(makeModuleMap(args[0], null, true)).init(args[1], args[2]);
         }
 
-        function makeLegacyExports(exports) {
-            if (typeof exports === 'string') {
-                return function () {
-                    return global[exports];
-                };
-            } else {
-                return function () {
-                    return exports.apply(global, arguments);
-                };
-            }
-        }
-
         return (context = {
             config: config,
             contextName: contextName,
@@ -1119,8 +1107,8 @@ var requirejs, require, define;
                                 deps: value
                             };
                         }
-                        if (value.exports) {
-                            value.exports = makeLegacyExports(value.exports);
+                        if (value.exports && !value.exports.__buildReady) {
+                            value.exports = context.makeLegacyExports(value.exports);
                         }
                         legacy[id] = value;
                     });
@@ -1160,6 +1148,19 @@ var requirejs, require, define;
                 //config object before require.js is loaded.
                 if (cfg.deps || cfg.callback) {
                     context.require(cfg.deps || [], cfg.callback);
+                }
+            },
+
+            makeLegacyExports: function (exports) {
+
+                if (typeof exports === 'string') {
+                    return function () {
+                        return global[exports];
+                    };
+                } else {
+                    return function () {
+                        return exports.apply(global, arguments);
+                    };
                 }
             },
 

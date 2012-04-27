@@ -53,6 +53,7 @@ DOC updates:
 - Update api.html#errors to mention new local errors, requireType, requireModules.
 - plugins: load.error(). Once called, there is no resetting from it, no undef.
 - module.config()
+- legacy: use, always need to use mainConfigFile.
 
 Almond updates:
 - Support module.config.
