@@ -127,10 +127,9 @@ var requirejs, require, define;
         if (isFunction(requirejs)) {
             //Do not overwrite and existing requirejs instance.
             return;
-        } else {
-            cfg = requirejs;
-            requirejs = undefined;
         }
+        cfg = requirejs;
+        requirejs = undefined;
     }
 
     //Allow for a require config object
@@ -382,6 +381,22 @@ var requirejs, require, define;
                 if (!notified) {
                     req.onError(err);
                 }
+            }
+        }
+
+        /**
+         * Internal method to transfer globalQueue items to this context's
+         * defQueue.
+         */
+        function takeGlobalQueue() {
+            //Push all the globalDefQueue items into the context's defQueue
+            if (globalDefQueue.length) {
+                //Array splice in the values since the context code has a
+                //local var ref to defQueue, so cannot just reassign the one
+                //on context.
+                apsp.apply(context.defQueue,
+                           [context.defQueue.length - 1, 0].concat(globalDefQueue));
+                globalDefQueue = [];
             }
         }
 
@@ -1206,7 +1221,7 @@ var requirejs, require, define;
                 }
 
                 //Any defined modules in the global queue, intake them now.
-                context.takeGlobalQueue();
+                takeGlobalQueue();
 
                 //Make sure any remaining defQueue items get properly processed.
                 while (context.defQueue.length) {
@@ -1266,22 +1281,6 @@ var requirejs, require, define;
             },
 
             /**
-             * Internal method to transfer globalQueue items to this context's
-             * defQueue.
-             */
-            takeGlobalQueue: function () {
-                //Push all the globalDefQueue items into the context's defQueue
-                if (globalDefQueue.length) {
-                    //Array splice in the values since the context code has a
-                    //local var ref to defQueue, so cannot just reassign the one
-                    //on context.
-                    apsp.apply(context.defQueue,
-                               [context.defQueue.length - 1, 0].concat(globalDefQueue));
-                    globalDefQueue = [];
-                }
-            },
-
-            /**
              * Internal method used by environment adapters to complete a load event.
              * A load event could be a script load or just a load pass from a synchronous
              * load call.
@@ -1291,7 +1290,7 @@ var requirejs, require, define;
                 var legacy = config.legacy[moduleName] || {},
                 found, args;
 
-                context.takeGlobalQueue();
+                takeGlobalQueue();
 
                 while (context.defQueue.length) {
                     args = context.defQueue.shift();
@@ -1507,7 +1506,6 @@ var requirejs, require, define;
         newContext: newContext
     };
 
-    req.isAsync = req.isBrowser = isBrowser;
     if (isBrowser) {
         head = s.head = document.getElementsByTagName("head")[0];
         //If BASE tag is in play, using appendChild is a problem for IE6.
@@ -1797,8 +1795,6 @@ var requirejs, require, define;
         //occurs. If no context, use the global queue, and get it processed
         //in the onscript load callback.
         (context ? context.defQueue : globalDefQueue).push([name, deps, callback]);
-
-        return undefined;
     };
 
     define.amd = {
