@@ -55,9 +55,11 @@ DOC updates:
 - module.config()
 - legacy: use, always need to use mainConfigFile.
 - removed order
+- map config with *
 
 Almond updates:
 - Support module.config.
+- Support map config with *
 
 Tests to write:
 - IE error: introduce a "throw on undefined module" error?

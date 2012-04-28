@@ -206,7 +206,9 @@ var requirejs, require, define;
         function normalize(name, baseName) {
             var baseParts = baseName && baseName.split("/"),
                 map = config.map,
-                pkgName, pkgConfig, mapValue, nameParts, i;
+                starMap = map && map['*'],
+                pkgName, pkgConfig, mapValue, nameParts, i, j, nameSegment,
+                foundMap;
 
             //Adjust any relative paths.
             if (name && name.charAt(0) === ".") {
@@ -245,24 +247,39 @@ var requirejs, require, define;
             }
 
             //Apply map config if available.
-            if (baseParts && map) {
+            if ((baseParts || starMap) && map) {
                 nameParts = name.split('/');
 
-                //Find the longest baseName segment match in the config.
-                //So, do joins on the biggest to smallest lengths of baseParts.
-                for (i = baseParts.length; i > 0; i -= 1) {
-                    mapValue = map[baseParts.slice(0, i).join('/')];
+                for (i = nameParts.length; i > 0; i -= 1) {
+                    nameSegment = nameParts.slice(0, i).join("/");
 
-                    //baseName segment has  config, find if it has one for
-                    //this name.
-                    if (mapValue) {
-                        mapValue = mapValue[nameParts[0]];
-                        if (mapValue) {
-                            //Match, update name to the new value.
-                            nameParts[0] = mapValue;
-                            name = nameParts.join('/');
-                            break;
+                    if (baseParts) {
+                        //Find the longest baseName segment match in the config.
+                        //So, do joins on the biggest to smallest lengths of baseParts.
+                        for (j = baseParts.length; j > 0; j -= 1) {
+                            mapValue = map[baseParts.slice(0, j).join('/')];
+
+                            //baseName segment has  config, find if it has one for
+                            //this name.
+                            if (mapValue) {
+                                mapValue = mapValue[nameSegment];
+                                if (mapValue) {
+                                    //Match, update name to the new value.
+                                    foundMap = mapValue;
+                                    break;
+                                }
+                            }
                         }
+                    }
+
+                    if (!foundMap && starMap && starMap[nameSegment]) {
+                        foundMap = starMap[nameSegment];
+                    }
+
+                    if (foundMap) {
+                        nameParts.splice(0, i, foundMap);
+                        name = nameParts.join('/');
+                        break;
                     }
                 }
             }

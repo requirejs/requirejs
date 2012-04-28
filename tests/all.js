@@ -61,6 +61,8 @@ doh.registerUrl("moduleConfig", "../moduleConfig/moduleConfig.html");
 
 doh.registerUrl("mapConfig", "../mapConfig/mapConfig.html");
 doh.registerUrl("mapConfigBuilt", "../mapConfig/built/mapConfigBuilt.html");
+doh.registerUrl("mapConfigStar", "../mapConfig/mapConfigStar.html");
+doh.registerUrl("mapConfigStarBuilt", "../mapConfig/built/mapConfigStarBuilt.html");
 
 doh.registerUrl("layers", "../layers/layers.html", 10000);
 
