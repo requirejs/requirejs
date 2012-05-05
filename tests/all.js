@@ -53,8 +53,8 @@ doh.registerUrl("i18ncommon", "../i18n/common.html");
 doh.registerUrl("i18ncommonlocale", "../i18n/common.html?locale=en-us-surfer");
 
 
-doh.registerUrl("legacyBasic", "../legacy/basic.html");
-doh.registerUrl("legacyBasicBuilt", "../legacy/built/basic-built.html");
+doh.registerUrl("shimBasic", "../shim/basic.html");
+doh.registerUrl("shimBasicBuilt", "../shim/built/basic-built.html");
 
 doh.registerUrl("paths", "../paths/paths.html");
 doh.registerUrl("moduleConfig", "../moduleConfig/moduleConfig.html");

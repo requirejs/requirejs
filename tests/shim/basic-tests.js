@@ -1,6 +1,6 @@
 require({
         baseUrl: './',
-        legacy: {
+        shim: {
             a: {
                 exports: function () {
                     return this.A.name;
@@ -16,9 +16,9 @@ require({
     ['a', 'c'],
     function(a, c) {
         doh.register(
-            'legacyBasic',
+            'shimBasic',
             [
-                function legacyBasic(t){
+                function shimBasic(t){
                     t.is('a', a);
                     t.is('a', c.b.aValue);
                     t.is('b', c.b.name);
