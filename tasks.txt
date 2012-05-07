@@ -46,6 +46,7 @@ with scripts.
 
 DOC updates:
 - Talk about paths and baseUrl first,
+- Teach how to fail, how to debug first.
 - remove require() references, focus on doing data-main and define() instead.
 - local require.isBrowser (any other props?) removed. requirejs.isBrowser still available.
 - domReady.withResources removed, no more loader done messages? jquery hooks removed too.
