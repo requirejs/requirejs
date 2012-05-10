@@ -41,7 +41,7 @@ var requirejs, require, define;
             exports: true
         },
         req, cfg = {}, currentlyAddingScript, s, head, baseElement, scripts, script,
-        src, subPath, mainScript, dataMain, globalI, ctx, jQueryCheck, checkLoadedTimeoutId;
+        src, subPath, mainScript, dataMain, dataUrlArgs, globalI, ctx, jQueryCheck, checkLoadedTimeoutId;
 
     function isFunction(it) {
         return ostring.call(it) === "[object Function]";
@@ -1951,6 +1951,11 @@ var requirejs, require, define;
             //using the script's parent.
             if (!head) {
                 head = script.parentNode;
+            }
+
+            // load urlArgs from data-urlArgs if it is there
+            if ((dataUrlArgs = script.getAttribute('data-urlArgs'))) {
+                cfg.urlArgs = dataUrlArgs;
             }
 
             //Look for a data-main attribute to set main script for the page
