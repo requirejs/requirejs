@@ -38,6 +38,8 @@ doh.registerUrl("urlfetch", "../urlfetch/urlfetch.html");
 doh.registerUrl("uniques", "../uniques/uniques.html");
 doh.registerUrl("multiversion", "../multiversion.html", 10000);
 
+doh.registerUrl("onResourceLoadNestedRequire", "../onResourceLoad/nestedRequire.html", 5000);
+
 doh.registerUrl("jquery", "../jquery/jquery.html");
 
 //Next three tests fail in PS3
