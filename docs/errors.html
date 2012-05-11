@@ -87,6 +87,16 @@ breakpoint in the file that contains the error.</p>
 
 <p>Be sure that <strong>require('name')</strong> only occurs inside a define() definition function or a require() callback function, never in the global space by its own.</p>
 
+<p><strong>In the RequreJS 1.0.x releases</strong>, there <a href="https://github.com/jrburke/requirejs/issues/265">is a bug</a> with having a space between the require and parens in WebKit browsers when using the simplified CommonJS wrapping (no dependency array):</p>
+
+<pre><code>define(function (require) {
+    //Notice the space between require and the arguments.
+    var namedModule = require ('name');
+});
+</code></pre>
+
+<p>The workaround is to just remove the space. This is fixed in the 2.0 code, and may be backported to the 1.0.x series if a 1.0.9 release is done.</p>
+
 </div>
 
 
