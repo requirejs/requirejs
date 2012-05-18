@@ -77,7 +77,7 @@ doh.registerUrl("afterload", "../afterload.html", 10000);
 doh.registerUrl("universal", "../universal/universal.html");
 doh.registerUrl("universalBuilt", "../universal/universal-built.html");
 
-
+doh.registerUrl("delayedDefine", "../delayedDefine/delayedDefine.html");
 doh.registerUrl("nestedDefine", "../nestedDefine/nestedDefine.html");
 doh.registerUrl("nestedDefine2", "../nestedDefine/nestedDefine2.html");
 

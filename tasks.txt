@@ -57,6 +57,9 @@ DOC updates:
 - shim: use, always need to use mainConfigFile.
 - removed order
 - map config with *
+- text plugin: make sure to use module.config() and update doc on how to set useXhr
+- i18n plugin: make sure to use module.config() and update doc on how to set locale
+  look at other locale use in the loader.
 
 Almond updates:
 - Support module.config.
