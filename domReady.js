@@ -83,8 +83,13 @@ define(function () {
         }
 
         //Check if document already complete, and if so, just trigger page load
-        //listeners.
-        if (document.readyState === "complete") {
+        //listeners. Latest webkit browsers also use "interactive", and
+        //will fire the onDOMContentLoaded before "interactive" but not after
+        //entering "interactive" or "complete". More details:
+        //http://dev.w3.org/html5/spec/the-end.html#the-end
+        //http://stackoverflow.com/questions/3665561/document-readystate-of-interactive-vs-ondomcontentloaded
+        if (document.readyState === "complete" ||
+            document.readyState === "interactive") {
             pageLoaded();
         }
     }
