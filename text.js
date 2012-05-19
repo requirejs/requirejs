@@ -219,6 +219,12 @@ define(['module'], function (module) {
         text.get = function (url, callback, errback) {
             var xhr = text.createXhr();
             xhr.open('GET', url, true);
+
+            //Allow overrides specified in config
+            if (masterConfig.onXhr) {
+                masterConfig.onXhr(xhr, url);
+            }
+
             xhr.onreadystatechange = function (evt) {
                 var status, err;
                 //Do not explicitly handle errors, those should be
