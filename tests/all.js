@@ -92,6 +92,7 @@ doh.registerUrl("requirePluginLoad", "../requirePluginLoad/requirePluginLoad.htm
 doh.registerUrl("text", "../text/text.html");
 doh.registerUrl("textOnly", "../text/textOnly.html");
 doh.registerUrl("textBuilt", "../text/textBuilt.html");
+doh.registerUrl("textOnError", "../text/textOnError.html");
 doh.registerUrl("jsonp", "../jsonp/jsonp.html");
 doh.registerUrl("domReady", "../domReady/domReady.html");
 
