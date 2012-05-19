@@ -58,8 +58,8 @@ DOC updates:
 - removed order
 - map config with *
 - text plugin: make sure to use module.config() and update doc on how to set useXhr
-- i18n plugin: make sure to use module.config() and update doc on how to set locale
-  look at other locale use in the loader.
+- i18n plugin: make sure to use module.config() and update doc on how to set
+  locale, config listing on api.html
 
 Almond updates:
 - Support module.config.
