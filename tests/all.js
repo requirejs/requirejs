@@ -87,6 +87,8 @@ doh.registerUrl("pluginsNameOnly", "../plugins/nameOnly.html");
 doh.registerUrl("pluginsFromText", "../plugins/fromText/fromText.html");
 doh.registerUrl("pluginsTextDepend", "../plugins/textDepend/textDepend.html");
 
+doh.registerUrl("requirePluginLoad", "../requirePluginLoad/requirePluginLoad.html");
+
 doh.registerUrl("text", "../text/text.html");
 doh.registerUrl("textOnly", "../text/textOnly.html");
 doh.registerUrl("textBuilt", "../text/textBuilt.html");
