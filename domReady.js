@@ -16,7 +16,7 @@ define(function () {
         isPageLoaded = !isBrowser,
         doc = isBrowser ? document : null,
         readyCalls = [],
-        scrollIntervalId;
+        isTop, testDiv, scrollIntervalId;
 
     function runCallbacks(callbacks) {
         var i;
@@ -60,23 +60,19 @@ define(function () {
         } else if (window.attachEvent) {
             window.attachEvent("onload", pageLoaded);
 
-            //DOMContentLoaded approximation, as found by Diego Perini:
-            //http://javascript.nwbox.com/IEContentLoaded/
-            if (self === self.top) {
+            testDiv = document.createElement('div');
+            try {
+                isTop = window.frameElement === null;
+            } catch(e) {}
+
+            //DOMContentLoaded approximation that uses a doScroll, as found by
+            //Diego Perini: http://javascript.nwbox.com/IEContentLoaded/,
+            //but modified by other contributors, including jdalton
+            if (testDiv.doScroll && isTop && window.external) {
                 scrollIntervalId = setInterval(function () {
                     try {
-                        //From this ticket:
-                        //http://bugs.dojotoolkit.org/ticket/11106,
-                        //In IE HTML Application (HTA), such as in a selenium test,
-                        //javascript in the iframe can't see anything outside
-                        //of it, so self===self.top is true, but the iframe is
-                        //not the top window and doScroll will be available
-                        //before document.body is set. Test document.body
-                        //before trying the doScroll trick.
-                        if (document.body) {
-                            document.documentElement.doScroll("left");
-                            pageLoaded();
-                        }
+                        testDiv.doScroll();
+                        pageLoaded();
                     } catch (e) {}
                 }, 30);
             }
