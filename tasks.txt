@@ -60,6 +60,8 @@ DOC updates:
 - text plugin: make sure to use module.config() and update doc on how to set useXhr
 - i18n plugin: make sure to use module.config() and update doc on how to set
   locale, config listing on api.html
+- onToUrl: https://github.com/jrburke/requirejs/issues/222. Note that it could
+  be called multiple times for the same ID.
 
 Almond updates:
 - Support module.config.

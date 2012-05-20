@@ -1446,9 +1446,14 @@ var requirejs, require, define;
                     url = (url.charAt(0) === '/' || url.match(/^[\w\+\.\-]+:/) ? "" : config.baseUrl) + url;
                 }
 
-                return config.urlArgs ? url +
+                url = config.urlArgs ? url +
                                         ((url.indexOf('?') === -1 ? '?' : '&') +
                                          config.urlArgs) : url;
+                if (config.onToUrl && moduleName.indexOf('_@r') !== 0) {
+                    url = config.onToUrl(url);
+                }
+
+                return url;
             },
 
             //Delegates to req.load. Broken out as a separate function to
