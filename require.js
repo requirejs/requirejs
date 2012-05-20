@@ -642,6 +642,8 @@ var requirejs, require, define;
                 map = mod.map;
                 modId = map.id;
 
+                var pathConfig;
+
                 //Skip things that are not enabled or in error state.
                 if (!mod.enabled) {
                     return;
@@ -650,9 +652,19 @@ var requirejs, require, define;
                 //If the module should be executed, and it has not
                 //been inited and time is up, remember it.
                 if (!mod.inited && expired) {
-                    noLoads.push(modId);
                     if (isBrowser) {
                         removeScript(modId);
+                    }
+                    pathConfig = config.paths[modId];
+                    if (pathConfig && isArray(pathConfig) && pathConfig.length > 1) {
+                        //Pop off the first array value, since it failed, and
+                        //retry
+                        pathConfig.shift();
+                        stillLoading = true;
+                        context.undef(modId);
+                        context.require([modId]);
+                    } else {
+                        noLoads.push(modId);
                     }
                 } else if (!mod.inited && mod.fetched && map.isDefine) {
                     stillLoading = true;
@@ -1399,7 +1411,8 @@ var requirejs, require, define;
              * moduleName may actually be just an URL.
              */
             nameToUrl: function (moduleName, ext, relModuleMap) {
-                var paths, pkgs, pkg, pkgPath, syms, i, parentModule, url;
+                var paths, pkgs, pkg, pkgPath, syms, i, parentModule, url,
+                    parentPath;
 
                 //Normalize module name if have a base relative module name to work from.
                 moduleName = normalize(moduleName, relModuleMap && relModuleMap.id);
@@ -1426,7 +1439,13 @@ var requirejs, require, define;
                         parentModule = syms.slice(0, i).join("/");
                         pkg = pkgs[parentModule];
                         if (paths[parentModule]) {
-                            syms.splice(0, i, paths[parentModule]);
+                            parentPath = paths[parentModule];
+                            //If an array, it means there are a few choices,
+                            //Choose the one that is desired
+                            if (isArray(parentPath)) {
+                                parentPath = parentPath[0];
+                            }
+                            syms.splice(0, i, parentPath);
                             break;
                         } else if (pkg) {
                             //If module name is just the package name, then looking
