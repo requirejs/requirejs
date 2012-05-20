@@ -628,7 +628,7 @@ var requirejs, require, define;
                 noLoads = [],
                 stillLoading = false,
                 needCycleCheck = true,
-                map, modId, err;
+                map, modId, err, usingPathFallback;
 
             //Do not bother if this call was a result of a cycle break.
             if (inCheckLoaded) {
@@ -660,6 +660,7 @@ var requirejs, require, define;
                         //Pop off the first array value, since it failed, and
                         //retry
                         pathConfig.shift();
+                        usingPathFallback = true;
                         stillLoading = true;
                         context.undef(modId);
                         context.require([modId]);
@@ -720,7 +721,7 @@ var requirejs, require, define;
             //If still waiting on loads, and the waiting load is something
             //other than a plugin resource, or there are still outstanding
             //scripts, then just try back later.
-            if (!expired && stillLoading) {
+            if ((!expired || usingPathFallback) && stillLoading) {
                 //Something is still waiting to load. Wait for it, but only
                 //if a timeout is not already in effect.
                 if ((isBrowser || isWebWorker) && !checkLoadedTimeoutId) {

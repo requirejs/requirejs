@@ -6,7 +6,8 @@
     <script type="text/javascript" src="../doh/runner.js"></script>
     <script type="text/javascript" src="../doh/_browserRunner.js"></script>
     <script type="text/javascript">
-        var master = new doh.Deferred();
+        var master = new doh.Deferred(),
+            threwError = false;
 
         requirejs.onError = function (err) {
             threwError = true;
