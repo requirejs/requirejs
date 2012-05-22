@@ -1125,6 +1125,43 @@ var requirejs, require, define;
             getModule(makeModuleMap(args[0], null, true)).init(args[1], args[2]);
         }
 
+        function removeListener(node, func, name, ieName) {
+            //Favor detachEvent because of IE9
+            //issue, see attachEvent/addEventListener comment elsewhere
+            //in this file.
+            if (node.detachEvent && !isOpera) {
+                //Probably IE. If not it will throw an error, which will be
+                //useful to know.
+                if (ieName) {
+                    node.detachEvent(ieName, func);
+                }
+            } else {
+                node.removeEventListener(name, func, false);
+            }
+        }
+
+        /**
+         * Given an event from a script node, get the requirejs info from it,
+         * and then removes the event listeners on the node.
+         * @param {Event} evt
+         * @returns {Object}
+         */
+        function getScriptData(evt) {
+            //Using currentTarget instead of target for Firefox 2.0's sake. Not
+            //all old browsers will be supported, but this one was easy enough
+            //to support and still makes sense.
+            var node = evt.currentTarget || evt.srcElement;
+
+            //Remove the listeners once here.
+            removeListener(node, context.onScriptLoad, 'load', 'onreadystatechange');
+            removeListener(node, context.onScriptError, 'error');
+
+            return {
+                node: node,
+                id: node && node.getAttribute('data-requiremodule')
+            };
+        }
+
         return (context = {
             config: config,
             contextName: contextName,
@@ -1491,28 +1528,24 @@ var requirejs, require, define;
                 //Using currentTarget instead of target for Firefox 2.0's sake. Not
                 //all old browsers will be supported, but this one was easy enough
                 //to support and still makes sense.
-                var node = evt.currentTarget || evt.srcElement, moduleName;
-
-                if (evt.type === 'load' || (node && readyRegExp.test(node.readyState))) {
+                if (evt.type === 'load' ||
+                    (readyRegExp.test((evt.currentTarget || evt.srcElement).readyState))) {
                     //Reset interactive script so a script node is not held onto for
                     //to long.
                     interactiveScript = null;
 
                     //Pull out the name of the module and the context.
-                    moduleName = node.getAttribute('data-requiremodule');
-                    context.completeLoad(moduleName);
-
-                    //Clean up script binding. Favor detachEvent because of IE9
-                    //issue, see attachEvent/addEventListener comment elsewhere
-                    //in this file.
-                    if (node.detachEvent && !isOpera) {
-                        //Probably IE. If not it will throw an error, which will be
-                        //useful to know.
-                        node.detachEvent('onreadystatechange', context.onScriptLoad);
-                    } else {
-                        node.removeEventListener('load', context.onScriptLoad, false);
-                    }
+                    var data = getScriptData(evt);
+                    context.completeLoad(data.id);
                 }
+            },
+
+            /**
+             * Callback for script errors.
+             */
+            onScriptError: function (evt) {
+                var data = getScriptData(evt);
+                return onError(makeError('scripterror', 'Script error', evt, [data.id]));
             }
         });
     }
@@ -1677,10 +1710,21 @@ var requirejs, require, define;
                 //readyState at the time of the define call.
                 useInteractive = true;
 
-
                 node.attachEvent('onreadystatechange', context.onScriptLoad);
+                //It would be great to add an error handler here to catch
+                //404s in IE9+. However, onreadystatechange will fire before
+                //the error handler, so that does not help. If addEvenListener
+                //is used, then IE will fire error before load, but we cannot
+                //use that pathway given the connect.microsoft.com issue
+                //mentioned above about not doing the 'script execute,
+                //then fire the script load event listener before execute
+                //next script' that other browsers do.
+                //Best hope: IE10 fixes the issues,
+                //and then destroys all installs of IE 6-9.
+                //node.attachEvent('onerror', context.onScriptError);
             } else {
                 node.addEventListener('load', context.onScriptLoad, false);
+                node.addEventListener('error', context.onScriptError, false);
             }
             node.src = url;
 
