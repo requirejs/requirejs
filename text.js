@@ -215,7 +215,21 @@ define(['module'], function (module) {
         }
     };
 
-    if (text.createXhr()) {
+    if (typeof process !== "undefined" &&
+             process.versions &&
+             !!process.versions.node) {
+        //Using special require.nodeRequire, something added by r.js.
+        fs = require.nodeRequire('fs');
+
+        text.get = function (url, callback) {
+            var file = fs.readFileSync(url, 'utf8');
+            //Remove BOM (Byte Mark Order) from utf8 files if it is there.
+            if (file.indexOf('\uFEFF') === 0) {
+                file = file.substring(1);
+            }
+            callback(file);
+        };
+    } else if (text.createXhr()) {
         text.get = function (url, callback, errback) {
             var xhr = text.createXhr();
             xhr.open('GET', url, true);
@@ -242,20 +256,6 @@ define(['module'], function (module) {
                 }
             };
             xhr.send(null);
-        };
-    } else if (typeof process !== "undefined" &&
-             process.versions &&
-             !!process.versions.node) {
-        //Using special require.nodeRequire, something added by r.js.
-        fs = require.nodeRequire('fs');
-
-        text.get = function (url, callback) {
-            var file = fs.readFileSync(url, 'utf8');
-            //Remove BOM (Byte Mark Order) from utf8 files if it is there.
-            if (file.indexOf('\uFEFF') === 0) {
-                file = file.substring(1);
-            }
-            callback(file);
         };
     } else if (typeof Packages !== 'undefined') {
         //Why Java, why is this so awkward?
