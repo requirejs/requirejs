@@ -13,11 +13,7 @@
         }
 
         requirejs.onError = function (err) {
-
-            if (err.requireType === 'timeout') {
-                var id = err.requireModules[0],
-                    config = {paths: {}};
-
+            if (err.requireModules) {
                 setTimeout(function () {
                     requirejs(['c', 'd'], function (c, d) {
                         doh.is('c', c.name);
@@ -35,7 +31,8 @@
         };
 
         requirejs({
-            waitSeconds: 2
+            waitSeconds: 2,
+            enforceDefine: true
         }, ['a', 'b', 'broken'], function (a, b, broken) {
             doh.is("not-a", a.name);
             done();
