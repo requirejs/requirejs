@@ -10,13 +10,14 @@
             threwError = false;
 
         requirejs.onError = function (err) {
-            doh.is('timeout', err.requireType);
+            //console.log('onError: ' + err.requireModules[0] + ', type: ' + err.requireType);
             doh.is('dep', err.requireModules[0]);
             master.callback(true);
         };
 
         requirejs({
             waitSeconds: 2,
+            enforceDefine: true,
             paths: {
                 'dep': [
                     'fake1',

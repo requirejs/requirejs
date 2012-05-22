@@ -289,6 +289,19 @@ var requirejs, require, define;
             return name;
         }
 
+        function hasPathFallback(id) {
+            var pathConfig = config.paths[id];
+            if (pathConfig && isArray(pathConfig) && pathConfig.length > 1) {
+                removeScript(id);
+                //Pop off the first array value, since it failed, and
+                //retry
+                pathConfig.shift();
+                context.undef(id);
+                context.require([id]);
+                return true;
+            }
+        }
+
         /**
          * Creates a module mapping that includes plugin prefix, module
          * name, and path. If parentModuleMap is provided it will
@@ -501,15 +514,17 @@ var requirejs, require, define;
         };
 
         function removeScript(name) {
-            var scripts = document.getElementsByTagName('script'),
-                i, scriptNode;
-            for (i = 0; i < scripts.length; i += 1) {
-                scriptNode = scripts[i];
-                if (scriptNode.getAttribute('data-requiremodule') === name &&
-                    scriptNode.getAttribute('data-requirecontext') === context.contextName) {
-                    scriptNode.parentNode.removeChild(scriptNode);
-                    context.scriptCount -= 1;
-                    break;
+            if (isBrowser) {
+                var scripts = document.getElementsByTagName('script'),
+                    i, scriptNode;
+                for (i = 0; i < scripts.length; i += 1) {
+                    scriptNode = scripts[i];
+                    if (scriptNode.getAttribute('data-requiremodule') === name &&
+                        scriptNode.getAttribute('data-requirecontext') === context.contextName) {
+                        scriptNode.parentNode.removeChild(scriptNode);
+                        context.scriptCount -= 1;
+                        break;
+                    }
                 }
             }
         }
@@ -644,28 +659,20 @@ var requirejs, require, define;
                 map = mod.map;
                 modId = map.id;
 
-                var pathConfig;
-
                 //Skip things that are not enabled or in error state.
                 if (!mod.enabled) {
                     return;
                 }
 
                 //If the module should be executed, and it has not
-                //been inited and time is up, remember it.
+                //been inited and time is up, remember it. But do not
+                //bother if the module is already in an error state.
                 if (!mod.inited && expired) {
-                    if (isBrowser) {
-                        removeScript(modId);
-                    }
-                    pathConfig = config.paths[modId];
-                    if (pathConfig && isArray(pathConfig) && pathConfig.length > 1) {
-                        //Pop off the first array value, since it failed, and
-                        //retry
-                        pathConfig.shift();
+                    removeScript(modId);
+
+                    if (hasPathFallback(modId)) {
                         usingPathFallback = true;
                         stillLoading = true;
-                        context.undef(modId);
-                        context.require([modId]);
                     } else {
                         noLoads.push(modId);
                     }
@@ -1399,7 +1406,7 @@ var requirejs, require, define;
             completeLoad: function (moduleName) {
                 var shim = config.shim[moduleName] || {},
                 shExports = shim.exports && shim.exports.exports,
-                found, args;
+                found, args, mod;
 
                 takeGlobalQueue();
 
@@ -1422,14 +1429,23 @@ var requirejs, require, define;
                     callGetModule(args);
                 }
 
+                mod = getModule(makeModuleMap(moduleName));
+
                 if (!found &&
                     !defined[moduleName] &&
-                    !getModule(makeModuleMap(moduleName)).inited) {
+                    !mod.inited) {
                     if (config.enforceDefine && (!shExports || !global[shExports])) {
-                        return onError(makeError('nodefine',
-                                             'No define call for ' + moduleName,
-                                             null,
-                                             [moduleName]));
+                        if (hasPathFallback(moduleName)) {
+                            return;
+                        } else {
+                            //Indicate we reached the initialization stage,
+                            //but trigger an error.
+                            mod.error = true;
+                            return onError(makeError('nodefine',
+                                                 'No define call for ' + moduleName,
+                                                 null,
+                                                 [moduleName]));
+                        }
                     } else {
                         //A script that does not call define(), so just simulate
                         //the call for it.
@@ -1565,7 +1581,9 @@ var requirejs, require, define;
              */
             onScriptError: function (evt) {
                 var data = getScriptData(evt);
-                return onError(makeError('scripterror', 'Script error', evt, [data.id]));
+                if (!hasPathFallback(data.id)) {
+                    onError(makeError('scripterror', 'Script error', evt, [data.id]));
+                }
             }
         });
     }
