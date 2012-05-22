@@ -9,16 +9,15 @@
         var doneCount = 0;
         var master = new doh.Deferred();
         function done() {
-            master.callback(true);
+            doneCount += 1;
+            //alert("done");
+            if (doneCount == 2) {
+                //alert("master callback");
+                master.callback(true);
+            }
         }
 
-        requirejs({
-            waitSeconds: 2,
-            enforceDefine: true
-        }, ['dep'], function (dep) {
-            doh.is("real", dep.name);
-            done();
-        }, function (err) {
+        requirejs.onError = function (err) {
             var id = err.requireModules[0],
                 config = {paths: {}};
 
@@ -31,7 +30,28 @@
 
             requirejs.config(config);
 
-            requirejs(['dep'], function () {});
+            requirejs(['dep'], function (dep) {
+
+                doh.is("real", dep.name);
+                done();
+            });
+            return;
+
+            throw err;
+        };
+
+        requirejs({
+            waitSeconds: 2,
+            enforceDefine: true,
+            shim: {
+                'globalFoo': {
+                    exports: 'globalFoo'
+                }
+            }
+        }, ['globalFoo', 'dep'], function (globalFoo, dep) {
+            doh.is("globalFoo", globalFoo.name);
+            doh.is("real", dep.name);
+            done();
         });
 
         doh.register(

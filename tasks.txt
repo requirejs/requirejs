@@ -60,6 +60,14 @@ DOC updates:
 - text plugin: make sure to use module.config() and update doc on how to set useXhr
 - i18n plugin: make sure to use module.config() and update doc on how to set
   locale, config listing on api.html
+- enforceDefine: true,
+    - mention in error handling
+    - create errors.html section for nodefine
+    - ie9 cannot use error event listener because onreadystatechange fires first,
+      and cannot use addEventListener (which has load fire after error) because
+      of IE not firing onload right after script execution.
+    - mention how it works with shim.exports string values.
+- #scripterror document on errors page.
 
 Almond updates:
 - Support module.config.

@@ -1,5 +1,5 @@
 require({
-        baseUrl: './',
+        baseUrl: './'
     },
     ['a'],
     function(a) {

@@ -116,6 +116,7 @@ doh.registerUrl("pathArray", "../pathArray/pathArray.html", 8000);
 doh.registerUrl("pathArrayFail", "../pathArray/pathArrayFail.html", 8000);
 
 doh.registerUrl("undef", "../undef/undef.html", 8000);
+doh.registerUrl("undefEnforceShim", "../undef/undefEnforceShim.html", 8000);
 doh.registerUrl("undefLocal", "../undef/undefLocal.html", 8000);
 doh.registerUrl("errorContinue", "../error/errorContinue.html", 8000);
 doh.registerUrl("errorContinueLocal", "../error/errorContinueLocal.html", 8000);

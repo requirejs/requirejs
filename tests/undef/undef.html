@@ -18,27 +18,26 @@
         }
 
         requirejs.onError = function (err) {
-            if (err.requireType === 'timeout') {
-                var id = err.requireModules[0],
-                    config = {paths: {}};
+            var id = err.requireModules[0],
+                config = {paths: {}};
 
-                requirejs.undef(id);
-                config.paths[id] = 'real';
+            requirejs.undef(id);
+            config.paths[id] = 'real';
 
-                requirejs.config(config);
+            requirejs.config(config);
 
-                requirejs(['dep'], function (dep) {
-                    doh.is("real", dep.name);
-                    done();
-                });
-                return;
-            }
+            requirejs(['dep'], function (dep) {
+                doh.is("real", dep.name);
+                done();
+            });
+            return;
 
             throw err;
         };
 
         requirejs({
-            waitSeconds: 2
+            waitSeconds: 2,
+            enforceDefine: true
         }, ['dep'], function (dep) {
             doh.is("real", dep.name);
             done();

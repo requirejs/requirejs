@@ -13,12 +13,13 @@
         }
 
         requirejs({
-            waitSeconds: 2
+            waitSeconds: 2,
+            enforceDefine: true
         }, ['a', 'b', 'broken'], function (a, b, broken) {
             doh.is("not-a", a.name);
             done();
         }, function (err) {
-            if (err.requireType === 'timeout') {
+            if (err.requireModules) {
                 var id = err.requireModules[0],
                     config = {paths: {}};
 
