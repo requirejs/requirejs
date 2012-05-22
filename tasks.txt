@@ -25,6 +25,8 @@ with scripts.
 
 - consider use: config standard?
 
+- support shim exports: 'jQuery.fn.plugin'?
+
 - remove special jquery detection, only do it for define() calls.
 - check bug list
 - robust handling for anon modules loaded outside loader.
@@ -67,6 +69,7 @@ DOC updates:
       and cannot use addEventListener (which has load fire after error) because
       of IE not firing onload right after script execution.
     - mention how it works with shim.exports string values.
+    - paths array only works well if used with enforceDefine for IE.
 - #scripterror document on errors page.
 
 Almond updates:

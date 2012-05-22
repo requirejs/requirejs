@@ -289,6 +289,22 @@ var requirejs, require, define;
             return name;
         }
 
+        function removeScript(name) {
+            if (isBrowser) {
+                var scripts = document.getElementsByTagName('script'),
+                    i, scriptNode;
+                for (i = 0; i < scripts.length; i += 1) {
+                    scriptNode = scripts[i];
+                    if (scriptNode.getAttribute('data-requiremodule') === name &&
+                        scriptNode.getAttribute('data-requirecontext') === context.contextName) {
+                        scriptNode.parentNode.removeChild(scriptNode);
+                        context.scriptCount -= 1;
+                        break;
+                    }
+                }
+            }
+        }
+
         function hasPathFallback(id) {
             var pathConfig = config.paths[id];
             if (pathConfig && isArray(pathConfig) && pathConfig.length > 1) {
@@ -429,9 +445,13 @@ var requirejs, require, define;
             } else {
                 each(ids, function (id) {
                     var mod = registry[id];
-                    if (mod && mod.events.error) {
-                        notified = true;
-                        mod.emit('error', err);
+                    if (mod) {
+                        //Set error on module, so it skips timeout checks.
+                        mod.error = err;
+                        if (mod.events.error) {
+                            notified = true;
+                            mod.emit('error', err);
+                        }
                     }
                 });
 
@@ -512,22 +532,6 @@ var requirejs, require, define;
                 });
             }
         };
-
-        function removeScript(name) {
-            if (isBrowser) {
-                var scripts = document.getElementsByTagName('script'),
-                    i, scriptNode;
-                for (i = 0; i < scripts.length; i += 1) {
-                    scriptNode = scripts[i];
-                    if (scriptNode.getAttribute('data-requiremodule') === name &&
-                        scriptNode.getAttribute('data-requirecontext') === context.contextName) {
-                        scriptNode.parentNode.removeChild(scriptNode);
-                        context.scriptCount -= 1;
-                        break;
-                    }
-                }
-            }
-        }
 
         function removeWaiting(id) {
             //Clean up machinery used for waiting modules.
@@ -664,27 +668,27 @@ var requirejs, require, define;
                     return;
                 }
 
-                //If the module should be executed, and it has not
-                //been inited and time is up, remember it. But do not
-                //bother if the module is already in an error state.
-                if (!mod.inited && expired) {
-                    removeScript(modId);
-
-                    if (hasPathFallback(modId)) {
-                        usingPathFallback = true;
+                if (!mod.error) {
+                    //If the module should be executed, and it has not
+                    //been inited and time is up, remember it.
+                    if (!mod.inited && expired) {
+                        if (hasPathFallback(modId)) {
+                            usingPathFallback = true;
+                            stillLoading = true;
+                        } else {
+                            noLoads.push(modId);
+                            removeScript(modId);
+                        }
+                    } else if (!mod.inited && mod.fetched && map.isDefine) {
                         stillLoading = true;
-                    } else {
-                        noLoads.push(modId);
-                    }
-                } else if (!mod.inited && mod.fetched && map.isDefine) {
-                    stillLoading = true;
-                    if (!map.prefix) {
-                        //No reason to keep looking for unfinished
-                        //loading. If the only stillLoading is a
-                        //plugin resource though, keep going,
-                        //because it may be that a plugin resource
-                        //is waiting on a non-plugin cycle.
-                        return (needCycleCheck = false);
+                        if (!map.prefix) {
+                            //No reason to keep looking for unfinished
+                            //loading. If the only stillLoading is a
+                            //plugin resource though, keep going,
+                            //because it may be that a plugin resource
+                            //is waiting on a non-plugin cycle.
+                            return (needCycleCheck = false);
+                        }
                     }
                 }
             });
@@ -1429,22 +1433,21 @@ var requirejs, require, define;
                     callGetModule(args);
                 }
 
-                mod = getModule(makeModuleMap(moduleName));
+                //Do this after the cycle of callGetModule in case the result
+                //of those calls/init calls changes the registry.
+                mod = registry[moduleName];
 
                 if (!found &&
                     !defined[moduleName] &&
-                    !mod.inited) {
+                    mod && !mod.inited) {
                     if (config.enforceDefine && (!shExports || !global[shExports])) {
                         if (hasPathFallback(moduleName)) {
                             return;
                         } else {
-                            //Indicate we reached the initialization stage,
-                            //but trigger an error.
-                            mod.error = true;
                             return onError(makeError('nodefine',
-                                                 'No define call for ' + moduleName,
-                                                 null,
-                                                 [moduleName]));
+                                             'No define call for ' + moduleName,
+                                             null,
+                                             [moduleName]));
                         }
                     } else {
                         //A script that does not call define(), so just simulate
@@ -1505,8 +1508,8 @@ var requirejs, require, define;
                     for (i = syms.length; i > 0; i -= 1) {
                         parentModule = syms.slice(0, i).join('/');
                         pkg = pkgs[parentModule];
-                        if (paths[parentModule]) {
-                            parentPath = paths[parentModule];
+                        parentPath = paths[parentModule];
+                        if (parentPath) {
                             //If an array, it means there are a few choices,
                             //Choose the one that is desired
                             if (isArray(parentPath)) {
@@ -1582,7 +1585,7 @@ var requirejs, require, define;
             onScriptError: function (evt) {
                 var data = getScriptData(evt);
                 if (!hasPathFallback(data.id)) {
-                    onError(makeError('scripterror', 'Script error', evt, [data.id]));
+                    return onError(makeError('scripterror', 'Script error', evt, [data.id]));
                 }
             }
         });

@@ -112,9 +112,6 @@ if (typeof Worker !== "undefined") {
     doh.registerUrl("workers", "../workers.html");
 }
 
-doh.registerUrl("pathArray", "../pathArray/pathArray.html", 8000);
-doh.registerUrl("pathArrayFail", "../pathArray/pathArrayFail.html", 8000);
-
 doh.registerUrl("undef", "../undef/undef.html", 8000);
 doh.registerUrl("undefEnforceShim", "../undef/undefEnforceShim.html", 8000);
 doh.registerUrl("undefLocal", "../undef/undefLocal.html", 8000);
@@ -123,3 +120,6 @@ doh.registerUrl("errorContinueLocal", "../error/errorContinueLocal.html", 8000);
 doh.registerUrl("pluginErrorContinue", "../error/pluginErrorContinue.html", 8000);
 doh.registerUrl("pluginErrorContinueLocal", "../error/pluginErrorContinueLocal.html", 8000);
 doh.registerUrl("defineErrorLocal", "../error/defineErrorLocal.html");
+
+doh.registerUrl("pathArray", "../pathArray/pathArray.html", 8000);
+doh.registerUrl("pathArrayFail", "../pathArray/pathArrayFail.html", 10000);
