@@ -34,7 +34,7 @@ var requirejs, require, define;
         cfg = {},
         globalDefQueue = [],
         useInteractive = false,
-        req, s, head, baseElement, scripts, globalI, script, dataMain, src,
+        req, s, head, baseElement, dataMain, src,
         interactiveScript, currentlyAddingScript, mainScript, subPath;
 
     function isFunction(it) {
@@ -53,6 +53,21 @@ var requirejs, require, define;
         if (ary) {
             var i;
             for (i = 0; i < ary.length; i += 1) {
+                if (func(ary[i], i, ary)) {
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
+     * Helper function for iterating over an array. If the func returns
+     * a true value, it will break out of the loop.
+     */
+    function eachReverse(ary, func) {
+        if (ary) {
+            var i;
+            for (i = ary.length - 1; i > -1; i -= 1) {
                 if (func(ary[i], i, ary)) {
                     break;
                 }
@@ -99,6 +114,36 @@ var requirejs, require, define;
         return function () {
             return fn.apply(obj, arguments);
         };
+    }
+
+    function scripts() {
+        return document.getElementsByTagName('script');
+    }
+
+    function makeContextModuleFunc(func, relMap, enableBuildCallback) {
+        return function () {
+            //A version of a require function that passes a moduleName
+            //value for items that may need to
+            //look up paths relative to the moduleName
+            var args = aps.call(arguments, 0), lastArg;
+            if (enableBuildCallback &&
+                isFunction((lastArg = args[args.length - 1]))) {
+                lastArg.__requireJsBuild = true;
+            }
+            args.push(relMap);
+            return func.apply(null, args);
+        };
+    }
+
+    function addRequireMethods(req, context, relMap) {
+        each([
+            ['toUrl'],
+            ['undef'],
+            ['defined', 'requireDefined'],
+            ['specified', 'requireSpecified']
+        ], function (item) {
+            req[item[0]] = makeContextModuleFunc(context[item[1] || item[0]], relMap);
+        });
     }
 
     /**
@@ -293,17 +338,13 @@ var requirejs, require, define;
 
         function removeScript(name) {
             if (isBrowser) {
-                var scripts = document.getElementsByTagName('script'),
-                    i, scriptNode;
-                for (i = 0; i < scripts.length; i += 1) {
-                    scriptNode = scripts[i];
+                each(scripts(), function (scriptNode) {
                     if (scriptNode.getAttribute('data-requiremodule') === name &&
                         scriptNode.getAttribute('data-requirecontext') === context.contextName) {
                         scriptNode.parentNode.removeChild(scriptNode);
-                        context.scriptCount -= 1;
-                        break;
+                        return true;
                     }
-                }
+                });
             }
         }
 
@@ -481,21 +522,6 @@ var requirejs, require, define;
             }
         }
 
-        function makeContextModuleFunc(func, relMap, enableBuildCallback) {
-            return function () {
-                //A version of a require function that passes a moduleName
-                //value for items that may need to
-                //look up paths relative to the moduleName
-                var args = aps.call(arguments, 0), lastArg;
-                if (enableBuildCallback &&
-                    isFunction((lastArg = args[args.length - 1]))) {
-                    lastArg.__requireJsBuild = true;
-                }
-                args.push(relMap);
-                return func.apply(null, args);
-            };
-        }
-
         /**
          * Helper function that creates a require function object to give to
          * modules that ask for it as a dependency. It needs to be specific
@@ -504,14 +530,12 @@ var requirejs, require, define;
          */
         function makeRequire(mod, enableBuildCallback, altRequire) {
             var relMap = mod && mod.map,
-                modRequire = makeContextModuleFunc(altRequire || context.require, relMap, enableBuildCallback);
+                modRequire = makeContextModuleFunc(altRequire || context.require,
+                                                   relMap,
+                                                   enableBuildCallback);
 
-            mixin(modRequire, {
-                toUrl: makeContextModuleFunc(context.toUrl, relMap),
-                nameToUrl: makeContextModuleFunc(context.nameToUrl, relMap),
-                defined: makeContextModuleFunc(context.requireDefined, relMap),
-                specified: makeContextModuleFunc(context.requireSpecified, relMap)
-            });
+            addRequireMethods(modRequire, context, relMap);
+
             return modRequire;
         }
 
@@ -1306,6 +1330,15 @@ var requirejs, require, define;
                 }
             },
 
+            requireDefined: function (id, relMap) {
+                return defined.hasOwnProperty(makeModuleMap(id, relMap, false, true).id);
+            },
+
+            requireSpecified: function (id, relMap) {
+                id = makeModuleMap(id, relMap, false, true).id;
+                return defined.hasOwnProperty(id) || registry.hasOwnProperty(id);
+            },
+
             require: function (deps, callback, errback, relMap) {
                 var moduleName, id, map, requireMod, args;
                 if (typeof deps === 'string') {
@@ -1662,24 +1695,6 @@ var requirejs, require, define;
         require = req;
     }
 
-    /**
-     * Global require.toUrl(), to match global require, mostly useful
-     * for debugging/work in the global space.
-     */
-    req.toUrl = function (moduleNamePlusExt) {
-        return contexts[defContextName].toUrl(moduleNamePlusExt);
-    };
-
-    /**
-     * Global require.undef(), to allow undefining a module, and resetting
-     * internal state to act like it was not loaded. It *does not* clean up
-     * any script tag that may have been used to load the module, unless the
-     * script timed out from loading via a waitSeconds expiration.
-     */
-    req.undef = function (name, contextName) {
-        contexts[contextName || defContextName].undef(name);
-    };
-
     req.version = version;
 
     //Used to filter out dependencies that are already paths.
@@ -1689,6 +1704,13 @@ var requirejs, require, define;
         contexts: contexts,
         newContext: newContext
     };
+
+    //Create default context.
+    req({});
+
+    //Exports some context-sensitive methods on global require, using
+    //default context if no context specified.
+    addRequireMethods(req, contexts[defContextName]);
 
     if (isBrowser) {
         head = s.head = document.getElementsByTagName('head')[0];
@@ -1804,28 +1826,22 @@ var requirejs, require, define;
     };
 
     function getInteractiveScript() {
-        var scripts, i, script;
         if (interactiveScript && interactiveScript.readyState === 'interactive') {
             return interactiveScript;
         }
 
-        scripts = document.getElementsByTagName('script');
-        for (i = scripts.length - 1; i > -1; i -= 1) {
-            script = scripts[i];
+        eachReverse(scripts(), function (script) {
             if (script.readyState === 'interactive') {
                 return (interactiveScript = script);
             }
-        }
+        });
+        return interactiveScript;
     }
 
     //Look for a data-main script attribute, which could also adjust the baseUrl.
     if (isBrowser) {
         //Figure out baseUrl. Get it from the script tag with require.js in it.
-        scripts = document.getElementsByTagName('script');
-
-        for (globalI = scripts.length - 1; globalI > -1; globalI -= 1) {
-            script = scripts[globalI];
-
+        eachReverse(scripts(), function (script) {
             //Set the 'head' where we can append children by
             //using the script's parent.
             if (!head) {
@@ -1854,9 +1870,9 @@ var requirejs, require, define;
                 //Put the data-main script in the files to load.
                 cfg.deps = cfg.deps ? cfg.deps.concat(dataMain) : [dataMain];
 
-                break;
+                return true;
             }
-        }
+        });
     }
 
     /**
@@ -1943,17 +1959,6 @@ var requirejs, require, define;
         return eval(text);
     };
 
-    //Set up default context. If require was a configuration object, use that as base config.
+    //Set up with config info.
     req(cfg);
-
-    //If modules are built into require.js, then need to make sure dependencies are
-    //traced. Use a setTimeout in the browser world, to allow all the modules to register
-    //themselves. In a non-browser env, assume that modules are not built into require.js,
-    //which seems odd to do on the server.
-    if (typeof setTimeout !== 'undefined') {
-        setTimeout(function () {
-            var ctx = s.contexts[(cfg.context || defContextName)];
-            ctx.require([]);
-        }, 0);
-    }
 }(this));
