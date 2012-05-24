@@ -69,6 +69,8 @@ doh.registerUrl("mapConfig", "../mapConfig/mapConfig.html");
 doh.registerUrl("mapConfigBuilt", "../mapConfig/built/mapConfigBuilt.html");
 doh.registerUrl("mapConfigStar", "../mapConfig/mapConfigStar.html");
 doh.registerUrl("mapConfigStarBuilt", "../mapConfig/built/mapConfigStarBuilt.html");
+doh.registerUrl("mapConfigStarAdapter", "../mapConfig/mapConfigStarAdapter.html");
+doh.registerUrl("mapConfigStarAdapterBuilt", "../mapConfig/built/mapConfigStarAdapterBuilt.html");
 
 doh.registerUrl("layers", "../layers/layers.html", 10000);
 
