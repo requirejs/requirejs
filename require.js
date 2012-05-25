@@ -19,6 +19,8 @@ var requirejs, require, define;
         ap = Array.prototype,
         aps = ap.slice,
         apsp = ap.splice,
+        dataContextAttr = 'data-requirecontext',
+        dataModuleAttr = 'data-requiremodule',
         isBrowser = !!(typeof window !== 'undefined' && navigator && document),
         isWebWorker = !isBrowser && typeof importScripts !== 'undefined',
         //PS3 indicates loaded and complete, but need to wait for complete
@@ -190,7 +192,7 @@ var requirejs, require, define;
         require = undefined;
     }
 
-    function newContext(contextName) {
+    function newContext(cid) {
         var config = {
                 waitSeconds: 7,
                 baseUrl: './',
@@ -211,8 +213,10 @@ var requirejs, require, define;
             //load. Important for consistent cycle resolution
             //behavior.
             waitAry = [],
+            waitCount = 0,
             inCheckLoaded, Module, context, handlers,
-            checkLoadedTimeoutId;
+            checkLoadedTimeoutId, startTime, onScriptLoad, onScriptError,
+            undef, contextRequire, completeLoad, nameToUrl;
 
         /**
          * Trims the . and .. from an array of path segments.
@@ -344,8 +348,8 @@ var requirejs, require, define;
         function removeScript(name) {
             if (isBrowser) {
                 each(scripts(), function (scriptNode) {
-                    if (scriptNode.getAttribute('data-requiremodule') === name &&
-                        scriptNode.getAttribute('data-requirecontext') === context.contextName) {
+                    if (scriptNode.getAttribute(dataModuleAttr) === name &&
+                        scriptNode.getAttribute(dataContextAttr) === cid) {
                         scriptNode.parentNode.removeChild(scriptNode);
                         return true;
                     }
@@ -360,8 +364,8 @@ var requirejs, require, define;
                 //Pop off the first array value, since it failed, and
                 //retry
                 pathConfig.shift();
-                context.undef(id);
-                context.require([id]);
+                undef(id);
+                contextRequire([id]);
                 return true;
             }
         }
@@ -432,7 +436,7 @@ var requirejs, require, define;
                         //issue #142, so just pass in name here and redo
                         //the normalization. Paths outside baseUrl are just
                         //messy to support.
-                        url = context.nameToUrl(name, null, parentModuleMap);
+                        url = nameToUrl(name, null, parentModuleMap);
 
                         //Store the URL mapping for later.
                         urlMap[normalizedName] = url;
@@ -466,7 +470,7 @@ var requirejs, require, define;
                 mod = registry[id];
 
             if (!mod) {
-                mod = registry[id] = new context.Module(depMap);
+                mod = registry[id] = new Module(depMap);
             }
 
             return mod;
@@ -535,7 +539,7 @@ var requirejs, require, define;
          */
         function makeRequire(mod, enableBuildCallback, altRequire) {
             var relMap = mod && mod.map,
-                modRequire = makeContextModuleFunc(altRequire || context.require,
+                modRequire = makeContextModuleFunc(altRequire || contextRequire,
                                                    relMap,
                                                    enableBuildCallback);
 
@@ -574,7 +578,7 @@ var requirejs, require, define;
                 if (mod.map.id === id) {
                     waitAry.splice(i, 1);
                     if (!mod.defined) {
-                        context.waitCount -= 1;
+                        waitCount -= 1;
                     }
                     return true;
                 }
@@ -678,7 +682,7 @@ var requirejs, require, define;
         function checkLoaded() {
             var waitInterval = config.waitSeconds * 1000,
                 //It is possible to disable the wait interval by using waitSeconds of 0.
-                expired = waitInterval && (context.startTime + waitInterval) < new Date().getTime(),
+                expired = waitInterval && (startTime + waitInterval) < new Date().getTime(),
                 noLoads = [],
                 stillLoading = false,
                 needCycleCheck = true,
@@ -729,7 +733,7 @@ var requirejs, require, define;
             if (expired && noLoads.length) {
                 //If wait time expired, throw error of unloaded modules.
                 err = makeError('timeout', 'Load timeout for modules: ' + noLoads, null, noLoads);
-                err.contextName = context.contextName;
+                err.cid = cid;
                 return onError(err);
             }
 
@@ -895,7 +899,7 @@ var requirejs, require, define;
                 }
                 this.fetched = true;
 
-                context.startTime = (new Date()).getTime();
+                startTime = (new Date()).getTime();
 
                 var map = this.map;
 
@@ -1007,8 +1011,8 @@ var requirejs, require, define;
                         delete registry[id];
 
                         this.defined = true;
-                        context.waitCount -= 1;
-                        if (context.waitCount === 0) {
+                        waitCount -= 1;
+                        if (waitCount === 0) {
                             //Clear the wait array used for cycles.
                             waitAry = [];
                         }
@@ -1111,14 +1115,14 @@ var requirejs, require, define;
                         }
 
                         //Support anonymous modules.
-                        context.completeLoad(moduleName);
+                        completeLoad(moduleName);
                     };
 
                     //Use parentName here since the plugin's name is not reliable,
                     //could be some weird string with no path that actually wants to
                     //reference the parentName's path.
                     plugin.load(map.name, makeRequire(map.parentMap, true, function (deps, cb) {
-                        return context.require(deps, cb);
+                        return contextRequire(deps, cb);
                     }), load, config);
                 }));
 
@@ -1131,7 +1135,7 @@ var requirejs, require, define;
 
                 if (!this.waitPushed) {
                     waitAry.push(this);
-                    context.waitCount += 1;
+                    waitCount += 1;
                     this.waitPushed = true;
                 }
 
@@ -1212,113 +1216,394 @@ var requirejs, require, define;
             var node = evt.currentTarget || evt.srcElement;
 
             //Remove the listeners once here.
-            removeListener(node, context.onScriptLoad, 'load', 'onreadystatechange');
-            removeListener(node, context.onScriptError, 'error');
+            removeListener(node, onScriptLoad, 'load', 'onreadystatechange');
+            removeListener(node, onScriptError, 'error');
 
             return {
                 node: node,
-                id: node && node.getAttribute('data-requiremodule')
+                id: node && node.getAttribute(dataModuleAttr)
             };
         }
 
+        /**
+         * callback for script loads, used to check status of loading.
+         *
+         * @param {Event} evt the event from the browser for the script
+         * that was loaded.
+         */
+        onScriptLoad = function (evt) {
+            //Using currentTarget instead of target for Firefox 2.0's sake. Not
+            //all old browsers will be supported, but this one was easy enough
+            //to support and still makes sense.
+            if (evt.type === 'load' ||
+                (readyRegExp.test((evt.currentTarget || evt.srcElement).readyState))) {
+                //Reset interactive script so a script node is not held onto for
+                //to long.
+                interactiveScript = null;
+
+                //Pull out the name of the module and the context.
+                var data = getScriptData(evt);
+                completeLoad(data.id);
+            }
+        };
+
+        /**
+         * Callback for script errors.
+         */
+        onScriptError = function (evt) {
+            var data = getScriptData(evt);
+            if (!hasPathFallback(data.id)) {
+                return onError(makeError('scripterror', 'Script error', evt, [data.id]));
+            }
+        };
+
+        /**
+         * Converts a module name to a file path. Supports cases where
+         * moduleName may actually be just an URL.
+         */
+        nameToUrl = function (moduleName, ext, relModuleMap) {
+            var paths, pkgs, pkg, pkgPath, syms, i, parentModule, url,
+                parentPath;
+
+            //Normalize module name if have a base relative module name to work from.
+            moduleName = normalize(moduleName, relModuleMap && relModuleMap.id, true);
+
+            //If a colon is in the URL, it indicates a protocol is used and it is just
+            //an URL to a file, or if it starts with a slash, contains a query arg (i.e. ?)
+            //or ends with .js, then assume the user meant to use an url and not a module id.
+            //The slash is important for protocol-less URLs as well as full paths.
+            if (req.jsExtRegExp.test(moduleName)) {
+                //Just a plain path, not module name lookup, so just return it.
+                //Add extension if it is included. This is a bit wonky, only non-.js things pass
+                //an extension, this method probably needs to be reworked.
+                url = moduleName + (ext || '');
+            } else {
+                //A module that needs to be converted to a path.
+                paths = config.paths;
+                pkgs = config.pkgs;
+
+                syms = moduleName.split('/');
+                //For each module name segment, see if there is a path
+                //registered for it. Start with most specific name
+                //and work up from it.
+                for (i = syms.length; i > 0; i -= 1) {
+                    parentModule = syms.slice(0, i).join('/');
+                    pkg = pkgs[parentModule];
+                    parentPath = paths[parentModule];
+                    if (parentPath) {
+                        //If an array, it means there are a few choices,
+                        //Choose the one that is desired
+                        if (isArray(parentPath)) {
+                            parentPath = parentPath[0];
+                        }
+                        syms.splice(0, i, parentPath);
+                        break;
+                    } else if (pkg) {
+                        //If module name is just the package name, then looking
+                        //for the main module.
+                        if (moduleName === pkg.name) {
+                            pkgPath = pkg.location + '/' + pkg.main;
+                        } else {
+                            pkgPath = pkg.location;
+                        }
+                        syms.splice(0, i, pkgPath);
+                        break;
+                    }
+                }
+
+                //Join the path parts together, then figure out if baseUrl is needed.
+                url = syms.join('/') + (ext || '.js');
+                url = (url.charAt(0) === '/' || url.match(/^[\w\+\.\-]+:/) ? '' : config.baseUrl) + url;
+            }
+
+            return config.urlArgs ? url +
+                                    ((url.indexOf('?') === -1 ? '?' : '&') +
+                                     config.urlArgs) : url;
+        };
+
+        /**
+         * Converts a module name + .extension into an URL path.
+         * *Requires* the use of a module name. It does not support using
+         * plain URLs like nameToUrl.
+         */
+        function toUrl(moduleNamePlusExt, relModuleMap) {
+            var index = moduleNamePlusExt.lastIndexOf('.'),
+                ext = null;
+
+            if (index !== -1) {
+                ext = moduleNamePlusExt.substring(index, moduleNamePlusExt.length);
+                moduleNamePlusExt = moduleNamePlusExt.substring(0, index);
+            }
+
+            return nameToUrl(moduleNamePlusExt, ext, relModuleMap);
+        }
+
+
+        /**
+         * Set a configuration for the context.
+         * @param {Object} cfg config object to integrate.
+         */
+        function configure(cfg) {
+            //Make sure the baseUrl ends in a slash.
+            if (cfg.baseUrl) {
+                if (cfg.baseUrl.charAt(cfg.baseUrl.length - 1) !== '/') {
+                    cfg.baseUrl += '/';
+                }
+            }
+
+            //Save off the paths and packages since they require special processing,
+            //they are additive.
+            var paths = config.paths,
+                pkgs = config.pkgs,
+                shim = config.shim,
+                map = config.map || {};
+
+            //Mix in the config values, favoring the new values over
+            //existing ones in context.config.
+            mixin(config, cfg, true);
+
+            //Merge paths.
+            mixin(paths, cfg.paths, true);
+            config.paths = paths;
+
+            //Merge map
+            if (cfg.map) {
+                mixin(map, cfg.map, true);
+                config.map = map;
+            }
+
+            //Merge shim
+            if (cfg.shim) {
+                eachProp(cfg.shim, function (value, id) {
+                    //Normalize the structure
+                    if (isArray(value)) {
+                        value = {
+                            deps: value
+                        };
+                    }
+                    if (value.exports && !value.exports.__buildReady) {
+                        value.exports = context.makeShimExports(value.exports);
+                    }
+                    shim[id] = value;
+                });
+                config.shim = shim;
+            }
+
+            //Adjust packages if necessary.
+            if (cfg.packages) {
+                each(cfg.packages, function (pkgObj) {
+                    var location;
+
+                    pkgObj = typeof pkgObj === 'string' ? { name: pkgObj } : pkgObj;
+                    location = pkgObj.location;
+
+                    //Create a brand new object on pkgs, since currentPackages can
+                    //be passed in again, and config.pkgs is the internal transformed
+                    //state for all package configs.
+                    pkgs[pkgObj.name] = {
+                        name: pkgObj.name,
+                        location: location || pkgObj.name,
+                        //Remove leading dot in main, so main paths are normalized,
+                        //and remove any trailing .js, since different package
+                        //envs have different conventions: some use a module name,
+                        //some use a file name.
+                        main: (pkgObj.main || 'main')
+                              .replace(currDirRegExp, '')
+                              .replace(jsSuffixRegExp, '')
+                    };
+                });
+
+                //Done with modifications, assing packages back to context config
+                config.pkgs = pkgs;
+            }
+
+            //If a deps array or a config callback is specified, then call
+            //require with those args. This is useful when require is defined as a
+            //config object before require.js is loaded.
+            if (cfg.deps || cfg.callback) {
+                contextRequire(cfg.deps || [], cfg.callback);
+            }
+        }
+
+        function requireDefined(id, relMap) {
+            return hasProp(defined, makeModuleMap(id, relMap, false, true).id);
+        }
+
+        function requireSpecified(id, relMap) {
+            id = makeModuleMap(id, relMap, false, true).id;
+            return hasProp(defined, id) || hasProp(registry, id);
+        }
+
+        undef = function (id) {
+            var map = makeModuleMap(id, null, true),
+                mod = registry[id];
+
+            delete defined[id];
+            delete urlMap[id];
+            delete urlFetched[map.url];
+            delete undefEvents[id];
+
+            if (mod) {
+                //Hold on to listeners in case the
+                //module will be attempted to be reloaded
+                //using a different config.
+                if (mod.events.defined) {
+                    undefEvents[id] = mod.events;
+                }
+
+                removeWaiting(id);
+            }
+        };
+
+        contextRequire = function (deps, callback, errback, relMap) {
+            var moduleName, id, map, requireMod, args;
+            if (typeof deps === 'string') {
+                if (isFunction(callback)) {
+                    //Invalid call
+                    return onError(makeError('requireargs', 'Invalid require call'), errback);
+                }
+
+                //Synchronous access to one module. If require.get is
+                //available (as in the Node adapter), prefer that.
+                //In this case deps is the moduleName and callback is
+                //the relMap
+                if (req.get) {
+                    return req.get(context, deps, callback);
+                }
+
+                //Just return the module wanted. In this scenario, the
+                //second arg (if passed) is just the relMap.
+                moduleName = deps;
+                relMap = callback;
+
+                //Normalize module name, if it contains . or ..
+                map = makeModuleMap(moduleName, relMap, false, true);
+                id = map.id;
+
+                if (!hasProp(defined, id)) {
+                    return onError(makeError('notloaded', 'Module name "' +
+                                id +
+                                '" has not been loaded yet for context: ' +
+                                cid));
+                }
+                return defined[id];
+            }
+
+            //Callback require. Normalize args. if errback is not a function,
+            //it means it is a relMap.
+            if (errback && !isFunction(errback)) {
+                relMap = errback;
+                errback = undefined;
+            }
+
+            //Any defined modules in the global queue, intake them now.
+            takeGlobalQueue();
+
+            //Make sure any remaining defQueue items get properly processed.
+            while (defQueue.length) {
+                args = defQueue.shift();
+                if (args[0] === null) {
+                    return onError(makeError('mismatch', 'Mismatched anonymous define() module: ' + args[args.length - 1]));
+                } else {
+                    //args are id, deps, factory. Should be normalized by the
+                    //define() function.
+                    callGetModule(args);
+                }
+            }
+
+            //Mark all the dependencies as needing to be loaded.
+            requireMod = getModule(makeModuleMap(null, relMap));
+
+            requireMod.init(deps, callback, errback, {
+                enabled: true
+            });
+
+            checkLoaded();
+
+            return contextRequire;
+        };
+
+        /**
+         * Internal method used by environment adapters to complete a load event.
+         * A load event could be a script load or just a load pass from a synchronous
+         * load call.
+         * @param {String} moduleName the name of the module to potentially complete.
+         */
+        completeLoad = function (moduleName) {
+            var shim = config.shim[moduleName] || {},
+            shExports = shim.exports && shim.exports.exports,
+            found, args, mod;
+
+            takeGlobalQueue();
+
+            while (defQueue.length) {
+                args = defQueue.shift();
+                if (args[0] === null) {
+                    args[0] = moduleName;
+                    //If already found an anonymous module and bound it
+                    //to this name, then this is some other anon module
+                    //waiting for its completeLoad to fire.
+                    if (found) {
+                        break;
+                    }
+                    found = true;
+                } else if (args[0] === moduleName) {
+                    //Found matching define call for this script!
+                    found = true;
+                }
+
+                callGetModule(args);
+            }
+
+            //Do this after the cycle of callGetModule in case the result
+            //of those calls/init calls changes the registry.
+            mod = registry[moduleName];
+
+            if (!found &&
+                !defined[moduleName] &&
+                mod && !mod.inited) {
+                if (config.enforceDefine && (!shExports || !global[shExports])) {
+                    if (hasPathFallback(moduleName)) {
+                        return;
+                    } else {
+                        return onError(makeError('nodefine',
+                                         'No define call for ' + moduleName,
+                                         null,
+                                         [moduleName]));
+                    }
+                } else {
+                    //A script that does not call define(), so just simulate
+                    //the call for it.
+                    callGetModule([moduleName, (shim.deps || []), shim.exports]);
+                }
+            }
+
+            checkLoaded();
+        };
+
         return (context = {
+            //Expose some data that is read by outside code
             config: config,
-            contextName: contextName,
+            cid: cid,
             registry: registry,
             defined: defined,
             urlMap: urlMap,
             urlFetched: urlFetched,
-            waitCount: 0,
             defQueue: defQueue,
             Module: Module,
             makeModuleMap: makeModuleMap,
+            toUrl: toUrl,
+            undef: undef,
+            configure: configure,
+            require: contextRequire,
+            requireDefined: requireDefined,
+            requireSpecified: requireSpecified,
+            completeLoad: completeLoad,
+            onScriptLoad: onScriptLoad,
+            onScriptError: onScriptError,
 
-            /**
-             * Set a configuration for the context.
-             * @param {Object} cfg config object to integrate.
-             */
-            configure: function (cfg) {
-                //Make sure the baseUrl ends in a slash.
-                if (cfg.baseUrl) {
-                    if (cfg.baseUrl.charAt(cfg.baseUrl.length - 1) !== '/') {
-                        cfg.baseUrl += '/';
-                    }
-                }
-
-                //Save off the paths and packages since they require special processing,
-                //they are additive.
-                var paths = config.paths,
-                    pkgs = config.pkgs,
-                    shim = config.shim,
-                    map = config.map || {};
-
-                //Mix in the config values, favoring the new values over
-                //existing ones in context.config.
-                mixin(config, cfg, true);
-
-                //Merge paths.
-                mixin(paths, cfg.paths, true);
-                config.paths = paths;
-
-                //Merge map
-                if (cfg.map) {
-                    mixin(map, cfg.map, true);
-                    config.map = map;
-                }
-
-                //Merge shim
-                if (cfg.shim) {
-                    eachProp(cfg.shim, function (value, id) {
-                        //Normalize the structure
-                        if (isArray(value)) {
-                            value = {
-                                deps: value
-                            };
-                        }
-                        if (value.exports && !value.exports.__buildReady) {
-                            value.exports = context.makeShimExports(value.exports);
-                        }
-                        shim[id] = value;
-                    });
-                    config.shim = shim;
-                }
-
-                //Adjust packages if necessary.
-                if (cfg.packages) {
-                    each(cfg.packages, function (pkgObj) {
-                        var location;
-
-                        pkgObj = typeof pkgObj === 'string' ? { name: pkgObj } : pkgObj;
-                        location = pkgObj.location;
-
-                        //Create a brand new object on pkgs, since currentPackages can
-                        //be passed in again, and config.pkgs is the internal transformed
-                        //state for all package configs.
-                        pkgs[pkgObj.name] = {
-                            name: pkgObj.name,
-                            location: location || pkgObj.name,
-                            //Remove leading dot in main, so main paths are normalized,
-                            //and remove any trailing .js, since different package
-                            //envs have different conventions: some use a module name,
-                            //some use a file name.
-                            main: (pkgObj.main || 'main')
-                                  .replace(currDirRegExp, '')
-                                  .replace(jsSuffixRegExp, '')
-                        };
-                    });
-
-                    //Done with modifications, assing packages back to context config
-                    config.pkgs = pkgs;
-                }
-
-                //If a deps array or a config callback is specified, then call
-                //require with those args. This is useful when require is defined as a
-                //config object before require.js is loaded.
-                if (cfg.deps || cfg.callback) {
-                    context.require(cfg.deps || [], cfg.callback);
-                }
-            },
-
+            //The rest of these functions may be overridden by outside
+            //code, like the optimizer.
             makeShimExports: function (exports) {
                 var func;
                 if (typeof exports === 'string') {
@@ -1335,104 +1620,6 @@ var requirejs, require, define;
                 }
             },
 
-            requireDefined: function (id, relMap) {
-                return hasProp(defined, makeModuleMap(id, relMap, false, true).id);
-            },
-
-            requireSpecified: function (id, relMap) {
-                id = makeModuleMap(id, relMap, false, true).id;
-                return hasProp(defined, id) || hasProp(registry, id);
-            },
-
-            require: function (deps, callback, errback, relMap) {
-                var moduleName, id, map, requireMod, args;
-                if (typeof deps === 'string') {
-                    if (isFunction(callback)) {
-                        //Invalid call
-                        return onError(makeError('requireargs', 'Invalid require call'), errback);
-                    }
-
-                    //Synchronous access to one module. If require.get is
-                    //available (as in the Node adapter), prefer that.
-                    //In this case deps is the moduleName and callback is
-                    //the relMap
-                    if (req.get) {
-                        return req.get(context, deps, callback);
-                    }
-
-                    //Just return the module wanted. In this scenario, the
-                    //second arg (if passed) is just the relMap.
-                    moduleName = deps;
-                    relMap = callback;
-
-                    //Normalize module name, if it contains . or ..
-                    map = makeModuleMap(moduleName, relMap, false, true);
-                    id = map.id;
-
-                    if (!hasProp(defined, id)) {
-                        return onError(makeError('notloaded', 'Module name "' +
-                                    id +
-                                    '" has not been loaded yet for context: ' +
-                                    contextName));
-                    }
-                    return defined[id];
-                }
-
-                //Callback require. Normalize args. if errback is not a function,
-                //it means it is a relMap.
-                if (errback && !isFunction(errback)) {
-                    relMap = errback;
-                    errback = undefined;
-                }
-
-                //Any defined modules in the global queue, intake them now.
-                takeGlobalQueue();
-
-                //Make sure any remaining defQueue items get properly processed.
-                while (defQueue.length) {
-                    args = defQueue.shift();
-                    if (args[0] === null) {
-                        return onError(makeError('mismatch', 'Mismatched anonymous define() module: ' + args[args.length - 1]));
-                    } else {
-                        //args are id, deps, factory. Should be normalized by the
-                        //define() function.
-                        callGetModule(args);
-                    }
-                }
-
-                //Mark all the dependencies as needing to be loaded.
-                requireMod = getModule(makeModuleMap(null, relMap));
-
-                requireMod.init(deps, callback, errback, {
-                    enabled: true
-                });
-
-                checkLoaded();
-
-                return context.require;
-            },
-
-            undef: function (id) {
-                var map = makeModuleMap(id, null, true),
-                    mod = registry[id];
-
-                delete defined[id];
-                delete urlMap[id];
-                delete urlFetched[map.url];
-                delete undefEvents[id];
-
-                if (mod) {
-                    //Hold on to listeners in case the
-                    //module will be attempted to be reloaded
-                    //using a different config.
-                    if (mod.events.defined) {
-                        undefEvents[id] = mod.events;
-                    }
-
-                    removeWaiting(id);
-                }
-            },
-
             /**
              * Called to enable a module if it is still in the registry
              * awaiting enablement. parent module is passed in for context,
@@ -1443,145 +1630,6 @@ var requirejs, require, define;
                 if (mod) {
                     getModule(depMap).enable();
                 }
-            },
-
-            /**
-             * Internal method used by environment adapters to complete a load event.
-             * A load event could be a script load or just a load pass from a synchronous
-             * load call.
-             * @param {String} moduleName the name of the module to potentially complete.
-             */
-            completeLoad: function (moduleName) {
-                var shim = config.shim[moduleName] || {},
-                shExports = shim.exports && shim.exports.exports,
-                found, args, mod;
-
-                takeGlobalQueue();
-
-                while (defQueue.length) {
-                    args = defQueue.shift();
-                    if (args[0] === null) {
-                        args[0] = moduleName;
-                        //If already found an anonymous module and bound it
-                        //to this name, then this is some other anon module
-                        //waiting for its completeLoad to fire.
-                        if (found) {
-                            break;
-                        }
-                        found = true;
-                    } else if (args[0] === moduleName) {
-                        //Found matching define call for this script!
-                        found = true;
-                    }
-
-                    callGetModule(args);
-                }
-
-                //Do this after the cycle of callGetModule in case the result
-                //of those calls/init calls changes the registry.
-                mod = registry[moduleName];
-
-                if (!found &&
-                    !defined[moduleName] &&
-                    mod && !mod.inited) {
-                    if (config.enforceDefine && (!shExports || !global[shExports])) {
-                        if (hasPathFallback(moduleName)) {
-                            return;
-                        } else {
-                            return onError(makeError('nodefine',
-                                             'No define call for ' + moduleName,
-                                             null,
-                                             [moduleName]));
-                        }
-                    } else {
-                        //A script that does not call define(), so just simulate
-                        //the call for it.
-                        callGetModule([moduleName, (shim.deps || []), shim.exports]);
-                    }
-                }
-
-                checkLoaded();
-            },
-
-            /**
-             * Converts a module name + .extension into an URL path.
-             * *Requires* the use of a module name. It does not support using
-             * plain URLs like nameToUrl.
-             */
-            toUrl: function (moduleNamePlusExt, relModuleMap) {
-                var index = moduleNamePlusExt.lastIndexOf('.'),
-                    ext = null;
-
-                if (index !== -1) {
-                    ext = moduleNamePlusExt.substring(index, moduleNamePlusExt.length);
-                    moduleNamePlusExt = moduleNamePlusExt.substring(0, index);
-                }
-
-                return context.nameToUrl(moduleNamePlusExt, ext, relModuleMap);
-            },
-
-            /**
-             * Converts a module name to a file path. Supports cases where
-             * moduleName may actually be just an URL.
-             */
-            nameToUrl: function (moduleName, ext, relModuleMap) {
-                var paths, pkgs, pkg, pkgPath, syms, i, parentModule, url,
-                    parentPath;
-
-                //Normalize module name if have a base relative module name to work from.
-                moduleName = normalize(moduleName, relModuleMap && relModuleMap.id, true);
-
-                //If a colon is in the URL, it indicates a protocol is used and it is just
-                //an URL to a file, or if it starts with a slash, contains a query arg (i.e. ?)
-                //or ends with .js, then assume the user meant to use an url and not a module id.
-                //The slash is important for protocol-less URLs as well as full paths.
-                if (req.jsExtRegExp.test(moduleName)) {
-                    //Just a plain path, not module name lookup, so just return it.
-                    //Add extension if it is included. This is a bit wonky, only non-.js things pass
-                    //an extension, this method probably needs to be reworked.
-                    url = moduleName + (ext || '');
-                } else {
-                    //A module that needs to be converted to a path.
-                    paths = config.paths;
-                    pkgs = config.pkgs;
-
-                    syms = moduleName.split('/');
-                    //For each module name segment, see if there is a path
-                    //registered for it. Start with most specific name
-                    //and work up from it.
-                    for (i = syms.length; i > 0; i -= 1) {
-                        parentModule = syms.slice(0, i).join('/');
-                        pkg = pkgs[parentModule];
-                        parentPath = paths[parentModule];
-                        if (parentPath) {
-                            //If an array, it means there are a few choices,
-                            //Choose the one that is desired
-                            if (isArray(parentPath)) {
-                                parentPath = parentPath[0];
-                            }
-                            syms.splice(0, i, parentPath);
-                            break;
-                        } else if (pkg) {
-                            //If module name is just the package name, then looking
-                            //for the main module.
-                            if (moduleName === pkg.name) {
-                                pkgPath = pkg.location + '/' + pkg.main;
-                            } else {
-                                pkgPath = pkg.location;
-                            }
-                            syms.splice(0, i, pkgPath);
-                            break;
-                        }
-                    }
-
-                    //Join the path parts together, then figure out if baseUrl is needed.
-                    url = syms.join('/') + (ext || '.js');
-                    url = (url.charAt(0) === '/' || url.match(/^[\w\+\.\-]+:/) ? '' : config.baseUrl) + url;
-                }
-
-                return config.urlArgs ? url +
-                                        ((url.indexOf('?') === -1 ? '?' : '&') +
-                                         config.urlArgs) : url;
             },
 
             //Delegates to req.load. Broken out as a separate function to
@@ -1599,38 +1647,6 @@ var requirejs, require, define;
              */
             execCb: function (name, callback, args, exports) {
                 return callback.apply(exports, args);
-            },
-
-            /**
-             * callback for script loads, used to check status of loading.
-             *
-             * @param {Event} evt the event from the browser for the script
-             * that was loaded.
-             */
-            onScriptLoad: function (evt) {
-                //Using currentTarget instead of target for Firefox 2.0's sake. Not
-                //all old browsers will be supported, but this one was easy enough
-                //to support and still makes sense.
-                if (evt.type === 'load' ||
-                    (readyRegExp.test((evt.currentTarget || evt.srcElement).readyState))) {
-                    //Reset interactive script so a script node is not held onto for
-                    //to long.
-                    interactiveScript = null;
-
-                    //Pull out the name of the module and the context.
-                    var data = getScriptData(evt);
-                    context.completeLoad(data.id);
-                }
-            },
-
-            /**
-             * Callback for script errors.
-             */
-            onScriptError: function (evt) {
-                var data = getScriptData(evt);
-                if (!hasPathFallback(data.id)) {
-                    return onError(makeError('scripterror', 'Script error', evt, [data.id]));
-                }
             }
         });
     }
@@ -1652,7 +1668,7 @@ var requirejs, require, define;
     req = requirejs = function (deps, callback, errback, optional) {
 
         //Find the right context, use default
-        var contextName = defContextName,
+        var cid = defContextName,
             context, config;
 
         // Determine if have config object in the call.
@@ -1670,12 +1686,12 @@ var requirejs, require, define;
         }
 
         if (config && config.context) {
-            contextName = config.context;
+            cid = config.context;
         }
 
-        context = contexts[contextName];
+        context = contexts[cid];
         if (!context) {
-            context = contexts[contextName] = req.s.newContext(contextName);
+            context = contexts[cid] = req.s.newContext(cid);
         }
 
         if (config) {
@@ -1757,8 +1773,8 @@ var requirejs, require, define;
             node.type = config.scriptType || 'text/javascript';
             node.charset = 'utf-8';
 
-            node.setAttribute('data-requirecontext', context.contextName);
-            node.setAttribute('data-requiremodule', moduleName);
+            node.setAttribute(dataContextAttr, context.cid);
+            node.setAttribute(dataModuleAttr, moduleName);
 
             //Set up load listener. Test attachEvent first because IE9 has
             //a subtle issue in its addEventListener and script onload firings
@@ -1933,9 +1949,9 @@ var requirejs, require, define;
             node = currentlyAddingScript || getInteractiveScript();
             if (node) {
                 if (!name) {
-                    name = node.getAttribute('data-requiremodule');
+                    name = node.getAttribute(dataModuleAttr);
                 }
-                context = contexts[node.getAttribute('data-requirecontext')];
+                context = contexts[node.getAttribute(dataContextAttr)];
             }
         }
 
