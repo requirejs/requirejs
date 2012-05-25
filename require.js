@@ -57,7 +57,8 @@ var requirejs, require, define;
         //behavior.
         waitAry = [],
         inCheckLoaded, Module, handlers,
-        checkLoadedTimeoutId;
+        checkLoadedTimeoutId, nameToUrl, rr, enableModule, onScriptLoad,
+        onScriptError, makeShimExports, binders, configure;
 
     function isFunction(it) {
         return ostring.call(it) === '[object Function]';
@@ -168,7 +169,7 @@ var requirejs, require, define;
             ['defined', 'requireDefined'],
             ['specified', 'requireSpecified']
         ], function (item) {
-            req[item[0]] = makeContextModuleFunc(this[item[1] || item[0]], relMap);
+            req[item[0]] = makeContextModuleFunc(binders[item[1] || item[0]], relMap);
         });
     }
 
@@ -211,6 +212,46 @@ var requirejs, require, define;
         cfg = require;
         require = undefined;
     }
+
+    /**
+     * Main entry point.
+     *
+     * If the only argument to require is a string, then the module that
+     * is represented by that string is fetched for the appropriate state.
+     *
+     * If the first argument is an array, then it will be treated as an array
+     * of dependency string names to fetch. An optional function callback can
+     * be specified to execute when all of those dependencies are available.
+     *
+     * Make a local req variable to help Caja compliance (it assumes things
+     * on a require that are not standardized), and to give a short
+     * name for minification/local scope use.
+     */
+    req = requirejs = function (deps, callback, errback, optional) {
+
+        var config;
+
+        // Determine if have config object in the call.
+        if (!isArray(deps) && typeof deps !== 'string') {
+            // deps is a config object
+            config = deps;
+            if (isArray(callback)) {
+                // Adjust args if there are dependencies
+                deps = callback;
+                callback = errback;
+                errback = optional;
+            } else {
+                deps = [];
+            }
+        }
+
+        if (config) {
+            configure(config);
+        }
+
+        return rr(deps, callback, errback);
+    };
+
 
         /**
          * Trims the . and .. from an array of path segments.
@@ -463,7 +504,7 @@ var requirejs, require, define;
                 mod = registry[id];
 
             if (!mod) {
-                mod = registry[id] = new req.Module(depMap);
+                mod = registry[id] = new Module(depMap);
             }
 
             return mod;
@@ -1117,11 +1158,11 @@ var requirejs, require, define;
                     }), load, config);
                 }));
 
-                enableModule(pluginMap, this);
+                this.enable(pluginMap, this);
                 this.pluginMaps[pluginMap.id] = pluginMap;
             },
 
-            enableModule: function () {
+            enable: function () {
                 this.enabled = true;
 
                 if (!this.waitPushed) {
@@ -1220,7 +1261,7 @@ var requirejs, require, define;
              * Set a configuration.
              * @param {Object} cfg config object to integrate.
              */
-            function configure(cfg) {
+            configure = function (cfg) {
                 //Make sure the baseUrl ends in a slash.
                 if (cfg.baseUrl) {
                     if (cfg.baseUrl.charAt(cfg.baseUrl.length - 1) !== '/') {
@@ -1300,9 +1341,9 @@ var requirejs, require, define;
                 if (cfg.deps || cfg.callback) {
                     rr(cfg.deps || [], cfg.callback);
                 }
-            }
+            };
 
-            function makeShimExports(exports) {
+            makeShimExports = function (exports) {
                 var func;
                 if (typeof exports === 'string') {
                     func = function () {
@@ -1316,7 +1357,7 @@ var requirejs, require, define;
                         return exports.apply(global, arguments);
                     };
                 }
-            }
+            };
 
             function requireDefined(id, relMap) {
                 return hasProp(defined, makeModuleMap(id, relMap, false, true).id);
@@ -1327,7 +1368,7 @@ var requirejs, require, define;
                 return hasProp(defined, id) || hasProp(registry, id);
             }
 
-            function rr(deps, callback, errback, relMap) {
+            rr = function (deps, callback, errback, relMap) {
                 var moduleName, id, map, requireMod, args;
                 if (typeof deps === 'string') {
                     if (isFunction(callback)) {
@@ -1392,7 +1433,7 @@ var requirejs, require, define;
                 checkLoaded();
 
                 return rr;
-            }
+            };
 
             function undef (id) {
                 var map = makeModuleMap(id, null, true),
@@ -1420,12 +1461,12 @@ var requirejs, require, define;
              * awaiting enablement. parent module is passed in for state,
              * used by the optimizer.
              */
-            function enableModule(depMap, parent) {
+            enableModule = function (depMap, parent) {
                 var mod = registry[depMap.id];
                 if (mod) {
                     getModule(depMap).enable();
                 }
-            }
+            };
 
             /**
              * Internal method used by environment adapters to complete a load event.
@@ -1506,7 +1547,7 @@ var requirejs, require, define;
              * Converts a module name to a file path. Supports cases where
              * moduleName may actually be just an URL.
              */
-            function nameToUrl(moduleName, ext, relModuleMap) {
+            nameToUrl = function (moduleName, ext, relModuleMap) {
                 var paths, pkgs, pkg, pkgPath, syms, i, parentModule, url,
                     parentPath;
 
@@ -1564,7 +1605,7 @@ var requirejs, require, define;
                 return config.urlArgs ? url +
                                         ((url.indexOf('?') === -1 ? '?' : '&') +
                                          config.urlArgs) : url;
-            }
+            };
 
             /**
              * Executes a module callack function. Broken out as a separate function
@@ -1583,7 +1624,7 @@ var requirejs, require, define;
              * @param {Event} evt the event from the browser for the script
              * that was loaded.
              */
-            function onScriptLoad(evt) {
+            onScriptLoad = function (evt) {
                 //Using currentTarget instead of target for Firefox 2.0's sake. Not
                 //all old browsers will be supported, but this one was easy enough
                 //to support and still makes sense.
@@ -1597,57 +1638,24 @@ var requirejs, require, define;
                     var data = getScriptData(evt);
                     req.completeLoad(data.id);
                 }
-            }
+            };
 
             /**
              * Callback for script errors.
              */
-            function onScriptError(evt) {
+            onScriptError = function (evt) {
                 var data = getScriptData(evt);
                 if (!hasPathFallback(data.id)) {
                     return onError(makeError('scripterror', 'Script error', evt, [data.id]));
                 }
-            }
+            };
 
-
-    /**
-     * Main entry point.
-     *
-     * If the only argument to require is a string, then the module that
-     * is represented by that string is fetched for the appropriate state.
-     *
-     * If the first argument is an array, then it will be treated as an array
-     * of dependency string names to fetch. An optional function callback can
-     * be specified to execute when all of those dependencies are available.
-     *
-     * Make a local req variable to help Caja compliance (it assumes things
-     * on a require that are not standardized), and to give a short
-     * name for minification/local scope use.
-     */
-    req = requirejs = function (deps, callback, errback, optional) {
-
-        var config;
-
-        // Determine if have config object in the call.
-        if (!isArray(deps) && typeof deps !== 'string') {
-            // deps is a config object
-            config = deps;
-            if (isArray(callback)) {
-                // Adjust args if there are dependencies
-                deps = callback;
-                callback = errback;
-                errback = optional;
-            } else {
-                deps = [];
-            }
-        }
-
-        if (config) {
-            configure(config);
-        }
-
-        return rr(deps, callback, errback);
-    };
+            binders = {
+                toUrl: toUrl,
+                undef: undef,
+                requireDefined: requireDefined,
+                requireSpecified: requireSpecified
+            };
 
     /**
      * Support require.config() to make it easier to cooperate with other
@@ -1673,13 +1681,13 @@ var requirejs, require, define;
     addRequireMethods(req);
 
     if (isBrowser) {
-        head = s.head = document.getElementsByTagName('head')[0];
+        head = document.getElementsByTagName('head')[0];
         //If BASE tag is in play, using appendChild is a problem for IE6.
         //When that browser dies, this can be removed. Details in this jQuery bug:
         //http://dev.jquery.com/ticket/2709
         baseElement = document.getElementsByTagName('base')[0];
         if (baseElement) {
-            head = s.head = baseElement.parentNode;
+            head = baseElement.parentNode;
         }
     }
 
