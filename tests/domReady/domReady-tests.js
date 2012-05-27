@@ -3,7 +3,7 @@
 
 requirejs.config({
     paths: {
-        domReady: '../../domReady'
+        domReady: '../../../domReady/domReady'
     }
 });
 
