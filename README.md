@@ -50,12 +50,3 @@ placed outside the tests directory for testing paths that go outside a baseUrl.
 projects are siblings to this directory and have specific names. Useful to
 copy require.js to dependent projects easily while in development.
 
-The following are loader plugins which can be released on a separate schedule
-from each other and from require.js. They are included in this repo because
-some of the tests depend on them. At some point they may be separated out into
-separate projects.
-
-* i18n.js
-* order.js
-* text.js
-* domReady.js

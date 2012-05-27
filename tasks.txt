@@ -79,6 +79,10 @@ DOC updates:
 - building code with "shim" means that code cannot cdn load for instance jquery
   after a build since the non-amd code will expect jquery to already be there.
   Can just put a script tag in after require.js for it. or go full amd.
+- scrub text references, in new repo
+- scrub i18n references, in new repo
+- scrub domReady references, in new repo
+- In docs, point to a "latest" tag in the plugin repos.
 
 Almond updates:
 - Support module.config.

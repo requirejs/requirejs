@@ -41,7 +41,7 @@ define("widget",
 require({
     baseUrl: "./",
     paths: {
-        text: "../../text"
+        text: "../../../text/text"
     }
 });
 require(

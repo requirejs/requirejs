@@ -1,7 +1,7 @@
 require({
         baseUrl: requirejs.isBrowser ? "./" : "./relative/",
         paths: {
-            text: "../../text"
+            text: "../../../text/text"
         },
         packages: [
             {

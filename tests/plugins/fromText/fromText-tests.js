@@ -1,7 +1,7 @@
 require({
         baseUrl: requirejs.isBrowser ? './' : './plugins/fromText',
         paths: {
-            'text': '../../../text'
+            'text': '../../../../text/text'
         }
 },      ['refine!a'],
 function (a) {
