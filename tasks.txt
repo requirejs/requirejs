@@ -18,13 +18,6 @@ with scripts.
 
 1.1 items?
 --------------
-- map stuff
-  - with config:
-    http://groups.google.com/group/requirejs/browse_thread/thread/b382d90534f883db#
-    https://groups.google.com/group/amd-implement/browse_thread/thread/c36e284a7f85021a/2290754c54b3ddad?#2290754c54b3ddad
-
-- consider use: config standard?
-
 - support shim exports: 'jQuery.fn.plugin'?
 
 - remove special jquery detection, only do it for define() calls.
@@ -36,15 +29,12 @@ with scripts.
 - Just remove packages config altogether, suggest volojs for making adapter modules.
   -> Allow 'module': '' and 'module/': '' config instead of packages config.
 - allow error handler either per context, or per top-level require call.
-- Config options: "main" and rename "deps" to "include" to match how build can read config now.
 - allow define(function(require, exports, module, define)) where that local define
   only defines modules visible to the current module, to help with builds of projects
   that wrap up all of their defines in a file but still want it usuable to other
   modules?
 - !removing priority config
 - !Remove resourcesReady and jQuery callback holding
-
-- modify plugins to use module.config() for some things.
 
 DOC updates:
 - Talk about paths and baseUrl first,
@@ -84,12 +74,7 @@ DOC updates:
 - scrub domReady references, in new repo
 - In docs, point to a "latest" tag in the plugin repos.
 
-Almond updates:
-- Support module.config.
-- Support map config with *
-
 Tests to write:
-- IE error: introduce a "throw on undefined module" error?
 - mapConfig test for packages.
 
 Next release
@@ -104,89 +89,14 @@ https://github.com/jrburke/requirejs/issues/185
 - problem with just require(['./relative/id']) inside a define call, the relative
   parentMap is not used because missing a function callback?
 
-- make a note: order plugin is only useful for some top level dependencies that
-do not use define/require api. otherwise mixing is bad.
-
 - require-cs circular ref: https://github.com/jrburke/require-cs/issues/13
-
-- Split plugins and their docs into separate repos with READMEs, keep the
-  tests in requirejs repo for now.
-
-- coffeescript 1.2 released, switch over the cs plugin.
 
 - make a decision matrix of when to use what. Mention lowercase names for file name convention.
 
-- order plugin not work with phantomjs build?
-  CentOS 5.6 (Final), PhantomJS 1.4.1, Qt 4.7
-
 - paths entry for socket.io to remote domain/port, but then do a require.toUrl('socket.io') and it returns
   a local path instead of the remote path?
-- Should mention 'empty:' on the optimization page, particularly for excluding content.
 
-- Try dojo with requirejs
-  - http://sfoster.dojotoolkit.org/dojobox/1.7-branch/util/debug.profile.js
-  - http://jsfiddle.net/sfoster/ztfdZ/
-
-- upload plugins to cdnjs
-
-- Spine
-- handlebars
-- raphael
-- less
-- jquery plugins
-
-
-- Work on module adapter format: make sure global for jquery uses jQuery.
-    - If OK, then do pull request for backbone branch.
-- clarify commonjs wrapping in amd api page.
-
-- Doc: add info about overriding requirejs.onError.
-  - consider opt in fallback for define calls, detect require, doc.write it...
-
-- Need to document define.amd.jQuery flag.
-
---------
-
-- onResourceLoad, useful?
-
-- cdnjs: how to use with fallback
 
 - has() source trimming, needs brace matching?
 
-
-- need to surface pragmasOnSave better?
-
-- example using backbone and such.
-
-- example that shows how to do a "include *" in a build.
-
-- coffeescript: extend duplication: https://github.com/jrburke/require-cs/issues/7
-
-- integrate properly with cpm
-
-- A way to support local file/other kinds of caches?
-http://groups.google.com/group/requirejs/browse_thread/thread/77092307ac6b9acb
-http://www.html5rocks.com/en/tutorials/file/filesystem/#toc-filesystemurls
-
-Docs:
-
-- Pointer to motivations behind current thing, reason for dependencies.
-
 - Update the coffeescript plugin to use the writeFile API?
-
-- jjb's diagnostic/debug branch with dependency mappings
-
-- https://github.com/jrburke/requirejs/issues/104: define as a special dependency?
-
-- replacement for modify that intercepts callbacks, holds off until another module loads them?
-  - A way to show dependency graph too?
-- Minify the require.js files with UglifyJS.
-
-- https://github.com/jrburke/requirejs/pull/71: process by 2/21
-
-- If any other info: IE checkLoaded recursion? https://github.com/jrburke/requirejs/issues/82
-
-- require.modify alternative syntax/patch.
-- has.js plugins
-
-- Visualization of dependencies, highlighting circular dependencies

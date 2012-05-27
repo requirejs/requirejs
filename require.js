@@ -1378,11 +1378,15 @@ var requirejs, require, define;
                     return defined[id];
                 }
 
-                //Callback require. Normalize args. if errback is not a function,
-                //it means it is a relMap.
+                //Callback require. Normalize args. if callback or errback is
+                //not a function, it means it is a relMap. Test errback first.
                 if (errback && !isFunction(errback)) {
                     relMap = errback;
                     errback = undefined;
+                }
+                if (callback && !isFunction(callback)) {
+                    relMap = callback;
+                    callback = undefined;
                 }
 
                 //Any defined modules in the global queue, intake them now.

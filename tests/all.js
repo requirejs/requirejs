@@ -83,6 +83,7 @@ doh.registerUrl("definedSpecified", "../definedSpecified/definedSpecified.html")
 doh.registerUrl("delayedDefine", "../delayedDefine/delayedDefine.html");
 doh.registerUrl("nestedDefine", "../nestedDefine/nestedDefine.html");
 doh.registerUrl("nestedDefine2", "../nestedDefine/nestedDefine2.html");
+doh.registerUrl("nestedRelativeRequire", "../nestedRelativeRequire/nestedRelativeRequire.html");
 
 doh.registerUrl("pluginsSync", "../plugins/sync.html");
 doh.registerUrl("doublePluginCall", "../plugins/double.html");
