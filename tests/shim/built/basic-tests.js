@@ -34,7 +34,21 @@ var C = {
 
 define("c", ["a","b"], (function (global) {
     return function () {
-        return global["C"];
+        return global.C;
+    }
+}(this)));
+
+var e = {
+    nested: {
+        e: {
+            name: 'e'
+        }
+    }
+};
+
+define("e", (function (global) {
+    return function () {
+        return global.e.nested.e;
     }
 }(this)));
 
@@ -50,11 +64,14 @@ require({
             'c': {
                 deps: ['a', 'b'],
                 exports: 'C'
+            },
+            'e': {
+                exports: 'e.nested.e'
             }
         }
     },
-    ['a', 'c'],
-    function(a, c) {
+    ['a', 'c', 'e'],
+    function(a, c, e) {
         doh.register(
             'shimBasic',
             [
@@ -64,6 +81,7 @@ require({
                     t.is('b', c.b.name);
                     t.is('c', c.name);
                     t.is('d', c.b.dValue.name);
+                    t.is('e', e.name);
                 }
             ]
         );

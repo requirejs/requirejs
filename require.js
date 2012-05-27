@@ -124,6 +124,19 @@ var requirejs, require, define;
         return document.getElementsByTagName('script');
     }
 
+    //Allow getting a global that expressed in
+    //dot notation, like 'a.b.c'.
+    function getGlobal(value) {
+        if (!value) {
+            return value;
+        }
+        var g = global;
+        each(value.split('.'), function (part) {
+            g = g[part];
+        });
+        return g;
+    }
+
     function makeContextModuleFunc(func, relMap, enableBuildCallback) {
         return function () {
             //A version of a require function that passes a moduleName
@@ -1323,7 +1336,7 @@ var requirejs, require, define;
                 var func;
                 if (typeof exports === 'string') {
                     func = function () {
-                        return global[exports];
+                        return getGlobal(exports);
                     };
                     //Save the exports for use in nodefine checking.
                     func.exports = exports;
@@ -1488,7 +1501,7 @@ var requirejs, require, define;
                 if (!found &&
                     !defined[moduleName] &&
                     mod && !mod.inited) {
-                    if (config.enforceDefine && (!shExports || !global[shExports])) {
+                    if (config.enforceDefine && (!shExports || !getGlobal(shExports))) {
                         if (hasPathFallback(moduleName)) {
                             return;
                         } else {

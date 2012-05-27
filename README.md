@@ -43,10 +43,9 @@ RequireJS works in IE 6+, Firefox 2+, Safari 3.2+, Chrome 3+, and Opera 10+.
 generating a require.js release.
 * **docs**: The raw HTML files for the requirejs.org docs. Only includes the
 body of each page. Files in **dist** are used to generate a complete HTML page.
-* **tests**: Tests that use require.js, order.js text.js, and i18n.js.
+* **tests**: Tests for require.js.
 * **testBaseUrl.js**: A file used in the tests inside **tests**. Purposely
 placed outside the tests directory for testing paths that go outside a baseUrl.
 * **updatesubs.sh**: Updates projects that depend on require.js Assumes the
 projects are siblings to this directory and have specific names. Useful to
 copy require.js to dependent projects easily while in development.
-
