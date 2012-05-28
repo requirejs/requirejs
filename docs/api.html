@@ -16,6 +16,7 @@
                 <li class="hbox"><a href="#modulenotes">Other Module Notes</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2.7</span></li>
                 <li class="hbox"><a href="#circular">Circular Dependencies</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2.8</span></li>
                 <li class="hbox"><a href="#jsonp">Specify a JSONP Service Dependency</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2.9</span></li>
+                <li class="hbox"><a href="#undef">Undefining a Module</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2.10</span></li>
 
             </ul>
         </ul>
@@ -402,6 +403,24 @@ define(['a', 'exports'], function(a, exports) {
 
 </div>
 
+
+<div class="subSection">
+<h4><a href="#undef" name="jsonp">Undefining a Module</a><span class="sectionMark">&sect; 1.2.10</span></h4>
+
+<p>There is a global function, <b>requirejs.undef()</b>, that allows undefining a module. It will reset the
+loader's internal state to forget about the previous definition of the module.</p>
+
+<p><b>However</b>, it will not remove the module from other modules that are already defined and got a
+handle on that module as a dependency when they executed.</p>. So it is really only useful to use in
+error situations when no other modules have gotten a handle on a module value, or as part of any future
+module loading that may use that module. See the <a href="#errbacks">errback section</a> for an example.</p>
+
+<p>If you want to do more sophisticated dependency graph analysis for undefining work, the semi-private
+<a href="https://github.com/jrburke/requirejs/wiki/Internal-API:-onResourceLoad">onResourceLoad API</a> may be helpful.</p>
+
+</div>
+
+
 </div>
 
 <div class="section">
@@ -538,6 +557,13 @@ any module value, the shim config can just be an array of dependencies:</p>
     }
 });
 </code></pre>
+
+<p>Some important optimizer notes when using "shim" config:</p>
+
+<ul>
+    <li>You should use the [**mainConfigFile** build option](optimization.html#mainConfigFile) to specify the file where to find the shim config. Otherwise the optimizer will not know of the shim config. The other option is to duplicate the shim config in the build profile.</li>
+    <li>Do not mix CDN loading with shim config in a build. Example scenario: you load jQuery from the CDN but use the shim config to load something like the stock version of Backbone that depends on jQuery. When you do the build, be sure to inline jQuery in the built file and do not load it from the CDN. Otherwise, Backbone will be inlined in the built file and it will execute before the CDN-loaded jQuery will load. This is because the shim config just delays loading of the files until dependencies are loaded, but does not do any auto-wrapping of define. After a build, the dependencies are already inlined, the shim config cannot delay execution of the non-define()'d code until later. define()'d modules do work with CDN loaded code after a build because they properly wrap their source in define factory function that will not execute until dependencies are loaded. So the lesson: shim config is a stop-gap measure for for non-modular code, legacy code. define()'d modules are better.</li>
+</ul>
 
 <p id="config-map"><strong><a href="config-map">map</a></strong>: For the given module prefix, instead of loading the module with the given ID, substitute a different module ID.</p>
 
@@ -873,7 +899,7 @@ See <a href="https://github.com/jrburke/r.js/blob/master/README.md">the r.js REA
 
 <p>So it is very difficult with IE to allow both anonymous AMD modules, which are a core benefit of AMD modules, and reliable detect errors.</p>
 
-<p>However, if you are in a project that you know uses define() to declare all of its modules, or it uses the <a href="#config-shim">shim</a> config to specify string exports for anything that does not use define(), then if you set the <b>enforceDefine</b> config value to true, the loader can confirm if a script load by checking for the define() call or the existence of the shim's exports global value.</p>
+<p>However, if you are in a project that you know uses define() to declare all of its modules, or it uses the <a href="#config-shim">shim</a> config to specify string exports for anything that does not use define(), then if you set the <a href="#config-enforceDefine">enforceDefine</a> config value to true, the loader can confirm if a script load by checking for the define() call or the existence of the shim's exports global value.</p>
 
 <p>So if you want to support Internet Explorer, catch load errors, and have modular code either through direct define() calls or shim config, always set <b>enforceDefine</b> to be true. See the next section for an example.</p>
 
@@ -882,7 +908,7 @@ See <a href="https://github.com/jrburke/r.js/blob/master/README.md">the r.js REA
 <span class="sectionMark">&sect; 4.6.2</span>
 </h4>
 
-<p>Errbacks, when used with requirejs.undef(), will allow you to detect if a module fails to load, undefine
+<p>Errbacks, when used with <a href="#undef">requirejs.undef()</a>, will allow you to detect if a module fails to load, undefine
 that module, reset the config to a another location, then try again.</p>
 
 <p>A common use case for this is to use a CDN-hosted version of a library, but if

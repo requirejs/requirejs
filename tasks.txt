@@ -1,8 +1,10 @@
 Release Notes
 -------------------
 
-Things to mention about 1.1/TODOC:
-----------
+After merge/release:
+
+
+
 
 Implementation notes
 --------
@@ -18,32 +20,9 @@ with scripts.
   -> Allow 'module': '' and 'module/': '' config instead of packages config.
 
 DOC updates:
-- Talk about paths and baseUrl first,
-- Teach how to fail, how to debug first.
 - Put in link to the 1.0.8 docs.
+- Put in "upgrade info" on ai page.
 - remove require() references, focus on doing data-main and define() instead.
-- Update api.html#errors to mention new local errors, requireType, requireModules.
-- plugins: load.error(). Once called, there is no resetting from it, no undef.
-- module.config()
-- shim: use, always need to use mainConfigFile.
-- map config with *
-- enforceDefine: true,
-    - mention in error handling
-    - create errors.html section for nodefine
-    - ie9 cannot use error event listener because onreadystatechange fires first,
-      and cannot use addEventListener (which has load fire after error) because
-      of IE not firing onload right after script execution.
-    - mention how it works with shim.exports string values.
-    - paths array only works well if used with enforceDefine for IE.
-- #scripterror document on errors page.
-- mention https://github.com/jrburke/requirejs/wiki/Plugins on plugins page.
-  - ask plugin authors to update if they work with 2.0
-- For undef mention that it only cleans up the current module. If you want to
-  it and anything it depends on, and clear its dependencies, then need to know
-  the graph, probably by listening to onResourceLoad.
-- building code with "shim" means that code cannot cdn load for instance jquery
-  after a build since the non-amd code will expect jquery to already be there.
-  Can just put a script tag in after require.js for it. or go full amd.
 - scrub text references, in new repo
 - scrub i18n references, in new repo
 - scrub domReady references, in new repo
