@@ -3,10 +3,6 @@ Release Notes
 
 Things to mention about 1.1/TODOC:
 ----------
-- requirejs.undef()
-- packagePaths removed
-- jquery check only for holdReady jquerys that explicitly call define().
-
 
 Implementation notes
 --------
@@ -16,42 +12,21 @@ they are loaded in between anon define call scripts, since onload on scripts
 do not fire immediately after script execution, the wrong names can be associated
 with scripts.
 
-1.1 items?
---------------
-- support shim exports: 'jQuery.fn.plugin'?
 
-- remove special jquery detection, only do it for define() calls.
-- check bug list
 - robust handling for anon modules loaded outside loader.
-- baseUrl and name optional in optimizer? r.js -o include=a,b out=foo.js
-- globals: config to help underscore case?
-- remove packagePaths config.
 - Just remove packages config altogether, suggest volojs for making adapter modules.
   -> Allow 'module': '' and 'module/': '' config instead of packages config.
-- allow error handler either per context, or per top-level require call.
-- allow define(function(require, exports, module, define)) where that local define
-  only defines modules visible to the current module, to help with builds of projects
-  that wrap up all of their defines in a file but still want it usuable to other
-  modules?
-- !removing priority config
-- !Remove resourcesReady and jQuery callback holding
 
 DOC updates:
 - Talk about paths and baseUrl first,
 - Teach how to fail, how to debug first.
+- Put in link to the 1.0.8 docs.
 - remove require() references, focus on doing data-main and define() instead.
-- local require.isBrowser (any other props?) removed. requirejs.isBrowser still available.
-- domReady.withResources removed, no more loader done messages? jquery hooks removed too.
-- catchError.define removed, now just pass localized error handler.
 - Update api.html#errors to mention new local errors, requireType, requireModules.
 - plugins: load.error(). Once called, there is no resetting from it, no undef.
 - module.config()
 - shim: use, always need to use mainConfigFile.
-- removed order
 - map config with *
-- text plugin: make sure to use module.config() and update doc on how to set useXhr
-- i18n plugin: make sure to use module.config() and update doc on how to set
-  locale, config listing on api.html
 - enforceDefine: true,
     - mention in error handling
     - create errors.html section for nodefine

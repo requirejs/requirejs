@@ -33,9 +33,8 @@
     <li class="hbox"><a href="#plugins">Loader Plugins</a><span class="spacer boxFlex"></span><span class="sect">&sect;&sect; 5-5.4</span></li>
         <ul>
             <li class="hbox"><a href="#text">Specify a Text File Dependency</a><span class="spacer boxFlex"></span><span class="sect">&sect; 5.1</span></li>
-            <li class="hbox"><a href="#order">Load Scripts in a Specific Order</a><span class="spacer boxFlex"></span><span class="sect">&sect; 5.2</span></li>
-            <li class="hbox"><a href="#pageload">Page Load Event Support/DOM Ready</a><span class="spacer boxFlex"></span><span class="sect">&sect; 5.3</span></li>
-            <li class="hbox"><a href="#i18n">Define an I18N Bundle</a><span class="spacer boxFlex"></span><span class="sect">&sect; 5.4</span></li>
+            <li class="hbox"><a href="#pageload">Page Load Event Support/DOM Ready</a><span class="spacer boxFlex"></span><span class="sect">&sect; 5.2</span></li>
+            <li class="hbox"><a href="#i18n">Define an I18N Bundle</a><span class="spacer boxFlex"></span><span class="sect">&sect; 5.3</span></li>
         </ul>
 </ul>
 </div>
@@ -51,32 +50,20 @@
 <span class="sectionMark">&sect; 1.1</span>
 </h3>
 
-<p>If you just want to load some JavaScript files, use the <code>require()</code> API. If there is already a <code>require()</code> in the page, you can use <code>requirejs()</code> to access the RequireJS API for loading scripts.</p>
+<p>RequireJS takes a different approach to script loading that traditional &lt;script&gt; tags. Its goal is to encourage modular code. While it can also run fast and optimize well, the primary goal is to encourage modular code. As part of that, it encourages using <strong>module IDs</strong> instead of URLs for script tags.</p>
 
-<p>Here is a simple example of calling <code>require()</code>:</p>
+<p>RequireJS loads all code relative to a <a href="#config-baseUrl">baseUrl</a>. The baseUrl is normally set to the same directory as the script used in a data-main attribute for the top level script to load for a page. The data-main attribute is a special attribute that require.js will check to start script loading. This example will end up with a baseUrl of <strong>scripts</strong>:</p>
 
-<pre><code>&lt;script src="scripts/require.js"&gt;&lt;/script&gt;
-&lt;script&gt;
-    require(["some/module", "a.js", "b.js"], function(someModule) {
-        //This function will be called when all the dependencies
-        //listed above are loaded. Note that this function could
-        //be called before the page is loaded.
-        //This callback is optional.
-    });
-&lt;/script&gt;
+<pre><code>&lt;--This sets the baseUrl to the "scripts" directory--&gt;
+&lt;script data-main="scripts/main.js" src="scripts/require.js"&gt;&lt;/script&gt;
 </code></pre>
 
-<p>The dependencies above, ["some/module", "a.js", "b.js"], will be loaded via script tags that have the following src values:</p>
+<p>Or, baseUrl can be set manually via the <a href="#config">RequireJS config</a>. If there is no explicit config and data-main is not used, then the default baseUrl is the directory that contains the HTML page running RequireJS.</p>
 
-<ul>
-<li>some/module.js</li>
-<li>a.js (in the same directory as the HTML page that has the above HTML snippet)</li>
-<li>b.js (in the same directory as the HTML page that has the above HTML snippet)</li>
-</ul>
+<p>RequireJS also assumes by default that all dependencies are scripts, so it does not expect to see a trailing ".js" suffix on module IDs. RequireJS will automatically add it when translating the module ID to a path. With the <a href="#config-paths">paths config</a>, you can set
+up locations of a group of scripts. All of these capabilities allow you to use smaller strings for scripts as compared to traditional  &lt;script&gt; tags.</p>
 
-<p>RequireJS normally uses the <a href="#config-baseUrl">baseUrl</a> and <a href="#config-paths">paths</a> configuration to convert names like "some/module" into a file path.</p>
-
-<p>However, if the dependency name has one of the following properties, it is treated as a regular file path, like something that was passed to a &lt;script src=""&gt; tag:</p>
+<p>There may be times when you do want to reference a script directly and not conform to the "baseUrl + paths" rules for finding it. If a module ID has one of the following characterstics, the ID will not be passed through the "baseUrl + paths" configuration, and just be treated like a regular URL that is relative to the document:</p>
 
 <ul>
 <li>Ends in ".js".</li>
@@ -84,30 +71,63 @@
 <li>Contains an URL protocol, like "http:" or "https:".</li>
 </ul>
 
-<p>See the <a href="#config">Configuration Options</a> section for information on changing the lookup paths used for dependencies.</p>
+<p>In general though, it is best to use the baseUrl and "paths" config to set paths for module IDs. By doing so, it gives you more flexibility in renaming and configuring the paths to different locations for optimization builds.</p>
 
-<p>While you can use require() inside a script tag in an HTML file, it is strongly encouraged to place the work in a file that is loaded by RequireJS. This allows for easier optimization via the optimization tool, and there is a shorthand that can be used in the HTML for this pattern. The above example would be structured like this:</p>
+<p>Similarly, to avoid a bunch of configuration, it is best to avoid deep folder hierarchies for scripts, and instead either keep all the scripts in baseUrl, or if you want to separate your library/vendor-supplied code form your app code, use a directory layout like this:</p>
 
-<pre><code>&lt;script data-main="scripts/main" src="scripts/require.js"&gt;&lt;/script&gt;
-</code></pre>
+<ul>
+    <li>www/
+    <ul>
+        <li>index.html</li>
+        <li>js/
+        <ul>
+            <li>app/
+            <ul>
+                <li>sub.js</li>
+            </ul>
+            </li>
+            <li>lib/
+            <ul>
+                <li>jquery.js</li>
+                <li>canvas.js</li>
+            </ul></li>
+            <li>app.js</li>
+        </ul></li>
+    </ul></li>
+</ul>
 
-<span class="note">The path rules used for data-main changed in RequireJS 0.23. Before that version, data-main="main" for the above example.</span>
+<p>in index.html:</p>
 
-<p>The data-main attribute tells RequireJS to take the value of the data-main attribute and treat it like a require([]) call. So, in this case, it would load scripts/main.js, and that file should have the top-level require call:</p>
+<pre><code>&lt;script data-main="js/app.js" src="js/require.js"&gt;&lt;/script&gt;</code></pre>
 
-<pre><code>//Inside scripts/main.js
-require(["some/module", "a.js", "b.js"], function(someModule) {
-    //...
+<p>and in main.js:</p>
+
+<pre><code>requirejs.config({
+    //By default load any module IDs from js/lib
+    baseUrl: 'js/lib',
+    //except, if the module ID starts with "app",
+    //load it from the js/app directory. paths
+    //config is relative to the baseUrl, and
+    //never includes a ".js" extension since
+    //the paths config could be for a directory.
+    paths: {
+        app: '../app'
+    }
+});
+
+// Start the main app logic.
+requirejs(['jquery', 'canvas', 'app/sub'],
+function   ($,        canvas,   sub) {
+    //jQuery, canvas and the app/sub module are all
+    //loaded and can be used here now.
 });
 </code></pre>
 
-<p>The directory that contains the data-main script also then becomes the root URL value (or <strong>baseUrl</strong> in the RequireJS terms) to find other scripts that use the <strong>module naming scheme</strong>, the scheme that does not end a ".js" extension. In this example "some/module" is using the module naming scheme, where "a.js" and "b.js" are not.</p>
+<p>Notice as part of that example, vendor libraries like jQuery did not have their version numbers in their file names. It is recommended to store that version info in a separate text file if you want to track it, or if you use a tool like <a href="https://github.com/volojs/volo">volo</a>, it will stamp the package.json with the version information but keep the file on disk as "jquery.js". This allows you to have the very minimal configuration instead of having to put an entry in the "paths" config for each library. For instance, configure "jquery" to be "jquery-1.7.2".</p>
 
-<p>Since data-main was used, and main.js is in the scripts directory, the baseUrl for RequireJS becomes the <strong>scripts</strong> directory. The <strong>"some/module"</strong> script would map to a path relative to the scripts directory. So it would be found at <strong>scripts/some/module.js</strong>.</p>
+<p>Ideally the scripts you load will be modules that are defined by calling <a href="#define">define()</a>. However, you may need to use some traditional/legacy "browser globals" scripts that do not express their dependencies via define(). For those, you can use the <a href="#config-shim">shim config</a>. To properly express their dependencies.</p>
 
-<p>Note how this is different from the first example where "some/module" was found at some/module.js. If data-main is not used and an explicit baseUrl value is not passed in the <a href="#config">RequireJS configuration</a>, then then the default baseUrl is the directory containing the HTML page that loads RequireJS.</p>
-
-<p>Script names that are just regular paths ending in ".js", start with a "/" or have a protocol in them are always mapped relative to the HTML page instead of relative to baseUrl, just like HTML &lt;script&gt; src="" values. You can use the "module naming scheme" even if the script does not define a module, it is just means the path will be relative to baseUrl in that case.</p>
+<p>If you do not express the dependencies, you will likely get loading errors since RequireJS loads scripts asynchronously and out of order for speed.</p>
 
 <h3>
 <a href="#define" name="define">Define a Module</a>
@@ -414,8 +434,7 @@ define(['a', 'exports'], function(a, exports) {
     paths: {
         "some": "some/v1.0"
     },
-    waitSeconds: 15,
-    locale: "fr-fr"
+    waitSeconds: 15
   });
   require( ["some/module", "my/module", "a.js", "b.js"],
     function(someModule,    myModule) {
@@ -451,43 +470,97 @@ This example specifies some dependencies to load as soon as require.js defines r
 
 <p>Supported configuration options:</p>
 
-<p id="config-baseUrl"><strong>baseUrl</strong>: the root path to use for all module lookups. So in the above example, "my/module"'s script tag will have a src="/another/path/my/module.js". baseUrl is <strong>not</strong> used when loading plain .js files, those strings are used as-is, so a.js and b.js will be loaded from the same directory as the HTML page that contains the above snippet.</p>
+<p id="config-baseUrl"><strong><a href="config-baseUrl">baseUrl</a></strong>: the root path to use for all module lookups. So in the above example, "my/module"'s script tag will have a src="/another/path/my/module.js". baseUrl is <strong>not</strong> used when loading plain .js files, those strings are used as-is, so a.js and b.js will be loaded from the same directory as the HTML page that contains the above snippet.</p>
 
 <p>If no baseUrl is explicitly set in the configuration, the default value will be the location of the HTML page that loads require.js. If a <strong>data-main</strong> attribute is used, that path will become the baseUrl.</p>
 
 <p>The baseUrl can be a URL on a different domain as the page that will load require.js. RequireJS script loading works across domains. The only restriction is on text content loaded by text! plugins: those paths should be on the same domain as the page, at least during development. The optimization tool will inline text! plugin resources so after using the optimization tool, you can use resources that reference text! plugin resources from another domain.</p>
 
-<p id="config-paths"><strong>paths</strong>: path mappings for module names not found directly under baseUrl. The path settings are assumed to be relative to baseUrl, unless the paths setting starts with a "/" or has a URL protocol in it ("like http:"). In those cases, the path is determined relative to baseUrl. Using the above sample config, "some/module"'s script tag will be src="/another/path/some/v1.0/module.js". The path that is used for a module name should <strong>not</strong> include the .js extension, since the path mapping could be for a directory. The path mapping code will automatically add the .js extension when mapping the module name to a path.</p>
+<p id="config-paths"><strong><a href="config-paths">paths</a></strong>: path mappings for module names not found directly under baseUrl. The path settings are assumed to be relative to baseUrl, unless the paths setting starts with a "/" or has a URL protocol in it ("like http:"). In those cases, the path is determined relative to baseUrl. Using the above sample config, "some/module"'s script tag will be src="/another/path/some/v1.0/module.js". The path that is used for a module name should <strong>not</strong> include the .js extension, since the path mapping could be for a directory. The path mapping code will automatically add the .js extension when mapping the module name to a path.</p>
 
-<p id="config-packages"><strong>packages</strong>: configures loading modules from CommonJS packages. See the <a href="#packages">packages topic</a> for more information.</p>
+<p id="config-shim"><strong><a href="config-shim">shim</a></strong>: Configure the dependencies and exports for older, traditional "browser globals" scripts that do not use define() to declare the dependencies and set a module value. Example:</p>
 
-<p id="config-waitSeconds"><strong>waitSeconds</strong>: The number of seconds to wait before giving up on loading a script. The default is 7 seconds.</p>
 
-<p id="config-locale"><strong>locale</strong>: The locale to use for loading i18n bundles. By default navigator.language or navigator.userLanguage will be used. The proper syntax for specifying a locale is using lowercase and separating values by dashes, for instance: "fr-fr-paris" or "en-us".</p>
+<pre><code>requirejs.config({
+    shim: {
+        'backbone': {
+            //These script dependencies should be loaded before loading
+            //backbone.js
+            deps: ['underscore', 'jquery'],
+            //Once loaded, use the global 'Backbone' as the
+            //module value.
+            exports: 'Backbone'
+        },
+        'foo': {
+            deps: ['bar'],
+            //A function can be used to generate the exported value.
+            //"this" for the function will be the global object.
+            //The dependencies will be passed in as function arguments.
+            exports: function (bar) {
+                //Using a function allows you to call noConflict for libraries
+                //that support it. However, be aware that plugins for those
+                //libraries may still want a global.
+                return this.Foo.noConflict();
+            }
+        }
+    }
+});
+</code></pre>
 
-<p id="config-context"><strong>context</strong>: A name to give to a loading context. This allows require.js to load multiple versions of modules in a page, as long as each top-level require call specifies a unique context string. To use it correctly, see the <a href="#multiversion">Multiversion Support</a> section.</p>
+<p>For "modules" that are just jQuery or Backbone plugins that do not need to export
+any module value, the shim config can just be an array of dependencies:</p>
 
-<p id="config-deps"><strong>deps</strong>: An array of dependencies to load. Useful when require is defined as a config object before require.js is loaded, and you want to specify dependencies to load as soon as require() is defined.</p>
+<pre><code>requirejs.config({
+    shim: {
+        'jquery.colorize': ['jquery'],
+        'jquery.scroll': ['jquery'],
+        'backbone.layoutmanager': ['backbone']
+    }
+});
+</code></pre>
 
-<p id="config-callback"><strong>callback</strong>: A function to pass to require that should be require after <strong>deps</strong> have been loaded. Useful when require is defined as a config object before require.js is loaded, and you want to specify a function to require after the configuration's <strong>deps</strong> array has been loaded.</p>
+<p>Note however if you want to get 404 load detection in IE so that you can  use paths fallbacks or errbacks, then a string exports value should be given so the loader can check if the scripts actually loaded:</p>
 
-<p id="config-priority"><strong>priority</strong>: An array of module/file names to load immediately, before tracing down any other dependencies. This allows you to set up a small set of files that are downloaded in parallel that contain most of the modules and their dependencies already built in. More information is in the <a href="faq-optimization.html#priority">Optimization FAQ, Priority Downloads</a>.<b>Note:</b> resources loaded by loader plugins (like 'text!template.html') <b>cannot</b> be specified in the priority array: the priority mechanism only works with regular JavaScript resources.</p>
+<pre><code>requirejs.config({
+    shim: {
+        'jquery.colorize': {
+            deps: ['jquery'],
+            exports: 'jQuery.fn.colorize'
+        },
+        'jquery.scroll': {
+            deps: ['jquery'],
+            exports: 'jQuery.fn.colorize'
+        },
+        'backbone.layoutmanager': {
+            deps: ['backbone']
+            exports: 'Backbone.LayoutManager'
+        }
+    }
+});
+</code></pre>
 
-<p id="config-xhtml"><strong>xhtml</strong>: If set to true, document.createElementNS() will be used to create script elements.</p>
+<p id="config-packages"><strong><a class="configTitle" href="config-packages">packages</a></strong>: configures loading modules from CommonJS packages. See the <a href="#packages">packages topic</a> for more information.</p>
 
-<p id="config-urlArgs"><strong>urlArgs</strong>: Extra query string arguments appended to URLs that RequireJS uses to fetch resources. Most useful to cache bust when the browser or server is not configured correctly. Example cache bust setting for urlArgs:</p>
+<p id="config-waitSeconds"><strong><a href="config-waitSeconds">waitSeconds</a></strong>: The number of seconds to wait before giving up on loading a script. The default is 7 seconds.</p>
+
+<p id="config-context"><strong><a href="config-context">context</a></strong>: A name to give to a loading context. This allows require.js to load multiple versions of modules in a page, as long as each top-level require call specifies a unique context string. To use it correctly, see the <a href="#multiversion">Multiversion Support</a> section.</p>
+
+<p id="config-deps"><strong><a href="config-deps">deps</a></strong>: An array of dependencies to load. Useful when require is defined as a config object before require.js is loaded, and you want to specify dependencies to load as soon as require() is defined.</p>
+
+<p id="config-callback"><strong><a href="config-callback">callback</a></strong>: A function to pass to require that should be require after <strong>deps</strong> have been loaded. Useful when require is defined as a config object before require.js is loaded, and you want to specify a function to require after the configuration's <strong>deps</strong> array has been loaded.</p>
+
+<p id="config-priority"><strong><a href="config-priority">priority</a></strong>: An array of module/file names to load immediately, before tracing down any other dependencies. This allows you to set up a small set of files that are downloaded in parallel that contain most of the modules and their dependencies already built in. More information is in the <a href="faq-optimization.html#priority">Optimization FAQ, Priority Downloads</a>.<b>Note:</b> resources loaded by loader plugins (like 'text!template.html') <b>cannot</b> be specified in the priority array: the priority mechanism only works with regular JavaScript resources.</p>
+
+<p id="config-xhtml"><strong><a href="config-xhtml">xhtml</a></strong>: If set to true, document.createElementNS() will be used to create script elements.</p>
+
+<p id="config-urlArgs"><strong><a href="config-urlArgs">urlArgs</a></strong>: Extra query string arguments appended to URLs that RequireJS uses to fetch resources. Most useful to cache bust when the browser or server is not configured correctly. Example cache bust setting for urlArgs:</p>
 
 <pre><code>urlArgs: "bust=" +  (new Date()).getTime()
 </code></pre>
 
 <p>During development it can be useful to use this, however <strong>be sure</strong> to remove it before deploying your code.</p>
 
-<p id="config-jQuery"><strong>jQuery</strong>: (RequireJS 0.25.0+) specify an exact version match for the version of jQuery that should be allowed to register as the 'jquery' dependency. This is useful in environments where multiple jQuery files could be loaded but you want
-to be sure to get the right version of jQuery for your loading context. Normally you do not need to set this if you are only loading one version of jQuery in a page. However, if you use third party libraries that may also load jQuery, it is best to set this option.</p>
-
-<p id="config-scriptType"><strong>scriptType</strong>: (RequireJS 1.0.4+) specify the value for the type="" attribute used for script tags inserted into the document by RequireJS. Default is "text/javascript". To use Firefox's JavaScript 1.8 features, use "text/javascript;version=1.8".</p>
-
-<p id="config-catchError"><strong>catchError</strong>: (RequireJS 0.26.0+) Normally, errors evaluating define() factory functions are not caught, to allow easy debugging during development. However, for some scenarios and production deployments, it is useful to have the errors caught. By specifying catchError.define = true, the errors will be caught and passed to <a href="#errors">requirejs.onError()</a>. Normally requirejs.onError() throws the error, but you can override the definition of requirejs.onError() to do something different.</p>
+<p id="config-scriptType"><strong><a href="config-baseUrl">scriptType</a></strong>: Specify the value for the type="" attribute used for script tags inserted into the document by RequireJS. Default is "text/javascript". To use Firefox's JavaScript 1.8 features, use "text/javascript;version=1.8".</p>
 
 </div>
 
@@ -709,8 +782,14 @@ See <a href="https://github.com/jrburke/r.js/blob/master/README.md">the r.js REA
 };
 </code></pre>
 
-<p>If you want errors that occur as part of calling the define() factory function to create a module export value, you can set <a href="#config-catchError">catchError</a> to true, and any errors from running the factory function will be passed to
-requirejs.onError().</p>
+<p>If you want errors that occur as part of calling the define() factory function to create a module export value, you can pass an errback to the require call that will load it:</p>
+
+<pre><code>require(['moduleThatMayError'], function (mod) {
+    //loaded OK
+}, function (err) {
+    //error loading or evaluating it.
+});
+</code></pre>
 
 </div>
 
@@ -757,27 +836,7 @@ requirejs.onError().</p>
 
 <p>However, <a href="optimization.html">the RequireJS optimizer</a> will inline any text! references with the actual text file contents into the modules, so after a build, the modules that have text! dependencies can be used from other domains.</p>
 
-<h3><a href="#order" name="order">Load Scripts in a Specific Order</a><span class="sectionMark">&sect; 5.2</span></h3>
-
-<p>Normally RequireJS loads and evaluates scripts in an undetermined order. However, there are some traditional scripts that depend on being loaded in a specific order. For those cases you can use the <strong>order</strong> plugin. <a href="download.html#order">Download the plugin</a> and put it in the same directory as your app's main JS file. Example usage:</p>
-
-<pre><code>require(["order!one.js", "order!two.js", "order!three.js"], function () {
-    //This callback is called after the three scripts finish loading.
-});
-</code></pre>
-
-<p>Scripts loaded by the <strong>order</strong> plugin will be fetched asynchronously, but evaluated in the order they are passed to require, so it should still perform better than using script tags in the head of an HTML document.</p>
-
-<p>The <strong>order</strong> plugin is best used with traditional scripts. It is not needed for scripts that use define() to define modules. It is possible to mix and match "order!" dependencies with regular dependencies, but only the "order!" ones will be evaluated in relative order to each other. </p>
-
-<p><strong>Notes:</strong></p>
-<ul>
-    <li>The order! plugin only works with JavaScript files that are cacheable by the browser. If the JS file has headers that do not allow the browser to cache the file, then the order of scripts will not be maintained.</li>
-    <li>Do not use the order! plugin to load other plugin-loaded resources. For instance. 'order!cs!my/coffescript/module' is not recommended. You will get errors in some versions of IE and WebKit. This is due to the workarounds the order plugin needs to do for those browsers to ensure ordered execution.</li>
-</ul>
-
-
-<h3><a href="#pageload" name="pageload">Page Load Event Support/DOM Ready</a><span class="sectionMark">&sect; 5.3</span></h3>
+<h3><a href="#pageload" name="pageload">Page Load Event Support/DOM Ready</a><span class="sectionMark">&sect; 5.2</span></h3>
 
 <p>It is possible when using RequireJS to load scripts quickly enough that they complete before the DOM is ready. Any work that tries to interact with the DOM should wait for the DOM to be ready. For modern browsers, this is done by waiting for the DOMContentLoaded event.</p>
 
@@ -809,23 +868,7 @@ the current document when used as a loader plugin:</p>
 <p><b>Note:</b> If the document takes a while to load (maybe it is a very large document, or has HTML script tags loading large JS files that block DOM completion until they are done), using domReady as a loader plugin may result in a RequireJS "timeout" error. If this a problem either increase the <a href="#config-waitSeconds">waitSeconds</a> configuration, or just use domReady as a module and
 call domReady() inside the require() callback.</p>
 
-<p id="domReadyWithResources"><b>DOM Ready with implicit dependencies</b>: If you are working on a project that does not use require() and define() to explicitly indicate dependencies in all scripts, you many notice some errors when waiting for the DOM to be ready then executing code that depends on those implicit dependencies.</p>
-
-<p>The best fix is to wrap all scripts in explicit define() calls that specify all the direct dependencies. However, if that is not an option, you can call a special method on the domReady plugin to wait for all scripts to load and the DOM to be ready:</p>
-
-<pre><code>require(['domReady'], function (domReady) {
-  domReady.withResources(function () {
-    //This function is called once the DOM is ready,
-    //and all modules/plugin resources that RequireJS is loading
-    //finish loading.
-  }):
-});
-</code></pre>
-
-<p><b>You should avoid using this function</b>, and instead be very explicit about the dependencies in each file.
-However, as an intermediate patch to get a project working with RequireJS, it can be useful.</p>
-
-<h3><a href="#i18n" name="i18n">Define an I18N Bundle</a><span class="sectionMark">&sect; 5.4</span></h3>
+<h3><a href="#i18n" name="i18n">Define an I18N Bundle</a><span class="sectionMark">&sect; 5.3</span></h3>
 
 <p>Once your web app gets to a certain size and popularity, localizing the strings in the interface and providing other locale-specific information becomes more useful. However, it can be cumbersome to work out a scheme that scales well for supporting multiple locales.</p>
 
@@ -888,7 +931,18 @@ define({
 });
 </code></pre>
 
-<p>RequireJS will use the browser's navigator.language or navigator.userLanguage property to determine what locale values to use for my/nls/colors, so your app does not have to change. If you prefer to set the locale, you can use the locale: configuration parameter (see the <a href="#config">Configuration options</a> section).</p>
+<p>RequireJS will use the browser's navigator.language or navigator.userLanguage property to determine what locale values to use for my/nls/colors, so your app does not have to change. If you prefer to set the locale, you can use the <a href="#moduleconfig">module config</a> to pass the locale to the plugin:</p>
+
+<pre><code>requirejs.config({
+    config: {
+        //Set the config for the i18n
+        //module ID
+        i18n: {
+            locale: 'fr-fr'
+        }
+    }
+});
+</code></pre>
 
 <p><strong>Note</strong> that RequireJS will always use a lowercase version of the locale, to avoid case issues, so all of the directories and files on disk for i18n bundles should use lowercase locales.</p>
 

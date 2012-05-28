@@ -157,11 +157,9 @@ with jQuery plugins.</p>
 <p>Some options:</p>
 
 <ul>
-    <li>Use the <a href="api.html#order">order plugin</a> to load jQuery and the plugins you
-    use in the correct order.</li>
-    <li>Use the priority config to load jQuery before other scripts load. See the
-    <a href="https://github.com/jrburke/require-jquery">Alternate Integration section
-    in the require-jquery project</a> for more information.</li>
+    <li>Use the <a href="api.html#config-shim">shim config</a> to specify the
+    dependencies for the plugins so that jQuery will load before the
+    plugin is loaded.</li>
     <li>Wrap the plugins in a define() call.</li>
 </ul>
 

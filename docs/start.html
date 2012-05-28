@@ -84,8 +84,6 @@
 &lt;/html&gt;
 </code></pre>
 
-<span class="note">The path rules used for data-main changed in RequireJS 0.23. Before that version, data-main="main" for the above example.</span>
-
 <p>Inside of main.js, you can use require() to load any other scripts you need to run:</p>
 
 <pre><code>require(["helper/util"], function(util) {
@@ -96,7 +94,9 @@
 });
 </code></pre>
 
-<p>That is it! Check out the <a href="api.html">API docs</a> to learn more about require() and define().</p>
+<p>That will load the helper/util.js script. To get full advantage of RequireJS,
+see the <a href="api.html">API docs</a> to learn more about defining and using
+modules.</p>
 </div>
 
 <div class="section">
