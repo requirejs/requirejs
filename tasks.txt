@@ -4,8 +4,6 @@ Release Notes
 After merge/release:
 
 
-
-
 Implementation notes
 --------
 * Cannot get rid of interactive stuff for IE because requirejs supports loading
@@ -20,13 +18,7 @@ with scripts.
   -> Allow 'module': '' and 'module/': '' config instead of packages config.
 
 DOC updates:
-- Put in link to the 1.0.8 docs.
-- Put in "upgrade info" on ai page.
-- remove require() references, focus on doing data-main and define() instead.
-- scrub text references, in new repo
-- scrub i18n references, in new repo
-- scrub domReady references, in new repo
-- In docs, point to a "latest" tag in the plugin repos.
+- In docs, point to a "latest" tag in the plugin repos. Update plugin release versions, add latest tag.
 
 Tests to write:
 - mapConfig test for packages.
