@@ -17,9 +17,6 @@ with scripts.
 - Just remove packages config altogether, suggest volojs for making adapter modules.
   -> Allow 'module': '' and 'module/': '' config instead of packages config.
 
-DOC updates:
-- In docs, point to a "latest" tag in the plugin repos. Update plugin release versions, add latest tag.
-
 Tests to write:
 - mapConfig test for packages.
 
