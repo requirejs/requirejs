@@ -539,7 +539,94 @@ any module value, the shim config can just be an array of dependencies:</p>
 });
 </code></pre>
 
-<p id="config-packages"><strong><a class="configTitle" href="config-packages">packages</a></strong>: configures loading modules from CommonJS packages. See the <a href="#packages">packages topic</a> for more information.</p>
+<p id="config-map"><strong><a href="config-map">map</a></strong>: For the given module prefix, instead of loading the module with the given ID, substitute a different module ID.</p>
+
+<p>This sort of capability is really important for larger projects which may have
+two sets of modules that need to use two different versions of 'foo', but they
+still need to cooperate with each other.</p>
+
+<p>This is not possible with the <a href="#multiversion">context-backed multiversion support</a>. In addition, the <a href="#config-paths">paths config</a> is only for setting up root paths for module IDs, not for mapping one module ID to another one.</p>
+
+<p>map example:</p>
+
+<pre><code>requirejs.config({
+    map: {
+        'some/newmodule': {
+            'foo': 'foo1.2'
+        },
+        'some/oldmodule': {
+            'foo': 'foo1.0'
+        }
+    }
+});
+</code></pre>
+
+<p>If the modules are laid out on disk like this:</p>
+
+<ul>
+    <li>foo1.0.js</li>
+    <li>foo1.2.js</li>
+    <li>some/
+        <ul>
+            <li>newmodule.js</li>
+            <li>oldmodule.js</li>
+        </ul>
+    </li>
+</ul>
+
+<p>When 'some/newmodule' does `require('foo')` it will get the foo1.2.js file,
+and when 'some/oldmodule' does `require('foo')` it will get the foo1.0.js file.</p>
+
+<p>This feature only works well for scripts that are real AMD modules that call
+define() and register as anonymous modules.</p>
+
+<p>There is also support for a "*" map value which means "for all modules loaded, use this map config". If there is a more specific map config, that one will take precedence over the star config. Example:</p>
+
+<pre><code>
+requirejs.config({
+    map: {
+        '*': {
+            'foo': 'foo1.2'
+        },
+        'some/oldmodule': {
+            'foo': 'foo1.0'
+        }
+    }
+});
+</code></pre>
+
+<p>Means that for any module except "some/oldmodule", when "foo" is wanted, use "foo1.2" instead. For "some/oldmodule" only, use "foo1.0" when it asks for "foo".</p>
+
+<p id="config-moduleconfig"><strong><a href="config-moduleconfig">config</a></strong>: There is a common need to pass configuration info to a module.  That configuration info is usually known as part of the application, and there needs to be a way to pass that down to a module. In RequireJS, that is done with the <b>config</b> option for requirejs.config(). Modules can then read that info by asking for the special dependency "module" and calling <b>module.config()</b>. Example:</p>
+
+<pre><code>requirejs.config({
+    config: {
+        'bar': {
+            size: 'large'
+        },
+        'baz': {
+            color: 'blue'
+        }
+    }
+});
+
+//bar.js, which uses simplified CJS wrapping:
+//http://requirejs.org/docs/whyamd.html#sugar
+define(function (require, exports, module) {
+    //Will be the value 'large'
+    var size = module.config().size;
+});
+
+//baz.js which uses a dependency array,
+//it asks for the special module ID, 'module':
+//https://github.com/jrburke/requirejs/wiki/Differences-between-the-simplified-CommonJS-wrapper-and-standard-AMD-define#wiki-magic
+define(['module'], function (module) {
+    //Will be the value 'blue'
+    var color = module.config().color;
+});
+</code></pre>
+
+<p id="config-packages"><strong><a href="config-packages">packages</a></strong>: configures loading modules from CommonJS packages. See the <a href="#packages">packages topic</a> for more information.</p>
 
 <p id="config-waitSeconds"><strong><a href="config-waitSeconds">waitSeconds</a></strong>: The number of seconds to wait before giving up on loading a script. The default is 7 seconds.</p>
 
@@ -549,7 +636,7 @@ any module value, the shim config can just be an array of dependencies:</p>
 
 <p id="config-callback"><strong><a href="config-callback">callback</a></strong>: A function to pass to require that should be require after <strong>deps</strong> have been loaded. Useful when require is defined as a config object before require.js is loaded, and you want to specify a function to require after the configuration's <strong>deps</strong> array has been loaded.</p>
 
-<p id="config-priority"><strong><a href="config-priority">priority</a></strong>: An array of module/file names to load immediately, before tracing down any other dependencies. This allows you to set up a small set of files that are downloaded in parallel that contain most of the modules and their dependencies already built in. More information is in the <a href="faq-optimization.html#priority">Optimization FAQ, Priority Downloads</a>.<b>Note:</b> resources loaded by loader plugins (like 'text!template.html') <b>cannot</b> be specified in the priority array: the priority mechanism only works with regular JavaScript resources.</p>
+<p id="config-enforceDefine"><strong><a href="config-enforceDefine">enforceDefine</a></strong>: If set to true, an error will be thrown if a script loads that does not call define() or have a shim exports string value that can be checked. See <a href="#ieloadfail">Catching load failures in IE</a> for more information.</p>
 
 <p id="config-xhtml"><strong><a href="config-xhtml">xhtml</a></strong>: If set to true, document.createElementNS() will be used to create script elements.</p>
 
@@ -761,16 +848,125 @@ See <a href="https://github.com/jrburke/r.js/blob/master/README.md">the r.js REA
 
 <h3><a href="#errors" name="errors">Handling Errors</a><span class="sectionMark">&sect; 4.6</span></h3>
 
-<p>Errors in loading a script or module are normally surfaced via timeouts, since script tag loading does not give much detail into network problems. To detect errors, you can override requirejs.onError() to get errors. The error object passed to the error function will contain two properties if it is a timeout issue:</p>
+<p>The general class of errors are 404s for scripts (not found), network timeouts or errors in the scripts that are loaded. RequireJS has a few tools to deal with them: require-specific errbacks, a "paths" array config, and a global requirejs.onError.</p>
+
+<p>The error object passed to errbacks and the global requirejs.onError function will usually contain two custom properties:</p>
 
 <ul>
-<li><strong>requireType</strong>: value will be "timeout"</li>
-<li><strong>requireModules</strong>: an array of module names/URLs that timed out. You can find the JSONP service URL in here.</li>
+<li><strong>requireType</strong>: A string value with a general classification, like "timeout", "nodefine", "scripterror".</li>
+<li><strong>requireModules</strong>: an array of module names/URLs that timed out.</li>
 </ul>
 
-<p>Note however that if you get this type of error it probably means other modules that depend on the modules that failed did not get defined.</p>
+<p>If you get an error with a requireModules, it probably means other modules that depend on the modules in that requireModules array are not defined.</p>
 
-<p>Example:</p>
+<h4>
+<a href="#ieloadfail" name="ieloadfail">Catching load failures in IE</a>
+<span class="sectionMark">&sect; 4.6.1</span>
+</h4>
+
+<p>Internet Explorer has a set of problems that make it difficult to detect load failures for errbacks/paths fallbacks:</p>
+
+<ul>
+    <li>script.onerror does not work in IE 6-8. There is no way to know if loading a script generates a 404, worse, it triggers the onreadystatechange with a complete state even in a 404 case.</li>
+    <li>script.onerror does work in IE 9+, but it has a bug where it does not fire script.onload event handlers right after execution of script, so it cannot support the standard method of allowing anonymous AMD modules. So script.onreadystatechange is still used. However, onreadystatechange fires with a complete state before the script.onerror function fires.</li>
+</ul>
+
+<p>So it is very difficult with IE to allow both anonymous AMD modules, which are a core benefit of AMD modules, and reliable detect errors.</p>
+
+<p>However, if you are in a project that you know uses define() to declare all of its modules, or it uses the <a href="#config-shim">shim</a> config to specify string exports for anything that does not use define(), then if you set the <b>enforceDefine</b> config value to true, the loader can confirm if a script load by checking for the define() call or the existence of the shim's exports global value.</p>
+
+<p>So if you want to support Internet Explorer, catch load errors, and have modular code either through direct define() calls or shim config, always set <b>enforceDefine</b> to be true. See the next section for an example.</p>
+
+<h4>
+<a href="#errbacks" name="errbacks">require([]) errbacks</a>
+<span class="sectionMark">&sect; 4.6.2</span>
+</h4>
+
+<p>Errbacks, when used with requirejs.undef(), will allow you to detect if a module fails to load, undefine
+that module, reset the config to a another location, then try again.</p>
+
+<p>A common use case for this is to use a CDN-hosted version of a library, but if
+that fails, switch to loading the file locally:</p>
+
+<pre><code>requirejs.config({
+    enforceDefine: true,
+    paths: {
+        jquery: 'http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min'
+    }
+});
+
+//Later
+require(['jquery'], function ($) {
+    //Do something with $ here
+}, function (err) {
+    //The errback, error callback
+    //The error has a list of modules that failed
+    var failedId = err.requireModules && err.requireModules[0],
+    if (failedId === 'jquery') {
+        //undef is function only on the global requirejs object.
+        //Use it to clear internal knowledge of jQuery. Any modules
+        //that were dependent on jQuery and in the middle of loading
+        //will not be loaded yet, they will wait until a valid jQuery
+        //does load.
+        requirejs.undef(failedId);
+
+        //Set the path to jQuery to local path
+        requirejs.config({
+            paths: {
+                jquery: 'local/jquery'
+            }
+        });
+
+        //Try again. Note that the above require callback
+        //with the "Do something with $ here" comment will
+        //be called if this new attempt to load jQuery succeeds.
+        require(['jquery'], function () {});
+    } else {
+        //Some other error. Maybe show message to the user.
+    }
+});
+</code></pre>
+
+<p>With `requirejs.undef()`, if you later set up a different config and try to
+load the same module, the loader will still remember which modules needed
+that dependency and finish loading them when the newly configured module loads.</p>
+
+<p><b>Note</b>: errbacks only work with callback-style require calls, not define()
+calls. define() is only for declaring modules.</p>
+
+<h4>
+<a href="#pathsfallbacks" name="pathsfallbacks">paths config fallbacks</a>
+<span class="sectionMark">&sect; 4.6.3</span>
+</h4>
+
+<p>The above pattern for detecting a load failure, undef()ing a module, modifying paths and reloading is a common enough request that there is also a shorthand for it. The paths config allows array values:</p>
+
+<pre><code>requirejs.config({
+    //To get timely, correct error triggers in IE, force a define/shim exports check.
+    enforceDefine: true,
+    paths: {
+        jquery: [
+            'http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min',
+            //If the CDN location fails, load from this location
+            'lib/jquery'
+        ]
+    }
+});
+
+//Later
+require(['jquery'], function ($) {
+});
+</code></pre>
+
+<p>This above code will try the CDN location, but if that fails, fall back to the local lib/jquery.js location.</p>
+
+
+<h4>
+<a href="#requirejsonerror" name="requirejsonerror">Global requirejs.onError function</a>
+<span class="sectionMark">&sect; 4.6.4</span>
+</h4>
+
+<p>To detect errors that are not caught by local errbacks, you can override requirejs.onError():</p>
 
 <pre><code>requirejs.onError = function (err) {
     console.log(err.requireType);
@@ -780,15 +976,6 @@ See <a href="https://github.com/jrburke/r.js/blob/master/README.md">the r.js REA
 
     throw err;
 };
-</code></pre>
-
-<p>If you want errors that occur as part of calling the define() factory function to create a module export value, you can pass an errback to the require call that will load it:</p>
-
-<pre><code>require(['moduleThatMayError'], function (mod) {
-    //loaded OK
-}, function (err) {
-    //error loading or evaluating it.
-});
 </code></pre>
 
 </div>
