@@ -6,7 +6,6 @@ When doing a release, do the following:
 
 * Update files to the new version number:
     * require.js, both places
-    * all plugins, both places
     * docs/download.md: check for nested paths too, add new release section
     * pre.html
     * post.html
