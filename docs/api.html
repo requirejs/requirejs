@@ -491,15 +491,15 @@ This example specifies some dependencies to load as soon as require.js defines r
 
 <p>Supported configuration options:</p>
 
-<p id="config-baseUrl"><strong><a href="config-baseUrl">baseUrl</a></strong>: the root path to use for all module lookups. So in the above example, "my/module"'s script tag will have a src="/another/path/my/module.js". baseUrl is <strong>not</strong> used when loading plain .js files, those strings are used as-is, so a.js and b.js will be loaded from the same directory as the HTML page that contains the above snippet.</p>
+<p id="config-baseUrl"><strong><a href="#config-baseUrl">baseUrl</a></strong>: the root path to use for all module lookups. So in the above example, "my/module"'s script tag will have a src="/another/path/my/module.js". baseUrl is <strong>not</strong> used when loading plain .js files, those strings are used as-is, so a.js and b.js will be loaded from the same directory as the HTML page that contains the above snippet.</p>
 
 <p>If no baseUrl is explicitly set in the configuration, the default value will be the location of the HTML page that loads require.js. If a <strong>data-main</strong> attribute is used, that path will become the baseUrl.</p>
 
 <p>The baseUrl can be a URL on a different domain as the page that will load require.js. RequireJS script loading works across domains. The only restriction is on text content loaded by text! plugins: those paths should be on the same domain as the page, at least during development. The optimization tool will inline text! plugin resources so after using the optimization tool, you can use resources that reference text! plugin resources from another domain.</p>
 
-<p id="config-paths"><strong><a href="config-paths">paths</a></strong>: path mappings for module names not found directly under baseUrl. The path settings are assumed to be relative to baseUrl, unless the paths setting starts with a "/" or has a URL protocol in it ("like http:"). In those cases, the path is determined relative to baseUrl. Using the above sample config, "some/module"'s script tag will be src="/another/path/some/v1.0/module.js". The path that is used for a module name should <strong>not</strong> include the .js extension, since the path mapping could be for a directory. The path mapping code will automatically add the .js extension when mapping the module name to a path.</p>
+<p id="config-paths"><strong><a href="#config-paths">paths</a></strong>: path mappings for module names not found directly under baseUrl. The path settings are assumed to be relative to baseUrl, unless the paths setting starts with a "/" or has a URL protocol in it ("like http:"). In those cases, the path is determined relative to baseUrl. Using the above sample config, "some/module"'s script tag will be src="/another/path/some/v1.0/module.js". The path that is used for a module name should <strong>not</strong> include the .js extension, since the path mapping could be for a directory. The path mapping code will automatically add the .js extension when mapping the module name to a path.</p>
 
-<p id="config-shim"><strong><a href="config-shim">shim</a></strong>: Configure the dependencies and exports for older, traditional "browser globals" scripts that do not use define() to declare the dependencies and set a module value. Example:</p>
+<p id="config-shim"><strong><a href="#config-shim">shim</a></strong>: Configure the dependencies and exports for older, traditional "browser globals" scripts that do not use define() to declare the dependencies and set a module value. Example:</p>
 
 
 <pre><code>requirejs.config({
@@ -567,7 +567,7 @@ any module value, the shim config can just be an array of dependencies:</p>
     <li>Do not mix CDN loading with shim config in a build. Example scenario: you load jQuery from the CDN but use the shim config to load something like the stock version of Backbone that depends on jQuery. When you do the build, be sure to inline jQuery in the built file and do not load it from the CDN. Otherwise, Backbone will be inlined in the built file and it will execute before the CDN-loaded jQuery will load. This is because the shim config just delays loading of the files until dependencies are loaded, but does not do any auto-wrapping of define. After a build, the dependencies are already inlined, the shim config cannot delay execution of the non-define()'d code until later. define()'d modules do work with CDN loaded code after a build because they properly wrap their source in define factory function that will not execute until dependencies are loaded. So the lesson: shim config is a stop-gap measure for for non-modular code, legacy code. define()'d modules are better.</li>
 </ul>
 
-<p id="config-map"><strong><a href="config-map">map</a></strong>: For the given module prefix, instead of loading the module with the given ID, substitute a different module ID.</p>
+<p id="config-map"><strong><a href="#config-map">map</a></strong>: For the given module prefix, instead of loading the module with the given ID, substitute a different module ID.</p>
 
 <p>This sort of capability is really important for larger projects which may have
 two sets of modules that need to use two different versions of 'foo', but they
@@ -625,7 +625,7 @@ requirejs.config({
 
 <p>Means that for any module except "some/oldmodule", when "foo" is wanted, use "foo1.2" instead. For "some/oldmodule" only, use "foo1.0" when it asks for "foo".</p>
 
-<p id="config-moduleconfig"><strong><a href="config-moduleconfig">config</a></strong>: There is a common need to pass configuration info to a module.  That configuration info is usually known as part of the application, and there needs to be a way to pass that down to a module. In RequireJS, that is done with the <b>config</b> option for requirejs.config(). Modules can then read that info by asking for the special dependency "module" and calling <b>module.config()</b>. Example:</p>
+<p id="config-moduleconfig"><strong><a href="#config-moduleconfig">config</a></strong>: There is a common need to pass configuration info to a module.  That configuration info is usually known as part of the application, and there needs to be a way to pass that down to a module. In RequireJS, that is done with the <b>config</b> option for requirejs.config(). Modules can then read that info by asking for the special dependency "module" and calling <b>module.config()</b>. Example:</p>
 
 <pre><code>requirejs.config({
     config: {
@@ -654,28 +654,28 @@ define(['module'], function (module) {
 });
 </code></pre>
 
-<p id="config-packages"><strong><a href="config-packages">packages</a></strong>: configures loading modules from CommonJS packages. See the <a href="#packages">packages topic</a> for more information.</p>
+<p id="config-packages"><strong><a href="#config-packages">packages</a></strong>: configures loading modules from CommonJS packages. See the <a href="#packages">packages topic</a> for more information.</p>
 
-<p id="config-waitSeconds"><strong><a href="config-waitSeconds">waitSeconds</a></strong>: The number of seconds to wait before giving up on loading a script. The default is 7 seconds.</p>
+<p id="config-waitSeconds"><strong><a href="#config-waitSeconds">waitSeconds</a></strong>: The number of seconds to wait before giving up on loading a script. The default is 7 seconds.</p>
 
-<p id="config-context"><strong><a href="config-context">context</a></strong>: A name to give to a loading context. This allows require.js to load multiple versions of modules in a page, as long as each top-level require call specifies a unique context string. To use it correctly, see the <a href="#multiversion">Multiversion Support</a> section.</p>
+<p id="config-context"><strong><a href="#config-context">context</a></strong>: A name to give to a loading context. This allows require.js to load multiple versions of modules in a page, as long as each top-level require call specifies a unique context string. To use it correctly, see the <a href="#multiversion">Multiversion Support</a> section.</p>
 
-<p id="config-deps"><strong><a href="config-deps">deps</a></strong>: An array of dependencies to load. Useful when require is defined as a config object before require.js is loaded, and you want to specify dependencies to load as soon as require() is defined.</p>
+<p id="config-deps"><strong><a href="#config-deps">deps</a></strong>: An array of dependencies to load. Useful when require is defined as a config object before require.js is loaded, and you want to specify dependencies to load as soon as require() is defined.</p>
 
-<p id="config-callback"><strong><a href="config-callback">callback</a></strong>: A function to pass to require that should be require after <strong>deps</strong> have been loaded. Useful when require is defined as a config object before require.js is loaded, and you want to specify a function to require after the configuration's <strong>deps</strong> array has been loaded.</p>
+<p id="config-callback"><strong><a href="#config-callback">callback</a></strong>: A function to pass to require that should be require after <strong>deps</strong> have been loaded. Useful when require is defined as a config object before require.js is loaded, and you want to specify a function to require after the configuration's <strong>deps</strong> array has been loaded.</p>
 
-<p id="config-enforceDefine"><strong><a href="config-enforceDefine">enforceDefine</a></strong>: If set to true, an error will be thrown if a script loads that does not call define() or have a shim exports string value that can be checked. See <a href="#ieloadfail">Catching load failures in IE</a> for more information.</p>
+<p id="config-enforceDefine"><strong><a href="#config-enforceDefine">enforceDefine</a></strong>: If set to true, an error will be thrown if a script loads that does not call define() or have a shim exports string value that can be checked. See <a href="#ieloadfail">Catching load failures in IE</a> for more information.</p>
 
-<p id="config-xhtml"><strong><a href="config-xhtml">xhtml</a></strong>: If set to true, document.createElementNS() will be used to create script elements.</p>
+<p id="config-xhtml"><strong><a href="#config-xhtml">xhtml</a></strong>: If set to true, document.createElementNS() will be used to create script elements.</p>
 
-<p id="config-urlArgs"><strong><a href="config-urlArgs">urlArgs</a></strong>: Extra query string arguments appended to URLs that RequireJS uses to fetch resources. Most useful to cache bust when the browser or server is not configured correctly. Example cache bust setting for urlArgs:</p>
+<p id="config-urlArgs"><strong><a href="#config-urlArgs">urlArgs</a></strong>: Extra query string arguments appended to URLs that RequireJS uses to fetch resources. Most useful to cache bust when the browser or server is not configured correctly. Example cache bust setting for urlArgs:</p>
 
 <pre><code>urlArgs: "bust=" +  (new Date()).getTime()
 </code></pre>
 
 <p>During development it can be useful to use this, however <strong>be sure</strong> to remove it before deploying your code.</p>
 
-<p id="config-scriptType"><strong><a href="config-baseUrl">scriptType</a></strong>: Specify the value for the type="" attribute used for script tags inserted into the document by RequireJS. Default is "text/javascript". To use Firefox's JavaScript 1.8 features, use "text/javascript;version=1.8".</p>
+<p id="config-scriptType"><strong><a href="#config-baseUrl">scriptType</a></strong>: Specify the value for the type="" attribute used for script tags inserted into the document by RequireJS. Default is "text/javascript". To use Firefox's JavaScript 1.8 features, use "text/javascript;version=1.8".</p>
 
 </div>
 
