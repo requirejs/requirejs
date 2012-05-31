@@ -157,7 +157,8 @@ var requirejs, require, define;
             ['toUrl'],
             ['undef'],
             ['defined', 'requireDefined'],
-            ['specified', 'requireSpecified']
+            ['specified', 'requireSpecified'],
+            ['isBrowser']
         ], function (item) {
             req[item[0]] = makeContextModuleFunc(context[item[1] || item[0]], relMap);
         });
@@ -283,7 +284,11 @@ var requirejs, require, define;
                 //otherwise, assume it is a top-level require that will
                 //be relative to baseUrl in the end.
                 if (baseName) {
-                    if (config.pkgs[baseName]) {
+                    if (config.paths[baseName]) {
+                        //If the baseName is a path, then just treat it as one name to
+                        //concat the name with.
+                        baseName = [baseName];
+                    } else if (config.pkgs[baseName]) {
                         //If the baseName is a package name, then just treat it as one
                         //name to concat the name with.
                         baseParts = [baseName];
