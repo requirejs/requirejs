@@ -157,7 +157,8 @@ var requirejs, require, define;
             ['toUrl'],
             ['undef'],
             ['defined', 'requireDefined'],
-            ['specified', 'requireSpecified']
+            ['specified', 'requireSpecified'],
+            ['isBrowser']
         ], function (item) {
             req[item[0]] = makeContextModuleFunc(context[item[1] || item[0]], relMap);
         });
