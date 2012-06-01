@@ -157,8 +157,7 @@ var requirejs, require, define;
             ['toUrl'],
             ['undef'],
             ['defined', 'requireDefined'],
-            ['specified', 'requireSpecified'],
-            ['isBrowser']
+            ['specified', 'requireSpecified']
         ], function (item) {
             req[item[0]] = makeContextModuleFunc(context[item[1] || item[0]], relMap);
         });
@@ -555,6 +554,7 @@ var requirejs, require, define;
                                                    enableBuildCallback);
 
             addRequireMethods(modRequire, context, relMap);
+            modRequire.isBrowser = isBrowser;
 
             return modRequire;
         }
