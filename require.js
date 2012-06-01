@@ -51,8 +51,9 @@ var requirejs, require, define;
      */
     function each(ary, func) {
         if (ary) {
-            var i;
-            for (i = 0; i < ary.length; i += 1) {
+            var i,
+                length = ary.length;
+            for (i = 0; i < length; i += 1) {
                 if (func(ary[i], i, ary)) {
                     break;
                 }
@@ -292,8 +293,9 @@ var requirejs, require, define;
         function removeScript(name) {
             if (isBrowser) {
                 var scripts = document.getElementsByTagName('script'),
+                    length = scripts.length,
                     i, scriptNode;
-                for (i = 0; i < scripts.length; i += 1) {
+                for (i = 0; i < length; i += 1) {
                     scriptNode = scripts[i];
                     if (scriptNode.getAttribute('data-requiremodule') === name &&
                         scriptNode.getAttribute('data-requirecontext') === context.contextName) {
