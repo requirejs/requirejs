@@ -64,6 +64,8 @@ doh.registerUrl("shimBasic", "../shim/basic.html");
 doh.registerUrl("shimBasicBuilt", "../shim/built/basic-built.html");
 
 doh.registerUrl("paths", "../paths/paths.html");
+doh.registerUrl("pathsRelativeNormalize", "../paths/relativeNormalize/relativeNormalize.html");
+
 doh.registerUrl("moduleConfig", "../moduleConfig/moduleConfig.html");
 
 doh.registerUrl("mapConfig", "../mapConfig/mapConfig.html");
