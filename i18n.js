@@ -129,9 +129,10 @@
                 if (config.isBuild) {
                     //Check for existence of all locale possible files and
                     //require them if exist.
+                    var length = parts.length;
                     toLoad.push(masterName);
                     addIfExists(req, "root", toLoad, prefix, suffix);
-                    for (i = 0; i < parts.length; i++) {
+                    for (i = 0; i < length; i++) {
                         part = parts[i];
                         current += (current ? "-" : "") + part;
                         addIfExists(req, current, toLoad, prefix, suffix);
@@ -145,11 +146,12 @@
                     req([masterName], function (master) {
                         //Figure out the best fit
                         var needed = [],
+                            length = parts.length,
                             part;
 
                         //Always allow for root, then do the rest of the locale parts.
                         addPart("root", master, needed, toLoad, prefix, suffix);
-                        for (i = 0; i < parts.length; i++) {
+                        for (i = 0; i < length; i++) {
                             part = parts[i];
                             current += (current ? "-" : "") + part;
                             addPart(current, master, needed, toLoad, prefix, suffix);
