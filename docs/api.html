@@ -905,6 +905,10 @@ See <a href="https://github.com/jrburke/r.js/blob/master/README.md">the r.js REA
 
 <p>So if you want to support Internet Explorer, catch load errors, and have modular code either through direct define() calls or shim config, always set <b>enforceDefine</b> to be true. See the next section for an example.</p>
 
+<p><b>NOTE</b>: If you do set enforceDefine: true, and you use data-main="" to load your main JS module, then that main JS module <b>must call define()</b> instead of require() to load the code it needs. The main JS module can still call require/requirejs to set config values, but for loading modules it should use define().</p>
+
+<p>If you then also use <a href="https://github.com/jrburke/almond">almond</a> to build your code without require.js, be sure to use the <a href="https://github.com/jrburke/r.js/blob/master/build/example.build.js#L289">insertRequire</a> build setting to insert a require call for the main module -- that serves the same purpose of the initial require() call that data-main does.</p>
+
 <h4>
 <a href="#errbacks" name="errbacks">require([]) errbacks</a>
 <span class="sectionMark">&sect; 4.6.2</span>
