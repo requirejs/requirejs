@@ -16,11 +16,13 @@ define(function () {
         isPageLoaded = !isBrowser,
         doc = isBrowser ? document : null,
         readyCalls = [],
-        isTop, testDiv, scrollIntervalId;
+        isTop, testDiv, scrollIntervalId,
+        readyState = isBrowser ? document.readyState : null;
 
     function runCallbacks(callbacks) {
-        var i;
-        for (i = 0; i < callbacks.length; i++) {
+        var i,
+            length = callbacks.length;
+        for (i = 0; i < length; i++) {
             callbacks[i](doc);
         }
     }
@@ -84,8 +86,8 @@ define(function () {
         //entering "interactive" or "complete". More details:
         //http://dev.w3.org/html5/spec/the-end.html#the-end
         //http://stackoverflow.com/questions/3665561/document-readystate-of-interactive-vs-ondomcontentloaded
-        if (document.readyState === "complete" ||
-            document.readyState === "interactive") {
+        if (readyState === "complete" ||
+            readyState === "interactive") {
             pageLoaded();
         }
     }
