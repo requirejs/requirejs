@@ -44,15 +44,19 @@ require({
                 name: 'dojox/window',
                 location: 'dojox/window',
                 main: 'window'
+            },
+            {
+                main: 'bat',
+                location: 'bat/0.2'
             }
         ]
     },
        ["require", "alpha", "alpha/replace", "beta", "beta/util", "bar", "baz",
         "foo", "foo/second", "dojox/chair", "dojox/table", "dojox/door", "dojox/window/pane",
-        "dojox/window", "dojox/table/legs", "funky"],
+        "dojox/window", "dojox/table/legs", "funky", "bat"],
 function(require,   alpha,   replace,         beta,   util,        bar,   baz,
          foo,   second,       chair,         table,         door,         pane,
-         window,         legs,               funky) {
+         window,         legs,               funky, bat) {
     var dataUrl = require.toUrl('foo/../data.html');
     doh.register(
         "packages",
@@ -83,6 +87,8 @@ function(require,   alpha,   replace,         beta,   util,        bar,   baz,
                 t.is('dojox/window/pane', window.paneName);
                 t.is('funky', funky.name);
                 t.is('monkey', funky.monkeyName);
+                t.is('bat', bat.name);
+                t.is('0.2', bat.version);
             }
         ]
     );

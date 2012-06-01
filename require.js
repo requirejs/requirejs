@@ -1301,17 +1301,18 @@ var requirejs, require, define;
                 //Adjust packages if necessary.
                 if (cfg.packages) {
                     each(cfg.packages, function (pkgObj) {
-                        var location;
+                        var location, name;
 
                         pkgObj = typeof pkgObj === 'string' ? { name: pkgObj } : pkgObj;
+                        name = pkgObj.name || pkgObj.main;
                         location = pkgObj.location;
 
                         //Create a brand new object on pkgs, since currentPackages can
                         //be passed in again, and config.pkgs is the internal transformed
                         //state for all package configs.
-                        pkgs[pkgObj.name] = {
-                            name: pkgObj.name,
-                            location: location || pkgObj.name,
+                        pkgs[name] = {
+                            name: name,
+                            location: location || name,
                             //Remove leading dot in main, so main paths are normalized,
                             //and remove any trailing .js, since different package
                             //envs have different conventions: some use a module name,
