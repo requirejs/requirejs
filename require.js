@@ -842,23 +842,25 @@ var requirejs, require, define;
                                                true);
                         this.depMaps.push(depMap);
                     }
-
-                    var handler = handlers[depMap.id];
-
-                    if (handler) {
-                        this.depExports[i] = handler(this);
-                        return;
-                    }
-
-                    this.depCount += 1;
-
-                    on(depMap, 'defined', bind(this, function (depExports) {
-                        this.defineDep(i, depExports);
-                        this.check();
-                    }));
-
-                    if (errback) {
-                        on(depMap, 'error', errback);
+                    
+                    if (depMap) {
+                        var handler = handlers[depMap.id];
+    
+                        if (handler) {
+                            this.depExports[i] = handler(this);
+                            return;
+                        }
+    
+                        this.depCount += 1;
+    
+                        on(depMap, 'defined', bind(this, function (depExports) {
+                            this.defineDep(i, depExports);
+                            this.check();
+                        }));
+    
+                        if (errback) {
+                            on(depMap, 'error', errback);
+                        }
                     }
                 }));
 
