@@ -53,7 +53,7 @@ var requirejs, require, define;
         if (ary) {
             var i;
             for (i = 0; i < ary.length; i += 1) {
-                if (func(ary[i], i, ary)) {
+                if (ary[i] && func(ary[i], i, ary)) {
                     break;
                 }
             }
@@ -68,7 +68,7 @@ var requirejs, require, define;
         if (ary) {
             var i;
             for (i = ary.length - 1; i > -1; i -= 1) {
-                if (func(ary[i], i, ary)) {
+                if (ary[i] && func(ary[i], i, ary)) {
                     break;
                 }
             }
