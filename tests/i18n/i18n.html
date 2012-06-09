@@ -20,15 +20,28 @@
         if (match) {
             bundle = match[1];
         }
+        
+        var expected = {
+            red: "red",
+            blue: "blue",
+            green: "green",
+            black: {
+                opacity: 1,
+                rgb: {
+                    r: "0",
+                    g: "0",
+                    b: "0",
+                }
+            }
+        };
 
-        var red = "red";
-        var blue = "blue";
-        var green = "green";
+        var opacity = 1;
         if (locale && locale.indexOf("en-us-surfer") != -1 || bundle.indexOf("nls/en-us-surfer/colors") != -1) {
-            red = "red, dude";
+            expected.red = "red, dude";
+            expected.black.opacity = 0.5;
         } else if ((locale && locale.indexOf("fr-") != -1) || bundle.indexOf("fr-") != -1) {
-            red = "rouge";
-            blue = "bleu";
+            expected.red = "rouge";
+            expected.blue = "bleu";
         }
         require({
             locale: locale,
@@ -38,15 +51,24 @@
             }
         },
         [bundle],
-        function(colors) {
+        function(actual) {
             doh.register(
                 "i18n",
                 [
-                    function i18n(t) {
-                        t.is(red, colors.red);
-                        t.is(blue, colors.blue);
-                        t.is(green, colors.green);
-                    }
+                    {
+                        name: "simple structure",
+                        runTest: function (t) {
+                            t.is(expected.red, actual.red);
+                            t.is(expected.blue, actual.blue);
+                            t.is(expected.green, actual.green);
+                        }
+                    },
+                    {
+                        name: "complex structure",
+                        runTest: function (t) {
+                            t.is(expected.black, actual.black);                            
+                        }
+                    }                                    
                 ]
             );
             doh.run();
