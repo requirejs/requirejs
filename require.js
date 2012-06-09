@@ -1,5 +1,5 @@
 /** vim: et:ts=4:sw=4:sts=4
- * @license RequireJS 2.0.1 Copyright (c) 2010-2012, The Dojo Foundation All Rights Reserved.
+ * @license RequireJS 2.0.1+ Copyright (c) 2010-2012, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/requirejs for details
  */
@@ -10,7 +10,7 @@ var requirejs, require, define;
 (function (global) {
     'use strict';
 
-    var version = '2.0.1',
+    var version = '2.0.1+',
         commentRegExp = /(\/\*([\s\S]*?)\*\/|([^:]|^)\/\/(.*)$)/mg,
         cjsRequireRegExp = /require\s*\(\s*["']([^'"\s]+)["']\s*\)/g,
         jsSuffixRegExp = /\.js$/,
@@ -159,7 +159,16 @@ var requirejs, require, define;
             ['defined', 'requireDefined'],
             ['specified', 'requireSpecified']
         ], function (item) {
-            req[item[0]] = makeContextModuleFunc(context[item[1] || item[0]], relMap);
+            var prop = item[1] || item[0];
+            req[item[0]] = context ? makeContextModuleFunc(context[prop], relMap) :
+                //If no context, then use default context. Reference from
+                //contexts instead of early binding to default context, so
+                //that during builds, the latest instance of the default
+                //context with its config gets used.
+                function () {
+                    var ctx = contexts[defContextName];
+                    return ctx[prop].apply(ctx, arguments);
+                };
         });
     }
 
@@ -1734,7 +1743,7 @@ var requirejs, require, define;
 
     //Exports some context-sensitive methods on global require, using
     //default context if no context specified.
-    addRequireMethods(req, contexts[defContextName]);
+    addRequireMethods(req);
 
     if (isBrowser) {
         head = s.head = document.getElementsByTagName('head')[0];
