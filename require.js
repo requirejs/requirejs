@@ -102,11 +102,18 @@ var requirejs, require, define;
      * Object.prototype names, but the uses of mixin here seem unlikely to
      * trigger a problem related to that.
      */
-    function mixin(target, source, force) {
+    function mixin(target, source, force, deepStringMixin) {
         if (source) {
             eachProp(source, function (value, prop) {
                 if (force || !hasProp(target, prop)) {
-                    target[prop] = value;
+                    if (deepStringMixin && typeof value !== 'string') {
+                        if (!target[prop]) {
+                            target[prop] = {};
+                        }
+                        mixin(target[prop], value, force, deepStringMixin);
+                    } else {
+                        target[prop] = value;
+                    }
                 }
             });
         }
@@ -1276,18 +1283,20 @@ var requirejs, require, define;
                 //Save off the paths and packages since they require special processing,
                 //they are additive.
                 var pkgs = config.pkgs,
-                    shim = config.shim;
+                    shim = config.shim,
+                    paths = config.paths,
+                    map = config.map;
 
                 //Mix in the config values, favoring the new values over
                 //existing ones in context.config.
                 mixin(config, cfg, true);
 
                 //Merge paths.
-                config.paths = mixin(config.paths, cfg.paths, true);
+                config.paths = mixin(paths, cfg.paths, true);
 
                 //Merge map
                 if (cfg.map) {
-                    config.map = mixin(config.map || {}, cfg.map, true);
+                    config.map = mixin(map || {}, cfg.map, true, true);
                 }
 
                 //Merge shim
