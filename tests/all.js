@@ -93,6 +93,7 @@ doh.registerUrl("pluginsSync", "../plugins/sync.html");
 doh.registerUrl("doublePluginCall", "../plugins/double.html");
 doh.registerUrl("pluginsNameOnly", "../plugins/nameOnly.html");
 doh.registerUrl("pluginsFromText", "../plugins/fromText/fromText.html");
+doh.registerUrl("pluginsFromTextNoDefine", "../plugins/fromTextNoDefine/fromTextNoDefine.html");
 doh.registerUrl("pluginsTextDepend", "../plugins/textDepend/textDepend.html");
 doh.registerUrl("pluginLast", "../plugins/pluginLast/pluginLast.html");
 

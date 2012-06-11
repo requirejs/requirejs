@@ -1129,6 +1129,10 @@ var requirejs, require, define;
                             useInteractive = false;
                         }
 
+                        //Prime the system by creating a module instance for
+                        //it.
+                        getModule(makeModuleMap(moduleName));
+
                         req.exec(text);
 
                         if (hasInteractive) {
