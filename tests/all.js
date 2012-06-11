@@ -94,6 +94,7 @@ doh.registerUrl("doublePluginCall", "../plugins/double.html");
 doh.registerUrl("pluginsNameOnly", "../plugins/nameOnly.html");
 doh.registerUrl("pluginsFromText", "../plugins/fromText/fromText.html");
 doh.registerUrl("pluginsTextDepend", "../plugins/textDepend/textDepend.html");
+doh.registerUrl("pluginLast", "../plugins/pluginLast/pluginLast.html");
 
 doh.registerUrl("requirePluginLoad", "../requirePluginLoad/requirePluginLoad.html");
 
