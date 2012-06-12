@@ -851,33 +851,8 @@ var requirejs, require, define;
                     });
                 }
 
-                each(depMaps, bind(this, function (depMap, i) {
-                    if (typeof depMap === 'string') {
-                        depMap = makeModuleMap(depMap,
-                                               (this.map.isDefine ? this.map : this.map.parentMap),
-                                               false,
-                                               true);
-                        this.depMaps.push(depMap);
-                    }
-
-                    var handler = handlers[depMap.id];
-
-                    if (handler) {
-                        this.depExports[i] = handler(this);
-                        return;
-                    }
-
-                    this.depCount += 1;
-
-                    on(depMap, 'defined', bind(this, function (depExports) {
-                        this.defineDep(i, depExports);
-                        this.check();
-                    }));
-
-                    if (errback) {
-                        on(depMap, 'error', errback);
-                    }
-                }));
+                this.depMaps = depMaps;
+                this.errback = errback;
 
                 //Indicate this module has be initialized
                 this.inited = true;
@@ -962,7 +937,7 @@ var requirejs, require, define;
              * check of all loaded modules. That is useful for cycle breaking.
              */
             check: function (silent) {
-                if (!this.enabled) {
+                if (!this.enabled || this.enabling) {
                     return;
                 }
 
@@ -1171,15 +1146,52 @@ var requirejs, require, define;
                     this.waitPushed = true;
                 }
 
+                //Set flag mentioning that the module is enabling,
+                //so that immediate calls to the defined callbacks
+                //for dependencies do not trigger inadvertent load
+                //with the depCount still being zero.
+                this.enabling = true;
+
                 //Enable each dependency
-                each(this.depMaps, bind(this, function (map) {
-                    var id = map.id,
-                        mod = registry[id];
+                each(this.depMaps, bind(this, function (depMap, i) {
+                    var id, mod, handler;
+
+                    if (typeof depMap === 'string') {
+                        //Dependency needs to be converted to a depMap
+                        //and wired up to this module.
+                        depMap = makeModuleMap(depMap,
+                                               (this.map.isDefine ? this.map : this.map.parentMap),
+                                               false,
+                                               true);
+                        this.depMaps[i] = depMap;
+
+                        handler = handlers[depMap.id];
+
+                        if (handler) {
+                            this.depExports[i] = handler(this);
+                            return;
+                        }
+
+                        this.depCount += 1;
+
+                        on(depMap, 'defined', bind(this, function (depExports) {
+                            this.defineDep(i, depExports);
+                            this.check();
+                        }));
+
+                        if (this.errback) {
+                            on(depMap, 'error', this.errback);
+                        }
+                    }
+
+                    id = depMap.id;
+                    mod = registry[id];
+
                     //Skip special modules like 'require', 'exports', 'module'
                     //Also, don't call enable if it is already enabled,
                     //important in circular dependency cases.
                     if (!handlers[id] && mod && !mod.enabled) {
-                        context.enable(map, this);
+                        context.enable(depMap, this);
                     }
                 }));
 
@@ -1191,6 +1203,8 @@ var requirejs, require, define;
                         context.enable(pluginMap, this);
                     }
                 }));
+
+                this.enabling = false;
 
                 this.check();
             },
