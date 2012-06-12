@@ -857,6 +857,7 @@ var requirejs, require, define;
                 //doing a direct modification of the depMaps array
                 //would affect that config.
                 this.depMaps = depMaps && depMaps.slice(0);
+                this.depMaps.rjsSkipMap = depMaps.rjsSkipMap;
 
                 this.errback = errback;
 
@@ -1060,7 +1061,10 @@ var requirejs, require, define;
                             }) || '';
                         }
 
-                        normalizedMap = makeModuleMap(map.prefix + '!' + name);
+                        normalizedMap = makeModuleMap(map.prefix + '!' + name,
+                                                      this.map.parentMap,
+                                                      false,
+                                                      true);
                         on(normalizedMap,
                            'defined', bind(this, function (value) {
                             this.init([], function () { return value; }, null, {
@@ -1133,6 +1137,7 @@ var requirejs, require, define;
                     //could be some weird string with no path that actually wants to
                     //reference the parentName's path.
                     plugin.load(map.name, makeRequire(map.parentMap, true, function (deps, cb) {
+                        deps.rjsSkipMap = true;
                         return context.require(deps, cb);
                     }), load, config);
                 }));
@@ -1166,7 +1171,7 @@ var requirejs, require, define;
                         depMap = makeModuleMap(depMap,
                                                (this.map.isDefine ? this.map : this.map.parentMap),
                                                false,
-                                               true);
+                                               !this.depMaps.rjsSkipMap);
                         this.depMaps[i] = depMap;
 
                         handler = handlers[depMap.id];
