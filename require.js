@@ -851,7 +851,13 @@ var requirejs, require, define;
                     });
                 }
 
-                this.depMaps = depMaps;
+                //Do a copy of the dependency array, so that
+                //source inputs are not modified. For example
+                //"shim" deps are passed in here directly, and
+                //doing a direct modification of the depMaps array
+                //would affect that config.
+                this.depMaps = depMaps && depMaps.slice(0);
+
                 this.errback = errback;
 
                 //Indicate this module has be initialized
