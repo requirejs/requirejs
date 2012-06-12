@@ -413,7 +413,7 @@ define(['a', 'exports'], function(a, exports) {
 loader's internal state to forget about the previous definition of the module.</p>
 
 <p><b>However</b>, it will not remove the module from other modules that are already defined and got a
-handle on that module as a dependency when they executed.</p>. So it is really only useful to use in
+handle on that module as a dependency when they executed. So it is really only useful to use in
 error situations when no other modules have gotten a handle on a module value, or as part of any future
 module loading that may use that module. See the <a href="#errbacks">errback section</a> for an example.</p>
 
