@@ -560,7 +560,19 @@ any module value, the shim config can just be an array of dependencies:</p>
 });
 </code></pre>
 
-<p><b>Some important optimizer notes when using "shim" config</b>:</p>
+<p><b>Important caveat for "shim" config:</b></p>
+
+<ul>
+    <li>Only use other "shim" modules as dependencies for shimmed scripts, or
+    AMD libraries that have no dependencies and call define() after they also
+    create a global (like jQuery or lodash). Otherwise, if you use an AMD
+    module as a dependency for a shim config module, after a build, that
+    AMD module may not be evaluated until after the shimmed code in the build
+    executes, and an error will occur. The ultimate fix is to upgrade all the
+    shimmed code to have optional AMD define() calls.</li>
+</ul>
+
+<p><b>Important optimizer notes for "shim" config</b>:</p>
 
 <ul>
     <li>You should use the [**mainConfigFile** build option](optimization.html#mainConfigFile) to specify the file where to find the shim config. Otherwise the optimizer will not know of the shim config. The other option is to duplicate the shim config in the build profile.</li>
