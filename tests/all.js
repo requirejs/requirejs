@@ -98,6 +98,7 @@ doh.registerUrl("pluginsFromText", "../plugins/fromText/fromText.html");
 doh.registerUrl("pluginsFromTextNoDefine", "../plugins/fromTextNoDefine/fromTextNoDefine.html");
 doh.registerUrl("pluginsTextDepend", "../plugins/textDepend/textDepend.html");
 doh.registerUrl("pluginLast", "../plugins/pluginLast/pluginLast.html");
+doh.registerUrl("pluginShim", "../plugins/pluginShim/pluginShim.html");
 
 doh.registerUrl("requirePluginLoad", "../requirePluginLoad/requirePluginLoad.html");
 
