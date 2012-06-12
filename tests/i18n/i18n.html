@@ -20,7 +20,7 @@
         if (match) {
             bundle = match[1];
         }
-        
+
         var expected = {
             red: "red",
             blue: "blue",
@@ -30,7 +30,7 @@
                 rgb: {
                     r: "0",
                     g: "0",
-                    b: "0",
+                    b: "0"
                 }
             }
         };
@@ -66,9 +66,9 @@
                     {
                         name: "complex structure",
                         runTest: function (t) {
-                            t.is(expected.black, actual.black);                            
+                            t.is(expected.black, actual.black);
                         }
-                    }                                    
+                    }
                 ]
             );
             doh.run();
