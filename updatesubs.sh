@@ -18,6 +18,14 @@ cd ../require-jquery/parts
 ./update.sh
 cd ../../requirejs
 
+# The cajon project
+echo "Updating the cajon project"
+cp require.js ../cajon/tools/require.js
+cp ../r.js/r.js ../cajon/tools/r.js
+cd ../cajon/tools
+./build.sh
+cd ../../requirejs
+
 # The require-cs project
 echo "Updating the require-cs CoffeeScript plugin"
 cp require.js ../require-cs/demo/lib/require.js
