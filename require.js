@@ -1,5 +1,5 @@
 /** vim: et:ts=4:sw=4:sts=4
- * @license RequireJS 2.0.2 Copyright (c) 2010-2012, The Dojo Foundation All Rights Reserved.
+ * @license RequireJS 2.0.2+ Copyright (c) 2010-2012, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/requirejs for details
  */
@@ -10,7 +10,7 @@ var requirejs, require, define;
 (function (global) {
     'use strict';
 
-    var version = '2.0.2',
+    var version = '2.0.2+',
         commentRegExp = /(\/\*([\s\S]*?)\*\/|([^:]|^)\/\/(.*)$)/mg,
         cjsRequireRegExp = /require\s*\(\s*["']([^'"\s]+)["']\s*\)/g,
         jsSuffixRegExp = /\.js$/,
@@ -450,17 +450,7 @@ var requirejs, require, define;
                 } else {
                     //A regular module.
                     normalizedName = normalize(name, parentName, applyMap);
-
-                    //Calculate url for the module, if it has a name.
-                    //Use name here since nameToUrl also calls normalize,
-                    //and for relative names that are outside the baseUrl
-                    //this causes havoc. Was thinking of just removing
-                    //parentModuleMap to avoid extra normalization, but
-                    //normalize() still does a dot removal because of
-                    //issue #142, so just pass in name here and redo
-                    //the normalization. Paths outside baseUrl are just
-                    //messy to support.
-                    url = context.nameToUrl(name, null, parentModuleMap);
+                    url = context.nameToUrl(normalizedName, null, parentModuleMap);
                 }
             }
 
@@ -1583,19 +1573,21 @@ var requirejs, require, define;
                     moduleNamePlusExt = moduleNamePlusExt.substring(0, index);
                 }
 
-                return context.nameToUrl(moduleNamePlusExt, ext, relModuleMap);
+                return context.nameToUrl(normalize(moduleNamePlusExt, relModuleMap && relModuleMap.id, true),
+                                         ext,
+                                         relModuleMap);
             },
 
             /**
              * Converts a module name to a file path. Supports cases where
              * moduleName may actually be just an URL.
+             * Note that it **does not** call normalize on the moduleName,
+             * it is assumed to have already been normalized. This is an
+             * internal API, not a public one. Use toUrl for the public API.
              */
-            nameToUrl: function (moduleName, ext, relModuleMap) {
+            nameToUrl: function (moduleName, ext) {
                 var paths, pkgs, pkg, pkgPath, syms, i, parentModule, url,
                     parentPath;
-
-                //Normalize module name if have a base relative module name to work from.
-                moduleName = normalize(moduleName, relModuleMap && relModuleMap.id, true);
 
                 //If a colon is in the URL, it indicates a protocol is used and it is just
                 //an URL to a file, or if it starts with a slash, contains a query arg (i.e. ?)
