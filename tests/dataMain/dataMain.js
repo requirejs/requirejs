@@ -1,10 +1,10 @@
 require({
-        baseUrl: "./"    
+        baseUrl: "../"
     },
     ["require", "simple"],
     function(require, simple) {
         doh.register(
-            "dataMain", 
+            "dataMain",
             [
                 function dataMain(t){
                     t.is("blue", simple.color);

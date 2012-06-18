@@ -11,8 +11,9 @@ doh.registerUrl("baseUrl", "../baseUrl.html");
 
 doh.registerUrl("config", "../config.html");
 doh.registerUrl("configRequirejs", "../configRequirejs.html");
-doh.registerUrl("dataMain", "../dataMain.html");
-doh.registerUrl("dataMainIndex", "../dataMainIndex/dataMainIndex.html");
+doh.registerUrl("dataMain", "../dataMain/dataMain.html");
+doh.registerUrl("dataMainIndex", "../dataMain/dataMainIndex/dataMainIndex.html");
+doh.registerUrl("dataMainBaseUrl", "../dataMain/baseUrl/dataMainBaseUrl.html");
 
 if (hasToString) {
     doh.registerUrl("anonSimple", "../anon/anonSimple.html");
