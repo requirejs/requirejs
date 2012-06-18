@@ -1915,21 +1915,21 @@ var requirejs, require, define;
             //baseUrl, if it is not already set.
             dataMain = script.getAttribute('data-main');
             if (dataMain) {
-
-                //Pull off the directory of data-main for use as the
-                //baseUrl.
-                src = dataMain.split('/');
-                mainScript = src.pop();
-                subPath = src.length ? src.join('/')  + '/' : './';
-
                 //Set final baseUrl if there is not already an explicit one.
                 if (!cfg.baseUrl) {
+                    //Pull off the directory of data-main for use as the
+                    //baseUrl.
+                    src = dataMain.split('/');
+                    mainScript = src.pop();
+                    subPath = src.length ? src.join('/')  + '/' : './';
+
                     cfg.baseUrl = subPath;
+                    dataMain = mainScript;
                 }
 
                 //Strip off any trailing .js since dataMain is now
                 //like a module name.
-                dataMain = mainScript.replace(jsSuffixRegExp, '');
+                dataMain = dataMain.replace(jsSuffixRegExp, '');
 
                 //Put the data-main script in the files to load.
                 cfg.deps = cfg.deps ? cfg.deps.concat(dataMain) : [dataMain];
