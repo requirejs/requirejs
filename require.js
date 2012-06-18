@@ -450,7 +450,7 @@ var requirejs, require, define;
                 } else {
                     //A regular module.
                     normalizedName = normalize(name, parentName, applyMap);
-                    url = context.nameToUrl(normalizedName, null, parentModuleMap);
+                    url = context.nameToUrl(normalizedName);
                 }
             }
 
@@ -1574,8 +1574,7 @@ var requirejs, require, define;
                 }
 
                 return context.nameToUrl(normalize(moduleNamePlusExt, relModuleMap && relModuleMap.id, true),
-                                         ext,
-                                         relModuleMap);
+                                         ext);
             },
 
             /**
