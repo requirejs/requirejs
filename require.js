@@ -38,11 +38,11 @@ var requirejs, require, define;
         interactiveScript, currentlyAddingScript, mainScript, subPath;
 
     function isFunction(it) {
-        return ostring.call(it) === '[object Function]';
+        return it instanceof Function;
     }
 
     function isArray(it) {
-        return ostring.call(it) === '[object Array]';
+        return it instanceof Array;
     }
 
     /**
