@@ -18,6 +18,7 @@ doh.registerUrl("dataMainBaseUrl", "../dataMain/baseUrl/dataMainBaseUrl.html");
 if (hasToString) {
     doh.registerUrl("anonSimple", "../anon/anonSimple.html");
     doh.registerUrl("cjsSpace", "../cjsSpace/cjsSpace.html");
+    doh.registerUrl("cjsDotRequire", "../cjsSpace/cjsDotRequire.html");
     doh.registerUrl("packages", "../packages/packages.html");
 }
 
