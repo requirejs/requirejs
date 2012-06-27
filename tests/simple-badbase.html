@@ -2,17 +2,17 @@
 <head>
     <title>require.js: Simple Bad Base Test</title>
     <base href="http://some.example.com/path/" />
-    <script type="text/javascript" src="http://127.0.0.1/requirejs/require.js"></script>
-    <script type="text/javascript" src="http://127.0.0.1/requirejs/tests/doh/runner.js"></script>
-    <script type="text/javascript" src="http://127.0.0.1/requirejs/tests/doh/_browserRunner.js"></script>
+    <script type="text/javascript" src="http://127.0.0.1/requirejs/requirejs/require.js"></script>
+    <script type="text/javascript" src="http://127.0.0.1/requirejs/requirejs/tests/doh/runner.js"></script>
+    <script type="text/javascript" src="http://127.0.0.1/requirejs/requirejs/tests/doh/_browserRunner.js"></script>
     <script type="text/javascript">
         require({
-                baseUrl: "http://127.0.0.1/requirejs/tests/"    
+                baseUrl: "http://127.0.0.1/requirejs/requirejs/tests/"
             },
             ["require", "simple", "dimple", "func"],
             function(require, simple, dimple, func) {
                 doh.register(
-                    "simple", 
+                    "simple",
                     [
                         function colors(t){
                             t.is("blue", simple.color);
@@ -34,16 +34,16 @@
 
         require([path, noProtocolPath], function() {
             doh.register(
-                        "fooBar", 
+                        "fooBar",
                         [
                             function fooBar(t){
-                                t.is("foo", foo.name); 
-                                t.is("bar", bar.name); 
+                                t.is("foo", foo.name);
+                                t.is("bar", bar.name);
                             }
                         ]
                     );
             doh.run();
-            
+
         });
     </script>
 </head>
