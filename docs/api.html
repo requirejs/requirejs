@@ -468,8 +468,7 @@ module loading that may use that module. See the <a href="#errbacks">errback sec
 &lt;/script&gt;
 </code></pre>
 
-<p>Also, you can define require to be an object <strong>before</strong> require.js is
-loaded, and have the values applied.
+<p>Also, you can define the config object as the global variable <code>require</code> <strong>before</strong> require.js is loaded, and have the values applied automatically.
 This example specifies some dependencies to load as soon as require.js defines require():</p>
 
 <pre><code>&lt;script type="text/javascript"&gt;
