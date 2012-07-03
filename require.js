@@ -288,6 +288,7 @@ var requirejs, require, define;
          */
         function normalize(name, baseName, applyMap) {
             var baseParts = baseName && baseName.split('/'),
+                normalizedBaseParts = baseParts,
                 map = config.map,
                 starMap = map && map['*'],
                 pkgName, pkgConfig, mapValue, nameParts, i, j, nameSegment,
@@ -309,10 +310,10 @@ var requirejs, require, define;
                         //module. For instance, baseName of 'one/two/three', maps to
                         //'one/two/three.js', but we want the directory, 'one/two' for
                         //this normalization.
-                        baseParts = baseParts.slice(0, baseParts.length - 1);
+                        normalizedBaseParts = baseParts.slice(0, baseParts.length - 1);
                     }
 
-                    name = baseParts.concat(name.split('/'));
+                    name = normalizedBaseParts.concat(name.split('/'));
                     trimDots(name);
 
                     //Some use of packages may use a . path to reference the
