@@ -303,7 +303,7 @@ var requirejs, require, define;
                     if (config.pkgs[baseName]) {
                         //If the baseName is a package name, then just treat it as one
                         //name to concat the name with.
-                        baseParts = [baseName];
+                        normalizedBaseParts = baseParts = [baseName];
                     } else {
                         //Convert baseName to array, and lop off the last part,
                         //so that . matches that 'directory' and not name of the baseName's
