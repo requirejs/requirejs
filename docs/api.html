@@ -1035,36 +1035,8 @@ require(['jquery'], function ($) {
 
 <p>It is nice to build HTML using regular HTML tags, instead of building up DOM structures in script. However, there is no good way to embed HTML in a JavaScript file. The best that can be done is using a string of HTML, but that can be hard to manage, particularly for multi-line HTML.</p>
 
-<p>RequireJS has a plugin, text.js, that can help with this issue. It will automatically be loaded if the text! prefix is used for a dependency. <a href="download.html#text">Download the plugin</a> and put it in the app's <a href="#config-baseUrl">baseUrl</a> directory.</p>
-
-<p>You can specify a text file resource as a dependency like so:</p>
-
-<pre><code>require(["some/module", "text!some/module.html", "text!some/module.css"],
-    function(module, html, css) {
-        //the html variable will be the text
-        //of the some/module.html file
-        //the css variable will be the text
-        //of the some/module.css file.
-    }
-);
-</code></pre>
-
-<p>Notice the .html and .css suffixes to specify the extension of the file. The "some/module" part of the path will be resolved according to normal module name resolution: it will use the <strong>baseUrl</strong> and <strong>paths</strong> <a href="#config">configuration options</a> to map that name to a path.</p>
-
-<p>For HTML/XML/SVG files, there is another option. You can pass !strip, which strips XML declarations so that external SVG and XML documents can be added to a document without worry. Also, if the string is an HTML document, only the part inside the body tag is returned. Example:</p>
-
-<pre><code>require(["text!some/module.html!strip"],
-    function(html) {
-        //the html variable will be the text of the
-        //some/module.html file, but only the part
-        //inside the body tag.
-    }
-);
-</code></pre>
-
-<p>The text files are loaded via asynchronous XMLHttpRequest (XHR) calls, so you can only fetch files from the same domain as the web page.</p>
-
-<p>However, <a href="optimization.html">the RequireJS optimizer</a> will inline any text! references with the actual text file contents into the modules, so after a build, the modules that have text! dependencies can be used from other domains.</p>
+<p>RequireJS has a plugin, text.js, that can help with this issue. It will automatically be loaded if the text! prefix is used for a dependency. See the
+<a href="https://github.com/requirejs/text/blob/master/README.md">text.js README</a> for more information.</p>
 
 <h3><a href="#pageload" name="pageload">Page Load Event Support/DOM Ready</a><span class="sectionMark">&sect; 5.2</span></h3>
 
