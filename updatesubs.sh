@@ -31,11 +31,6 @@ echo "Updating the require-cs CoffeeScript plugin"
 cp require.js ../require-cs/demo/lib/require.js
 cp ../r.js/r.js ../require-cs/tools/r.js
 
-# The jquery-amd project
-echo "Updating jqueryui-amd"
-cp ../require-jquery/jquery-require-sample/webapp/scripts/require-jquery.js ../jqueryui-amd/example/webapp/scripts/require-jquery.js
-cp ../r.js/r.js ../jqueryui-amd/example/r.js
-
 # The npm container stuff
 echo "Updating requirejs-npm"
 cp require.js ../requirejs-npm/requirejs/require.js
