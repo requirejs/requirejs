@@ -37,7 +37,8 @@ Plugin Names
 
 <p>Loader plugins are just another module, but they implement a specific API. Loader plugins can also participate in the optimizer optimizations, allowing the resources they load to be inlined in an optimized build.</p>
 
-<p><b>Note</b>: the plugin and its dependencies should be able to run in non-browser environments like Node and Rhino. If they cannot, you should use an alternate <a href="#apipluginbuilder">plugin builder</a> module that can run in those environments.</p>
+<p><b>Note</b>: the plugin and its dependencies should be able to run in non-browser environments like Node and Rhino. If they cannot, you should use an alternate <a href="#apipluginbuilder">plugin builder</a> module that can run in those environments
+so that they can participate in optimization builds.</p>
 
 <p>You can reference your plugin by putting its module name before a ! in the dependency. For instance, if you create a plugin with the name "foo.js", you would use it like so:</p>
 
@@ -152,6 +153,36 @@ define({
     }
 });
 </code></pre>
+
+<p><b id="loadBuildInfo">Build considerations</b>: The optimizer traces
+dependencies <b>synchronously</b> to simplify the optimization logic. This is
+different from how require.js in the browser works, and it means that only
+plugins that can satisfy their dependencies synchronously should participate
+in the optimization steps that allow inlining of loader plugin values. Otherwise,
+the plugin should just call load() immediately if <code>config.isBuild</code>
+is true:</p>
+
+<pre><code>
+define({
+    load: function (name, req, load, config) {
+        if (config.isBuild) {
+            //Indicate that the optimizer should not wait
+            //for this resource any more and complete optimization.
+            //This resource will be resolved dynamically during
+            //run time in the web browser.
+            load();
+        } else {
+            //Do something else that can be async.
+        }
+    }
+});
+</code></pre>
+
+<p>Some plugins may do an async operation in the browser, but opt to complete
+the resource load synchronously when run in Node/Rhino. This is what the text
+plugin does. If you just want to run AMD modules and load plugin
+dependencies using <a href="http://github.com/jrburke/amdefine">amdefine</a> in Node, those also need to complete
+synchronously to match Node's synchronous module system.</p>
 
 <h3>
 <a name="apinormalize">normalize: function (name, normalize)</a>
