@@ -19,7 +19,6 @@ When doing a release, do the following:
 * Commit changes to:
     * require-cs: make a new tag if cs.js changed since last release.
     * require-jquery
-    * jqueryui-amd: update the downloadable content if necessary.
 * Commit changes to cajon, test
 * Update the requirejs-npm directory
   * Update version in package.json
