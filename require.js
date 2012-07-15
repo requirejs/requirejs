@@ -165,7 +165,8 @@ var requirejs, require, define;
             ['toUrl'],
             ['undef'],
             ['defined', 'requireDefined'],
-            ['specified', 'requireSpecified']
+            ['specified', 'requireSpecified'],
+            ['addShim']
         ], function (item) {
             var prop = item[1] || item[0];
             req[item[0]] = context ? makeContextModuleFunc(context[prop], relMap) :
@@ -1387,6 +1388,23 @@ var requirejs, require, define;
                         return exports.apply(global, arguments);
                     };
                 }
+            },
+            
+            addShim: function(newShim) {
+                var shim = config.shim;
+                eachProp(newShim, function (value, id) {
+                    //Normalize the structure
+                    if (isArray(value)) {
+                        value = {
+                            deps: value
+                        };
+                    }
+                    if (value.exports && !value.exports.__buildReady) {
+                        value.exports = context.makeShimExports(value.exports);
+                    }
+                    shim[id] = value;
+                });
+                config.shim = shim;
             },
 
             requireDefined: function (id, relMap) {
