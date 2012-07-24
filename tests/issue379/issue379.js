@@ -16,7 +16,16 @@ require(['a'], function (a) {
             'text': '../../../text/text'
         }
     }, ['b', 'c'], function(b, c) {
-        console.log(b === 'b TEXT');
-        console.log(c === 'c TEXT');
+
+        doh.register(
+            "issue379",
+            [
+                function issue379(t){
+                    t.is('b TEXT', b);
+                    t.is('c TEXT', c);
+                }
+            ]
+        );
+        doh.run();
     });
 });

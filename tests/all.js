@@ -108,6 +108,8 @@ doh.registerUrl("pluginMapDynamic", "../plugins/pluginMap/dynamic/pluginMapDynam
 
 doh.registerUrl("requirePluginLoad", "../requirePluginLoad/requirePluginLoad.html");
 
+doh.registerUrl("issue379", "../issue379/issue379.html");
+
 doh.registerUrl("text", "../text/text.html");
 doh.registerUrl("textOnly", "../text/textOnly.html");
 doh.registerUrl("textBuilt", "../text/textBuilt.html");
