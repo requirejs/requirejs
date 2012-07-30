@@ -23,7 +23,7 @@ echo "Updating the cajon project"
 cp require.js ../cajon/tools/require.js
 cp ../r.js/r.js ../cajon/tools/r.js
 cd ../cajon/tools
-./build-cajon.sh
+./build-cajon.js
 cd ../../requirejs
 
 # The require-cs project
