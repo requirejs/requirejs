@@ -10,9 +10,10 @@
 <li class="hbox"><a href="#empty">empty: paths for network/CDN resources</a><span class="spacer boxFlex"></span><span class="sect">&sect; 6</span></li>
 <li class="hbox"><a href="#onecss">Optimizing one CSS file</a><span class="spacer boxFlex"></span><span class="sect">&sect; 7</span></li>
 <li class="hbox"><a href="#wholeproject">Optimizing a whole project</a><span class="spacer boxFlex"></span><span class="sect">&sect; 8</span></li>
-<li class="hbox"><a href="#hasjs">Integration with has.js</a><span class="spacer boxFlex"></span><span class="sect">&sect; 9</span></li>
-<li class="hbox"><a href="#options">All configuration options</a><span class="spacer boxFlex"></span><span class="sect">&sect; 10</span></li>
-<li class="hbox"><a href="#pitfalls">Common pitfalls</a><span class="spacer boxFlex"></span><span class="sect">&sect; 11</span></li>
+<li class="hbox"><a href="#wholemultipage">Optimizing a multi-page project</a><span class="spacer boxFlex"></span><span class="sect">&sect; 9</span></li>
+<li class="hbox"><a href="#hasjs">Integration with has.js</a><span class="spacer boxFlex"></span><span class="sect">&sect; 10</span></li>
+<li class="hbox"><a href="#options">All configuration options</a><span class="spacer boxFlex"></span><span class="sect">&sect; 11</span></li>
+<li class="hbox"><a href="#pitfalls">Common pitfalls</a><span class="spacer boxFlex"></span><span class="sect">&sect; 12</span></li>
 </ul>
 
 <p>RequireJS has an optimization tool that does the following</p>
@@ -300,7 +301,12 @@ require(['jquery'], function ($) {
 </div>
 
 <div class="section">
-<h2><a href="#hasjs" name="hasjs">Integration with has.js</a><span class="sectionMark">&sect; 9</span></h2>
+<h2><a href="#wholemultipage" name="wholemultipage">Optimizing a multi-page project</a><span class="sectionMark">&sect; 9</span></h2>
+
+<p><a href="https://github.com/requirejs/example-multipage">requirejs/example-multipage</a> is an example of a project that has multiple pages, but shares a common configuration and a common optimized build layer.</p>
+
+<div class="section">
+<h2><a href="#hasjs" name="hasjs">Integration with has.js</a><span class="sectionMark">&sect; 10</span></h2>
 
 <p><a href="https://github.com/phiggins42/has.js">has.js</a> is a great tool to that adds easy feature detection for your project. There is some optimizer support for optimizing code paths for has.js tests.</p>
 
@@ -344,13 +350,13 @@ if (true) {
 </div>
 
 <div class="section">
-<h2><a href="#options" name="options">All configuration options</a><span class="sectionMark">&sect; 10</span></h2>
+<h2><a href="#options" name="options">All configuration options</a><span class="sectionMark">&sect; 11</span></h2>
 
 <p>There is an <a href="https://github.com/jrburke/r.js/blob/master/build/example.build.js">example.build.js</a> file in the requirejs/build directory that details all of the allowed optimizer configuration options.</p>
 </div>
 
 <div class="section">
-<h2><a href="#pitfalls" name="pitfalls">Common pitfalls</a><span class="sectionMark">&sect; 11</span></h2>
+<h2><a href="#pitfalls" name="pitfalls">Common pitfalls</a><span class="sectionMark">&sect; 12</span></h2>
 
 <p>If you are having trouble with the examples below, here are some common pitfalls that might be the source of the problem:</p>
 
