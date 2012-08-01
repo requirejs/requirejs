@@ -117,6 +117,7 @@ doh.registerUrl("textOnError", "../text/textOnError.html");
 doh.registerUrl("textOnXhr", "../text/textOnXhr.html");
 doh.registerUrl("jsonp", "../jsonp/jsonp.html");
 doh.registerUrl("domReady", "../domReady/domReady.html");
+doh.registerUrl("domReadyExtraConfig", "../domReady/domReadyExtraConfig.html");
 
 doh.registerUrl("relative", "../relative/relative.html");
 doh.registerUrl("relativeBaseUrl", "../relative/relativeBaseUrl.html");
