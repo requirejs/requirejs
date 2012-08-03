@@ -96,6 +96,7 @@ doh.registerUrl("nestedRelativeRequire", "../nestedRelativeRequire/nestedRelativ
 doh.registerUrl("nestedRequireConfig", "../nestedRequireConfig/nestedRequireConfig.html");
 
 doh.registerUrl("pluginsSync", "../plugins/sync.html");
+doh.registerUrl("pluginsOnError", "../plugins/onerror/onerror.html");
 doh.registerUrl("doublePluginCall", "../plugins/double.html");
 doh.registerUrl("pluginsNameOnly", "../plugins/nameOnly.html");
 doh.registerUrl("pluginsFromText", "../plugins/fromText/fromText.html");
