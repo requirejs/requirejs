@@ -126,6 +126,8 @@ doh.registerUrl("relativeOutsideBaseUrl", "../relative/outsideBaseUrl/a/outsideB
 
 doh.registerUrl("remoteUrls", "../remoteUrls/remoteUrls.html");
 
+doh.registerUrl("queryPath", "../queryPath.html");
+
 doh.registerUrl("trailingComma", "../trailingComma/trailingComma.html");
 
 //Hmm, PS3 does not like exports test? assign2 is undefined?
