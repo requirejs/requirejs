@@ -15,7 +15,9 @@ var requirejs, require, define;
         cjsRequireRegExp = /[^.]\s*require\s*\(\s*["']([^'"\s]+)["']\s*\)/g,
         jsSuffixRegExp = /\.js$/,
         currDirRegExp = /^\.\//,
-        ostring = Object.prototype.toString,
+        op = Object.prototype,
+        ostring = op.toString,
+        hasOwn = op.hasOwnProperty,
         ap = Array.prototype,
         aps = ap.slice,
         apsp = ap.splice,
@@ -76,7 +78,7 @@ var requirejs, require, define;
     }
 
     function hasProp(obj, prop) {
-        return obj.hasOwnProperty(prop);
+        return hasOwn.call(obj, prop);
     }
 
     /**
