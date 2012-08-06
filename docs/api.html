@@ -1003,6 +1003,10 @@ require(['jquery'], function ($) {
 
 <p>This above code will try the CDN location, but if that fails, fall back to the local lib/jquery.js location.</p>
 
+<p><b>Note</b>: paths fallbacks only work for exact module ID matches. This is
+different from normal paths config which can apply to any part of a module ID
+prefix segment. Fallbacks are targeted more for unusual error recovery, not
+a generic path search path solution, since those are inefficient in the browser.</p>
 
 <h4>
 <a href="#requirejsonerror" name="requirejsonerror">Global requirejs.onError function</a>
