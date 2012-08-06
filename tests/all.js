@@ -80,6 +80,7 @@ doh.registerUrl("mapConfigStarAdapterBuilt", "../mapConfig/built/mapConfigStarAd
 doh.registerUrl("mapConfigMulti", "../mapConfig/mapConfigMulti.html");
 doh.registerUrl("mapConfigDelayed", "../mapConfig/mapConfigDelayed.html");
 doh.registerUrl("mapConfigRelative", "../mapConfig/mapConfigRelative.html");
+doh.registerUrl("mapConfigSpecificity", "../mapConfig/mapConfigSpecificity.html");
 
 doh.registerUrl("layers", "../layers/layers.html", 10000);
 
