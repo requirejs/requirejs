@@ -1491,6 +1491,10 @@ var requirejs, require, define;
             },
 
             undef: function (id) {
+                //Bind any waiting define() calls to this context,
+                //fix for #408
+                takeGlobalQueue();
+
                 var map = makeModuleMap(id, null, true),
                     mod = registry[id];
 

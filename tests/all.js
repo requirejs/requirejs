@@ -141,6 +141,7 @@ if (typeof Worker !== "undefined") {
 }
 
 doh.registerUrl("undef", "../undef/undef.html", 8000);
+doh.registerUrl("undefNoRequire", "../undef/undefNoRequire.html", 3000);
 doh.registerUrl("undefEnforceShim", "../undef/undefEnforceShim.html", 8000);
 doh.registerUrl("undefLocal", "../undef/undefLocal.html", 8000);
 doh.registerUrl("errorContinue", "../error/errorContinue.html", 8000);
