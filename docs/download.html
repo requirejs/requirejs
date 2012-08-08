@@ -27,10 +27,10 @@ If you want 1.0: <a href="1.0/">Link to 1.0</a>.</span>
 
 <div class="subSection">
 <h4 class="hbox">
-<a name="requirejs">require.js 2.0.4</a>
+<a name="requirejs">require.js 2.0.5</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/2.0.4/minified/require.js">Minified</a>
-<a class="download" href="http://requirejs.org/docs/release/2.0.4/comments/require.js">With Comments</a>
+<a class="download" href="http://requirejs.org/docs/release/2.0.5/minified/require.js">Minified</a>
+<a class="download" href="http://requirejs.org/docs/release/2.0.5/comments/require.js">With Comments</a>
 </h4>
 
 <p>All you need to start using require.js in the browser.</p>
@@ -38,9 +38,9 @@ If you want 1.0: <a href="1.0/">Link to 1.0</a>.</span>
 
 <div class="subSection">
 <h4 class="hbox">
-<a name="samplejquery">Sample RequireJS 2.0.4 + jQuery 1.7.2 project</a>
+<a name="samplejquery">Sample RequireJS 2.0.5 + jQuery 1.7.2 project</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/jquery-require/jquery1.7.2-requirejs2.0.4/jquery-require-sample.zip">Download</a>
+<a class="download" href="http://requirejs.org/docs/release/jquery-require/jquery1.7.2-requirejs2.0.5/jquery-require-sample.zip">Download</a>
 </h4>
 
 <p>A zip file containing a sample project that uses jQuery and RequireJS.</p>
@@ -51,7 +51,7 @@ If you want 1.0: <a href="1.0/">Link to 1.0</a>.</span>
 <h4 class="hbox">
 <a name="rjs">r.js: Optimizer and Node and Rhino adapter</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/2.0.4/r.js">Download</a>
+<a class="download" href="http://requirejs.org/docs/release/2.0.5/r.js">Download</a>
 </h4>
 
 <p>The r.js file allows you to run the optimizer as well as run modules in Node or Rhino.</p>
@@ -109,6 +109,23 @@ logic until the DOM is ready for querying/modification.</p>
 
 <div class="section">
 <h2><a name="releasenotes">Release Notes</a><span class="sectionMark">&sect; 3</span></h2>
+
+<h3 id="2-0-5">2.0.5</h3>
+
+<p>Probably the most notable changes:</p>
+
+<ul>
+    <li>require.js: fix for <a href="https://github.com/jrburke/requirejs/issues/392">a 'use strict' issue in Safari 6</a>: should only show up in certain non-optimized scenarios.</li>
+    <li>r.js optimizer: changed over to <a href="http://esprima.org/">esprima</a> for all dependency tracing. This set the stage for allowing some forms of <a href="https://github.com/jrburke/r.js/issues/72">JavaScript 1.8 to be optimized</a>, with the
+    help of some regexps.</li>
+</ul>
+
+<p>Complete list of fixes:</p>
+
+<ul>
+    <li><a href="https://github.com/jrburke/requirejs/issues?milestone=19&sort=created&direction=desc&state=closed">Fixed require.js issues</a></li>
+    <li><a href="https://github.com/jrburke/r.js/issues?sort=created&direction=desc&state=closed&page=1&milestone=17">Fixed r.js optimizer issues</a></li>
+</ul>
 
 <h3 id="2-0-4">2.0.4</h3>
 
