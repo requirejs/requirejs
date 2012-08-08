@@ -17,8 +17,8 @@ doh.run();
 
 require({
         baseUrl: requirejs.isBrowser ? "./" : "./plugins/onerror",
-        enforceDefine: true,
-},      ['thrower!',],
+        enforceDefine: true
+},      ['thrower!'],
 function (thrower) {
     master.callback(false);
 },
