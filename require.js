@@ -612,7 +612,7 @@ var requirejs, require, define;
             });
         }
 
-        function findCycle(mod, traced) {
+        function findCycle(mod, dependants, processed) {
             var id = mod.map.id,
                 depArray = mod.depMaps,
                 foundModule;
@@ -624,26 +624,24 @@ var requirejs, require, define;
             }
 
             //Found the cycle.
-            if (traced[id]) {
+            if (dependants[id]) {
                 return mod;
             }
 
-            traced[id] = true;
+            dependants[id] = true;
 
             //Trace through the dependencies.
             each(depArray, function (depMap) {
                 var depId = depMap.id,
                     depMod = registry[depId];
 
-                if (!depMod) {
+                if (!depMod || processed[depId]) {
                     return;
                 }
 
                 if (!depMod.inited || !depMod.enabled) {
                     //Dependency is not inited, so this cannot
                     //be used to determine a cycle.
-                    foundModule = null;
-                    delete traced[id];
                     return true;
                 }
 
@@ -654,8 +652,11 @@ var requirejs, require, define;
                 //optimizing for file size vs. execution speed since hopefully
                 //the trees are small for circular dependency scans relative
                 //to the full app perf.
-                return (foundModule = findCycle(depMod, mixin({}, traced)));
+                return (foundModule = findCycle(depMod, dependants, processed));
             });
+
+            delete dependants[id];
+            processed[id] = true;
 
             return foundModule;
         }
@@ -779,7 +780,7 @@ var requirejs, require, define;
                         return;
                     }
 
-                    var cycleMod = findCycle(mod, {}),
+                    var cycleMod = findCycle(mod, {}, {}),
                         traced = {};
 
                     if (cycleMod) {
