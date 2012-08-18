@@ -640,13 +640,6 @@ var requirejs, require, define;
                     return;
                 }
 
-                //mixin traced to a new object for each dependency, so that
-                //sibling dependencies in this object to not generate a
-                //false positive match on a cycle. Ideally an Object.create
-                //type of prototype delegation would be used here, but
-                //optimizing for file size vs. execution speed since hopefully
-                //the trees are small for circular dependency scans relative
-                //to the full app perf.
                 return (foundModule = findCycle(depMod, traced, processed));
             });
 
