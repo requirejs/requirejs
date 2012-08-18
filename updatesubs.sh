@@ -18,6 +18,12 @@ cd ../require-jquery/parts
 ./update.sh
 cd ../../requirejs
 
+# The sample projects
+echo "Updating requirejs/example-multipage"
+cp require.js ../example-multipage/www/js/lib/require.js
+cp ../r.js/r.js ../example-multipage/tools/r.js
+
+
 # The cajon project
 echo "Updating the cajon project"
 cp require.js ../cajon/tools/require.js

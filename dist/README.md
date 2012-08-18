@@ -15,6 +15,11 @@ When doing a release, do the following:
 * Check version of cs plugin, update download.html if necessary.
 * Check version of jQuery in the jQuery sample project, update the download.html if necessary.
     * Upload change in jQuery project to website even before the current release.
+* Check in changes to sample projects:
+  * volojs/create-template
+  * requirejs/example-multipage
+  * requirejs/example-libglobal
+
 * Commit/push changes
 * Commit changes to:
     * require-cs: make a new tag if cs.js changed since last release.
