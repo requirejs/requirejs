@@ -142,7 +142,7 @@ Manager.prototype = new Employee();
 
 <p>document.write() can be used to load scripts -- it can load scripts from other domains and it maps to how browsers normally consume scripts, so it allows for easy debugging.</p>
 
-<p>However, in the <a href="#async">Async vs Sync example</a> we cannot just execute that script directly. Ideally we could know the require() dependencies before we execute the script, and make sure those dependencies are loaded first. But we do not have access to the script before it is executed.</p>
+<p>However, in the <a href="#4">Async vs Sync example</a> we cannot just execute that script directly. Ideally we could know the require() dependencies before we execute the script, and make sure those dependencies are loaded first. But we do not have access to the script before it is executed.</p>
 
 <p>Also, document.write() does not work after page load. A great way to get perceived performance for your site is loading code on demand, as the user needs it for their next action.</p>
 
