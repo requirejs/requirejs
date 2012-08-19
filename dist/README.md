@@ -16,15 +16,19 @@ When doing a release, do the following:
 * Check version of jQuery in the jQuery sample project, update the download.html if necessary.
     * Upload change in jQuery project to website even before the current release.
 * Check in changes to sample projects:
-  * volojs/create-template
   * requirejs/example-multipage
   * requirejs/example-libglobal
+  * volojs/create-template
+  * volojs/create-responsive-template
 
 * Commit/push changes
 * Commit changes to:
     * require-cs: make a new tag if cs.js changed since last release.
     * require-jquery
 * Commit changes to cajon, test
+  * Rev cajon version
+  * change package.json
+  * tag it
 * Update the requirejs-npm directory
   * Update version in package.json
   * Modify bin/r.js to add: #!/usr/bin/env node

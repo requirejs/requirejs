@@ -23,6 +23,13 @@ echo "Updating requirejs/example-multipage"
 cp require.js ../example-multipage/www/js/lib/require.js
 cp ../r.js/r.js ../example-multipage/tools/r.js
 
+echo "Updating volojs/create-template"
+cp require.js ../../volojs/create-template/www/js/lib/require.js
+cp ../r.js/r.js ../../volojs/create-template/tools/r.js
+
+echo "Updating volojs/create-responsive-template"
+cp require.js ../../volojs/create-responsive-template/www/js/lib/require.js
+cp ../r.js/r.js ../../volojs/create-responsive-template/tools/r.js
 
 # The cajon project
 echo "Updating the cajon project"
