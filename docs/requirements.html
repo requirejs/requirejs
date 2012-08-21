@@ -58,7 +58,7 @@
 <div class="section">
 <h2><a name="3">Scripts should be able to specify dependencies</a><span class="sectionMark">&sect; 3</span></h2>
 
-<p>It is very easy for a project to beyond needing a couple of scripts. It is hard to manually track all the dependencies and the correct loading order. A script should be able to specify its immediate dependencies. The developer should not have to worry about what those dependencies need to load and work out the correct loading order.</p>
+<p>It is very easy for a project to go beyond needing a couple of scripts. It is hard to manually track all the dependencies and the correct loading order. A script should be able to specify its immediate dependencies. The developer should not have to worry about what those dependencies need to load and work out the correct loading order.</p>
 </div>
 
 <div class="section">
@@ -98,19 +98,19 @@ after the script that needs them.</p>
 <div class="section">
 <h2><a name="8">Allow modules to keep a clean global namespace</a><span class="sectionMark">&sect; 8</span></h2>
 
-<p>As projects get bigger, it is more common to need to load two versions of a module in a page. This should be possible by allowing a module system that does not define modules in the globale namespace.</p>
+<p>As projects get bigger, it is more common to need to load two versions of a module in a page. This should be possible by allowing a module system that does not define modules in the global namespace.</p>
 
-<p>If a module wants to work with the global namespace, but that is normally easy to allow in a module spec. The harder part is constructing a format that works well to avoid the global namespace.</p>
+<p>If a module wants to work with the global namespace, that is normally easy to allow in a module spec. The harder part is constructing a format that works well to avoid the global namespace.</p>
 </div>
 
 <div class="section">
 <h2><a name="9">Load any script</a><span class="sectionMark">&sect; 9</span></h2>
 
-<p>Not all scripts will be using the module format. Allow existing scripts to be loaded and treated as a dependency.</p>
+<p>Not all scripts will be using the module format. Allow existing scripts to be loaded and treated as dependencies.</p>
 </div>
 
 <div class="section">
 <h2><a name="10">Allow for performance upgrades</a><span class="sectionMark">&sect; 10</span></h2>
 
-<p>This mainly means have a build system that can combine and optimize modules. It also means the loader should allow loading a script with multiple modules defined in it, and only fetch dependencies that are not already included in that script file.</p>
+<p>This mainly means having a build system that can combine and optimize modules. It also means the loader should allow loading a script with multiple modules defined in it and only fetch dependencies that are not already included in that script file.</p>
 </div>
