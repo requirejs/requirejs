@@ -448,8 +448,8 @@ module loading that may use that module. See the <a href="#errbacks">errback sec
 
 <p>When using require() in the top-level HTML page (or top-level script file that does not define a module), a configuration object can be passed as the first option:</p>
 
-<pre><code>&lt;script type="text/javascript" src="scripts/require.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript"&gt;
+<pre><code>&lt;script src="scripts/require.js"&gt;&lt;/script&gt;
+&lt;script&gt;
   require.config({
     baseUrl: "/another/path",
     paths: {
@@ -471,7 +471,7 @@ module loading that may use that module. See the <a href="#errbacks">errback sec
 <p>Also, you can define the config object as the global variable <code>require</code> <strong>before</strong> require.js is loaded, and have the values applied automatically.
 This example specifies some dependencies to load as soon as require.js defines require():</p>
 
-<pre><code>&lt;script type="text/javascript"&gt;
+<pre><code>&lt;script&gt;
     var require = {
         deps: ["some/module1", "my/module2", "a.js", "b.js"],
         callback: function(module1, module2) {
@@ -482,7 +482,7 @@ This example specifies some dependencies to load as soon as require.js defines r
         }
     };
 &lt;/script&gt;
-&lt;script type="text/javascript" src="scripts/require.js"&gt;&lt;/script&gt;
+&lt;script src="scripts/require.js"&gt;&lt;/script&gt;
 </code></pre>
 
 <p><b>Note:</b> It is best to use <code>var require = {}</code> and do not use
@@ -826,8 +826,8 @@ function (cart,   store,   util) {
 
 <p>As mentioned in <a href="#config">Configuration Options</a>, multiple versions of a module can be loaded in a page by using different "context" configuration options. require.config() returns a require function that will use the context configuration. Here is an example that loads two different versions of the alpha and beta modules (this example is taken from one of the test files):</p>
 
-<pre><code>&lt;script type="text/javascript" src="../require.js"&gt;&lt;/script&gt;
-&lt;script type="text/javascript"&gt;
+<pre><code>&lt;script src="../require.js"&gt;&lt;/script&gt;
+&lt;script&gt;
 var reqOne = require.config({
   context: "version1",
   baseUrl: "version1"
