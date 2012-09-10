@@ -1,0 +1,6 @@
+refine(['b'], function (b) {
+    return {
+        name: 'c',
+        b: b
+    };
+});

@@ -437,9 +437,16 @@ var requirejs, require, define;
                 name = '_@r' + (requireCounter += 1);
             }
 
-            if (index !== -1) {
+            //Do not count IDs that are '!a', that just means
+            //'a'
+            if (index > -1) {
                 prefix = name.substring(0, index);
                 name = name.substring(index + 1, name.length);
+            } else if (parentModuleMap &&
+                       parentModuleMap.defaultPrefix) {
+                //This is dependency mentioned by a plugin that
+                //has a default prefix.
+                prefix = parentModuleMap.defaultPrefix;
             }
 
             if (prefix) {
@@ -1002,6 +1009,10 @@ var requirejs, require, define;
                         var hasInteractive = useInteractive,
                             moduleMap = makeModuleMap(moduleName);
 
+                        if (plugin.useDefaultPrefix) {
+                            moduleMap.defaultPrefix = map.prefix;
+                        }
+
                         //Turn off interactive script matching for IE for any define
                         //calls in the text, then turn it back on at the end.
                         if (hasInteractive) {
@@ -1012,7 +1023,12 @@ var requirejs, require, define;
                         //it.
                         getModule(moduleMap);
 
-                        req.exec(text);
+                        try {
+                            req.exec(text);
+                        } catch (e) {
+                            throw new Error('fromText eval for ' + moduleName +
+                                            ' failed: ' + e);
+                        }
 
                         if (hasInteractive) {
                             useInteractive = true;
