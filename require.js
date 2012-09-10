@@ -997,9 +997,10 @@ var requirejs, require, define;
 
                     //Allow plugins to load other code without having to know the
                     //context or how to 'complete' the load.
-                    load.fromText = function (moduleName, text) {
+                    load.fromText = bind(this, function (moduleName, text) {
                         /*jslint evil: true */
-                        var hasInteractive = useInteractive;
+                        var hasInteractive = useInteractive,
+                            moduleMap = makeModuleMap(moduleName);
 
                         //Turn off interactive script matching for IE for any define
                         //calls in the text, then turn it back on at the end.
@@ -1009,7 +1010,7 @@ var requirejs, require, define;
 
                         //Prime the system by creating a module instance for
                         //it.
-                        getModule(makeModuleMap(moduleName));
+                        getModule(moduleMap);
 
                         req.exec(text);
 
@@ -1017,9 +1018,13 @@ var requirejs, require, define;
                             useInteractive = true;
                         }
 
+                        //Mark this as a dependency for the plugin
+                        //resource
+                        this.depMaps.push(moduleMap);
+
                         //Support anonymous modules.
                         context.completeLoad(moduleName);
-                    };
+                    });
 
                     //Use parentName here since the plugin's name is not reliable,
                     //could be some weird string with no path that actually wants to

@@ -34,6 +34,7 @@ doh.registerUrl("circular", "../circular.html");
 doh.registerUrl("circularPlugin", "../circular/circularPlugin.html");
 doh.registerUrl("circularComplexPlugin", "../circular/complexPlugin/complexPlugin.html");
 doh.registerUrl("circular414", "../circular/414/414.html");
+doh.registerUrl("circularTranspiler", "../circular/transpiler/transpiler.html");
 
 doh.registerUrl("nestedRequire", "../nestedRequire/nestedRequire.html");
 
