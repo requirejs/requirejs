@@ -1176,6 +1176,7 @@ var requirejs, require, define;
             defQueue: defQueue,
             Module: Module,
             makeModuleMap: makeModuleMap,
+            nextTick: req.nextTick,
 
             /**
              * Set a configuration for the context.
@@ -1359,13 +1360,15 @@ var requirejs, require, define;
                 }
 
                 //Mark all the dependencies as needing to be loaded.
-                requireMod = getModule(makeModuleMap(null, relMap));
+                context.nextTick(function () {
+                    requireMod = getModule(makeModuleMap(null, relMap));
 
-                requireMod.init(deps, callback, errback, {
-                    enabled: true
+                    requireMod.init(deps, callback, errback, {
+                        enabled: true
+                    });
+
+                    checkLoaded();
                 });
-
-                checkLoaded();
 
                 return context.require;
             },
@@ -1653,6 +1656,16 @@ var requirejs, require, define;
     req.config = function (config) {
         return req(config);
     };
+
+    /**
+     * Execute something after the current tick
+     * of the event loop. Override for other envs
+     * that have a better solution than setTimeout.
+     * @param  {Function} fn function to execute later.
+     */
+    req.nextTick = typeof setTimeout !== 'undefined' ? function (fn) {
+        setTimeout(fn, 4);
+    } : function (fn) { fn(); };
 
     /**
      * Export require as a global, but only if it does not already exist.
