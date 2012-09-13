@@ -468,6 +468,8 @@ var requirejs, require, define;
                     normalizedName = normalize(name, parentName, applyMap);
                     url = context.nameToUrl(normalizedName);
                 }
+
+                isNormalized = true;
             }
 
             //If the id is a plugin id that cannot be determined if it needs
