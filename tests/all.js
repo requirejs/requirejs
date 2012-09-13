@@ -107,6 +107,7 @@ doh.registerUrl("pluginLast", "../plugins/pluginLast/pluginLast.html");
 doh.registerUrl("pluginShim", "../plugins/pluginShim/pluginShim.html");
 doh.registerUrl("pluginMap", "../plugins/pluginMap/pluginMap.html");
 doh.registerUrl("pluginMapDynamic", "../plugins/pluginMap/dynamic/pluginMapDynamic.html");
+doh.registerUrl("pluginRelativePath", "../plugins/relativepath/relativePath.html");
 
 doh.registerUrl("requirePluginLoad", "../requirePluginLoad/requirePluginLoad.html");
 
