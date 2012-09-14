@@ -20,6 +20,7 @@ if (hasToString) {
     doh.registerUrl("cjsSpace", "../cjsSpace/cjsSpace.html");
     doh.registerUrl("cjsDotRequire", "../cjsSpace/cjsDotRequire.html");
     doh.registerUrl("packages", "../packages/packages.html");
+    doh.registerUrl("specialDeps", "../specialDeps/specialDeps.html");
 }
 
 doh.registerUrl("simple-nohead", "../simple-nohead.html");
