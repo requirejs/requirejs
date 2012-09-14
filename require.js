@@ -1287,7 +1287,8 @@ var requirejs, require, define;
                             return onError(makeError('notloaded', 'Module name "' +
                                         id +
                                         '" has not been loaded yet for context: ' +
-                                        contextName));
+                                        contextName +
+                                        (relMap ? '' : '. Use require([])')));
                         }
                         return defined[id];
                     }
