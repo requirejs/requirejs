@@ -371,6 +371,19 @@ var requirejs, require, define;
             }
         }
 
+        //Turns a plugin!resource to [plugin, resource]
+        //with the plugin being undefined if the name
+        //did not have a plugin prefix.
+        function splitPrefix(name) {
+            var prefix,
+                index = name ? name.indexOf('!') : -1;
+            if (index !== -1) {
+                prefix = name.substring(0, index);
+                name = name.substring(index + 1, name.length);
+            }
+            return [prefix, name];
+        }
+
         /**
          * Creates a module mapping that includes plugin prefix, module
          * name, and path. If parentModuleMap is provided it will
@@ -387,8 +400,7 @@ var requirejs, require, define;
          * @returns {Object}
          */
         function makeModuleMap(name, parentModuleMap, isNormalized, applyMap) {
-            var url, pluginModule, suffix,
-                index = name ? name.indexOf('!') : -1,
+            var url, pluginModule, suffix, nameParts,
                 prefix = null,
                 parentName = parentModuleMap ? parentModuleMap.name : null,
                 originalName = name,
@@ -402,10 +414,9 @@ var requirejs, require, define;
                 name = '_@r' + (requireCounter += 1);
             }
 
-            if (index !== -1) {
-                prefix = name.substring(0, index);
-                name = name.substring(index + 1, name.length);
-            }
+            nameParts = splitPrefix(name);
+            prefix = nameParts[0];
+            name = nameParts[1];
 
             if (prefix) {
                 prefix = normalize(prefix, parentName, applyMap);
@@ -426,6 +437,15 @@ var requirejs, require, define;
                 } else {
                     //A regular module.
                     normalizedName = normalize(name, parentName, applyMap);
+
+                    //Normalized name may be a plugin ID due to map config
+                    //application in normalize. The map config values must
+                    //already be normalized, so do not need to redo that part.
+                    nameParts = splitPrefix(normalizedName);
+                    prefix = nameParts[0];
+                    normalizedName = nameParts[1];
+                    isNormalized = true;
+
                     url = context.nameToUrl(normalizedName);
                 }
             }
