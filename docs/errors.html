@@ -66,7 +66,7 @@ breakpoint in the file that contains the error.</p>
 
 <p>This occurs when there is is a require('name') call, but the 'name' module has not been loaded yet.</p>
 
-<p>If the error message includes <strong>Use require([]) instead</strong>, then
+<p>If the error message includes <strong>Use require([])</strong>, then
 it was a top-level require call (not a require call inside a define() call) that should be using the async, callback version of require to load the code:</p>
 
 <pre><code>//If this code is not in a define call,
