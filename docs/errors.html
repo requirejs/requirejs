@@ -91,7 +91,20 @@ require(['foo'], function (foo) {
 });
 </code></pre>
 
-<p>Or, if part of a require() callback:</p>
+<p>In particular, <strong>the following will not work</strong>:</p>
+
+<pre><code>//THIS WILL FAIL
+define(['require'], function (require) {
+    var namedModule = require('name');
+});
+</code></pre>
+
+<p>This fails because requirejs needs to be sure to load and execute all dependencies
+before calling the factory function above. If a dependency array is given to define(),
+then requirejs assumes that all dependencies are listed in that array, and it will
+not scan the factory function for other dependencies. So, either do not pass in the dependency array, or if using the dependency array, list all the dependencies in it.</p>
+
+<p>If part of a require() callback, all the dependencies need to be listed in the array:</p>
 
 <pre><code>require(['require', 'name'], function (require) {
     var namedModule = require('name');
