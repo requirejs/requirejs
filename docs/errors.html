@@ -66,6 +66,17 @@ breakpoint in the file that contains the error.</p>
 
 <p>This occurs when there is is a require('name') call, but the 'name' module has not been loaded yet.</p>
 
+<p>If the error message includes <strong>Use require([])</strong>, then
+it was a top-level require call (not a require call inside a define() call) that should be using the async, callback version of require to load the code:</p>
+
+<pre><code>//If this code is not in a define call,
+//DO NOT use require('foo'), but use the async
+//callback version:
+require(['foo'], function (foo) {
+    //foo is now loaded.
+});
+</code></pre>
+
 <p>If you are using the simplified define wrapper, make sure you have <strong>require</strong> as the first argument to the definition function:</p>
 
 <pre><code>define(function (require) {
@@ -80,7 +91,20 @@ breakpoint in the file that contains the error.</p>
 });
 </code></pre>
 
-<p>Or, if part of a require() callback:</p>
+<p>In particular, <strong>the following will not work</strong>:</p>
+
+<pre><code>//THIS WILL FAIL
+define(['require'], function (require) {
+    var namedModule = require('name');
+});
+</code></pre>
+
+<p>This fails because requirejs needs to be sure to load and execute all dependencies
+before calling the factory function above. If a dependency array is given to define(),
+then requirejs assumes that all dependencies are listed in that array, and it will
+not scan the factory function for other dependencies. So, either do not pass in the dependency array, or if using the dependency array, list all the dependencies in it.</p>
+
+<p>If part of a require() callback, all the dependencies need to be listed in the array:</p>
 
 <pre><code>require(['require', 'name'], function (require) {
     var namedModule = require('name');

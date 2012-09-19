@@ -20,6 +20,7 @@ if (hasToString) {
     doh.registerUrl("cjsSpace", "../cjsSpace/cjsSpace.html");
     doh.registerUrl("cjsDotRequire", "../cjsSpace/cjsDotRequire.html");
     doh.registerUrl("packages", "../packages/packages.html");
+    doh.registerUrl("specialDeps", "../specialDeps/specialDeps.html");
 }
 
 doh.registerUrl("simple-nohead", "../simple-nohead.html");
@@ -83,6 +84,8 @@ doh.registerUrl("mapConfigMulti", "../mapConfig/mapConfigMulti.html");
 doh.registerUrl("mapConfigDelayed", "../mapConfig/mapConfigDelayed.html");
 doh.registerUrl("mapConfigRelative", "../mapConfig/mapConfigRelative.html");
 doh.registerUrl("mapConfigSpecificity", "../mapConfig/mapConfigSpecificity.html");
+doh.registerUrl("mapConfigPlugin", "../mapConfig/mapConfigPlugin.html");
+doh.registerUrl("mapConfigPluginBuilt", "../mapConfig/built/mapConfigPluginBuilt.html");
 
 doh.registerUrl("layers", "../layers/layers.html", 10000);
 
