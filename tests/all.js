@@ -113,6 +113,8 @@ doh.registerUrl("pluginShim", "../plugins/pluginShim/pluginShim.html");
 doh.registerUrl("pluginMap", "../plugins/pluginMap/pluginMap.html");
 doh.registerUrl("pluginMapDynamic", "../plugins/pluginMap/dynamic/pluginMapDynamic.html");
 doh.registerUrl("pluginDefaultPrefix", "../plugins/defaultPrefix/defaultPrefix.html");
+doh.registerUrl("pluginDefaultPrefixBuilt", "../plugins/defaultPrefix/built/defaultPrefix.html");
+doh.registerUrl("pluginDefaultPrefixBuiltAlmond", "../plugins/defaultPrefix/built/defaultPrefixAlmond.html");
 
 doh.registerUrl("requirePluginLoad", "../requirePluginLoad/requirePluginLoad.html");
 

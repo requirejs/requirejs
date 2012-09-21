@@ -15,7 +15,7 @@ define('app/test2',[], function() {
     return { name: 'test2' };
 });
 
-define('plug!app/main',["app/test", "app/test2"], function(test, test2) {
+define('plug!app/main',["!app/test", "!app/test2"], function(test, test2) {
     return {
         name: 'main',
         test: test,

@@ -380,11 +380,11 @@ var requirejs, require, define;
             if (index > -1) {
                 prefix = name.substring(0, index);
                 name = name.substring(index + 1, name.length);
-            } else if (relMap &&
-                       relMap.defaultPrefix) {
+            } else if (relMap && !handlers[name]) {
                 //This is dependency mentioned by a plugin that
-                //has a default prefix.
-                prefix = relMap.defaultPrefix;
+                //has a default prefix, and it is not one of the
+                //special dependency names, require, exports, module.
+                prefix = relMap.prefix || relMap.defaultPrefix;
             }
             return [prefix, name];
         }
@@ -419,9 +419,7 @@ var requirejs, require, define;
                 name = '_@r' + (requireCounter += 1);
             }
 
-            //Split the name, and only pass in a parentModuleMap
-            //for defaultPrefix reference if this is a define call.
-            nameParts = splitPrefix(name, (isDefine ? parentModuleMap : null));
+            nameParts = splitPrefix(name, parentModuleMap);
             prefix = nameParts[0];
             name = nameParts[1];
 
@@ -995,7 +993,10 @@ var requirejs, require, define;
                         var hasInteractive = useInteractive,
                             moduleMap = makeModuleMap(moduleName);
 
-                        if (plugin.useDefaultPrefix) {
+                        //If no specific prefix in place, pass on the prefix
+                        //to use, but only by module IDs that are normalized
+                        //against this ID.
+                        if (moduleName.charAt(0) !== '!' && !moduleMap.prefix) {
                             moduleMap.defaultPrefix = map.prefix;
                         }
 
@@ -1028,8 +1029,8 @@ var requirejs, require, define;
                         context.completeLoad(moduleName);
 
                         //Make sure to ask for the real JS module, and not
-                        //get a handle on one that will have defaultPrefix
-                        //applied.
+                        //get a handle on one that will have a default plugin
+                        //ID applied to dependency.
                         localRequire(['!' + moduleName], load);
                     });
 
