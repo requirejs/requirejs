@@ -5,7 +5,7 @@ define('plain',{
 });
 
 define('text',{load: function(id){throw new Error("Dynamic load not allowed: " + id);}});
-define('text!b.txt',[],function () { return 'b.txt\n';});
+define('text!b.txt',[],function () { return 'b.txt';});
 
 define('refine!b',['!plain', 'text!b.txt'], function (plain, text) {
     return {
@@ -22,7 +22,7 @@ define('refine!c',['b'], function (b) {
     };
 });
 
-define('text!a.txt',[],function () { return 'a.txt\n';});
+define('text!a.txt',[],function () { return 'a.txt';});
 
 //The refine plugin changes the word refine into define.
 define('refine!a',['refine!b', 'c', '!plain', 'text!a.txt'],
