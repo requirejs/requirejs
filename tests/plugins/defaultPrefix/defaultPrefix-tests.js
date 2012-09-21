@@ -1,5 +1,5 @@
 require({
-        baseUrl: requirejs.isBrowser ? './' : './plugins/defaultPrefix',
+        baseUrl: './',
         paths: {
             'text': '../../../../text/text'
         },

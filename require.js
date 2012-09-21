@@ -419,7 +419,9 @@ var requirejs, require, define;
                 name = '_@r' + (requireCounter += 1);
             }
 
-            nameParts = splitPrefix(name, parentModuleMap);
+            //Split the name, and only pass in a parentModuleMap
+            //for defaultPrefix reference if this is a define call.
+            nameParts = splitPrefix(name, (isDefine ? parentModuleMap : null));
             prefix = nameParts[0];
             name = nameParts[1];
 
@@ -446,7 +448,9 @@ var requirejs, require, define;
                     //Normalized name may be a plugin ID due to map config
                     //application in normalize. The map config values must
                     //already be normalized, so do not need to redo that part.
-                    nameParts = splitPrefix(normalizedName, parentModuleMap);
+                    //Do not pass a relMap for this splitPrefix call because
+                    //the name is already normalized.
+                    nameParts = splitPrefix(normalizedName);
                     prefix = nameParts[0];
                     normalizedName = nameParts[1];
                     isNormalized = true;
@@ -917,7 +921,11 @@ var requirejs, require, define;
                 on(pluginMap, 'defined', bind(this, function (plugin) {
                     var load, normalizedMap, normalizedMod,
                         name = this.map.name,
-                        parentName = this.map.parentMap ? this.map.parentMap.name : null;
+                        parentName = this.map.parentMap ? this.map.parentMap.name : null,
+                        localRequire = context.makeRequire(map.parentMap, {
+                            enableBuildCallback: true,
+                            skipMap: true
+                        });
 
                     //If current map is not normalized, wait for that
                     //normalized name to load instead of continuing.
@@ -1018,15 +1026,17 @@ var requirejs, require, define;
 
                         //Support anonymous modules.
                         context.completeLoad(moduleName);
+
+                        //Make sure to ask for the real JS module, and not
+                        //get a handle on one that will have defaultPrefix
+                        //applied.
+                        localRequire(['!' + moduleName], load);
                     });
 
                     //Use parentName here since the plugin's name is not reliable,
                     //could be some weird string with no path that actually wants to
                     //reference the parentName's path.
-                    plugin.load(map.name, context.makeRequire(map.parentMap, {
-                        enableBuildCallback: true,
-                        skipMap: true
-                    }), load, config);
+                    plugin.load(map.name, localRequire, load, config);
                 }));
 
                 context.enable(pluginMap, this);
