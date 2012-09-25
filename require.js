@@ -1021,10 +1021,9 @@ var requirejs, require, define;
                         //Support anonymous modules.
                         context.completeLoad(moduleName);
 
-                        //Make sure to ask for the real JS module, and not
-                        //get a handle on one that will have a default plugin
-                        //ID applied to dependency.
-                        localRequire(['!' + moduleName], load);
+                        //Bind the value of that module to the value for this
+                        //resource ID.
+                        localRequire([moduleName], load);
                     });
 
                     //Use parentName here since the plugin's name is not reliable,
