@@ -1,7 +1,0 @@
-refine(['!plain', 'text!b.txt'], function (plain, text) {
-    return {
-        name: 'b',
-        plain: plain,
-        text: text
-    }
-});

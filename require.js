@@ -374,17 +374,12 @@ var requirejs, require, define;
         //Turns a plugin!resource to [plugin, resource]
         //with the plugin being undefined if the name
         //did not have a plugin prefix.
-        function splitPrefix(name, relMap) {
+        function splitPrefix(name) {
             var prefix,
                 index = name ? name.indexOf('!') : -1;
             if (index > -1) {
                 prefix = name.substring(0, index);
                 name = name.substring(index + 1, name.length);
-            } else if (relMap && !handlers[name]) {
-                //This is dependency mentioned by a plugin that
-                //has a default prefix, and it is not one of the
-                //special dependency names, require, exports, module.
-                prefix = relMap.prefix || relMap.defaultPrefix;
             }
             return [prefix, name];
         }
@@ -419,7 +414,7 @@ var requirejs, require, define;
                 name = '_@r' + (requireCounter += 1);
             }
 
-            nameParts = splitPrefix(name, parentModuleMap);
+            nameParts = splitPrefix(name);
             prefix = nameParts[0];
             name = nameParts[1];
 
@@ -446,8 +441,6 @@ var requirejs, require, define;
                     //Normalized name may be a plugin ID due to map config
                     //application in normalize. The map config values must
                     //already be normalized, so do not need to redo that part.
-                    //Do not pass a relMap for this splitPrefix call because
-                    //the name is already normalized.
                     nameParts = splitPrefix(normalizedName);
                     prefix = nameParts[0];
                     normalizedName = nameParts[1];
