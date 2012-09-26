@@ -1215,8 +1215,8 @@ var requirejs, require, define;
                                 deps: value
                             };
                         }
-                        if (value.exports && !value.exports.__buildReady) {
-                            value.exports = context.makeShimExports(value.exports);
+                        if (value.exports && !value.exportsFn) {
+                            value.exportsFn = context.makeShimExports(value);
                         }
                         shim[id] = value;
                     });
@@ -1271,20 +1271,15 @@ var requirejs, require, define;
                 }
             },
 
-            makeShimExports: function (exports) {
-                var func;
-                if (typeof exports === 'string') {
-                    func = function () {
-                        return getGlobal(exports);
-                    };
-                    //Save the exports for use in nodefine checking.
-                    func.exports = exports;
-                    return func;
-                } else {
-                    return function () {
-                        return exports.apply(global, arguments);
-                    };
+            makeShimExports: function (value) {
+                function fn() {
+                    var ret = getGlobal(value.exports);
+                    if (value.init) {
+                        value.init.apply(global, arguments);
+                    }
+                    return ret;
                 }
+                return fn;
             },
 
             makeRequire: function (relMap, options) {
@@ -1445,7 +1440,7 @@ var requirejs, require, define;
             completeLoad: function (moduleName) {
                 var found, args, mod,
                     shim = config.shim[moduleName] || {},
-                    shExports = shim.exports && shim.exports.exports;
+                    shExports = shim.exports;
 
                 takeGlobalQueue();
 
@@ -1485,7 +1480,7 @@ var requirejs, require, define;
                     } else {
                         //A script that does not call define(), so just simulate
                         //the call for it.
-                        callGetModule([moduleName, (shim.deps || []), shim.exports]);
+                        callGetModule([moduleName, (shim.deps || []), shim.exportsFn]);
                     }
                 }
 
