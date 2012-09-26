@@ -57,7 +57,8 @@
 
 <p>RequireJS loads all code relative to a <a href="#config-baseUrl">baseUrl</a>. The baseUrl is normally set to the same directory as the script used in a data-main attribute for the top level script to load for a page. The data-main attribute is a special attribute that require.js will check to start script loading. This example will end up with a baseUrl of <strong>scripts</strong>:</p>
 
-<pre><code>&lt;--This sets the baseUrl to the "scripts" directory--&gt;
+<pre><code>&lt;!--This sets the baseUrl to the "scripts" directory, and
+    loads a script that will have a module ID of 'main'--&gt;
 &lt;script data-main="scripts/main.js" src="scripts/require.js"&gt;&lt;/script&gt;
 </code></pre>
 
