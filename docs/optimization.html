@@ -389,6 +389,23 @@ if (true) {
 <pre><code>node r.js -o build.js optimize=none
 </code></pre>
 
+<p>There is a <strong>limitation</strong> on the command line argument syntax. Dots are viewed as object property separators, to allow something like <code>paths.jquery=lib/jquery</code> to be transformed to the following in the optimizer:</p>
+
+<pre><code>paths: {
+    jquery: 'lib/jquery'
+}
+</code></pre>
+
+<p>but this means you cannot set the value for a paths property of "core/jquery.tabs" to a value. This would not work: <code>paths.core/jquery.tabs=empty:</code>, since it would result in this incorrect structure:</p>
+
+<pre><code>paths: {
+    'core/jquery': {
+        tabs: 'empty:'
+}
+</code></pre>
+
+<p>If you need to set a path like the "core/jquery.tabs" one, use a build.js file with the build options specified as a JavaScript object instead of using command line arguments.</p>
+
 <p><strong id="mainConfigFile">Config settings in your main JS file are not read by default by the optimizer</strong></p>
 
 <p>This is because the config settings for a build can be very different, with multiple optimization targets. So a separate set of config options need to be specified for the optimizer.</p>
