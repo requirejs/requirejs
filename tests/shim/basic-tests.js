@@ -13,11 +13,14 @@ require({
             },
             'e': {
                 exports: 'e.nested.e'
+            },
+            'f': {
+                exports: { 'g': 'g', 'h': 'h' }
             }
         }
     },
-    ['a', 'c', 'e'],
-    function(a, c, e) {
+    ['a', 'c', 'e', 'f'],
+    function(a, c, e, f) {
         doh.register(
             'shimBasic',
             [
@@ -28,6 +31,8 @@ require({
                     t.is('c', c.name);
                     t.is('d', c.b.dValue.name);
                     t.is('e', e.name);
+                    t.is('g', f.g);
+                    t.is('h', f.h);
                 }
             ]
         );
