@@ -903,7 +903,8 @@ var requirejs, require, define;
             callPlugin: function () {
                 var map = this.map,
                     id = map.id,
-                    pluginMap = makeModuleMap(map.prefix, null, false, true);
+                    //Map already normalized the prefix.
+                    pluginMap = makeModuleMap(map.prefix);
 
                 //Mark this as a dependency for this plugin, so it
                 //can be traced for cycles.
@@ -928,10 +929,10 @@ var requirejs, require, define;
                             }) || '';
                         }
 
+                        //prefix and name should already be normalized, no need
+                        //for applying map config again either.
                         normalizedMap = makeModuleMap(map.prefix + '!' + name,
-                                                      this.map.parentMap,
-                                                      false,
-                                                      true);
+                                                      this.map.parentMap);
                         on(normalizedMap,
                             'defined', bind(this, function (value) {
                                 this.init([], function () { return value; }, null, {
