@@ -1276,11 +1276,11 @@ var requirejs, require, define;
 
             makeShimExports: function (value) {
                 function fn() {
-                    var ret = getGlobal(value.exports);
+                    var ret;
                     if (value.init) {
-                        value.init.apply(global, arguments);
+                        ret = value.init.apply(global, arguments);
                     }
-                    return ret;
+                    return ret || getGlobal(value.exports);
                 }
                 return fn;
             },

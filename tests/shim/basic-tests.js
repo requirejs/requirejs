@@ -13,7 +13,12 @@ require({
                 exports: 'C'
             },
             'e': {
-                exports: 'e.nested.e'
+                exports: 'e.nested.e',
+                init: function () {
+                    return {
+                        name: e.nested.e.name + 'Modified'
+                    };
+                }
             }
         }
     },
@@ -29,7 +34,7 @@ require({
                     t.is('b', c.b.name);
                     t.is('c', c.name);
                     t.is('d', c.b.dValue.name);
-                    t.is('e', e.name);
+                    t.is('eModified', e.name);
                 }
             ]
         );

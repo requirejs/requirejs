@@ -7,12 +7,12 @@
 
 define("a", (function (global) {
     return function () {
-        var ret = global.A.name;
-       var fn = function () {
+        var ret, fn;
+       fn = function () {
                     window.globalA = this.A.name;
                 };
-        fn.apply(global, arguments);
-        return ret;
+        ret = fn.apply(global, arguments);
+        return ret || global.A.name;
     };
 }(this)));
 
@@ -38,8 +38,8 @@ var C = {
 
 define("c", ["a","b"], (function (global) {
     return function () {
-        var ret = global.C;
-        return ret;
+        var ret, fn;
+        return ret || global.C;
     };
 }(this)));
 
@@ -53,8 +53,14 @@ var e = {
 
 define("e", (function (global) {
     return function () {
-        var ret = global.e.nested.e;
-        return ret;
+        var ret, fn;
+       fn = function () {
+                    return {
+                        name: e.nested.e.name + 'Modified'
+                    };
+                };
+        ret = fn.apply(global, arguments);
+        return ret || global.e.nested.e;
     };
 }(this)));
 
@@ -73,7 +79,12 @@ require({
                 exports: 'C'
             },
             'e': {
-                exports: 'e.nested.e'
+                exports: 'e.nested.e',
+                init: function () {
+                    return {
+                        name: e.nested.e.name + 'Modified'
+                    };
+                }
             }
         }
     },
@@ -89,7 +100,7 @@ require({
                     t.is('b', c.b.name);
                     t.is('c', c.name);
                     t.is('d', c.b.dValue.name);
-                    t.is('e', e.name);
+                    t.is('eModified', e.name);
                 }
             ]
         );
