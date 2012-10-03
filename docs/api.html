@@ -515,7 +515,7 @@ This example specifies some dependencies to load as soon as require.js defines r
         'foo': {
             deps: ['bar'],
             exports: 'Foo',
-            init: function () {
+            init: function (bar) {
                 //Using a function allows you to call noConflict for
                 //libraries that support it, and do other cleanup.
                 //However, plugins for those libraries may still want
