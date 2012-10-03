@@ -101,7 +101,7 @@
             load: function (name, parentRequire, load, config) {
                 var url = parentRequire.toUrl(name + '.refine');
                 fetchText(url, function (text) {
-                    text = text.replace(/refine/g, 'define');
+                    text = text.replace(/refine\s*\(/g, 'define(');
 
                     if (config.isBuild) {
                         buildMap[name] = text;
@@ -110,7 +110,7 @@
                     //Add in helpful debug line
                     text += "\r\n//@ sourceURL=" + url;
 
-                    load.fromText(name, text);
+                    load.fromText(text);
 
                     parentRequire([name], function (value) {
                         load(value);

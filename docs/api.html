@@ -57,7 +57,8 @@
 
 <p>RequireJS loads all code relative to a <a href="#config-baseUrl">baseUrl</a>. The baseUrl is normally set to the same directory as the script used in a data-main attribute for the top level script to load for a page. The data-main attribute is a special attribute that require.js will check to start script loading. This example will end up with a baseUrl of <strong>scripts</strong>:</p>
 
-<pre><code>&lt;--This sets the baseUrl to the "scripts" directory--&gt;
+<pre><code>&lt;!--This sets the baseUrl to the "scripts" directory, and
+    loads a script that will have a module ID of 'main'--&gt;
 &lt;script data-main="scripts/main.js" src="scripts/require.js"&gt;&lt;/script&gt;
 </code></pre>
 
@@ -498,7 +499,7 @@ This example specifies some dependencies to load as soon as require.js defines r
 
 <p id="config-paths"><strong><a href="#config-paths">paths</a></strong>: path mappings for module names not found directly under baseUrl. The path settings are assumed to be relative to baseUrl, unless the paths setting starts with a "/" or has a URL protocol in it ("like http:"). In those cases, the path is determined relative to baseUrl. Using the above sample config, "some/module"'s script tag will be src="/another/path/some/v1.0/module.js". The path that is used for a module name should <strong>not</strong> include the .js extension, since the path mapping could be for a directory. The path mapping code will automatically add the .js extension when mapping the module name to a path.</p>
 
-<p id="config-shim"><strong><a href="#config-shim">shim</a></strong>: Configure the dependencies and exports for older, traditional "browser globals" scripts that do not use define() to declare the dependencies and set a module value. Example:</p>
+<p id="config-shim"><strong><a href="#config-shim">shim</a></strong>: Configure the dependencies and exports for older, traditional "browser globals" scripts that do not use define() to declare the dependencies and set a module value. Example (RequireJS 2.1.0+):</p>
 
 
 <pre><code>requirejs.config({
@@ -513,19 +514,29 @@ This example specifies some dependencies to load as soon as require.js defines r
         },
         'foo': {
             deps: ['bar'],
-            //A function can be used to generate the exported value.
-            //"this" for the function will be the global object.
-            //The dependencies will be passed in as function arguments.
-            exports: function (bar) {
-                //Using a function allows you to call noConflict for libraries
-                //that support it. However, be aware that plugins for those
-                //libraries may still want a global.
+            exports: 'Foo',
+            init: function (bar) {
+                //Using a function allows you to call noConflict for
+                //libraries that support it, and do other cleanup.
+                //However, plugins for those libraries may still want
+                //a global. "this" for the function will be the global
+                //object. The dependencies will be passed in as
+                //function arguments. If this function returns a value,
+                //then that value is used as the module export value
+                //instead of the object found via the 'exports' string.
                 return this.Foo.noConflict();
             }
         }
     }
 });
 </code></pre>
+
+<p>In RequireJS 2.0.*, the "exports" property in the shim config could have
+    been a function instead of a string. In that case, it functioned
+the same as the "init" property as shown above. The "init" pattern is used in
+RequireJS 2.1.0+ so a string value for the exports can be used for
+<a href="config-enforceDefine">enforceDefine</a>, but then allow
+functional work once the library is known to have loaded.</p>
 
 <p>For "modules" that are just jQuery or Backbone plugins that do not need to export
 any module value, the shim config can just be an array of dependencies:</p>

@@ -21,7 +21,7 @@ $(document).ready(function($) {
     $(window).bind("load resize", function(){
         var w = $(window).height();
         var h = $("#nav").outerHeight();
-        $("#nav").css("position",(w < h) ? ("relative") : ("fixed"));
+        $("#nav").css("position",(w < h) ? "" : "fixed");
     });
 
     // done!

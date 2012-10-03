@@ -2,8 +2,9 @@ require({
         baseUrl: './',
         shim: {
             a: {
-                exports: function () {
-                    return this.A.name;
+                exports: 'A.name',
+                init: function () {
+                    window.globalA = this.A.name;
                 }
             },
             'b': ['a', 'd'],
@@ -12,7 +13,12 @@ require({
                 exports: 'C'
             },
             'e': {
-                exports: 'e.nested.e'
+                exports: 'e.nested.e',
+                init: function () {
+                    return {
+                        name: e.nested.e.name + 'Modified'
+                    };
+                }
             }
         }
     },
@@ -23,11 +29,12 @@ require({
             [
                 function shimBasic(t){
                     t.is('a', a);
+                    t.is('a', window.globalA);
                     t.is('a', c.b.aValue);
                     t.is('b', c.b.name);
                     t.is('c', c.name);
                     t.is('d', c.b.dValue.name);
-                    t.is('e', e.name);
+                    t.is('eModified', e.name);
                 }
             ]
         );

@@ -5,7 +5,7 @@ require({
             'refine': '../fromText/refine'
         },
         shim: {
-            'refine!a': ['legacy']
+            'refine!a': ['!legacy']
         }
 },      ['refine!a'],
 function (a) {

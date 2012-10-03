@@ -20,6 +20,7 @@ if (hasToString) {
     doh.registerUrl("cjsSpace", "../cjsSpace/cjsSpace.html");
     doh.registerUrl("cjsDotRequire", "../cjsSpace/cjsDotRequire.html");
     doh.registerUrl("packages", "../packages/packages.html");
+    doh.registerUrl("specialDeps", "../specialDeps/specialDeps.html");
 }
 
 doh.registerUrl("simple-nohead", "../simple-nohead.html");
@@ -33,6 +34,8 @@ if (location.href.indexOf('http://127.0.0.1/requirejs/') === 0) {
 doh.registerUrl("circular", "../circular.html");
 doh.registerUrl("circularPlugin", "../circular/circularPlugin.html");
 doh.registerUrl("circularComplexPlugin", "../circular/complexPlugin/complexPlugin.html");
+doh.registerUrl("circular414", "../circular/414/414.html");
+doh.registerUrl("circularTranspiler", "../circular/transpiler/transpiler.html");
 
 doh.registerUrl("nestedRequire", "../nestedRequire/nestedRequire.html");
 
@@ -81,6 +84,8 @@ doh.registerUrl("mapConfigMulti", "../mapConfig/mapConfigMulti.html");
 doh.registerUrl("mapConfigDelayed", "../mapConfig/mapConfigDelayed.html");
 doh.registerUrl("mapConfigRelative", "../mapConfig/mapConfigRelative.html");
 doh.registerUrl("mapConfigSpecificity", "../mapConfig/mapConfigSpecificity.html");
+doh.registerUrl("mapConfigPlugin", "../mapConfig/mapConfigPlugin.html");
+doh.registerUrl("mapConfigPluginBuilt", "../mapConfig/built/mapConfigPluginBuilt.html");
 
 doh.registerUrl("layers", "../layers/layers.html", 10000);
 
@@ -106,6 +111,7 @@ doh.registerUrl("pluginsTextDepend", "../plugins/textDepend/textDepend.html");
 doh.registerUrl("pluginLast", "../plugins/pluginLast/pluginLast.html");
 doh.registerUrl("pluginShim", "../plugins/pluginShim/pluginShim.html");
 doh.registerUrl("pluginMap", "../plugins/pluginMap/pluginMap.html");
+doh.registerUrl("pluginMapSameName", "../plugins/pluginMapSameName/pluginMapSameName.html");
 doh.registerUrl("pluginMapDynamic", "../plugins/pluginMap/dynamic/pluginMapDynamic.html");
 
 doh.registerUrl("requirePluginLoad", "../requirePluginLoad/requirePluginLoad.html");

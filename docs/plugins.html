@@ -9,8 +9,9 @@
         <li class="hbox"><a href="#apiload">load</a><span class="spacer boxFlex"></span><span class="sect">&sect; 3.1</span></li>
         <li class="hbox"><a href="#apinormalize">normalize</a><span class="spacer boxFlex"></span><span class="sect">&sect; 3.2</span></li>
         <li class="hbox"><a href="#apiwrite">write</a><span class="spacer boxFlex"></span><span class="sect">&sect; 3.3</span></li>
-        <li class="hbox"><a href="#apiwritefile">writeFile</a><span class="spacer boxFlex"></span><span class="sect">&sect; 3.4</span></li>
-        <li class="hbox"><a href="#apipluginbuilder">pluginBuilder</a><span class="spacer boxFlex"></span><span class="sect">&sect; 3.5</span></li>
+        <li class="hbox"><a href="#apionlayerend">onLayerEnd</a><span class="spacer boxFlex"></span><span class="sect">&sect; 3.4</span></li>
+        <li class="hbox"><a href="#apiwritefile">writeFile</a><span class="spacer boxFlex"></span><span class="sect">&sect; 3.5</span></li>
+        <li class="hbox"><a href="#apipluginbuilder">pluginBuilder</a><span class="spacer boxFlex"></span><span class="sect">&sect; 3.6</span></li>
     </ul>
 </ul>
 </div>
@@ -114,13 +115,13 @@ define({
 });
 </code></pre>
 
-<p>Some plugins may need to evaluate some JavaScript that was retrieved as text. To evaluate the JavaScript correctly, particularly if it contains require() or define() calls, there is a function off the load() argument, <strong>load.fromText()</strong>, that can be used to evaluate the JavaScript. eval() is used by RequireJS to evaluate that JavaScript.</p>
+<p>Some plugins may need to evaluate some JavaScript that was retrieved as text, and use that
+evaluated JavaScript as the value for the resource. There is a function off the load() argument, <strong>load.fromText()</strong>, that can be used to evaluate the JavaScript. eval() is used by RequireJS to evaluate that JavaScript, and RequireJS will do the right work for any anonymous define() call in the evaluated text, and use that define() module as the value for the resource.</p>
 
-<p>Arguments for load.fromText():</p>
+<p>Arguments for load.fromText() (RequireJS 2.1.0 and later):</p>
 
 <ul>
-    <li><b>name</b>: String. The name of the module being loaded. Useful for anonymous module calls. Always pass a value. You can use the file path that was used to retrieve the text if there is no matching module name for the text.</li>
-    <li><b>text</b>: String. The string of JavaScript to evaluate..</li>
+    <li><b>text</b>: String. The string of JavaScript to evaluate.</li>
 </ul>
 
 <p>An example plugin's load function that uses load.fromText():</p>
@@ -140,19 +141,18 @@ define({
             text = transform(text);
 
             //Have RequireJS execute the JavaScript within
-            //the correct environment/context.
-            load.fromText(name, text);
-
-            //Now get a handle on the evaluated module,
-            //to return that value for this plugin-loaded
-            //resource
-            req([name], function (value) {
-                load(value);
-            });
+            //the correct environment/context, and trigger the load
+            //call for this resource.
+            load.fromText(text);
         });
     }
 });
 </code></pre>
+
+<p>Before RequireJS 2.1.0, load.fromText accepted a moduleName as the first
+    argument: <code>load.fromText(moduleName, text)</code>, and the loader
+    plugin had to manually call <code>require([moduleName], load)</code>
+    after the load.fromText() call.</p>
 
 <p><b id="loadBuildInfo">Build considerations</b>: The optimizer traces
 dependencies <b>synchronously</b> to simplify the optimization logic. This is
@@ -290,8 +290,29 @@ write: function (pluginName, moduleName, write) {
 </code></pre>
 
 <h3>
-<a name="apiwritefile">writeFile: function (pluginName, moduleName, write)</a>
+<a name="apionlayerend">onLayerEnd: function (write, data)</a>
 <span class="sectionMark">&sect; 3.4</span>
+</h3>
+
+<p><b>onLayerEnd</b> is only used by the optimizer, and is only supported in 2.1.0 or later of the optimizer. It is called after the modules for the layer have been written to the layer. It is useful to use if you need some code that should go at the end of the layer, or if the plugin needs to reset some internal state.</p>
+
+<p>One example: a plugin that needs to write out some utility functions at the beginning of a layer, as part of the first <a href="#apiwrite">write</a> call, and the plugin needs to know when to reset the internal state to know when to write out the utilities for the next layer. If the plugin implements onLayerEnd, it can get notified when to reset its internal state.</p>
+
+<p>onLayerEnd is called with the following arguments:</p>
+
+<ul>
+    <li><b>write</b>: Function. A function to be called with a string of output to write to the optimized layer. <b>Modules should not be written out</b> in this call. They will not be normalized correctly for coexistence with other define() calls already in the file. It is useful only for writing out non-define() code.</li>
+    <li><b>data</b>: Object. Information about the layer. Only has two properties:
+    <ul>
+     <li><b>name</b>: the module name of the layer. May be undefined.</li>
+     <li><b>path</b>: the file path of the layer. May be undefined, particularly if the output is just to a string that is consumed by another script.</li>
+     </li>
+</ul>
+
+
+<h3>
+<a name="apiwritefile">writeFile: function (pluginName, moduleName, write)</a>
+<span class="sectionMark">&sect; 3.5</span>
 </h3>
 
 <p><b>writeFile</b> is only used by the optimizer, and it only needs to be implemented if the plugin needs to write out an alternate version of a dependency that is handled by the plugin. It is a bit expensive to scan all modules in a project to look for all plugin dependencies, so this writeFile method will only be called if <b>optimizeAllPluginResources: true</b> is in the build profile for the RequireJS optimizer. writeFile is called with the following arguments:</p>
@@ -313,7 +334,7 @@ write: function (pluginName, moduleName, write) {
 
 <h3>
 <a name="apipluginbuilder">pluginBuilder</a>
-<span class="sectionMark">&sect; 3.5</span>
+<span class="sectionMark">&sect; 3.6</span>
 </h3>
 
 <p><b>pluginBuilder</b> can be a string that points to another module to use instead of the current plugin when the plugin is used as part of an optimizer build.</p>
