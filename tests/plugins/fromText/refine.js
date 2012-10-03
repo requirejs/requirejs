@@ -110,7 +110,7 @@
                     //Add in helpful debug line
                     text += "\r\n//@ sourceURL=" + url;
 
-                    load.fromText(name, text);
+                    load.fromText(text);
 
                     parentRequire([name], function (value) {
                         load(value);

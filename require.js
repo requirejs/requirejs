@@ -982,16 +982,18 @@ var requirejs, require, define;
 
                     //Allow plugins to load other code without having to know the
                     //context or how to 'complete' the load.
-                    load.fromText = bind(this, function (moduleName, text) {
+                    load.fromText = bind(this, function (text, textAlt) {
                         /*jslint evil: true */
-                        var hasInteractive = useInteractive,
-                            moduleMap = makeModuleMap(moduleName);
+                        var moduleName = map.name,
+                            moduleMap = makeModuleMap(moduleName),
+                            hasInteractive = useInteractive;
 
-                        //If no specific prefix in place, pass on the prefix
-                        //to use, but only by module IDs that are normalized
-                        //against this ID.
-                        if (moduleName.charAt(0) !== '!' && !moduleMap.prefix) {
-                            moduleMap.defaultPrefix = map.prefix;
+                        //As of 2.1.0, support just passing the text, to reinforce
+                        //fromText only being called once per resource. Still
+                        //support old style of passing moduleName but discard
+                        //that moduleName in favor of the internal ref.
+                        if (textAlt) {
+                            text = textAlt;
                         }
 
                         //Turn off interactive script matching for IE for any define
