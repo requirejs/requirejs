@@ -17,6 +17,7 @@ When doing a release, do the following:
     * Upload change in jQuery project to website even before the current release.
 * Check in changes to sample projects:
   * requirejs/example-multipage
+  * requirejs/example-multipage-shim
   * requirejs/example-libglobal
   * volojs/create-template
   * volojs/create-responsive-template
