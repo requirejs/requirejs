@@ -1288,7 +1288,7 @@ var requirejs, require, define;
             makeRequire: function (relMap, options) {
                 options = options || {};
 
-                function require(deps, callback, errback) {
+                function localRequire(deps, callback, errback) {
                     var id, map, requireMod, args;
 
                     if (options.enableBuildCallback && callback && isFunction(callback)) {
@@ -1358,10 +1358,10 @@ var requirejs, require, define;
                         checkLoaded();
                     });
 
-                    return require;
+                    return localRequire;
                 }
 
-                mixin(require, {
+                mixin(localRequire, {
                     isBrowser: isBrowser,
 
                     /**
@@ -1394,7 +1394,7 @@ var requirejs, require, define;
 
                 //Only allow undef on top level require calls
                 if (!relMap) {
-                    require.undef = function (id) {
+                    localRequire.undef = function (id) {
                         //Bind any waiting define() calls to this context,
                         //fix for #408
                         takeGlobalQueue();
@@ -1419,7 +1419,7 @@ var requirejs, require, define;
                     };
                 }
 
-                return require;
+                return localRequire;
             },
 
             /**
