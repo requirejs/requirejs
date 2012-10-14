@@ -116,6 +116,8 @@ doh.registerUrl("pluginMapDynamic", "../plugins/pluginMap/dynamic/pluginMapDynam
 
 doh.registerUrl("requirePluginLoad", "../requirePluginLoad/requirePluginLoad.html");
 
+doh.registerUrl("requireAsync", "../requireAsync/requireAsync.html");
+
 doh.registerUrl("issue379", "../issue379/issue379.html");
 
 doh.registerUrl("text", "../text/text.html");

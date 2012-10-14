@@ -1167,6 +1167,25 @@ var requirejs, require, define;
             };
         }
 
+        function intakeDefines() {
+            var args;
+
+            //Any defined modules in the global queue, intake them now.
+            takeGlobalQueue();
+
+            //Make sure any remaining defQueue items get properly processed.
+            while (defQueue.length) {
+                args = defQueue.shift();
+                if (args[0] === null) {
+                    return onError(makeError('mismatch', 'Mismatched anonymous define() module: ' + args[args.length - 1]));
+                } else {
+                    //args are id, deps, factory. Should be normalized by the
+                    //define() function.
+                    callGetModule(args);
+                }
+            }
+        }
+
         context = {
             config: config,
             contextName: contextName,
@@ -1289,7 +1308,7 @@ var requirejs, require, define;
                 options = options || {};
 
                 function localRequire(deps, callback, errback) {
-                    var id, map, requireMod, args;
+                    var id, map, requireMod;
 
                     if (options.enableBuildCallback && callback && isFunction(callback)) {
                         callback.__requireJsBuild = true;
@@ -1328,23 +1347,15 @@ var requirejs, require, define;
                         return defined[id];
                     }
 
-                    //Any defined modules in the global queue, intake them now.
-                    takeGlobalQueue();
-
-                    //Make sure any remaining defQueue items get properly processed.
-                    while (defQueue.length) {
-                        args = defQueue.shift();
-                        if (args[0] === null) {
-                            return onError(makeError('mismatch', 'Mismatched anonymous define() module: ' + args[args.length - 1]));
-                        } else {
-                            //args are id, deps, factory. Should be normalized by the
-                            //define() function.
-                            callGetModule(args);
-                        }
-                    }
+                    //Grab defines waiting in the global queue.
+                    intakeDefines();
 
                     //Mark all the dependencies as needing to be loaded.
                     context.nextTick(function () {
+                        //Some defines could have been added since the
+                        //require call, collect them.
+                        intakeDefines();
+
                         requireMod = getModule(makeModuleMap(null, relMap));
 
                         //Store if map config should be applied to this require
