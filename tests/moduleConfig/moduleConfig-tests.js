@@ -1,9 +1,14 @@
 require({
+    config: {
+        a: {
+            id: 'magic'
+        }
+    }
+});
+
+require({
         baseUrl: './',
         config: {
-            a: {
-                id: 'magic'
-            },
             'b/c': {
                 id: 'beans'
             }
