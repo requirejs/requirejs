@@ -1214,7 +1214,8 @@ var requirejs, require, define;
                 var pkgs = config.pkgs,
                     shim = config.shim,
                     paths = config.paths,
-                    map = config.map;
+                    map = config.map,
+                    modulecfg = config.config;
 
                 //Mix in the config values, favoring the new values over
                 //existing ones in context.config.
@@ -1222,6 +1223,9 @@ var requirejs, require, define;
 
                 //Merge paths.
                 config.paths = mixin(paths, cfg.paths, true);
+
+                //Merge module config
+                config.config = mixin(modulecfg || {}, cfg.config, true);
 
                 //Merge map
                 if (cfg.map) {
