@@ -99,6 +99,11 @@ function   (foo,   bar) {
 
 <p>To see a more complete example that loads a module via RequireJS but uses Node-native modules for other things, see the <a href="https://github.com/jrburke/r.js/tree/master/tests/node/embedded">embedded test</a> in the r.js repo.</p>
 
+<p><strong>Note:</strong> <code>requirejs([], function() {})</code> will call the function callback asynchronously in RequireJS 2.1+ (for earlier versions it was synchronously called). However, when running in Node, module loading will be loaded using sync IO calls, and loader plugins should resolve calls to their load method synchronously. This allows sync uses of the requirejs module in node to work via requirejs('stringValue') calls:
+
+<pre><code>//Retrieves the module value for 'a' synchronously
+var a = requirejs('a')</code></pre>
+
 <h3 id="nodeModules">Building node modules with AMD or RequireJS</h3>
 
 <p>If you want to code a module so that it works with RequireJS and in Node, without requiring users of your library in Node to use RequireJS, then you can use the <a href="https://github.com/jrburke/amdefine">amdefine</a> package to do this:</p>
