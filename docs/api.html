@@ -1048,7 +1048,7 @@ a generic path search path solution, since those are inefficient in the browser.
 <span class="sectionMark">&sect; 5</span>
 </h2>
 
-<p>RequireJS supports <a href="plugins.html">loader plugins</a>. This is a way to support dependencies that are not plain JS files, but are still important for a script to have loaded before it can do its work. The RequireJS wiki has <a href="https://github.com/jrburke/requirejs/wiki/Plugins">a list of plugins</a>. This section talks about some specific plugins that are maintained alongside RequireJS:</p>
+<p>RequireJS supports <a href="download.html#plugins">loader plugins</a>. This is a way to support dependencies that are not plain JS files, but are still important for a script to have loaded before it can do its work. The RequireJS wiki has <a href="https://github.com/jrburke/requirejs/wiki/Plugins">a list of plugins</a>. This section talks about some specific plugins that are maintained alongside RequireJS:</p>
 
 <h3><a href="#text" name="text">Specify a Text File Dependency</a><span class="sectionMark">&sect; 5.1</span></h3>
 
@@ -1073,7 +1073,7 @@ a generic path search path solution, since those are inefficient in the browser.
 </code></pre>
 
 <p>Since DOM ready is a common application need, ideally the nested functions
-in the API above could be avoided. The domReady module also implements the <a href="plugin.html">Loader Plugin API</a>,
+in the API above could be avoided. The domReady module also implements the <a href="download.html#plugins">Loader Plugin API</a>,
 so you can use the loader plugin syntax (notice the <b>!</b> in the domReady dependency) to force the
 require() callback function to wait for the DOM to be ready before executing. domReady will return
 the current document when used as a loader plugin:</p>
