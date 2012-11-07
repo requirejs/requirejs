@@ -89,7 +89,7 @@ var requirejs, require, define;
     function eachProp(obj, func) {
         var prop;
         for (prop in obj) {
-            if (obj.hasOwnProperty(prop)) {
+            if (hasProp(obj, prop)) {
                 if (func(obj[prop], prop)) {
                     break;
                 }
@@ -472,7 +472,7 @@ var requirejs, require, define;
 
         function getModule(depMap) {
             var id = depMap.id,
-                mod = registry[id];
+                mod = hasProp(registry, id) && registry[id];
 
             if (!mod) {
                 mod = registry[id] = new context.Module(depMap);
@@ -1060,7 +1060,7 @@ var requirejs, require, define;
                                                !this.skipMap);
                         this.depMaps[i] = depMap;
 
-                        handler = handlers[depMap.id];
+                        handler = hasProp(handlers, depMap.id) && handlers[depMap.id];
 
                         if (handler) {
                             this.depExports[i] = handler(this);
@@ -1085,7 +1085,7 @@ var requirejs, require, define;
                     //Skip special modules like 'require', 'exports', 'module'
                     //Also, don't call enable if it is already enabled,
                     //important in circular dependency cases.
-                    if (!handlers[id] && mod && !mod.enabled) {
+                    if (!hasProp(handlers, id) && mod && !mod.enabled) {
                         context.enable(depMap, this);
                     }
                 }));
@@ -1325,7 +1325,7 @@ var requirejs, require, define;
                         //If require|exports|module are requested, get the
                         //value for them from the special handlers. Caveat:
                         //this only works while module is being defined.
-                        if (relMap && handlers[deps]) {
+                        if (relMap && hasProp(handlers, deps)) {
                             return handlers[deps](registry[relMap.id]);
                         }
 
@@ -1534,8 +1534,8 @@ var requirejs, require, define;
                     //and work up from it.
                     for (i = syms.length; i > 0; i -= 1) {
                         parentModule = syms.slice(0, i).join('/');
-                        pkg = pkgs[parentModule];
-                        parentPath = paths[parentModule];
+                        pkg = hasProp(pkgs, parentModule) && pkgs[parentModule];
+                        parentPath = hasProp(paths, parentModule) && paths[parentModule];
                         if (parentPath) {
                             //If an array, it means there are a few choices,
                             //Choose the one that is desired
