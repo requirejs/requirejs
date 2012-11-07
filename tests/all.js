@@ -111,6 +111,7 @@ doh.registerUrl("pluginsTextDepend", "../plugins/textDepend/textDepend.html");
 doh.registerUrl("pluginLast", "../plugins/pluginLast/pluginLast.html");
 doh.registerUrl("pluginShim", "../plugins/pluginShim/pluginShim.html");
 doh.registerUrl("pluginMap", "../plugins/pluginMap/pluginMap.html");
+doh.registerUrl("pluginMapPrefixDefine", "../plugins/pluginMapPrefixDefine/pluginMapPrefixDefine.html");
 doh.registerUrl("pluginMapSameName", "../plugins/pluginMapSameName/pluginMapSameName.html");
 doh.registerUrl("pluginMapDynamic", "../plugins/pluginMap/dynamic/pluginMapDynamic.html");
 
