@@ -25,6 +25,8 @@ if (hasToString) {
 
 doh.registerUrl("simple-nohead", "../simple-nohead.html");
 
+doh.registerUrl("hasOwnPropertyTests", "../hasOwnProperty/hasOwnProperty.html");
+
 //Only do the base test if the urls work out.
 if (location.href.indexOf('http://127.0.0.1/requirejs/') === 0) {
     doh.registerUrl("simple-badbase", "../simple-badbase.html");
