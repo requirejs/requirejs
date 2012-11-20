@@ -1243,7 +1243,7 @@ var requirejs, require, define;
                                 deps: value
                             };
                         }
-                        if (value.exports && !value.exportsFn) {
+                        if ((value.exports || value.init) && !value.exportsFn) {
                             value.exportsFn = context.makeShimExports(value);
                         }
                         shim[id] = value;
@@ -1305,7 +1305,7 @@ var requirejs, require, define;
                     if (value.init) {
                         ret = value.init.apply(global, arguments);
                     }
-                    return ret || getGlobal(value.exports);
+                    return ret || (value.exports && getGlobal(value.exports));
                 }
                 return fn;
             },
