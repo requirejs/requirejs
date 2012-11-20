@@ -239,8 +239,6 @@ for the build (otherwise it will not build), then use the special "empty:" paths
 
 <p>However, for the minifier to accurately construct a source map, the minified source cannot be modified in any way, so <strong>preserveLicenseComments</strong> is incompatible with <strong>generateSourceMaps</strong>. generateSourceMaps was introduced in version 2.1.2 of the optimizer.</p>
 
-<p>The default for the optimizer is for <strong>preserveLicenseComments</strong> to be true. So if using <strong>generateSourceMaps</strong>, then explicitly set <strong>preserveLicenseComments</strong> to false. If you want to preserve some license comments, you can manually modify the license comments in the JS source to fit the style of comments that are supported by the minifier you want to use.</p>
-
-<p>If using Closure Compiler, then use a JSDoc-style <code>@license</code> comment. See "<a href="https://developers.google.com/closure/compiler/docs/js-for-compiler#tag-license">Annotating JavaScript for the Closure Compiler</a>" for more information.</p>
+<p>The default for the optimizer is for <strong>preserveLicenseComments</strong> to be true. So if using <strong>generateSourceMaps</strong>, then explicitly set <strong>preserveLicenseComments</strong> to false. If you want to preserve some license comments, you can manually modify the license comments in the JS source to use the JSDoc-style <code>@license</code> comment. See "<a href="https://developers.google.com/closure/compiler/docs/js-for-compiler#tag-license">Annotating JavaScript for the Closure Compiler</a>" for more information. That same format works for UglifyJS2.</p>
 
 </div>
