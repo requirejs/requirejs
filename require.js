@@ -1009,6 +1009,11 @@ var requirejs, require, define;
                         //it.
                         getModule(moduleMap);
 
+                        //Transfer any config to this other module.
+                        if (hasProp(config.config, id)) {
+                            config.config[moduleName] = config.config[id];
+                        }
+
                         try {
                             req.exec(text);
                         } catch (e) {
