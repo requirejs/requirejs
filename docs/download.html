@@ -26,10 +26,10 @@
 
 <div class="subSection">
 <h4 class="hbox">
-<a name="requirejs">require.js 2.1.1</a>
+<a name="requirejs">require.js 2.1.2</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/2.1.1/minified/require.js">Minified</a>
-<a class="download" href="http://requirejs.org/docs/release/2.1.1/comments/require.js">With Comments</a>
+<a class="download" href="http://requirejs.org/docs/release/2.1.2/minified/require.js">Minified</a>
+<a class="download" href="http://requirejs.org/docs/release/2.1.2/comments/require.js">With Comments</a>
 </h4>
 
 <p>All you need to start using require.js in the browser.</p>
@@ -37,9 +37,9 @@
 
 <div class="subSection">
 <h4 class="hbox">
-<a name="samplejquery">Sample RequireJS 2.1.1 + jQuery 1.8.2 project</a>
+<a name="samplejquery">Sample RequireJS 2.1.2 + jQuery 1.8.2 project</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/jquery-require/jquery1.8.2-requirejs2.1.1/jquery-require-sample.zip">Download</a>
+<a class="download" href="http://requirejs.org/docs/release/jquery-require/jquery1.8.2-requirejs2.1.2/jquery-require-sample.zip">Download</a>
 </h4>
 
 <p>A zip file containing a sample project that uses jQuery and RequireJS.</p>
@@ -50,7 +50,7 @@
 <h4 class="hbox">
 <a name="rjs">r.js: Optimizer and Node and Rhino adapter</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/2.1.1/r.js">Download</a>
+<a class="download" href="http://requirejs.org/docs/release/2.1.2/r.js">Download</a>
 </h4>
 
 <p>The r.js file allows you to run the optimizer as well as run modules in Node or Rhino.</p>
@@ -108,6 +108,24 @@ logic until the DOM is ready for querying/modification.</p>
 
 <div class="section">
 <h2><a name="releasenotes">Release Notes</a><span class="sectionMark">&sect; 3</span></h2>
+
+<h3 id="2-1-2">2.1.2</h3>
+
+<p>The big changes for this release are in the optimizer:</p>
+
+<ul>
+<li>The optimizer can now <a href="optimization.html#requirements">run in the browser</a>, to enable web-based custom builds of your library.</li>
+<li>"uglify2" is an allowed "optimize" value now, using UglifyJS 2.1.11.</li>
+<li>Experimental support for <a href="optimization.html#sourcemaps">source maps</a>.</li>
+<li>The optimizer runs faster now, and has some <a href="optimization.html#turbo">speed options</a>.</li>
+</ul>
+
+<p>Full list of changes:</p>
+
+<ul>
+    <li><a href="https://github.com/jrburke/requirejs/issues?milestone=22&sort=created&direction=desc&state=closed">Fixed require.js issues</a></li>
+    <li><a href="https://github.com/jrburke/r.js/issues?sort=created&direction=desc&state=closed&page=1&milestone=20">Fixed r.js optimizer issues</a></li>
+</ul>
 
 <h3 id="2-1-1">2.1.1</h3>
 
