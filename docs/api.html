@@ -529,6 +529,15 @@ This example specifies some dependencies to load as soon as require.js defines r
         }
     }
 });
+
+//Then, later in a separate file, call it 'MyModel.js', a module is
+//defined, specifying 'backbone' as a dependency. RequireJS will use
+//the shim config to properly load 'backbone' and give a local
+//reference to this module. The global Backbone will still exist on
+//the page too.
+define(['backbone'], function (Backbone) {
+  return Backbone.Model.extend({});
+});
 </code></pre>
 
 <p>In RequireJS 2.0.*, the "exports" property in the shim config could have
@@ -570,9 +579,12 @@ any module value, the shim config can just be an array of dependencies:</p>
 });
 </code></pre>
 
-<p><b>Important caveat for "shim" config:</b></p>
+<p><b>Important notes for "shim" config:</b></p>
 
 <ul>
+    <li>The shim config only sets up code relationships. To load modules that
+    are part of or use shim config, a normal require/define call is needed. Setting shim by
+    itself does not trigger code to load.</li>
     <li>Only use other "shim" modules as dependencies for shimmed scripts, or
     AMD libraries that have no dependencies and call define() after they also
     create a global (like jQuery or lodash). Otherwise, if you use an AMD
