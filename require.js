@@ -1135,7 +1135,7 @@ var requirejs, require, define;
         };
 
         function callGetModule(args) {
-            getModule(makeModuleMap(args[0], null, true)).init(args[1], args[2]);
+            getModule(makeModuleMap(args[0], null, true, true)).init(args[1], args[2]);
         }
 
         function removeListener(node, func, name, ieName) {
