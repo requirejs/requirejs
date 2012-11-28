@@ -571,6 +571,9 @@ var requirejs, require, define;
                         exports: defined[mod.map.id]
                     });
                 }
+            },
+            ':empty': function () {
+                return null;
             }
         };
 
