@@ -17,6 +17,7 @@ var requirejs, require, define;
         cjsRequireRegExp = /[^.]\s*require\s*\(\s*["']([^'"\s]+)["']\s*\)/g,
         jsSuffixRegExp = /\.js$/,
         currDirRegExp = /^\.\//,
+        fnArgsRegExp = /function[\s]*\([\s\S\^\)]*?\)[\s]*\{/,
         op = Object.prototype,
         ostring = op.toString,
         hasOwn = op.hasOwnProperty,
@@ -239,6 +240,75 @@ var requirejs, require, define;
                     }
                 }
             }
+        }
+        
+        /** 
+         * Given a function, it checks whether the names of the arguments are safe to use, 
+         * as in they are not Object's instance properties. 
+         * (See https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Object)
+         * @param {Function} fn the function handler
+         * @returns {Boolean} 
+         */
+        function isValidFunctionArguments(fn) {
+            var i,
+                fnArgumentsList = [],
+                isValid = false,
+                reservedNames = [
+                    'constructor',
+                    'hasOwnProperty',
+                    'isPrototypeOf',
+                    'propertyIsEnumerable',
+                    'toLocaleString',
+                    'toString',
+                    'valueOf',
+                    // the following are obselete since JS 1.8.5
+                    '__count__',
+                    '__parent__',
+                    'eval',
+                    // the following are non-standard
+                    '__proto__',
+                    '__defineGetter__','__defineSetter__',
+                    '__lookupGetter__','__lookupSetter__',
+                    '__noSuchMethod__',
+                    'toSource',
+                    'unwatch',
+                    'watch'
+                    ],
+                // Looks at the given function and returns a list of its arguments
+                getArguments = function(fn) {
+                    var result = [],
+                        fnStr = '',
+                        foundStr = '',
+                        start = -1,
+                        end = -1,
+                        paramStr = '',
+                        found = null;
+                    if (typeof fn !== 'string') {
+                        fnStr = fn.toString();
+                    } else {
+                        fnStr = fn;
+                    }
+                    found = fnStr.match(fnArgsRegExp);
+                    if (found !== null) {
+                        foundStr = found.toString();
+                        start = foundStr.indexOf('(');
+                        end = foundStr.lastIndexOf(')');
+                        paramStr = foundStr.substring(start + 1, end);
+                        result = paramStr.replace(/\s*/g, '').split(',');
+                    }
+                    return result;
+                };
+            if (isFunction(fn)) {
+                fnArgumentsList = getArguments(fn);
+            }
+            // check each function parameter name to see if it's valid
+            for (i = 0; i < fnArgumentsList.length && !isValid; i++) {
+                isValid = reservedNames.indexOf(fnArgumentsList[i]) === -1;
+            }
+            if (!isValid && fnArgumentsList.length) {
+                console.warn('Bad module parameter name "' + fnArgumentsList[i-1] + '" in:', fn.toString());
+            }
+            return isValid;
         }
 
         /**
@@ -1652,7 +1722,8 @@ var requirejs, require, define;
 
         //Find the right context, use default
         var context, config,
-            contextName = defContextName;
+            contextName = defContextName,
+            validParameterNames = false;
 
         // Determine if have config object in the call.
         if (!isArray(deps) && typeof deps !== 'string') {
@@ -1666,6 +1737,11 @@ var requirejs, require, define;
             } else {
                 deps = [];
             }
+        }
+        
+        // check that the callback's argument variable names are not special names
+        if (callback) {
+            validParameterNames = isValidFunctionArguments(callback);
         }
 
         if (config && config.context) {
@@ -1912,7 +1988,8 @@ var requirejs, require, define;
      * name.
      */
     define = function (name, deps, callback) {
-        var node, context;
+        var node, context,
+            validParameterNames = false;
 
         //Allow for anonymous modules
         if (typeof name !== 'string') {
@@ -1926,6 +2003,11 @@ var requirejs, require, define;
         if (!isArray(deps)) {
             callback = deps;
             deps = [];
+        }
+        
+        // check that the callback's argument variable names are not special names
+        if (callback) {
+            validParameterNames = isValidFunctionArguments(callback);
         }
 
         //If no name, and callback is a function, then figure out if it a
