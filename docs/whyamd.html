@@ -185,7 +185,7 @@ define(['dep1', 'dep2'], function (dep1, dep2) {
 <span class="sectionMark">&sect; 6</span>
 </h2>
 
-<p>Notice that the above module does not declare a name for itself. This is makes the module very portable. It allows a developer to place the module in a different path to give it a different ID/name. The AMD loader will give the module an ID based on how it is referenced by other scripts.</p>
+<p>Notice that the above module does not declare a name for itself. This is what makes the module very portable. It allows a developer to place the module in a different path to give it a different ID/name. The AMD loader will give the module an ID based on how it is referenced by other scripts.</p>
 
 <p>However, tools that combine multiple modules together for performance need a way to give names to each module in the optimized file. For that, AMD allows a string as the first argument to define():</p>
 
