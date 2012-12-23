@@ -13,8 +13,8 @@ var requirejs, require, define;
     var req, s, head, baseElement, dataMain, src,
         interactiveScript, currentlyAddingScript, mainScript, subPath,
         version = '2.1.2',
-        commentRegExp = /(\/\*([\s\S]*?)\*\/|([^:]|^)\/\/(.*)$)/mg,
-        cjsRequireRegExp = /[^.]\s*require\s*\(\s*["']([^'"\s]+)["']\s*\)/g,
+        cjsRequireRegExp = /"(?:\\"|[^"])*"|'(?:\\'|[^'])*'|\/\*[\S\s]*?\*\/|\/(?:\\\/|[^/\r\n])+\/(?=[^\/])|\/\/.*|\.\s*require|(?:^|[^$])\brequire\s*\(\s*(["'])(.+?)\1\s*\)/g,
+        slashRegExp = /\\\\/g,
         jsSuffixRegExp = /\.js$/,
         currDirRegExp = /^\.\//,
         op = Object.prototype,
@@ -1937,9 +1937,11 @@ var requirejs, require, define;
             if (callback.length) {
                 callback
                     .toString()
-                    .replace(commentRegExp, '')
-                    .replace(cjsRequireRegExp, function (match, dep) {
-                        deps.push(dep);
+                    .replace(slashRegExp, '')
+                    .replace(cjsRequireRegExp, function (match, quote, dep) {
+                        if (dep) {
+                          deps.push(dep);
+                        }
                     });
 
                 //May be a CommonJS thing even without require calls, but still
