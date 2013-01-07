@@ -239,14 +239,14 @@ require(mods);</code></pre>
 
 <p>Normally you should <strong>not</strong> save optimized files with your pristine project source. Normally you would save them to a copy of your project, but to make this example easier it is saved with the source. Change the <strong>out=</strong> option to any directory you like, that has a copy of your source. Then, you can change the main-built.js file name to just main.js so the HTML page will load the optimized version of the file.</p>
 
-<p>It is not recommended that you bundle require.js with your main.js file. Ideally require.js should be the same file contents wherever it is used. However, if you do need to include require.js with the main.js source, you can use this command:</p>
+<p>If you want to include require.js with the main.js source, you can use this kind of command:</p>
 
 <pre><code>node ../../r.js -o baseUrl=. paths.requireLib=../../require name=main include=requireLib out=main-built.js
 </code></pre>
 
 <p>Since "require" is a reserved dependency name, you create a "requireLib" dependency and map it to the require.js file.</p>
 
-<p>Once that optimization is done, you can then rename the main-built.js file to require.js and your optimized project will only need to make one script request.</p>
+<p>Once that optimization is done, you can change the script tag to reference "main-built.js" instead of "require.js", and your optimized project will only need to make one script request.</p>
 
 <p>If you want to wrap your built file so it can be used in pages that do not have an AMD loader like RequireJS, see the <a href="faq-optimization.html">Optimization FAQ</a>.</p>
 </div>
