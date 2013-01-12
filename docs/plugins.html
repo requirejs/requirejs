@@ -311,7 +311,7 @@ write: function (pluginName, moduleName, write) {
 
 
 <h3>
-<a name="apiwritefile">writeFile: function (pluginName, moduleName, write)</a>
+<a name="apiwritefile">writeFile: function (pluginName, name, write)</a>
 <span class="sectionMark">&sect; 3.5</span>
 </h3>
 
@@ -327,7 +327,6 @@ write: function (pluginName, moduleName, write) {
             <li><b>text</b>: String. The contents of the file. Must be UTF-8 encoded.</li>
         </ul>
         This function also contains a property function, <b>write.asModule(moduleName, fileName, text)</b>. asModule can be used to write out a module that may have an anonymous define call in there that needs name insertion or/and contains implicit require("") dependencies that need to be pulled out for the optimized file.</li>
-        <li><b>config</b>: Object. A configuration object. This is a way for the optimizer to pass configuration information to the plugin.</li>
 </ul>
 
 <p>See the <a href="https://github.com/jrburke/requirejs/blob/master/text.js">text! plugin</a> for an example of writeFile.</p>
