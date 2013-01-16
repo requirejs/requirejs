@@ -111,10 +111,6 @@
                     text += "\r\n//@ sourceURL=" + url;
 
                     load.fromText(text);
-
-                    parentRequire([name], function (value) {
-                        load(value);
-                    });
                 });
             },
 
