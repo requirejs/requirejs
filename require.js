@@ -10,7 +10,7 @@
 
 var requirejs, require, define;
 (function (global) {
-    var req, s, head, baseElement, dataMain, src,
+    var req, s, head, baseElement, dataMain, dataConfig, src,
         interactiveScript, currentlyAddingScript, mainScript, subPath,
         version = '2.1.2',
         commentRegExp = /(\/\*([\s\S]*?)\*\/|([^:]|^)\/\/(.*)$)/mg,
@@ -1873,6 +1873,14 @@ var requirejs, require, define;
             //using the script's parent.
             if (!head) {
                 head = script.parentNode;
+            }
+            
+            // Preload an optional configuration file to be used by the
+            // main script.
+            dataConfig = script.getAttribute('data-config');
+            if (dataConfig) {
+                cfg.deps = (cfg.deps || []);
+                cfg.deps.concat(dataConfig);
             }
 
             //Look for a data-main attribute to set main script for the page
