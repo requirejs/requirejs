@@ -1181,17 +1181,19 @@ var requirejs, require, define;
         }
 
         function intakeDefines() {
-            var args;
+            var args, i;
 
             //Any defined modules in the global queue, intake them now.
             takeGlobalQueue();
 
             //Make sure any remaining defQueue items get properly processed.
-            while (defQueue.length) {
-                args = defQueue.shift();
-                if (args[0] === null) {
-                    return onError(makeError('mismatch', 'Mismatched anonymous define() module: ' + args[args.length - 1]));
-                } else {
+            for(i = 0; i < defQueue.length; i++) {
+                args = defQueue[i];
+                //If anon module (arg[0] is null), leave it be,
+                //may be picked up via completeLoad.
+                if (args[0] !== null) {
+                    args = defQueue.splice(i, 1);
+                    i -= 1;
                     //args are id, deps, factory. Should be normalized by the
                     //define() function.
                     callGetModule(args);
@@ -1474,23 +1476,24 @@ var requirejs, require, define;
 
                 takeGlobalQueue();
 
+                if (!useInteractive) {
+                    eachReverse(defQueue, function (args) {
+                        if (args[0] === null) {
+console.log('DEFQUEUE ', defQueue);
+console.log('ASSIGNING ' + moduleName + ' to: ', args[2].toString());
+                            args[0] = moduleName;
+
+                            return (found = true);
+
+                        }
+                    });
+                }
+
                 while (defQueue.length) {
                     args = defQueue.shift();
-                    if (args[0] === null) {
-                        args[0] = moduleName;
-                        //If already found an anonymous module and bound it
-                        //to this name, then this is some other anon module
-                        //waiting for its completeLoad to fire.
-                        if (found) {
-                            break;
-                        }
-                        found = true;
-                    } else if (args[0] === moduleName) {
-                        //Found matching define call for this script!
-                        found = true;
+                    if (args[0] !== null) {
+                        callGetModule(args);
                     }
-
-                    callGetModule(args);
                 }
 
                 //Do this after the cycle of callGetModule in case the result

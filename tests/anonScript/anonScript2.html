@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>require.js: Anon Script Test</title>
+    <script type="text/javascript" src="../../require.js"></script>
+    <script type="text/javascript" src="../doh/runner.js"></script>
+    <script type="text/javascript" src="../doh/_browserRunner.js"></script>
+    <script>
+    var globalCounter = 0;
+    require(['build1', 'badUse', 'dropDefine', 'build2'],
+        function (build1, badUse, dropDefine, build2) {
+        doh.register(
+            'anonScript',
+            [
+                function anonScript(t){
+                    t.is('build1', build1.name);
+                    t.is('c1', build1.c1.name);
+                    t.is('c2', build1.c2.name);
+                    t.is('c3', build1.c3.name);
+
+                    t.is('badUse2', badUse.name);
+
+                    t.is('dropDefine', dropDefine.name);
+
+                    t.is('build2', build2.name);
+                    t.is('d1', build2.d1.name);
+                    t.is('d2', build2.d2.name);
+                    t.is('d3', build2.d3.name);
+                }
+            ]
+        );
+        doh.run();
+    });
+    console.log('a');
+    </script>
+    <script type="text/javascript" src="badUse.js?a=b"></script>
+    <script>
+        console.log('b');
+    </script>
+</head>
+<body>
+    <h1>require.js: Anon Script Test</h1>
+    <p>Make sure a script that does an anon define does not mess up
+        other module loading.</p>
+    <p>Check console for messages</p>
+</body>
+</html>
