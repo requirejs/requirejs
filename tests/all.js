@@ -9,6 +9,8 @@ doh.registerUrl("simple", "../simple.html");
 //PS3 does not like this test
 doh.registerUrl("baseUrl", "../baseUrl.html");
 
+doh.registerUrl("toUrl", "../toUrl/toUrl.html");
+
 doh.registerUrl("config", "../config.html");
 doh.registerUrl("configRequirejs", "../configRequirejs.html");
 doh.registerUrl("dataMain", "../dataMain/dataMain.html");
