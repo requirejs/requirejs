@@ -693,10 +693,26 @@ var requirejs, require, define;
             inCheckLoaded = false;
         }
 
+        function getShimConfig(map, config) {
+            var shimConfig = getOwn(config.shim, map.id);
+
+            //if not already a shim for the mapId, try test
+            //on every wildcard regexp available for the context
+            if (!shimConfig) {
+                eachProp(config.shim._wildcards, function(regexp, key) {
+                    if (regexp.test(map.id)) {
+                        return shimConfig = config.shim[key];
+                    }
+                });
+            }
+
+            return shimConfig;
+        }
+
         Module = function (map) {
             this.events = getOwn(undefEvents, map.id) || {};
             this.map = map;
-            this.shim = getOwn(config.shim, map.id);
+            this.shim = getShimConfig(map, config);
             this.depExports = [];
             this.depMaps = [];
             this.depMatched = [];
@@ -1198,6 +1214,16 @@ var requirejs, require, define;
             }
         }
 
+        function makeRegexpFromShimKey(key) {
+            if (typeof key === 'string') {
+                if (key.indexOf('*') >= 0) {
+                    //cleanup metacharacters
+                    key = key.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
+                    return new RegExp(key.replace('*', '.*'));
+                }
+            }
+        }
+
         context = {
             config: config,
             contextName: contextName,
@@ -1245,7 +1271,9 @@ var requirejs, require, define;
 
                 //Merge shim
                 if (cfg.shim) {
+                    shim._wildcards = {};
                     eachProp(cfg.shim, function (value, id) {
+                        var wildCardRegExp;
                         //Normalize the structure
                         if (isArray(value)) {
                             value = {
@@ -1256,6 +1284,10 @@ var requirejs, require, define;
                             value.exportsFn = context.makeShimExports(value);
                         }
                         shim[id] = value;
+                        wildCardRegExp = makeRegexpFromShimKey(id);
+                        if (wildCardRegExp) {
+                            shim._wildcards[id] = wildCardRegExp;
+                        }
                     });
                     config.shim = shim;
                 }

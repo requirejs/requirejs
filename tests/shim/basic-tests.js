@@ -29,10 +29,12 @@ require({
                         a: a
                     };
                 }
-            }
+            },
+            'namespace/*aa' : ['g'],
+            'namespace/*' : ['g']
         }
     },
-    ['a', 'c', 'e', 'f'],
+    ['a', 'c', 'e', 'f', 'namespace/aaa', 'namespace/a'],
     function(a, c, e, f) {
         doh.register(
             'shimBasic',
@@ -48,6 +50,9 @@ require({
                     t.is('FCAP', f.name);
                     t.is('a', f.globalA.name);
                     t.is('a', f.a);
+                    t.is('namespaced.a', namespace.a.name);
+                    t.is('g', namespace.a.g.name);
+                    t.is('g', namespace.aaa.g.name);
                 }
             ]
         );
