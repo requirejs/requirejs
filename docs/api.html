@@ -503,14 +503,23 @@ This example specifies some dependencies to load as soon as require.js defines r
 
 
 <pre><code>requirejs.config({
+    paths: {
+        jquery: 'vendor/jquery',
+        underscore: 'vendor/underscore',
+        backbone: 'vendor/backbone',
+    },
+
     shim: {
-        'backbone': {
-            //These script dependencies should be loaded before loading
-            //backbone.js
-            deps: ['underscore', 'jquery'],
-            //Once loaded, use the global 'Backbone' as the
-            //module value.
-            exports: 'Backbone'
+        backbone: {
+        //These script dependencies should be loaded before loading
+        //backbone.js
+        deps: ["underscore", "jquery"],
+        //Once loaded, use the global 'Backbone' as the
+        //module value.
+        exports: "Backbone"
+        },
+        underscore: {
+            exports: "_"
         },
         'foo': {
             deps: ['bar'],
