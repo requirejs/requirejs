@@ -499,8 +499,9 @@ This example specifies some dependencies to load as soon as require.js defines r
 
 <p id="config-paths"><strong><a href="#config-paths">paths</a></strong>: path mappings for module names not found directly under baseUrl. The path settings are assumed to be relative to baseUrl, unless the paths setting starts with a "/" or has a URL protocol in it ("like http:"). Using the above sample config, "some/module"'s script tag will be src="/another/path/some/v1.0/module.js". The path that is used for a module name should <strong>not</strong> include the .js extension, since the path mapping could be for a directory. The path mapping code will automatically add the .js extension when mapping the module name to a path.</p>
 
-<p id="config-shim"><strong><a href="#config-shim">shim</a></strong>: Configure the dependencies and exports for older, traditional "browser globals" scripts that do not use define() to declare the dependencies and set a module value. Example (RequireJS 2.1.0+):</p>
+<p id="config-shim"><strong><a href="#config-shim">shim</a></strong>: Configure the dependencies and exports for older, traditional "browser globals" scripts that do not use define() to declare the dependencies and set a module value.</p>
 
+<p>Here is an example. It requires RequireJS 2.1.0+, and assumes backbone.js, underscore.js and jquery.js have been installed in the baseUrl directory. If not, then you may need to set a paths config for them:</p>
 
 <pre><code>requirejs.config({
     shim: {
