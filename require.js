@@ -428,15 +428,15 @@ var requirejs, require, define;
             if (!name) {
                 isDefine = false;
                 name = '_@r' + (requireCounter += 1);
-            }
+            } else {
+                nameParts = splitPrefix(name);
+                prefix = nameParts[0];
+                name = nameParts[1];
 
-            nameParts = splitPrefix(name);
-            prefix = nameParts[0];
-            name = nameParts[1];
-
-            if (prefix) {
-                prefix = normalize(prefix, parentName, applyMap);
-                pluginModule = getOwn(defined, prefix);
+                if (prefix) {
+                    prefix = normalize(prefix, parentName, applyMap);
+                    pluginModule = getOwn(defined, prefix);
+                }
             }
 
             //Account for relative paths if there is a base name.
@@ -454,12 +454,14 @@ var requirejs, require, define;
                     //A regular module.
                     normalizedName = normalize(name, parentName, applyMap);
 
-                    //Normalized name may be a plugin ID due to map config
-                    //application in normalize. The map config values must
-                    //already be normalized, so do not need to redo that part.
-                    nameParts = splitPrefix(normalizedName);
-                    prefix = nameParts[0];
-                    normalizedName = nameParts[1];
+                    if (normalizedName !== name) {
+                        //Normalized name may be a plugin ID due to map config
+                        //application in normalize. The map config values must
+                        //already be normalized, so do not need to redo that part.
+                        nameParts = splitPrefix(normalizedName);
+                        prefix = nameParts[0];
+                        normalizedName = nameParts[1];
+                    }
                     isNormalized = true;
 
                     url = context.nameToUrl(normalizedName);
