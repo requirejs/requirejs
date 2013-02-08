@@ -200,6 +200,7 @@ var requirejs, require, define;
                 config: {}
             },
             registry = {},
+            enabledModules = {},
             undefEvents = {},
             defQueue = [],
             defined = {},
@@ -576,6 +577,7 @@ var requirejs, require, define;
         function cleanRegistry(id) {
             //Clean up machinery used for waiting modules.
             delete registry[id];
+            delete enabledModules[id];
         }
 
         function breakCycle(mod, traced, processed) {
@@ -624,7 +626,7 @@ var requirejs, require, define;
             inCheckLoaded = true;
 
             //Figure out the state of all the modules.
-            eachProp(registry, function (mod) {
+            eachProp(enabledModules, function (mod) {
                 map = mod.map;
                 modId = map.id;
 
@@ -884,6 +886,7 @@ var requirejs, require, define;
 
                         //Clean up
                         delete registry[id];
+                        delete enabledModules[id];
 
                         this.defined = true;
                     }
@@ -1049,6 +1052,7 @@ var requirejs, require, define;
             },
 
             enable: function () {
+                enabledModules[this.map.id] = this;
                 this.enabled = true;
 
                 //Set flag mentioning that the module is enabling,
@@ -1202,6 +1206,7 @@ var requirejs, require, define;
             config: config,
             contextName: contextName,
             registry: registry,
+            enabledModules: enabledModules,
             defined: defined,
             urlFetched: urlFetched,
             defQueue: defQueue,
