@@ -257,7 +257,20 @@ var requirejs, require, define;
                 baseParts = baseName && baseName.split('/'),
                 normalizedBaseParts = baseParts,
                 map = config.map,
-                starMap = map && map['*'];
+                starMap, 
+                key;
+           
+            // ISSUE 544: make sure to check all path combinations not against an empty map!  
+            if (applyMap) {
+                applyMap = false;
+                for (key in map) { 
+                    if (map.hasOwnProperty(key)){
+                        applyMap = true;
+                        starMap = map['*'];
+                    } 
+                    break; 
+                }
+            }
 
             //Adjust any relative paths.
             if (name && name.charAt(0) === '.') {
