@@ -200,6 +200,7 @@ var requirejs, require, define;
                 config: {}
             },
             registry = {},
+            enabledModules = {},
             undefEvents = {},
             defQueue = [],
             defined = {},
@@ -256,7 +257,20 @@ var requirejs, require, define;
                 baseParts = baseName && baseName.split('/'),
                 normalizedBaseParts = baseParts,
                 map = config.map,
-                starMap = map && map['*'];
+                starMap, 
+                key;
+           
+            // ISSUE 544: make sure to check all path combinations not against an empty map!  
+            if (applyMap) {
+                applyMap = false;
+                for (key in map) { 
+                    if (map.hasOwnProperty(key)){
+                        applyMap = true;
+                        starMap = map['*'];
+                    } 
+                    break; 
+                }
+            }
 
             //Adjust any relative paths.
             if (name && name.charAt(0) === '.') {
@@ -414,15 +428,15 @@ var requirejs, require, define;
             if (!name) {
                 isDefine = false;
                 name = '_@r' + (requireCounter += 1);
-            }
+            } else {
+                nameParts = splitPrefix(name);
+                prefix = nameParts[0];
+                name = nameParts[1];
 
-            nameParts = splitPrefix(name);
-            prefix = nameParts[0];
-            name = nameParts[1];
-
-            if (prefix) {
-                prefix = normalize(prefix, parentName, applyMap);
-                pluginModule = getOwn(defined, prefix);
+                if (prefix) {
+                    prefix = normalize(prefix, parentName, applyMap);
+                    pluginModule = getOwn(defined, prefix);
+                }
             }
 
             //Account for relative paths if there is a base name.
@@ -440,12 +454,14 @@ var requirejs, require, define;
                     //A regular module.
                     normalizedName = normalize(name, parentName, applyMap);
 
-                    //Normalized name may be a plugin ID due to map config
-                    //application in normalize. The map config values must
-                    //already be normalized, so do not need to redo that part.
-                    nameParts = splitPrefix(normalizedName);
-                    prefix = nameParts[0];
-                    normalizedName = nameParts[1];
+                    if (normalizedName !== name) {
+                        //Normalized name may be a plugin ID due to map config
+                        //application in normalize. The map config values must
+                        //already be normalized, so do not need to redo that part.
+                        nameParts = splitPrefix(normalizedName);
+                        prefix = nameParts[0];
+                        normalizedName = nameParts[1];
+                    }
                     isNormalized = true;
 
                     url = context.nameToUrl(normalizedName);
@@ -576,6 +592,7 @@ var requirejs, require, define;
         function cleanRegistry(id) {
             //Clean up machinery used for waiting modules.
             delete registry[id];
+            delete enabledModules[id];
         }
 
         function breakCycle(mod, traced, processed) {
@@ -624,7 +641,7 @@ var requirejs, require, define;
             inCheckLoaded = true;
 
             //Figure out the state of all the modules.
-            eachProp(registry, function (mod) {
+            eachProp(enabledModules, function (mod) {
                 map = mod.map;
                 modId = map.id;
 
@@ -884,6 +901,7 @@ var requirejs, require, define;
 
                         //Clean up
                         delete registry[id];
+                        delete enabledModules[id];
 
                         this.defined = true;
                     }
@@ -1049,6 +1067,7 @@ var requirejs, require, define;
             },
 
             enable: function () {
+                enabledModules[this.map.id] = this;
                 this.enabled = true;
 
                 //Set flag mentioning that the module is enabling,
@@ -1202,6 +1221,7 @@ var requirejs, require, define;
             config: config,
             contextName: contextName,
             registry: registry,
+            enabledModules: enabledModules,
             defined: defined,
             urlFetched: urlFetched,
             defQueue: defQueue,
