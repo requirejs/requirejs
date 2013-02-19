@@ -1396,7 +1396,7 @@ var requirejs, require, define;
                      * plain URLs like nameToUrl.
                      */
                     toUrl: function (moduleNamePlusExt) {
-                        var ext, url,
+                        var ext,
                             index = moduleNamePlusExt.lastIndexOf('.'),
                             segment = moduleNamePlusExt.split('/')[0],
                             isRelative = segment === '.' || segment === '..';
@@ -1408,9 +1408,8 @@ var requirejs, require, define;
                             moduleNamePlusExt = moduleNamePlusExt.substring(0, index);
                         }
 
-                        url = context.nameToUrl(normalize(moduleNamePlusExt,
-                                                relMap && relMap.id, true), ext || '.fake');
-                        return ext ? url : url.substring(0, url.length - 5);
+                        return context.nameToUrl(normalize(moduleNamePlusExt,
+                                                relMap && relMap.id, true), ext,  true);
                     },
 
                     defined: function (id) {
@@ -1529,7 +1528,7 @@ var requirejs, require, define;
              * it is assumed to have already been normalized. This is an
              * internal API, not a public one. Use toUrl for the public API.
              */
-            nameToUrl: function (moduleName, ext) {
+            nameToUrl: function (moduleName, ext, skipExt) {
                 var paths, pkgs, pkg, pkgPath, syms, i, parentModule, url,
                     parentPath;
 
@@ -1578,7 +1577,7 @@ var requirejs, require, define;
 
                     //Join the path parts together, then figure out if baseUrl is needed.
                     url = syms.join('/');
-                    url += (ext || (/\?/.test(url) ? '' : '.js'));
+                    url += (ext || (/\?/.test(url) || skipExt ? '' : '.js'));
                     url = (url.charAt(0) === '/' || url.match(/^[\w\+\.\-]+:/) ? '' : config.baseUrl) + url;
                 }
 
