@@ -706,7 +706,9 @@ define(['module'], function (module) {
 
 <p id="config-context"><strong><a href="#config-context">context</a></strong>: A name to give to a loading context. This allows require.js to load multiple versions of modules in a page, as long as each top-level require call specifies a unique context string. To use it correctly, see the <a href="#multiversion">Multiversion Support</a> section.</p>
 
-<p id="config-deps"><strong><a href="#config-deps">deps</a></strong>: An array of dependencies to load. Useful when require is defined as a config object before require.js is loaded, and you want to specify dependencies to load as soon as require() is defined.</p>
+<p id="config-deps"><strong><a href="#config-deps">deps</a></strong>: An array of dependencies to load. Useful when require is defined as a config object before require.js is loaded, and you want to specify dependencies to load as soon as require() is defined. Using deps is just like doing a <code>require([])</code> call, but done as soon as the loader has processed the configuration. <strong>It does not block</strong>
+any other require() calls from starting their requests for modules, it is just a way to specify
+some modules to load asynchronously as part of a config block.</p>
 
 <p id="config-callback"><strong><a href="#config-callback">callback</a></strong>: A function to execute after <strong>deps</strong> have been loaded. Useful when require is defined as a config object before require.js is loaded, and you want to specify a function to require after the configuration's <strong>deps</strong> array has been loaded.</p>
 
