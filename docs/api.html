@@ -648,7 +648,7 @@ still need to cooperate with each other.</p>
 and when 'some/oldmodule' does `require('foo')` it will get the foo1.0.js file.</p>
 
 <p>This feature only works well for scripts that are real AMD modules that call
-define() and register as anonymous modules.</p>
+define() and register as anonymous modules. Also, <strong>only use absolute module IDs</strong> for map config. Relative IDs (like <code>'../some/thing'</code>) do not work.</p>
 
 <p>There is also support for a "*" map value which means "for all modules loaded, use this map config". If there is a more specific map config, that one will take precedence over the star config. Example:</p>
 
