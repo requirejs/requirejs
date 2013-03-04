@@ -1644,6 +1644,25 @@ var requirejs, require, define;
                 if (!hasPathFallback(data.id)) {
                     return onError(makeError('scripterror', 'Script error', evt, [data.id]));
                 }
+            },
+
+            /**
+             * Callback for importScript errors.
+             *
+             * @param   {String}    moduleName  The name of the module.
+             * @param   {Error}     [err]       The caught error associated with the failure.
+             */
+            onImportScriptError : function(moduleName, err) {
+                onError(
+                    makeError(
+                        'importscripterror',
+                        'Import Script Error',
+                        err,
+                        [
+                            moduleName
+                        ]
+                    )
+                );
             }
         };
 
@@ -1862,10 +1881,13 @@ var requirejs, require, define;
             //are in play, the expectation that a build has been done so that
             //only one script needs to be loaded anyway. This may need to be
             //reevaluated if other use cases become common.
-            importScripts(url);
-
-            //Account for anonymous modules
-            context.completeLoad(moduleName);
+            try {
+                importScripts(url);
+                //Account for anonymous modules
+                context.completeLoad(moduleName);
+            } catch(e) {
+                context.onImportScriptError(moduleName, e);
+            }
         }
     };
 
