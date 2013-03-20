@@ -1906,24 +1906,31 @@ var requirejs, require, define;
             //baseUrl, if it is not already set.
             dataMain = script.getAttribute('data-main');
             if (dataMain) {
+                //Preserve dataMain in case it is a path (i.e. contains '?')
+                mainScript = dataMain;
+
                 //Set final baseUrl if there is not already an explicit one.
                 if (!cfg.baseUrl) {
                     //Pull off the directory of data-main for use as the
                     //baseUrl.
-                    src = dataMain.split('/');
+                    src = mainScript.split('/');
                     mainScript = src.pop();
                     subPath = src.length ? src.join('/')  + '/' : './';
 
                     cfg.baseUrl = subPath;
-                    dataMain = mainScript;
                 }
 
-                //Strip off any trailing .js since dataMain is now
+                //Strip off any trailing .js since mainScript is now
                 //like a module name.
-                dataMain = dataMain.replace(jsSuffixRegExp, '');
+                mainScript = mainScript.replace(jsSuffixRegExp, '');
+
+                 //If mainScript is still a path, fall back to dataMain
+                if (req.jsExtRegExp.test(mainScript)) {
+                    mainScript = dataMain;
+                }
 
                 //Put the data-main script in the files to load.
-                cfg.deps = cfg.deps ? cfg.deps.concat(dataMain) : [dataMain];
+                cfg.deps = cfg.deps ? cfg.deps.concat(mainScript) : [mainScript];
 
                 return true;
             }
