@@ -551,7 +551,7 @@ define(['backbone'], function (Backbone) {
 <p>In RequireJS 2.0.*, the "exports" property in the shim config could have
     been a function instead of a string. In that case, it functioned
 the same as the "init" property as shown above. The "init" pattern is used in
-RequireJS 2.1.0+ so a string value for the exports can be used for
+RequireJS 2.1.0+ so a string value for <code>exports</code> can be used for
 <a href="#config-enforceDefine">enforceDefine</a>, but then allow
 functional work once the library is known to have loaded.</p>
 
@@ -567,7 +567,8 @@ any module value, the shim config can just be an array of dependencies:</p>
 });
 </code></pre>
 
-<p>Note however if you want to get 404 load detection in IE so that you can  use paths fallbacks or errbacks, then a string exports value should be given so the loader can check if the scripts actually loaded:</p>
+<p>Note however if you want to get 404 load detection in IE so that you can  use paths fallbacks or errbacks, then a string exports value should be given so the loader can check if the scripts actually
+loaded (a return from init is <strong>not</strong> used for <code>enforceDefine</code> checking):</p>
 
 <pre><code>requirejs.config({
     shim: {
