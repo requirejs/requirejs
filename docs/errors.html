@@ -152,7 +152,8 @@ not scan the factory function for other dependencies. So, either do not pass in 
 <ul>
     <li>Did not call define() to declare a module.</li>
     <li>Or was part of a <a href="api.html#config-shim">shim config</a> that specified
-    a global string property that can be checked for loading, and that check failed.</li>
+    a string <code>exports</code> property that can be checked to verify loading, and that check failed.</li>
+    <li>Or was part of a <a href="api.html#config-shim">shim config</a> that did not set a string value for the <code>exports</code> config option.</li>
 </ul>
 
 <p>Or, if the error shows up only in IE and not in other browsers (which may generate a <a href="#scripterror">Script error</a>, the script probably:</p>
