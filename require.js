@@ -704,6 +704,9 @@ var requirejs, require, define;
         // exclusions and make sure this id is OK to be mapped into 
         // the module.
         function getIsClassMappingExcluded(id) {
+            if (!config.classMapping.exclusions) {
+                return false;
+            }
             var excluded = false;
             each(config.classMapping.exclusions, function(exclusion, i) {
                 if (id.indexOf(exclusion.replace(/\*\/*/g, '')) === 0) {
