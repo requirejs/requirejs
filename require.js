@@ -22,7 +22,7 @@ var requirejs, require, define;
         hasOwn = op.hasOwnProperty,
         ap = Array.prototype,
         apsp = ap.splice,
-        isBrowser = !!(typeof window !== 'undefined' && navigator && document),
+        isBrowser = !!(typeof window !== 'undefined' && navigator && window.document),
         isWebWorker = !isBrowser && typeof importScripts !== 'undefined',
         //PS3 indicates loaded and complete, but need to wait for complete
         //specifically. Sequence is 'loading', 'loaded', execution,
