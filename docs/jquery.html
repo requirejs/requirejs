@@ -34,7 +34,8 @@
     <li><a href="download.html#samplejquery">download the sample project</a>.</li>
 </ul>
 
-<p>This sample project uses a combined jQuery+RequireJS file. If you prefer to not bundle jQuery with RequireJS, the <a href="https://github.com/jrburke/require-jquery">sample project's README</a> has an alternate way to use jQuery with RequireJS, but it requires consideration of more edge cases.</p>
+<p>This sample project uses a configuration in the main module, which specifies the path to jQuery. This is necessary since jQuery register itself as 
+a named module.</p>
 
 </div>
 
@@ -44,13 +45,14 @@
 <span class="sectionMark">&sect; 2</span>
 </h2>
 
-<p>A sample HTML page would look like this (assuming you put all your .js files in a "scripts" subdirectory):</p>
+<p>A sample HTML page would look like this (assuming you put all your .js files in a "scripts" subdirectory, and the libraries in "scripts/libs"):</p>
 
-<pre><code>&lt;!DOCTYPE html&gt;
+<pre><code>
+&lt;!DOCTYPE html&gt;
 &lt;html&gt;
     &lt;head&gt;
         &lt;title&gt;jQuery+RequireJS Sample Page&lt;/title&gt;
-        &lt;script data-main="scripts/main" src="scripts/require-jquery.js"&gt;&lt;/script&gt;
+        &lt;script data-main=&quot;scripts/main&quot; src=&quot;scripts/libs/require.js&quot;&gt;&lt;/script&gt;
     &lt;/head&gt;
     &lt;body&gt;
         &lt;h1&gt;jQuery+RequireJS Sample Page&lt;/h1&gt;
@@ -60,25 +62,37 @@
 
 <p>The data-main attribute on the script tag for require.js tells RequireJS to load the scripts/main.js file. RequireJS will load any dependency that is passed to require() without a ".js" file from the same directory as the one used for data-main. If you feel more comfortable specifying the whole path, you can also do the following:</p>
 
-<pre><code>&lt;script data-main="scripts/main.js" src="scripts/require-jquery.js"&gt;&lt;/script&gt;
+<pre><code>&lt;script data-main="scripts/main.js" src="scripts/libs/require.js"&gt;&lt;/script&gt;
 </code></pre>
 
-<p>What is in main.js? A call to require() to load all the scripts you need and any init work you want to do for the page. This example main.js script loads two plugins, jquery.alpha.js and jquery.beta.js (not the names of real plugins, just an example). The plugins should be in the same directory as require-jquery.js:</p>
+<p>What is in main.js? A call to require.config() to show where jQuery can be found. This example main.js script loads two plugins, jquery.alpha.js and jquery.beta.js (not the names of real plugins, just an example). Since those plugins aren't calling define(), we need to explain to require.js that those plugins need jQuery to be loaded first. We can specify dependencies and exports for non-AMD libraries using the 'shim' config. Since jquery.alpha and jquery.beta are just plugins that augment jQuery, they do not return modules that you can reference as function arguments.
+ The plugins should be in the same directory as require.js:</p>
 
 <p>main.js:</p>
 
-<pre><code>require(["jquery", "jquery.alpha", "jquery.beta"], function($) {
+<pre><code>
+require.config({
+  "paths": {
+    // this is the only place where you point to the actual location
+    // of the jquery file. For the rest, only use the module name, which is "jquery"
+    // the reason we need to do this is that jQuery loads as a named module:
+    // define("jquery", [], function() { return jQuery; });
+    "jquery": "libs/jquery"
+  },
+  "shim": {
+    "libs/jquery.alpha": ["jquery"],
+    "libs/jquery.beta": ["jquery"]
+  }
+});
+  
+
+define(["jquery", "jquery.alpha", "jquery.beta"], function($) {
     //the jquery.alpha.js and jquery.beta.js plugins have been loaded.
     $(function() {
         $('body').alpha().beta();
     });
 });
 </code></pre>
-
-<p>In the require() call, "jquery" was referenced as a dependency. The require-jquery.js file has special code in it to register jQuery as a RequireJS module, and since it is registered as a module, you can get a handle on that module as the first argument to the function callback passed to require. In the above example, $ is used to reference the jQuery module.</p>
-
-<p>Since jquery.alpha and jquery.beta are just plugins that augment jQuery, they do not return modules that you can reference as function arguments.</p>
-
 </div>
 
 <div class="section">
@@ -99,33 +113,28 @@
 <li>r.js  (the file that includes the optimizer)</li>
 <li>webapp/app.html</li>
 <li>webapp/scripts/main.js</li>
-<li>webapp/scripts/require-jquery.js</li>
-<li>webapp/scripts/jquery.alpha.js</li>
-<li>webapp/scripts/jquery.beta.js</li>
+<li>webapp/scripts/libs/require.js</li>
+<li>webapp/scripts/libs/jquery.js</li>
+<li>webapp/scripts/libs/jquery.alpha.js</li>
+<li>webapp/scripts/libs/jquery.beta.js</li>
 </ul>
 
-<p>Then, in the scripts directory that has require-jquery.js and main.js, create a file called app.build.js with the following contents:</p>
+<p> Then, in the scripts directory that has main.js, create a file called app.build.js with the following contents: </p>
 
 <pre><code>({
     appDir: "../",
     baseUrl: "scripts",
     dir: "../../webapp-build",
+
+    // instead of re-typing the shim config and paths from the main file,
+    // we can tell r.js to look for the first require.config call in our main.js:
+    mainConfigFile: "main.js", 
+    name: "main",
+
     //Comment out the optimize line if you want
     //the code minified by UglifyJS.
-    optimize: "none",
-
-    paths: {
-        "jquery": "require-jquery"
-    },
-
-    modules: [
-        {
-            name: "main",
-            exclude: ["jquery"]
-        }
-    ]
-})
-</code></pre>
+    optimize: "none"
+})</code></pre>
 
 <p>To use the optimizer, you need <a href="http://nodejs.org">Node</a> or Java 6 installed. These instructions assume Node is being used. See the <a href="optimization.html">Optimization page</a> for more information.</p>
 
@@ -134,32 +143,84 @@
 <pre><code>node ../../r.js -o app.build.js
 </code></pre>
 
-<p>Now, in the webapp-build directory, main.js will have the main.js contents, jquery.alpha.js and jquery.beta.js inlined. If you then load the app.html file in the webapp-build directory, you should not see any network requests for jquery.alpha.js and jquery.beta.js.</p>
+<p>Now, in the webapp-build directory, main.js will have the main.js contents, jquery.js, jquery.alpha.js and jquery.beta.js inlined. If you then load the app.html file in the webapp-build directory, you should not see any network requests for jquery.js, jquery.alpha.js and jquery.beta.js.</p>
 </div>
 
 
 <div class="section">
 <h2>
-<a name="advanced">Advanced use</a>
+<a name="advanced">Advanced use: Loading jQuery from CDN</a>
 <span class="sectionMark">&sect; 4</span>
 </h2>
 
-<p>The steps above make it easy start modular development with jQuery, particularly if you are using
-jQuery plugins that assume jQuery is already loaded in the page. The trade-off with the above approach
-is using a combined RequireJS and jQuery file.</p>
+<p>The steps above make it easy start modular development with jQuery, particularly if you are using jQuery plugins that assume jQuery is already loaded in the page.  The trade-off with the above approach is that you have to include jQuery in your built file.
+</p>
 
-<p>Ideally you would not need to include jQuery with RequireJS, and just use RequireJS to load jQuery
-on demand. However, by default scripts can load out of order with RequireJS, and this does not work well
-with jQuery plugins.</p>
+<p>Ideally you would not need to include jQuery in the built product, and just use RequireJS to load jQuery on demand from a CDN, to raise the chances of the user hitting the browser cache. This currently does not work with the shim config, however if we modify the plugins to call define(), we can exclude jQuery from the build and load jQuery from CDN:</p>
 
-<p>Some options:</p>
+<p>jquery.alpha.amd.js:</p>
+<pre><code>
+define(["jquery"], function($) {
+    $.fn.alpha = function() {
+        return this.append('&lt;p&gt;Alpha is Go!&lt;/p&gt;');
+    };
+});
+</code></pre>
 
-<ul>
-    <li>Use the <a href="api.html#config-shim">shim config</a> to specify the
-    dependencies for the plugins so that jQuery will load before the
-    plugin is loaded.</li>
-    <li>Wrap the plugins in a define() call.</li>
-</ul>
+<p>jquery.beta.amd.js:</p>
+<pre><code>
+define(["jquery"], function($) {
+    $.fn.beta = function() {
+        return this.append('&lt;p&gt;Beta is Go!&lt;/p&gt;');
+    };
+});
+</code></pre>
+
+<p>cdn.build.js:</p>
+<pre><code>
+({
+    appDir: "../",
+    baseUrl: "scripts",
+    dir: "../../webapp-build",
+    optimize: "none",
+    // point to path config in main.amd
+    // jQuery is automatically excluded
+    // because the path points to a network URL
+    mainConfigFile: "main.amd.js",
+    modules: [
+        {
+            name: "main.amd"
+        }
+    ]
+})
+</code></pre>
+
+<p>main.amd.js:</p>
+<pre><code>
+require.config({
+  "paths": {
+    "jquery": "//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min"
+  }
+});
+  
+define(["jquery", "libs/jquery.alpha.amd", "libs/jquery.beta.amd"], function($) {
+    //the jquery.alpha.js and jquery.beta.js plugins have been loaded.
+    $(function() {
+        $('body').alpha().beta();
+    });
+});
+</code></pre>
+
+<p>Create an app.amd.html, which is the same as app.html, just one line differ:</p>
+<pre><code>&lt;script data-main=&quot;scripts/main.amd&quot; src=&quot;scripts/libs/require.js&quot;&gt;&lt;/script&gt;
+</code></pre>
+
+<p>Now, on the command line, run:</p>
+<pre><code>node ../../r.js -o app.build.js
+</code></pre>
+
+<p>When you load app.amd.html from the webapp-build directory, you should see how 
+jQuery is loaded from the Google CDN.</p>
 
 <p>Ideally all the jQuery plugins you use would optionally call define() to register
 as a module. Some of the plugins you use may already call define() to register as an
