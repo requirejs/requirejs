@@ -839,16 +839,10 @@ var requirejs, require, define;
 
                     if (this.depCount < 1 && !this.defined) {
                         if (isFunction(factory)) {
-                            //If there is an error listener, favor passing
-                            //to that instead of throwing an error.
-                            if (this.events.error) {
-                                try {
-                                    exports = context.execCb(id, factory, depExports, exports);
-                                } catch (e) {
-                                    err = e;
-                                }
-                            } else {
+                            try {
                                 exports = context.execCb(id, factory, depExports, exports);
+                            } catch (e) {
+                                err = e;
                             }
 
                             if (this.map.isDefine) {
@@ -868,9 +862,11 @@ var requirejs, require, define;
                             }
 
                             if (err) {
-                                err.requireMap = this.map;
-                                err.requireModules = [this.map.id];
-                                err.requireType = 'define';
+                                if (this.events.error) {
+                                  err.requireMap = this.map;
+                                  err.requireModules = [this.map.id];
+                                  err.requireType = 'define';
+                                }
                                 return onError((this.error = err));
                             }
 
