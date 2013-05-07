@@ -1,6 +1,21 @@
 {
+    "name"          : "RequireJS",
+    "version"       : "2.1.5",
+    "description"   : "A Javascript Module Loader",
+    "url"           : "http://requirejs.org/",
+    "author"        : "James Burke",
+    "main"          : "require.js",
     "volo": {
         "url": "https://raw.github.com/jrburke/requirejs/{version}/require.js"
     },
-    "main": "require.js"
+    "licenses": [
+        {
+            "type": "BSD",
+            "url": "https://github.com/jrburke/requirejs/blob/master/LICENSE"
+        },
+        {
+            "type": "MIT",
+            "url": "https://github.com/jrburke/requirejs/blob/master/LICENSE"
+        }
+    ]
 }
