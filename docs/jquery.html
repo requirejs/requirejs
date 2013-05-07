@@ -3,15 +3,25 @@
 
 <ul class="index mono">
     <li class="hbox">
-        <a href="#shimconfig">Example using shim config</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1</span>
+        <a href="#intro">Introduction</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1</span>
     </li>
     <li class="hbox">
-        <a href="#cdnconfig">Example loading jquery from a cdn</a><span class="spacer boxflex"></span><span class="sect">&sect; 2</span>
+        <a href="#shimconfig">Example using shim config</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2</span>
     </li>
     <li class="hbox">
-        <a href="#oldexample">The previous example with a concatenated require-jquery file</a><span class="spacer boxflex"></span><span class="sect">&sect; 3</span>
+        <a href="#cdnconfig">Example loading jquery from a CDN</a><span class="spacer boxflex"></span><span class="sect">&sect; 3</span>
+    </li>
+    <li class="hbox">
+        <a href="#oldexample">The previous example with a concatenated require-jquery file</a><span class="spacer boxflex"></span><span class="sect">&sect; 4</span>
     </li>
 </ul>
+</div>
+
+<div class="section">
+<h2>
+<a name="intro" href="#intro">Introduction</a>
+<span class="sectionMark">&sect; 1</span>
+</h2>
 
 <p>When a project reaches a certain size, managing the script modules for a project starts to get tricky. You need to be sure to sequence the scripts in the right order, and you need to start seriously thinking about combining scripts together into a bundle for deployment, so that only one or a very small number of requests are made to load the scripts.</p>
 
@@ -20,33 +30,38 @@
 <p>RequireJS can help you manage the script modules, load them in the right order, and make it easy to combine the scripts later via the RequireJS <a href="optimization.md">optimizer</a> without needing to change your markup. It also gives you an easy way to load scripts after the page has loaded, allowing you to spread out the download size over time.</p>
 
 <p>RequireJS has a module system that lets you define well-scoped modules, but you do not have to follow that system to get the benefits of dependency management and build-time optimizations. Over time, if you start to create more modular code that needs to be reused in a few places, the module format for RequireJS makes it easy to write encapsulated code that can be loaded on the fly. It can grow with you, particularly if you want to incorporate internationalization (i18n) string bundles, to localize your project for different languages, or load some HTML strings and make sure those strings are available before executing code, or even use JSONP services as dependencies.</p>
-
-
-<div class="subSection">
-<h4 class="hbox">
-<a name="shimconfig">Example with shim config</a>
-<span class="boxFlex"></span>
-<a class="download" href="http://github.com/requirejs/example-jquery-shim">Example with jQuery and a shim config</a>
-</h4>
-<p>This example shows how to use the shim config to specify dependencies for jQuery plugins that do not call define()</p>
 </div>
 
-<div class="subSection">
-<h4 class="hbox">
-<a name="cdnconfig">Example with jQuery loaded from CDN</a>
-<span class="boxFlex"></span>
-<a class="download" href="http://github.com/requirejs/example-jquery">Example with jQuery and a shim config</a>
-</h4>
-<p>This is an example on how to load an optimize your code while loading jQuery from a CDN. Please note that this requires
-all your jQuery plugins to call define()</p>
+<div class="section">
+<h2>
+<a name="shimconfig" href="#shimconfig">Example using shim config</a>
+<span class="sectionMark">&sect; 2</span>
+</h2>
+
+<p>This example shows how to use the <a href="api.html#config-shim">shim config</a> to specify dependencies for jQuery plugins that do not call <a href="api.html#define">define()</a>. This example is useful if you have an existing jQuery project you want to convert and do not want to modify the sources of the jQuery plugins to call define().</p>
+
+<h4><a class="download" href="http://github.com/requirejs/example-jquery-shim">Example using jQuery with shim config</a></h4>
+
+</div>
+
+<div class="section">
+<h2>
+<a name="cdnconfig" href="#cdnconfig">Example loading jquery from a CDN</a>
+<span class="sectionMark">&sect; 3</span>
+</h2>
+
+<p>This is an example on how to load an optimize your code while loading jQuery from a <a href="http://en.wikipedia.org/wiki/Content_delivery_network">Content Delivery Network</a> (CDN). This example requires all your jQuery plugins to call <a href="api.html#define">define()</a> to properly express their dependencies. <a href="api.html#config-shim">Shim config</a> does not work after optimization builds with CDN resources.</p>
+
+<h4><a class="download" href="http://github.com/requirejs/example-jquery-cdn">Example using jQuery from a CDN</a></h4>
+
 </div>
 
 <div class="section">
 <h2>
 <a name="oldexample">The previous example with a concatenated require-jquery file</a>
-<span class="sectionMark">&sect; 3</span>
+<span class="sectionMark">&sect; 4</span>
 </h2>
 <p>
-Previously, we've been pointing to an example using a special require-jquery file, which consisted of require.js and jQuery concatenated. This is no longer the recommended way to use jQuery with require.js, but if you're looking for the (no longer maintained) example, [you can find require-jquery here](https://github.com/jrburke/require-jquery).
+Previously, we've been pointing to an example using a special require-jquery file, which consisted of require.js and jQuery concatenated. This is no longer the recommended way to use jQuery with require.js, but if you're looking for the (no longer maintained) example, <a href="https://github.com/jrburke/require-jquery">you can find require-jquery here</a>.
 </p>
 </div>
