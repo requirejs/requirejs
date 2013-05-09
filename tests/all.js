@@ -165,6 +165,7 @@ doh.registerUrl("undefLocal", "../undef/undefLocal.html", 8000);
 doh.registerUrl("errorContinue", "../error/errorContinue.html", 8000);
 doh.registerUrl("errorContinueLocal", "../error/errorContinueLocal.html", 8000);
 doh.registerUrl("errorDoubleRequire", "../error/doubleRequire/doubleRequire.html", 8000);
+doh.registerUrl("errorRequireErrback", "../error/requireErrback.html", 2000);
 doh.registerUrl("pluginErrorContinue", "../error/pluginErrorContinue.html", 8000);
 doh.registerUrl("pluginErrorContinueLocal", "../error/pluginErrorContinueLocal.html", 8000);
 doh.registerUrl("defineErrorLocal", "../error/defineErrorLocal.html");

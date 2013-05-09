@@ -845,8 +845,11 @@ var requirejs, require, define;
                     if (this.depCount < 1 && !this.defined) {
                         if (isFunction(factory)) {
                             //If there is an error listener, favor passing
-                            //to that instead of throwing an error.
-                            if (this.events.error) {
+                            //to that instead of throwing an error. However,
+                            //only do it for define()'d  modules. require
+                            //errbacks should not be called for failures in
+                            //their callbacks (#699).
+                            if (this.events.error && this.map.isDefine) {
                                 try {
                                     exports = context.execCb(id, factory, depExports, exports);
                                 } catch (e) {
