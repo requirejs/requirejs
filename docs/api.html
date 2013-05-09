@@ -702,6 +702,28 @@ define(['module'], function (module) {
 });
 </code></pre>
 
+<p>For passing config to a <a href="#packages">package</a>, target the main module in the package,
+    not the package ID:</p>
+
+<pre><code>requirejs.config({
+    //Pass an API key for use in the pixie package's
+    //main module.
+    config: {
+        'pixie/index': {
+            apiKey: 'XJKDLNS'
+        }
+    },
+    //Set up config for the "pixie" package, whose main
+    //module is the index.js file in the pixie folder.
+    packages: [
+        {
+            name: 'pixie',
+            main: 'index'
+        }
+    ]
+});
+</code></pre>
+
 <p id="config-packages"><strong><a href="#config-packages">packages</a></strong>: configures loading modules from CommonJS packages. See the <a href="#packages">packages topic</a> for more information.</p>
 
 <p id="config-waitSeconds"><strong><a href="#config-waitSeconds">waitSeconds</a></strong>: The number of seconds to wait before giving up on loading a script. Setting it to 0 disables the timeout. The default is 7 seconds.</p>

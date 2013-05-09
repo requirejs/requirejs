@@ -580,7 +580,13 @@ var requirejs, require, define;
                         id: mod.map.id,
                         uri: mod.map.url,
                         config: function () {
-                            return (config.config && getOwn(config.config, mod.map.id)) || {};
+                            var c,
+                                pkg = getOwn(config.pkgs, mod.map.id);
+                            // For packages, only support config targeted
+                            // at the main module.
+                            c = pkg ? getOwn(config.config, mod.map.id + '/' + pkg.main) :
+                                      getOwn(config.config, mod.map.id);
+                            return  c || {};
                         },
                         exports: defined[mod.map.id]
                     });
