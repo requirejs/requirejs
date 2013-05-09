@@ -20,23 +20,28 @@
             config: {
                 'sparkle/main': {
                     size: 'large'
+                },
+                'pixie/index': {
+                    apiKey: 'maple'
                 }
             },
 
             packages: [
+                'sparkle',
                 {
-                    name: 'sparkle',
-                    main: './main.js'
+                    name: 'pixie',
+                    main: './index.js'
                 }
             ]
         });
 
-        require(['sparkle'], function (sparkle) {
+        require(['sparkle', 'pixie'], function (sparkle, pixie) {
             doh.register(
                 "packagesConfig",
                 [
                     function packagesConfig(t){
                         t.is('large', sparkle.size);
+                        t.is('maple', pixie.apiKey);
                     }
                 ]
             );
