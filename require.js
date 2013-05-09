@@ -134,6 +134,10 @@ var requirejs, require, define;
         return document.getElementsByTagName('script');
     }
 
+    function defaultOnError(err) {
+        throw err;
+    }
+
     //Allow getting a global that expressed in
     //dot notation, like 'a.b.c'.
     function getGlobal(value) {
@@ -848,8 +852,10 @@ var requirejs, require, define;
                             //to that instead of throwing an error. However,
                             //only do it for define()'d  modules. require
                             //errbacks should not be called for failures in
-                            //their callbacks (#699).
-                            if (this.events.error && this.map.isDefine) {
+                            //their callbacks (#699). However if a global
+                            //onError is set, use that.
+                            if ((this.events.error && this.map.isDefine) ||
+                                req.onError !== defaultOnError) {
                                 try {
                                     exports = context.execCb(id, factory, depExports, exports);
                                 } catch (e) {
@@ -877,8 +883,8 @@ var requirejs, require, define;
 
                             if (err) {
                                 err.requireMap = this.map;
-                                err.requireModules = [this.map.id];
-                                err.requireType = 'define';
+                                err.requireModules = this.map.isDefine ? [this.map.id] : null;
+                                err.requireType = this.map.isDefine ? 'define' : 'require';
                                 return onError((this.error = err));
                             }
 
@@ -1780,9 +1786,7 @@ var requirejs, require, define;
      * function. Intercept/override it if you want custom error handling.
      * @param {Error} err the error object.
      */
-    req.onError = function (err) {
-        throw err;
-    };
+    req.onError = defaultOnError;
 
     /**
      * Does the request to load a module for the browser case.
