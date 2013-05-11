@@ -453,7 +453,7 @@ if (true) {
 <div class="section">
 <h2><a href="#sourcemaps" name="sourcemaps">Source maps</a><span class="sectionMark">&sect; 13</span></h2>
 
-<p>Version 2.1.2 and higher have experimental support for <a href="http://www.html5rocks.com/en/tutorials/developertools/sourcemaps/">source maps</a>. It only works for mapping minified code to unminified code and only when <strong>optimize</strong> is set to <code>"uglify2"</code> or <code>"closure"</code> (closure only available when running under Java with Rhino). The unminified files will show up in the developer tools with a ".js.src" file extension.</p>
+<p>Version 2.1.6 and higher have experimental support for <a href="http://www.html5rocks.com/en/tutorials/developertools/sourcemaps/">source maps</a>. It works for mapping minified, bundled code to unminified, separate modules and only when <strong>optimize</strong> is set to <code>"uglify2"</code>. optimize set to <code>"closure"</code> allows only mapping minified, bundled code to unminified bundled code (closure only available when running under Java with Rhino). The unminified files will show up in the developer tools with a ".src.js" file extension.</p>
 
 <p>To enable the source map generation, set <strong>generateSourceMaps</strong> to <code>true</code>. Since the minifier needs to have full control over the minified file to generate the source map, the <strong>preserveLicenseComments</strong> should be explicitly set to <code>false</code>. <a href="errors.html#sourcemapcomments">There is is a way to get some license comments in the minified source though</a>.</p>
 
