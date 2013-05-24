@@ -1248,6 +1248,10 @@ var requirejs, require, define;
                     if (cfg.baseUrl.charAt(cfg.baseUrl.length - 1) !== '/') {
                         cfg.baseUrl += '/';
                     }
+                    // If the baseUrl is relative make it relative to the existing baseUrl
+                    if (!(cfg.baseUrl.charAt(0) === '/' || cfg.baseUrl.match(/^[\w\+\.\-]+:/))) {
+                        cfg.baseUrl = config.baseUrl + cfg.baseUrl;
+                    }
                 }
 
                 //Save off the paths and packages since they require special processing,
