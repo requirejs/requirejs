@@ -998,7 +998,7 @@ require(['jquery'], function ($) {
 }, function (err) {
     //The errback, error callback
     //The error has a list of modules that failed
-    var failedId = err.requireModules && err.requireModules[0],
+    var failedId = err.requireModules && err.requireModules[0];
     if (failedId === 'jquery') {
         //undef is function only on the global requirejs object.
         //Use it to clear internal knowledge of jQuery. Any modules
