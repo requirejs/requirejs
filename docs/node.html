@@ -123,9 +123,9 @@ define(function(require) {
 
 <p>The RequireJS optimizer, as of version 1.0.3, will strip out the use of 'amdefine' above, so it is safe to use this module for your web-based projects too. Just be sure to use <strong>the exact 'amdefine' if() test and contents as shown above</strong>. Differences in spaces/line breaks are allowed. See the <a href="https://github.com/jrburke/amdefine">amdefine project</a> for more information.</p>
 
-<p>If you want to use RequireJS directly to code your module, and then export a module value to node so that it can be used in other Node programs without requiring that app to use RequireJS, you can use the code mentioned above in the <a href="#usage">basic usage section</a> with a few modifications.</p>
+<p>If you want to use RequireJS directly to code your module, and then export a module value to node so that it can be used in other Node programs without requiring that app to use RequireJS, you can use the approach listed in the next example.</p>
 
-<p>It is best to set the baseUrl specifically to the directory containing the module, so that it works properly when nested inside a node_modules heirarchy. Then use Node's module.exports to export your module value:</p>
+<p>It is best to set the baseUrl specifically to the directory containing the module, so that it works properly when nested inside a node_modules heirarchy. Use the synchronous <code>requirejs('moduleId')</code> to fetch the module using the config and rules in requirejs, then use Node's module.exports to export your module value:</p>
 
 <pre><code>var requirejs = require('requirejs');
 
@@ -143,15 +143,18 @@ requirejs.config({
     nodeRequire: require
 });
 
-requirejs(['foo', 'bar'],
-function   (foo,   bar) {
-    //foo and bar are loaded according to requirejs
-    //config, but if not found, then node's require
-    //is used to load the module.
+//foo and bar are loaded according to requirejs
+//config, and if found, assumed to be an AMD module.
+//If they are not found via the requirejs config,
+//then node's require is used to load the module,
+//and if found, the module is assumed to be a
+//node-formatted module. Note: this synchronous
+//style of loading a module only works in Node.
+var foo = requirejs('foo');
+var bar = requirejs('bar');
 
-    //Now export a value visible to Node.
-    module.exports = function () {};
-});
+//Now export a value visible to Node.
+module.exports = function () {};
 </code></pre>
 
 <h3 id="optimizer">Using the optimizer as a node module</h3>
