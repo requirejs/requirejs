@@ -9,6 +9,9 @@ doh.registerUrl("simple", "../simple.html");
 //PS3 does not like this test
 doh.registerUrl("baseUrl", "../baseUrl.html");
 
+doh.registerUrl("toUrl", "../toUrl/toUrl.html");
+doh.registerUrl("urlArgsToUrl", "../urlArgsToUrl.html");
+
 doh.registerUrl("config", "../config.html");
 doh.registerUrl("configRequirejs", "../configRequirejs.html");
 doh.registerUrl("dataMain", "../dataMain/dataMain.html");
@@ -20,10 +23,13 @@ if (hasToString) {
     doh.registerUrl("cjsSpace", "../cjsSpace/cjsSpace.html");
     doh.registerUrl("cjsDotRequire", "../cjsSpace/cjsDotRequire.html");
     doh.registerUrl("packages", "../packages/packages.html");
+    doh.registerUrl("packagesConfig", "../packages/config/config.html");
     doh.registerUrl("specialDeps", "../specialDeps/specialDeps.html");
 }
 
 doh.registerUrl("simple-nohead", "../simple-nohead.html");
+
+doh.registerUrl("hasOwnPropertyTests", "../hasOwnProperty/hasOwnProperty.html");
 
 //Only do the base test if the urls work out.
 if (location.href.indexOf('http://127.0.0.1/requirejs/') === 0) {
@@ -39,6 +45,7 @@ doh.registerUrl("circularTranspiler", "../circular/transpiler/transpiler.html");
 
 doh.registerUrl("nestedRequire", "../nestedRequire/nestedRequire.html");
 
+doh.registerUrl("depEmpty", "../depEmpty.html");
 doh.registerUrl("depoverlap", "../depoverlap.html");
 doh.registerUrl("urlfetch", "../urlfetch/urlfetch.html");
 doh.registerUrl("uniques", "../uniques/uniques.html");
@@ -94,6 +101,7 @@ doh.registerUrl("afterload", "../afterload.html", 10000);
 doh.registerUrl("universal", "../universal/universal.html");
 doh.registerUrl("universalBuilt", "../universal/universal-built.html");
 
+doh.registerUrl("defineDouble", "../defineDouble/defineDouble.html");
 doh.registerUrl("definedSpecified", "../definedSpecified/definedSpecified.html");
 doh.registerUrl("delayedDefine", "../delayedDefine/delayedDefine.html");
 doh.registerUrl("nestedDefine", "../nestedDefine/nestedDefine.html");
@@ -105,7 +113,10 @@ doh.registerUrl("pluginsSync", "../plugins/sync.html");
 doh.registerUrl("pluginsOnError", "../plugins/onerror/onerror.html");
 doh.registerUrl("doublePluginCall", "../plugins/double.html");
 doh.registerUrl("pluginsNameOnly", "../plugins/nameOnly.html");
+doh.registerUrl("pluginsDelegated", "../plugins/delegated/delegated.html");
 doh.registerUrl("pluginsFromText", "../plugins/fromText/fromText.html");
+doh.registerUrl("pluginsFromTextEvalError", "../plugins/fromTextEvalError/fromTextEvalError.html");
+doh.registerUrl("pluginsFromTextConfig", "../plugins/fromText/fromTextConfig.html");
 doh.registerUrl("pluginsFromTextNoDefine", "../plugins/fromTextNoDefine/fromTextNoDefine.html");
 doh.registerUrl("pluginsTextDepend", "../plugins/textDepend/textDepend.html");
 doh.registerUrl("pluginLast", "../plugins/pluginLast/pluginLast.html");
@@ -154,6 +165,9 @@ doh.registerUrl("undefEnforceShim", "../undef/undefEnforceShim.html", 8000);
 doh.registerUrl("undefLocal", "../undef/undefLocal.html", 8000);
 doh.registerUrl("errorContinue", "../error/errorContinue.html", 8000);
 doh.registerUrl("errorContinueLocal", "../error/errorContinueLocal.html", 8000);
+doh.registerUrl("errorDoubleRequire", "../error/doubleRequire/doubleRequire.html", 8000);
+doh.registerUrl("errorRequireErrback", "../error/requireErrback.html", 2000);
+doh.registerUrl("errorGlobalOnError", "../error/globalOnError.html", 2000);
 doh.registerUrl("pluginErrorContinue", "../error/pluginErrorContinue.html", 8000);
 doh.registerUrl("pluginErrorContinueLocal", "../error/pluginErrorContinueLocal.html", 8000);
 doh.registerUrl("defineErrorLocal", "../error/defineErrorLocal.html");

@@ -19,6 +19,15 @@ cd ../require-jquery/parts
 cd ../../requirejs
 
 # The sample projects
+
+echo "Updating requirejs/example-jquery-cdn"
+cp require.js ../example-jquery-cdn/www/js/lib/require.js
+cp ../r.js/r.js ../example-jquery-cdn/tools/r.js
+
+echo "Updating requirejs/example-jquery-shim"
+cp require.js ../example-jquery-shim/www/js/lib/require.js
+cp ../r.js/r.js ../example-jquery-shim/tools/r.js
+
 echo "Updating requirejs/example-multipage"
 cp require.js ../example-multipage/www/js/lib/require.js
 cp ../r.js/r.js ../example-multipage/tools/r.js

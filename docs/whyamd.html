@@ -124,7 +124,7 @@ exports.myExample = function () {};
 });
 </code></pre>
 
-<p>The AMD format comes from wanting a module format that was better than today's "write a bunch of script tags with implicit dependencies that you have to manually order" and something that was easy to use directly in the browser. Something with good debugging characteristics that did not require server-specific tooling to get started. It grew out of Dojo's real world experience with using XHR+eval and and wanting to avoid its weaknesses for the future.</p>
+<p>The AMD format comes from wanting a module format that was better than today's "write a bunch of script tags with implicit dependencies that you have to manually order" and something that was easy to use directly in the browser. Something with good debugging characteristics that did not require server-specific tooling to get started. It grew out of Dojo's real world experience with using XHR+eval and wanting to avoid its weaknesses for the future.</p>
 
 <p>It is an improvement over the web's current "globals and script tags" because:</p>
 
@@ -185,7 +185,7 @@ define(['dep1', 'dep2'], function (dep1, dep2) {
 <span class="sectionMark">&sect; 6</span>
 </h2>
 
-<p>Notice that the above module does not declare a name for itself. This is makes the module very portable. It allows a developer to place the module in a different path to give it a different ID/name. The AMD loader will give the module an ID based on how it is referenced by other scripts.</p>
+<p>Notice that the above module does not declare a name for itself. This is what makes the module very portable. It allows a developer to place the module in a different path to give it a different ID/name. The AMD loader will give the module an ID based on how it is referenced by other scripts.</p>
 
 <p>However, tools that combine multiple modules together for performance need a way to give names to each module in the optimized file. For that, AMD allows a string as the first argument to define():</p>
 
@@ -332,7 +332,6 @@ if (someCondition) {
 <ul>
 <li><a href="http://jquery.com/">jQuery</a> 1.7</li>
 <li><a href="http://dojotoolkit.org/">Dojo</a> 1.7</li>
-<li><a href="http://mootools.net/">MooTools</a> 2.0</li>
 <li><a href="http://uxebu.github.com/embedjs/">EmbedJS</a></li>
 <li><a href="http://ender.no.de/">Ender</a>-associated modules like <a href="https://github.com/ded/bonzo">bonzo</a>, <a href="https://github.com/ded/qwery">qwery</a>, <a href="https://github.com/fat/bean">bean</a> and <a href="https://github.com/ded/domready">domready</a></li>
 <li>Used by <a href="http://getfirebug.com/">Firebug</a> 1.8+</li>
@@ -356,7 +355,7 @@ if (someCondition) {
 <li><a href="http://requirejs.org">RequireJS</a></li>
 <li><a href="https://github.com/unscriptable/curl">curl</a></li>
 <li><a href="https://github.com/zazl/lsjs">lsjs</a></li>
-<li><a href="http://dojotoolkit.org/">Dojo</a> 1.7 and <a href="http://mootools.net/">MooTools</a> 2.0 each have their own</li>
+<li><a href="http://dojotoolkit.org/">Dojo</a> 1.7+</li>
 </ul></li>
 <li>If you want to use AMD but still use the <strong>load one script at the bottom of the HTML page</strong> approach:
 <ul>

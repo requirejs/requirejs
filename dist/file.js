@@ -12,7 +12,7 @@ var fs = require('fs'),
     file, prop;
 
 function mkDir(dir) {
-    if (!path.existsSync(dir)) {
+    if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, 0777);
     }
 }
@@ -39,7 +39,7 @@ file = {
     },
 
     exists: function (fileName) {
-        return path.existsSync(fileName);
+        return fs.existsSync(fileName);
     },
 
     parent: function (fileName) {
@@ -82,7 +82,7 @@ file = {
         regExpInclude = regExpFilters.include || regExpFilters;
         regExpExclude = regExpFilters.exclude || null;
 
-        if (path.existsSync(topDir)) {
+        if (fs.existsSync(topDir)) {
             dirFileArray = fs.readdirSync(topDir);
             for (i = 0; i < dirFileArray.length; i++) {
                 fileName = dirFileArray[i];
@@ -148,14 +148,14 @@ file = {
         //If onlyCopyNew is true, then compare dates and only copy if the src is newer
         //than dest.
         if (onlyCopyNew) {
-            if (path.existsSync(destFileName) && fs.statSync(destFileName).mtime.getTime() >= fs.statSync(srcFileName).mtime.getTime()) {
+            if (fs.existsSync(destFileName) && fs.statSync(destFileName).mtime.getTime() >= fs.statSync(srcFileName).mtime.getTime()) {
                 return false; //Boolean
             }
         }
 
         //Make sure destination dir exists.
         parentDir = path.dirname(destFileName);
-        if (!path.existsSync(parentDir)) {
+        if (!fs.existsSync(parentDir)) {
             mkFullDir(parentDir);
         }
 
@@ -195,7 +195,7 @@ file = {
 
         //Make sure destination directories exist.
         parentDir = path.dirname(fileName);
-        if (!path.existsSync(parentDir)) {
+        if (!fs.existsSync(parentDir)) {
             mkFullDir(parentDir);
         }
 
@@ -205,7 +205,7 @@ file = {
     deleteFile: function (/*String*/fileName) {
         //summary: deletes a file or directory if it exists.
         var files, i, stat;
-        if (path.existsSync(fileName)) {
+        if (fs.existsSync(fileName)) {
             stat = fs.statSync(fileName);
             if (stat.isDirectory()) {
                 files = fs.readdirSync(fileName);

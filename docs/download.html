@@ -4,8 +4,7 @@
     <li class="hbox"><a href="#latest">Latest Release</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1</span></li>
     <ul>
         <li class="hbox"><a href="#requirejs">require.js</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.1</span></li>
-        <li class="hbox"><a href="#samplejquery">Sample RequireJS + jQuery 1.8.2 project</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2</span></li>
-        <li class="hbox"><a href="#rjs">r.js: Optimizer and Node and Rhino adapter</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.3</span></li>
+        <li class="hbox"><a href="#rjs">r.js: Optimizer and Node/Rhino/xpcshell adapter</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2</span></li>
     </ul>
     <li class="hbox"><a href="#plugins">Plugins</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2</span></li>
     <ul>
@@ -26,10 +25,10 @@
 
 <div class="subSection">
 <h4 class="hbox">
-<a name="requirejs">require.js 2.1.1</a>
+<a name="requirejs">require.js 2.1.6</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/2.1.1/minified/require.js">Minified</a>
-<a class="download" href="http://requirejs.org/docs/release/2.1.1/comments/require.js">With Comments</a>
+<a class="download" href="http://requirejs.org/docs/release/2.1.6/minified/require.js">Minified</a>
+<a class="download" href="http://requirejs.org/docs/release/2.1.6/comments/require.js">With Comments</a>
 </h4>
 
 <p>All you need to start using require.js in the browser.</p>
@@ -37,23 +36,12 @@
 
 <div class="subSection">
 <h4 class="hbox">
-<a name="samplejquery">Sample RequireJS 2.1.1 + jQuery 1.8.2 project</a>
+<a name="rjs">r.js: Optimizer and Node/Rhino/xpcshell adapter</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/jquery-require/jquery1.8.2-requirejs2.1.1/jquery-require-sample.zip">Download</a>
+<a class="download" href="http://requirejs.org/docs/release/2.1.6/r.js">Download</a>
 </h4>
 
-<p>A zip file containing a sample project that uses jQuery and RequireJS.</p>
-</div>
-
-
-<div class="subSection">
-<h4 class="hbox">
-<a name="rjs">r.js: Optimizer and Node and Rhino adapter</a>
-<span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/2.1.1/r.js">Download</a>
-</h4>
-
-<p>The r.js file allows you to run the optimizer as well as run modules in Node or Rhino.</p>
+<p>The r.js file allows you to run the optimizer as well as run modules in Node, Rhino or xpcshell.</p>
 
 <p>If you are running in Node, and want to use npm to install this file via npm, see the <a href="node.html">Use with Node</a> page for more information.</p>
 
@@ -108,6 +96,91 @@ logic until the DOM is ready for querying/modification.</p>
 
 <div class="section">
 <h2><a name="releasenotes">Release Notes</a><span class="sectionMark">&sect; 3</span></h2>
+
+<h3 id="2-1-6">2.1.6</h3>
+
+<p><a href="optimization.html#sourcemaps">Source map support</a> has been expanded. Previously, it was just supported for going from minified, bundled code to the unminified, bundled code. If <code>optimize: 'uglify2'</code> is used, it will now go back to the separated, unbundled files.</p>
+
+<p>Source map support is still considered experimental though, so you may find bugs. If you find one, file an <a href="https://github.com/jrburke/r.js/issues">r.js issue</a>, ideally with a test case.</p>
+
+<p>Full list of changes:</p>
+
+<ul>
+    <li><a href="https://github.com/jrburke/requirejs/issues?direction=desc&milestone=27&page=1&sort=created&state=closed">Fixed require.js issues</a></li>
+    <li><a href="https://github.com/jrburke/r.js/issues?milestone=25&page=1&state=closed">Fixed r.js optimizer issues</a></li>
+</ul>
+
+
+<h3 id="2-1-5">2.1.5</h3>
+
+<p>Biggest change is support for running the optimizer and loading AMD modules in
+<a href="https://developer.mozilla.org/en-US/docs/XPConnect/xpcshell">xpcshell</a>. Other than that,
+just a maintenance release.</p>
+
+<p>Full list of changes:</p>
+
+<ul>
+    <li><a href="https://github.com/jrburke/requirejs/issues?direction=desc&milestone=26&sort=created&state=closed">Fixed require.js issues</a></li>
+    <li><a href="https://github.com/jrburke/r.js/issues?milestone=23&state=closed">Fixed r.js optimizer issues</a></li>
+</ul>
+
+
+<h3 id="2-1-4">2.1.4</h3>
+
+<p>Quick release for a bug that slipped in the 2.1.3 release in the r.js optimizer.
+So even though require.js now has a 2.1.4 version, it is the same as 2.1.3,
+and the optimizer is the same as 2.1.3 except for this one fix:</p>
+
+<ul>
+    <li><a href="https://github.com/jrburke/r.js/issues/356">Bug 356</a>: cssPrefix normalization always needs to happen</li>
+</ul>
+
+<p>Without this fix, in some cases 2.1.3 would insert "undefined" in some
+    optimized CSS files, making them unusable.</p>
+
+<h3 id="2-1-3">2.1.3</h3>
+
+<p>Maintenance release. A change that may be noticeable:</p>
+
+<p><a href="http://requirejs.org/docs/api.html#modulenotes-urls">require.toUrl()</a>
+    now correctly generates URLs for string values passed to it without an
+    extension. Previous versions of toUrl() would append a
+    ".js" extension automatically. If you relied on that behavior, when you
+    update to 2.1.3, then you may need to do a code change to append the .js
+    extension yourself:</p>
+
+    <pre><code>require.toUrl('some/value') + '.js'</code></pre>
+
+<p>The text plugin has been updated to also work with this change, so if you want
+    to generate non-extension paths for text resources, be sure to upgrade to
+    to the <a href="https://raw.github.com/requirejs/text/latest/text.js">2.0.4 version of text.js</a>.</p>
+
+<p>Normal use of toUrl with a value that has an extension continues to work the same.</p>
+
+<p>Full list of changes:</p>
+
+<ul>
+    <li><a href="https://github.com/jrburke/requirejs/issues?direction=desc&milestone=24&page=1&sort=created&state=closed">Fixed require.js issues</a></li>
+    <li><a href="https://github.com/jrburke/r.js/issues?sort=created&direction=desc&state=closed&page=1&milestone=21">Fixed r.js optimizer issues</a></li>
+</ul>
+
+<h3 id="2-1-2">2.1.2</h3>
+
+<p>The big changes for this release are in the optimizer:</p>
+
+<ul>
+<li>The optimizer can now <a href="optimization.html#requirements">run in the browser</a>, to enable web-based custom builds of your library.</li>
+<li>"uglify2" is an allowed "optimize" value now, using UglifyJS 2.1.11.</li>
+<li>Experimental support for <a href="optimization.html#sourcemaps">source maps</a>.</li>
+<li>The optimizer runs faster now, and has some <a href="optimization.html#turbo">speed options</a>.</li>
+</ul>
+
+<p>Full list of changes:</p>
+
+<ul>
+    <li><a href="https://github.com/jrburke/requirejs/issues?milestone=22&sort=created&direction=desc&state=closed">Fixed require.js issues</a></li>
+    <li><a href="https://github.com/jrburke/r.js/issues?sort=created&direction=desc&state=closed&page=1&milestone=20">Fixed r.js optimizer issues</a></li>
+</ul>
 
 <h3 id="2-1-1">2.1.1</h3>
 
