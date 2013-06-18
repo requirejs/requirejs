@@ -6,13 +6,22 @@
         <a href="#intro">Introduction</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1</span>
     </li>
     <li class="hbox">
-        <a href="#shimconfig">Example using shim config</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2</span>
+        <a href="#globalvars">Global Functions</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2</span>
     </li>
     <li class="hbox">
-        <a href="#cdnconfig">Example loading jquery from a CDN</a><span class="spacer boxflex"></span><span class="sect">&sect; 3</span>
+        <a href="#modulename">Module Name</a><span class="spacer boxFlex"></span><span class="sect">&sect; 3</span>
     </li>
     <li class="hbox">
-        <a href="#oldexample">The previous example with a concatenated require-jquery file</a><span class="spacer boxflex"></span><span class="sect">&sect; 4</span>
+        <a href="#shimconfig">Example using shim config</a><span class="spacer boxFlex"></span><span class="sect">&sect; 4</span>
+    </li>
+    <li class="hbox">
+        <a href="#cdnconfig">Example loading jquery from a CDN</a><span class="spacer boxflex"></span><span class="sect">&sect; 5</span>
+    </li>
+    <li class="hbox">
+        <a href="#noconflictmap">Mapping Modules to use noConflict</a><span class="spacer boxflex"></span><span class="sect">&sect; 6</span>
+    </li>
+    <li class="hbox">
+        <a href="#oldexample">The previous example with a concatenated require-jquery file</a><span class="spacer boxflex"></span><span class="sect">&sect; 7</span>
     </li>
 </ul>
 </div>
@@ -30,12 +39,44 @@
 <p>RequireJS can help you manage the script modules, load them in the right order, and make it easy to combine the scripts later via the RequireJS <a href="optimization.md">optimizer</a> without needing to change your markup. It also gives you an easy way to load scripts after the page has loaded, allowing you to spread out the download size over time.</p>
 
 <p>RequireJS has a module system that lets you define well-scoped modules, but you do not have to follow that system to get the benefits of dependency management and build-time optimizations. Over time, if you start to create more modular code that needs to be reused in a few places, the module format for RequireJS makes it easy to write encapsulated code that can be loaded on the fly. It can grow with you, particularly if you want to incorporate internationalization (i18n) string bundles, to localize your project for different languages, or load some HTML strings and make sure those strings are available before executing code, or even use JSONP services as dependencies.</p>
+
+<p>While RequireJS loads jQuery just like any other dependency, jQuery's wide use and extensive plugin ecosystem mean you'll likely have other scripts in your project that also depend on jQuery. You might approach your jQuery RequireJS configuration differently depending on whether you are starting a new project or whether you are adapting existing code.</p>
+
+<div class="section">
+<h2>
+<a name="globalvars" href="#globalvars">Global Functions</a>
+<span class="sectionMark">&sect; 2</span>
+</h2>
+<p>jQuery registers itself as the global variables "$" and "jQuery", even when it detects AMD/RequireJS. The AMD approach advises against the use of global functions, but the decision to turn off these jQuery globals hinges on whether you have non-AMD code that depends on them. jQuery has a <a href="http://api.jquery.com/jQuery.noConflict/">noConflict function</a> that supports releasing control of the global variables and this can be automated in your require.config, as we will see <a href="#noconflictmap">later</a>.</p>
+</div>
+
+<div class="section">
+<h2>
+<a name="modulename" href="#modulename">Module Name</a>
+<span class="sectionMark">&sect; 3</span>
+</h2>
+
+<p>jQuery defines <a href="api.html#modulename">named AMD module</a> 'jquery' (all lower case) when it detects AMD/RequireJS. To reduce confusion, we recommend using 'jquery' as the module name in your require.config. 
+
+<p>Example:</p>
+
+<pre><code>require.config({
+    baseUrl: 'js/lib',
+    paths: {
+        // even if you use another name here, an AMD module
+        // named 'jquery' will still be available for
+        // subsequent require() calls
+        jquery: './jquery-x.y.z'
+    }
+});
+</code></pre>
+
 </div>
 
 <div class="section">
 <h2>
 <a name="shimconfig" href="#shimconfig">Example using shim config</a>
-<span class="sectionMark">&sect; 2</span>
+<span class="sectionMark">&sect; 4</span>
 </h2>
 
 <p>This example shows how to use the <a href="api.html#config-shim">shim config</a> to specify dependencies for jQuery plugins that do not call <a href="api.html#define">define()</a>. This example is useful if you have an existing jQuery project you want to convert and do not want to modify the sources of the jQuery plugins to call define().</p>
@@ -47,7 +88,7 @@
 <div class="section">
 <h2>
 <a name="cdnconfig" href="#cdnconfig">Example loading jquery from a CDN</a>
-<span class="sectionMark">&sect; 3</span>
+<span class="sectionMark">&sect; 5</span>
 </h2>
 
 <p>This is an example on how to load an optimize your code while loading jQuery from a <a href="http://en.wikipedia.org/wiki/Content_delivery_network">Content Delivery Network</a> (CDN). This example requires all your jQuery plugins to call <a href="api.html#define">define()</a> to properly express their dependencies. <a href="api.html#config-shim">Shim config</a> does not work after optimization builds with CDN resources.</p>
@@ -58,8 +99,71 @@
 
 <div class="section">
 <h2>
+<a name="noconflictmap" href="#cdnconfig">Mapping Modules to use noConflict</a>
+<span class="sectionMark">&sect; 6</span>
+</h2>
+
+<p>If your modules are AMD compatible and you want to avoid having $ or jQuery in the global namespace when they call <code>require(['jquery'])</code>, you can map them to use a noConflict version of jQuery returned from a custom AMD wrapper. You can use this with the CDN example above.</p>
+
+<p>Map specific modules to use noConflict version:</p>
+
+<pre><code>require.config({
+    paths: {
+        jquery: './jquery-x.y.z'
+    },
+    map: {
+        mymodule: { 'jquery': 'jquery-private' }
+    }    
+});
+
+// custom AMD wrapper
+define('jquery-private', ['jquery'], function (jq) {
+    return jq.noConflict( true );
+});
+</code></pre>
+
+<p>If you want to enforce AMD approach for the whole project, you can map all modules to use noConflict version:</p>
+
+<pre><code>require.config({
+    paths: {
+        jquery: './jquery-x.y.z'
+    },
+    map: {
+      '*': { 'jquery': 'jquery-private' },
+      // prevent circular reference in our custom wrapper
+      'jquery-private': { 'jquery': 'jquery' } 
+    }
+});
+
+// custom AMD wrapper
+define('jquery-private', ['jquery'], function (jq) {
+    return jq.noConflict( true );
+});
+</code></pre>
+
+
+<p>This means that any module which uses jQuery will need to use the AMD return value rather than depending on the global $:</p>
+
+<pre><code>
+require(['jquery'], function( $ ) { 
+    console.log( $ ) // OK
+});
+
+require(['jquery'], function( jq ) { 
+    console.log( jq ) // OK
+});
+
+require(['jquery'], function( ) { 
+    console.log( $ ) // UNDEFINED!
+});
+</code></pre>
+
+</div>
+
+<div class="section">
+<h2>
 <a name="oldexample">The previous example with a concatenated require-jquery file</a>
-<span class="sectionMark">&sect; 4</span>
+<span class="sectionMark">&sect; 7</span>
 </h2>
 <p>
 Previously, we've been pointing to an example using a special require-jquery file, which consisted of require.js and jQuery concatenated. This is no longer the recommended way to use jQuery with require.js, but if you're looking for the (no longer maintained) example, <a href="https://github.com/jrburke/require-jquery">you can find require-jquery here</a>.
