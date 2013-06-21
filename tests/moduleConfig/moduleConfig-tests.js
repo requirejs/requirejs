@@ -2,8 +2,16 @@ require({
     config: {
         a: {
             id: 'magic'
-        }
-    }
+        },
+		text: {
+			useXhr: function() {
+				return false;
+			}
+		}
+    },
+	packages: [
+		{"name":"text","location":".","main":"text"}
+	]
 });
 
 require({
@@ -14,8 +22,8 @@ require({
             }
         }
     },
-    ['a', 'b/c', 'plain'],
-    function(a, c, plain) {
+    ['a', 'b/c', 'plain', 'text!text.html'],
+    function(a, c, plain, text) {
         doh.register(
             'moduleConfig',
             [
@@ -23,6 +31,7 @@ require({
                     t.is('magic', a.type);
                     t.is('beans', c.food);
                     t.is('plain', plain.id);
+					t.is('NOT Xhr', text);
                 }
             ]
         );
