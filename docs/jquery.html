@@ -48,21 +48,34 @@
 <span class="sectionMark">&sect; 3</span>
 </h2>
 
-<p>jQuery defines <a href="api.html#modulename">named AMD module</a> 'jquery' (all lower case) when it detects AMD/RequireJS. To reduce confusion, we recommend using 'jquery' as the module name in your require.config. 
+<p>jQuery defines <a href="api.html#modulename">named AMD module</a> 'jquery' (all lower case) when it detects AMD/RequireJS. To reduce confusion, we recommend using 'jquery' as the module name in your require.config.
 
 <p>Example:</p>
 
 <pre><code>require.config({
     baseUrl: 'js/lib',
     paths: {
-        // even if you use another name here, an AMD module
-        // named 'jquery' will still be available for
-        // subsequent require() calls
-        jquery: './jquery-x.y.z'
+        // the left side is the module ID,
+        // the right side is the path to
+        // the jQuery file, relative to baseUrl.
+        // Also, the path should NOT include
+        // the '.js' file extension. This example
+        // is using jQuery 1.9.0 located at
+        // js/lib/jquery-1.9.0.js, relative to
+        // the HTML page.
+        jquery: 'jquery-1.9.0'
     }
 });
 </code></pre>
 
+<p>The other (recommended) solution is to just name the file 'jquery.js' and
+    place it in the baseUrl directory. Then the above paths entry is not needed.</p>
+
+<p>You can avoid lots of configuration lines by placing the files according to
+    the default ID-to-path convention of
+    <code>baseUrl + moduleID + '.js'</code>. The examples below show how to
+    set baseUrl to be the directory for third-party, library code, and use
+    one extra paths config for your app code.</p>
 </div>
 
 <div class="section">
@@ -95,40 +108,28 @@
 <span class="sectionMark">&sect; 6</span>
 </h2>
 
-<p>If your modules are AMD compatible and you want to avoid having $ or jQuery in the global namespace when they call <code>require(['jquery'])</code>, you can map them to use a noConflict version of jQuery returned from a custom AMD wrapper. You can use this with the CDN example above.</p>
+<p>If <strong>all of your modules</strong> (including any third party jQuery plugins or library code that depend on jQuery) are AMD compatible and you want to avoid having $ or jQuery in the global namespace when they call <code>require(['jquery'])</code>, you can use the <a href="">map config</a> to map the use of jQuery to a module that calls noConflict and returns that value of jQuery for the 'jquery' module ID.</p>
 
-<p>Map specific modules to use noConflict version:</p>
-
-<pre><code>require.config({
-    paths: {
-        jquery: './jquery-x.y.z'
-    },
-    map: {
-        mymodule: { 'jquery': 'jquery-private' }
-    }    
-});
-
-// custom AMD wrapper
-define('jquery-private', ['jquery'], function (jq) {
-    return jq.noConflict( true );
-});
-</code></pre>
-
-<p>If you want to enforce AMD approach for the whole project, you can map all modules to use noConflict version:</p>
+<p>You can use this example with the CDN example above -- the shim example will not work since shimmed libraries need a global jQuery.</p>
 
 <pre><code>require.config({
-    paths: {
-        jquery: './jquery-x.y.z'
-    },
+    // Add this map config in addition to any baseUrl or
+    // paths config you may already have in the project.
     map: {
+      // '*' means all modules will get 'jquery-private'
+      // for their 'jquery' dependency.
       '*': { 'jquery': 'jquery-private' },
-      // prevent circular reference in our custom wrapper
-      'jquery-private': { 'jquery': 'jquery' } 
+
+      // 'jquery-private' wants the real jQuery module
+      // though. If this line was not here, there would
+      // be an unresolvable cyclic dependency.
+      'jquery-private': { 'jquery': 'jquery' }
     }
 });
 
-// custom AMD wrapper
-define('jquery-private', ['jquery'], function (jq) {
+// and the 'jquery-private' module, in the
+// jquery-private.js file:
+define(['jquery'], function (jq) {
     return jq.noConflict( true );
 });
 </code></pre>
@@ -137,15 +138,15 @@ define('jquery-private', ['jquery'], function (jq) {
 <p>This means that any module which uses jQuery will need to use the AMD return value rather than depending on the global $:</p>
 
 <pre><code>
-require(['jquery'], function( $ ) { 
+require(['jquery'], function( $ ) {
     console.log( $ ) // OK
 });
 
-require(['jquery'], function( jq ) { 
+require(['jquery'], function( jq ) {
     console.log( jq ) // OK
 });
 
-require(['jquery'], function( ) { 
+require(['jquery'], function( ) {
     console.log( $ ) // UNDEFINED!
 });
 </code></pre>
