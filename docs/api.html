@@ -503,7 +503,7 @@ This example specifies some dependencies to load as soon as require.js defines r
 
 <p>When run in a browser, <a href="#pathsfallbacks">paths fallbacks</a> can be specified, to allow trying a load from a CDN location, but falling back to a local location if the CDN location fails to load.</p>
 
-<p id="config-shim"><strong><a href="#config-shim">shim</a></strong>: Configure the dependencies and exports for older, traditional "browser globals" scripts that do not use define() to declare the dependencies and set a module value.</p>
+<p id="config-shim"><strong><a href="#config-shim">shim</a></strong>: Configure the dependencies, exports, and custom initialization for older, traditional "browser globals" scripts that do not use define() to declare the dependencies and set a module value.</p>
 
 <p>Here is an example. It requires RequireJS 2.1.0+, and assumes backbone.js, underscore.js and jquery.js have been installed in the baseUrl directory. If not, then you may need to set a paths config for them:</p>
 
@@ -523,6 +523,7 @@ This example specifies some dependencies to load as soon as require.js defines r
         'foo': {
             deps: ['bar'],
             exports: 'Foo',
+            // init will be called only for non-AMD scripts
             init: function (bar) {
                 //Using a function allows you to call noConflict for
                 //libraries that support it, and do other cleanup.
@@ -601,6 +602,10 @@ loaded (a return from init is <strong>not</strong> used for <code>enforceDefine<
     AMD module may not be evaluated until after the shimmed code in the build
     executes, and an error will occur. The ultimate fix is to upgrade all the
     shimmed code to have optional AMD define() calls.</li>
+    <li>The init function will <strong>not</strong> be called for AMD modules. 
+    For example, you cannot use a shim init function to call jQuery's noConflict.
+    See <a href="jquery.html#noconflictmap">Mapping Modules to use noConflict</a> 
+    for an alternate approach to jQuery.</li>
 </ul>
 
 <p><b>Important optimizer notes for "shim" config</b>:</p>
