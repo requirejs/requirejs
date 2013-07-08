@@ -25,10 +25,10 @@
 
 <div class="subSection">
 <h4 class="hbox">
-<a name="requirejs">require.js 2.1.6</a>
+<a name="requirejs">require.js 2.1.7</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/2.1.6/minified/require.js">Minified</a>
-<a class="download" href="http://requirejs.org/docs/release/2.1.6/comments/require.js">With Comments</a>
+<a class="download" href="http://requirejs.org/docs/release/2.1.7/minified/require.js">Minified</a>
+<a class="download" href="http://requirejs.org/docs/release/2.1.7/comments/require.js">With Comments</a>
 </h4>
 
 <p>All you need to start using require.js in the browser.</p>
@@ -38,7 +38,7 @@
 <h4 class="hbox">
 <a name="rjs">r.js: Optimizer and Node/Rhino/xpcshell adapter</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/2.1.6/r.js">Download</a>
+<a class="download" href="http://requirejs.org/docs/release/2.1.7/r.js">Download</a>
 </h4>
 
 <p>The r.js file allows you to run the optimizer as well as run modules in Node, Rhino or xpcshell.</p>
@@ -96,6 +96,22 @@ logic until the DOM is ready for querying/modification.</p>
 
 <div class="section">
 <h2><a name="releasenotes">Release Notes</a><span class="sectionMark">&sect; 3</span></h2>
+
+<h3 id="2-1-7">2.1.7</h3>
+
+<p>The main changes for this release:</p>
+
+<ul>
+    <li>For xpcshell, the optimizer uses the built in Reflect parser API instead of Esprima. xpcshell, on Linux and Windows in particular, has a constrained stack, and normal Esprima use was not possible. To accomodate this change, some of the parsing approaches used internally by r.js moved away from token scanning to tree walking. The only visible output change you may see is different use of space characters in transformed code.</li>
+    <li>The source map support was updated to use the new //# syntax as specified by the spec. This change is still making its way through the browsers, so if you need source map or sourceURL support with 2.1.7, you may need to use Firefox Aurora or Chrome Canary channels. The browser support levels should get better in around six weeks time.</li>
+</ul>
+
+<p>Full list of changes:</p>
+
+<ul>
+    <li><a href="https://github.com/jrburke/requirejs/issues?direction=desc&milestone=28&page=1&sort=created&state=closed">Fixed require.js issues</a></li>
+    <li><a href="https://github.com/jrburke/r.js/issues?milestone=26&page=1&state=closed">Fixed r.js optimizer issues</a></li>
+</ul>
 
 <h3 id="2-1-6">2.1.6</h3>
 
