@@ -185,10 +185,16 @@ var requirejs, require, define;
     }
 
     //Allow for a require config object
+    //If the global variable is not set, try to read it from a known location to be more CSP-friendly?
+    if (typeof require === 'undefined') {
+      var node = document.getElementById('require-config-data');
+      require = JSON.parse(node.innerHTML);
+    }
+
     if (typeof require !== 'undefined' && !isFunction(require)) {
-        //assume it is a config object.
-        cfg = require;
-        require = undefined;
+      //assume it is a config object.
+      cfg = require;
+      require = undefined;
     }
 
     function newContext(contextName) {
