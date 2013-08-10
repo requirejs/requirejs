@@ -146,6 +146,12 @@ doh.registerUrl("relativeOutsideBaseUrl", "../relative/outsideBaseUrl/a/outsideB
 
 doh.registerUrl("remoteUrls", "../remoteUrls/remoteUrls.html");
 
+// IE does not support data URIs for scripts. This is a crude exclusion test
+// but is good enough that the test is run in enough browsers to prove it works.
+if (!document.attachEvent) {
+    doh.registerUrl("datauri", "../datauri/datauri.html");
+}
+
 doh.registerUrl("queryPath", "../queryPath.html");
 
 doh.registerUrl("trailingComma", "../trailingComma/trailingComma.html");
