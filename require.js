@@ -442,7 +442,7 @@ var requirejs, require, define;
                         //Plugin is loaded, use its normalize method.
                         normalizedName = pluginModule.normalize(name, function (name) {
                             return normalize(name, parentName, applyMap);
-                        });
+                        }, config);
                     } else {
                         normalizedName = normalize(name, parentName, applyMap);
                     }
