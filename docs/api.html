@@ -4,21 +4,22 @@
 <span class="note">This is the <a href="https://github.com/jrburke/requirejs/wiki/Upgrading-to-RequireJS-2.0">RequireJS 2.0 API</a>. If you want 1.0: <a href="1.0/">Link to 1.0</a>.</span>
 
 <ul class="index mono">
-    <li class="hbox"><a href="#usage">Usage</a><span class="spacer boxFlex"></span><span class="sect">&sect;&sect; 1-1.2</span></li>
+    <li class="hbox"><a href="#usage">Usage</a><span class="spacer boxFlex"></span><span class="sect">&sect;&sect; 1-1.3</span></li>
         <ul>
             <li class="hbox"><a href="#jsfiles">Load JavaScript Files</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.1</span></li>
-            <li class="hbox"><a href="#define">Define a Module</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2</span></li>
+            <li class="hbox"><a href="#data-main">data-main Entry Point</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2</span></li>
+            <li class="hbox"><a href="#define">Define a Module</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.3</span></li>
             <ul>
-                <li class="hbox"><a href="#defsimple">Simple Name/Value Pairs</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2.1</span></li>
-                <li class="hbox"><a href="#deffunc">Definition Functions</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2.2</span></li>
-                <li class="hbox"><a href="#defdep">Definition Functions with Dependencies</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2.3</span></li>
-                <li class="hbox"><a href="#funcmodule">Define a Module as a Function</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2.4</span></li>
-                <li class="hbox"><a href="#cjsmodule">Define a Module with Simplified CommonJS Wrapper</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2.5</span></li>
-                <li class="hbox"><a href="#modulename">Define a Module with a name</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2.6</span></li>
-                <li class="hbox"><a href="#modulenotes">Other Module Notes</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2.7</span></li>
-                <li class="hbox"><a href="#circular">Circular Dependencies</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2.8</span></li>
-                <li class="hbox"><a href="#jsonp">Specify a JSONP Service Dependency</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2.9</span></li>
-                <li class="hbox"><a href="#undef">Undefining a Module</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2.10</span></li>
+                <li class="hbox"><a href="#defsimple">Simple Name/Value Pairs</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.3.1</span></li>
+                <li class="hbox"><a href="#deffunc">Definition Functions</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.3.2</span></li>
+                <li class="hbox"><a href="#defdep">Definition Functions with Dependencies</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.3.3</span></li>
+                <li class="hbox"><a href="#funcmodule">Define a Module as a Function</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.3.4</span></li>
+                <li class="hbox"><a href="#cjsmodule">Define a Module with Simplified CommonJS Wrapper</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.3.5</span></li>
+                <li class="hbox"><a href="#modulename">Define a Module with a name</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.3.6</span></li>
+                <li class="hbox"><a href="#modulenotes">Other Module Notes</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.3.7</span></li>
+                <li class="hbox"><a href="#circular">Circular Dependencies</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.3.8</span></li>
+                <li class="hbox"><a href="#jsonp">Specify a JSONP Service Dependency</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.3.9</span></li>
+                <li class="hbox"><a href="#undef">Undefining a Module</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.3.10</span></li>
 
             </ul>
         </ul>
@@ -55,7 +56,7 @@
 
 <p>RequireJS takes a different approach to script loading than traditional &lt;script&gt; tags. Its goal is to encourage modular code. While it can also run fast and optimize well, the primary goal is to encourage modular code. As part of that, it encourages using <strong>module IDs</strong> instead of URLs for script tags.</p>
 
-<p>RequireJS loads all code relative to a <a href="#config-baseUrl">baseUrl</a>. The baseUrl is normally set to the same directory as the script used in a data-main attribute for the top level script to load for a page. The data-main attribute is a special attribute that require.js will check to start script loading. This example will end up with a baseUrl of <strong>scripts</strong>:</p>
+<p>RequireJS loads all code relative to a <a href="#config-baseUrl">baseUrl</a>. The baseUrl is normally set to the same directory as the script used in a data-main attribute for the top level script to load for a page. The <a href="#data-main">data-main attribute</a> is a special attribute that require.js will check to start script loading. This example will end up with a baseUrl of <strong>scripts</strong>:</p>
 
 <pre><code>&lt;!--This sets the baseUrl to the "scripts" directory, and
     loads a script that will have a module ID of 'main'--&gt;
@@ -134,8 +135,45 @@ function   ($,        canvas,   sub) {
 <p>If you do not express the dependencies, you will likely get loading errors since RequireJS loads scripts asynchronously and out of order for speed.</p>
 
 <h3>
-<a href="#define" name="define">Define a Module</a>
+<a href="#data-main" name="data-main">data-main Entry Point</a>
 <span class="sectionMark">&sect; 1.2</span>
+</h3>
+
+<p>The data-main attribute is a special attribute that require.js will check to start script loading:</p>
+
+<pre><code>&lt;!--when require.js loads it will inject another script tag
+    (with async attribute) for scripts/main.js--&gt;
+&lt;script data-main="scripts/main" src="scripts/require.js"&gt;&lt;/script&gt;
+</code></pre>
+
+<p>You will typically use a data-main script to <a href="#config">set configuration options</a> and then load the first application module. Note: the script tag require.js generates for your data-main module includes the <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script#attr-async">async attribute</a>. This means that <strong>you cannot assume that the load and execution of your data-main script will finish prior to other scripts referenced later in the same page.</strong></p>
+
+<p>For example, this arrangement will fail randomly when the require.config path for the 'foo' module has not been set prior to it being require()'d later:</p>
+
+<pre><code>&lt;script data-main="scripts/main" src="scripts/require.js"&gt;&lt;/script&gt;
+&lt;script src="scripts/other.js"&gt;&lt;/script&gt;
+</code></pre>
+
+<pre><code>// contents of main.js:
+require.config({
+    paths: {
+        foo: 'libs/foo-1.1.3'
+    }
+});
+</code></pre>
+<pre><code>// contents of other.js:
+
+// This code might be called before the require.config() in main.js
+// has executed. When that happens, require.js will attempt to
+// load 'scripts/foo.js' instead of 'scripts/libs/foo-1.1.3.js'
+require( ['foo'], function( foo ) {
+
+});
+</code></pre>
+
+<h3>
+<a href="#define" name="define">Define a Module</a>
+<span class="sectionMark">&sect; 1.3</span>
 </h3>
 
 <p>A module is different from a traditional script file in that it defines a well-scoped object that avoids polluting the global namespace. It can explicitly list its dependencies and get a handle on those dependencies without needing to refer to global objects, but instead receive the dependencies as arguments to the function that defines the module. Modules in RequireJS are an extension of the <a href="http://www.adequatelygood.com/2010/3/JavaScript-Module-Pattern-In-Depth">Module Pattern</a>, with the benefit of not needing globals to refer to other modules.</p>
@@ -149,7 +187,7 @@ function   ($,        canvas,   sub) {
 <div class="subSection">
 <h4>
 <a href="#defsimple" name="defsimple">Simple Name/Value Pairs</a>
-<span class="sectionMark">&sect; 1.2.1</span>
+<span class="sectionMark">&sect; 1.3.1</span>
 </h4>
 
 <p>If the module does not have any dependencies, and it is just a collection of name/value pairs, then just pass an object literal to define():</p>
@@ -165,7 +203,7 @@ define({
 <div class="subSection">
 <h4>
 <a href="#deffunc" name="deffunc">Definition Functions</a>
-<span class="sectionMark">&sect; 1.2.2</span>
+<span class="sectionMark">&sect; 1.3.2</span>
 </h4>
 
 <p>If the module does not have dependencies, but needs to use a function to do some setup work, then define itself, pass a function to define():</p>
@@ -184,7 +222,7 @@ define(function () {
 </div>
 
 <div href="#subSection" class="subSection">
-<h4><a href="#defdep" name="defdep">Definition Functions with Dependencies</a><span class="sectionMark">&sect; 1.2.3</span></h4>
+<h4><a href="#defdep" name="defdep">Definition Functions with Dependencies</a><span class="sectionMark">&sect; 1.3.3</span></h4>
 
 <p>If the module has dependencies, the first argument should be an array of dependency names, and the second argument should be a definition function. The function will be called to define the module once all dependencies have loaded. The function should return an object that defines the module. The dependencies will be passed to the definition function as function arguments, listed in the same order as the order in the dependency array:</p>
 
@@ -222,7 +260,7 @@ define(["./cart", "./inventory"], function(cart, inventory) {
 </div>
 
 <div class="subSection">
-<h4><a href="#funcmodule" name="funcmodule">Define a Module as a Function</a><span class="sectionMark">&sect; 1.2.4</span></h4>
+<h4><a href="#funcmodule" name="funcmodule">Define a Module as a Function</a><span class="sectionMark">&sect; 1.3.4</span></h4>
 
 <p>Modules do not have to return objects. Any valid return value from a function is allowed. Here is a module that returns a function as its module definition:</p>
 
@@ -248,7 +286,7 @@ define(["my/cart", "my/inventory"],
 
 
 <div class="subSection">
-<h4><a href="#cjsmodule" name="cjsmodule">Define a Module with Simplified CommonJS Wrapper</a><span class="sectionMark">&sect; 1.2.5</span></h4>
+<h4><a href="#cjsmodule" name="cjsmodule">Define a Module with Simplified CommonJS Wrapper</a><span class="sectionMark">&sect; 1.3.5</span></h4>
 
 <p>If you wish to reuse some code that was written in the traditional <a href="http://wiki.commonjs.org/wiki/Modules/1.1.1">CommonJS module format</a> it may be difficult to re-work to the array of dependencies used above, and you may prefer to have
 direct alignment of dependency name to the local variable used for that dependency. You can use the <a href="commonjs.html">simplified CommonJS wrapper</a> for those cases:</p>
@@ -271,7 +309,7 @@ direct alignment of dependency name to the local variable used for that dependen
 
 
 <div class="subSection">
-<h4><a href="#modulename" name="modulename">Define a Module with a Name</a><span class="sectionMark">&sect; 1.2.6</span></h4>
+<h4><a href="#modulename" name="modulename">Define a Module with a Name</a><span class="sectionMark">&sect; 1.3.6</span></h4>
 
 <p>You may encounter some define() calls that include a name for the module as the first argument to define():</p>
 
@@ -289,7 +327,7 @@ direct alignment of dependency name to the local variable used for that dependen
 
 <div class="subSection">
 
-<h4><a href="#modulenotes" name="modulenotes">Other Module Notes</a><span class="sectionMark">&sect; 1.2.7</span></h4>
+<h4><a href="#modulenotes" name="modulenotes">Other Module Notes</a><span class="sectionMark">&sect; 1.3.7</span></h4>
 
 <p id="modulenotes-onemodule"><strong>One module per file.</strong>: Only one module should be defined per JavaScript file, given the nature of the module name-to-file-path lookup algorithm. Multiple modules will be grouped into optimized files by the <a href="optimization.html">optimization tool</a>, but you should only use the optimization tool to place more than one module in a file.</p>
 
@@ -328,7 +366,7 @@ having to know the directory's name.</p>
 </div>
 
 <div class="subSection">
-<h4><a href="#circular" name="circular">Circular Dependencies</a><span class="sectionMark">&sect; 1.2.8</span></h4>
+<h4><a href="#circular" name="circular">Circular Dependencies</a><span class="sectionMark">&sect; 1.3.8</span></h4>
 
 <p>If you define a circular dependency (a needs b and b needs a), then in this case when b's module function is called, it will get an undefined value for a. b can fetch a later after modules have been defined by using the require() method (be sure to specify require as a dependency so the right context is used to look up a):</p>
 
@@ -379,7 +417,7 @@ define(['a', 'exports'], function(a, exports) {
 </div>
 
 <div class="subSection">
-<h4><a href="#jsonp" name="jsonp">Specify a JSONP Service Dependency</a><span class="sectionMark">&sect; 1.2.9</span></h4>
+<h4><a href="#jsonp" name="jsonp">Specify a JSONP Service Dependency</a><span class="sectionMark">&sect; 1.3.9</span></h4>
 
 <p><a href="http://en.wikipedia.org/wiki/JSON#JSONP">JSONP</a> is a way of calling some services in JavaScript. It works across domains and it is an established approach to calling services that just require an HTTP GET via a script tag.</p>
 
@@ -408,7 +446,7 @@ define(['a', 'exports'], function(a, exports) {
 
 
 <div class="subSection">
-<h4><a href="#undef" name="undef">Undefining a Module</a><span class="sectionMark">&sect; 1.2.10</span></h4>
+<h4><a href="#undef" name="undef">Undefining a Module</a><span class="sectionMark">&sect; 1.3.10</span></h4>
 
 <p>There is a global function, <b>requirejs.undef()</b>, that allows undefining a module. It will reset the
 loader's internal state to forget about the previous definition of the module.</p>
@@ -468,6 +506,8 @@ module loading that may use that module. See the <a href="#errbacks">errback sec
   );
 &lt;/script&gt;
 </code></pre>
+
+<p>You may also call require.config from your <a href="api.html#data-main">data-main Entry Point</a>, but be aware that the data-main script is loaded asynchronously. Avoid other entry point scripts which wrongly assume that data-main and its require.config will always execute prior to their script loading.</a>
 
 <p>Also, you can define the config object as the global variable <code>require</code> <strong>before</strong> require.js is loaded, and have the values applied automatically.
 This example specifies some dependencies to load as soon as require.js defines require():</p>
