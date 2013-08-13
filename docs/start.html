@@ -84,7 +84,7 @@
 &lt;/html&gt;
 </code></pre>
 
-<p>Inside of main.js, you can use require() to load any other scripts you need to run:</p>
+<p>Inside of main.js, you can use require() to load any other scripts you need to run. This ensures a single entry point, since <a href="api.html#data-main">the data-main script you specify is loaded asynchronously</a>.</p>
 
 <pre><code>require(["helper/util"], function(util) {
     //This function is called when scripts/helper/util.js is loaded.
@@ -97,6 +97,7 @@
 <p>That will load the helper/util.js script. To get full advantage of RequireJS,
 see the <a href="api.html">API docs</a> to learn more about defining and using
 modules.</p>
+
 </div>
 
 <div class="section">
