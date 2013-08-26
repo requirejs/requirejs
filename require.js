@@ -1292,6 +1292,13 @@ var requirejs, require, define;
                     config.shim = shim;
                 }
 
+                //Handle predefined modules
+                if (cfg.define) {
+                    eachProp(cfg.define, function(value, id) {
+                        defined[id] = value;
+                    });
+                }
+
                 //Adjust packages if necessary.
                 if (cfg.packages) {
                     each(cfg.packages, function (pkgObj) {

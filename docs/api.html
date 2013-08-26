@@ -803,6 +803,16 @@ some modules to load asynchronously as part of a config block.</p>
 
 <p id="config-scriptType"><strong><a href="#config-baseUrl">scriptType</a></strong>: Specify the value for the type="" attribute used for script tags inserted into the document by RequireJS. Default is "text/javascript". To use Firefox's JavaScript 1.8 features, use "text/javascript;version=1.8".</p>
 
+<p id="config-define"><strong><a href="#config-define">define</a></strong>: Pre-define modules.  This forces requirejs to define modules to a static value at config time. This can be useful when creating contexts to use as a sandboxed requirejs environment.
+
+<pre><code>requirejs.config({
+    define: {
+        a: { foo: "bar" },
+        b: "module content"
+    }
+});
+</code></pre>
+
 </div>
 
 <div class="section">
