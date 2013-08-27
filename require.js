@@ -284,6 +284,9 @@ var requirejs, require, define;
                         //module. For instance, baseName of 'one/two/three', maps to
                         //'one/two/three.js', but we want the directory, 'one/two' for
                         //this normalization.
+                        if (getOwn(config.paths, baseName)) {
+                            baseParts = context.nameToUrl(baseName).split('/');
+                        }
                         normalizedBaseParts = baseParts.slice(0, baseParts.length - 1);
                     }
 

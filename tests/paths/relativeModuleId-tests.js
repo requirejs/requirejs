@@ -11,7 +11,7 @@ require({
             [
                 function relativeModuleId(t){
                     t.is("impl/array", array.name);
-                    t.is("util", array.utilName);
+                    t.is("impl/util", array.utilName);
                 }
             ]
         );
