@@ -820,9 +820,15 @@ var requirejs, require, define;
                 var url = this.map.url;
 
                 //Regular dependency.
-                if (!urlFetched[url]) {
+                if (!urlFetched[url] &&
+                    (!this.shim.exports && !global[this.shim.exports]) ||
+                    (!this.shim.validate || typeof this.shim.validate !== 'function' || !this.shim.validate())
+                    ) {
                     urlFetched[url] = true;
                     context.load(this.map.id, url);
+                } else {
+                    context.completeLoad(this.map.id);
+                    this.exports = global[this.shim.exports];
                 }
             },
 
