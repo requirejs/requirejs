@@ -57,6 +57,7 @@ This repo assumes some other repos are checked out as siblings to this repo:
     git clone https://github.com/requirejs/text.git
     git clone https://github.com/requirejs/i18n.git
     git clone https://github.com/requirejs/domReady.git
+    git clone https://github.com/requirejs/requirejs.git
 
 So when the above clones are done, the directory structure should look like:
 
@@ -68,7 +69,7 @@ So when the above clones are done, the directory structure should look like:
 You will need to be connected to the internet because the JSONP and
 remoteUrls tests access the internet to complete their tests.
 
-Serve thie repo from a web server. It can be a local web server.
+Serve the directory with these 4 siblings from a web server. It can be a local web server.
 
-Open tests/index.html in all the browsers, click the arrow button to run all
+Open requirejs/tests/index.html in all the browsers, click the arrow button to run all
 the tests.
