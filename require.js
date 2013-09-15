@@ -1891,9 +1891,6 @@ var requirejs, require, define;
                 //only one script needs to be loaded anyway. This may need to be
                 //reevaluated if other use cases become common.
                 importScripts(url);
-
-                //Account for anonymous modules
-                context.completeLoad(moduleName);
             } catch (e) {
                 context.onError(makeError('importscripts',
                                 'importScripts failed for ' +
@@ -1901,6 +1898,9 @@ var requirejs, require, define;
                                 e,
                                 [moduleName]));
             }
+
+            //Account for anonymous modules
+            context.completeLoad(moduleName);
         }
     };
 
