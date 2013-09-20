@@ -821,7 +821,7 @@ var requirejs, require, define;
 
                 //Regular dependency.
                 if (!urlFetched[url] &&
-                    !global[this.shim.exports] &&
+                    (this.shim.exports && !global[this.shim.exports]) ||
                     (!this.shim.validate || typeof this.shim.validate !== 'function' || !this.shim.validate())
                     ) {
                     urlFetched[url] = true;
