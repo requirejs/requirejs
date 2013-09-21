@@ -821,13 +821,14 @@ var requirejs, require, define;
 
                 //Regular dependency.
                 if (!urlFetched[url] &&
-                    (this.shim.exports && !global[this.shim.exports]) ||
+                    (!this.shim.exports && !global[this.shim.exports]) ||
                     (!this.shim.validate || typeof this.shim.validate !== 'function' || !this.shim.validate())
                     ) {
                     urlFetched[url] = true;
                     context.load(this.map.id, url);
                 } else {
                     context.completeLoad(this.map.id);
+                    this.exports = global[this.shim.exports];
                 }
             },
 
