@@ -9,7 +9,7 @@
 /*global window, navigator, document, importScripts, setTimeout, opera */
 
 var requirejs, require, define;
-(function (global) {
+(function (global, undefined) {
     var req, s, head, baseElement, dataMain, src,
         interactiveScript, currentlyAddingScript, mainScript, subPath,
         version = '2.1.8+',
@@ -22,6 +22,12 @@ var requirejs, require, define;
         hasOwn = op.hasOwnProperty,
         ap = Array.prototype,
         apsp = ap.splice,
+        strString = 'string',
+        strDataRequirecontext = 'data-requirecontext',
+        strDataRequiremodule = 'data-requiremodule',
+        strError = 'error',
+        strDefined = 'defined',
+        strOnReadyStateChange = 'onreadystatechange',
         isBrowser = !!(typeof window !== 'undefined' && navigator && window.document),
         isWebWorker = !isBrowser && typeof importScripts !== 'undefined',
         //PS3 indicates loaded and complete, but need to wait for complete
@@ -108,7 +114,7 @@ var requirejs, require, define;
         if (source) {
             eachProp(source, function (value, prop) {
                 if (force || !hasProp(target, prop)) {
-                    if (deepStringMixin && typeof value !== 'string') {
+                    if (deepStringMixin && typeof value !== strString) {
                         if (!target[prop]) {
                             target[prop] = {};
                         }
@@ -361,8 +367,8 @@ var requirejs, require, define;
         function removeScript(name) {
             if (isBrowser) {
                 each(scripts(), function (scriptNode) {
-                    if (scriptNode.getAttribute('data-requiremodule') === name &&
-                            scriptNode.getAttribute('data-requirecontext') === context.contextName) {
+                    if (scriptNode.getAttribute(strDataRequiremodule) === name &&
+                            scriptNode.getAttribute(strDataRequirecontext) === context.contextName) {
                         scriptNode.parentNode.removeChild(scriptNode);
                         return true;
                     }
@@ -500,12 +506,12 @@ var requirejs, require, define;
 
             if (hasProp(defined, id) &&
                     (!mod || mod.defineEmitComplete)) {
-                if (name === 'defined') {
+                if (name === strDefined) {
                     fn(defined[id]);
                 }
             } else {
                 mod = getModule(depMap);
-                if (mod.error && name === 'error') {
+                if (mod.error && name === strError) {
                     fn(mod.error);
                 } else {
                     mod.on(name, fn);
@@ -527,7 +533,7 @@ var requirejs, require, define;
                         mod.error = err;
                         if (mod.events.error) {
                             notified = true;
-                            mod.emit('error', err);
+                            mod.emit(strError, err);
                         }
                     }
                 });
@@ -604,7 +610,7 @@ var requirejs, require, define;
             var id = mod.map.id;
 
             if (mod.error) {
-                mod.emit('error', mod.error);
+                mod.emit(strError, mod.error);
             } else {
                 traced[id] = true;
                 each(mod.depMaps, function (depMap, i) {
@@ -746,12 +752,12 @@ var requirejs, require, define;
 
                 if (errback) {
                     //Register for errors on this module.
-                    this.on('error', errback);
+                    this.on(strError, errback);
                 } else if (this.events.error) {
                     //If no errback already, but there are error listeners
                     //on this module, set up an errback to pass to the deps.
                     errback = bind(this, function (err) {
-                        this.emit('error', err);
+                        this.emit(strError, err);
                     });
                 }
 
@@ -844,7 +850,7 @@ var requirejs, require, define;
                 if (!this.inited) {
                     this.fetch();
                 } else if (this.error) {
-                    this.emit('error', this.error);
+                    this.emit(strError, this.error);
                 } else if (!this.defining) {
                     //The factory could trigger another require call
                     //that would result in checking this module to
@@ -922,7 +928,7 @@ var requirejs, require, define;
 
                     if (this.defined && !this.defineEmitted) {
                         this.defineEmitted = true;
-                        this.emit('defined', this.exports);
+                        this.emit(strDefined, this.exports);
                         this.defineEmitComplete = true;
                     }
 
@@ -939,7 +945,7 @@ var requirejs, require, define;
                 //can be traced for cycles.
                 this.depMaps.push(pluginMap);
 
-                on(pluginMap, 'defined', bind(this, function (plugin) {
+                on(pluginMap, strDefined, bind(this, function (plugin) {
                     var load, normalizedMap, normalizedMod,
                         name = this.map.name,
                         parentName = this.map.parentMap ? this.map.parentMap.name : null,
@@ -962,7 +968,7 @@ var requirejs, require, define;
                         normalizedMap = makeModuleMap(map.prefix + '!' + name,
                                                       this.map.parentMap);
                         on(normalizedMap,
-                            'defined', bind(this, function (value) {
+                            strDefined, bind(this, function (value) {
                                 this.init([], function () { return value; }, null, {
                                     enabled: true,
                                     ignore: true
@@ -976,8 +982,8 @@ var requirejs, require, define;
                             this.depMaps.push(normalizedMap);
 
                             if (this.events.error) {
-                                normalizedMod.on('error', bind(this, function (err) {
-                                    this.emit('error', err);
+                                normalizedMod.on(strError, bind(this, function (err) {
+                                    this.emit(strError, err);
                                 }));
                             }
                             normalizedMod.enable();
@@ -1089,7 +1095,7 @@ var requirejs, require, define;
                 each(this.depMaps, bind(this, function (depMap, i) {
                     var id, mod, handler;
 
-                    if (typeof depMap === 'string') {
+                    if (typeof depMap === strString) {
                         //Dependency needs to be converted to a depMap
                         //and wired up to this module.
                         depMap = makeModuleMap(depMap,
@@ -1107,13 +1113,13 @@ var requirejs, require, define;
 
                         this.depCount += 1;
 
-                        on(depMap, 'defined', bind(this, function (depExports) {
+                        on(depMap, strDefined, bind(this, function (depExports) {
                             this.defineDep(i, depExports);
                             this.check();
                         }));
 
                         if (this.errback) {
-                            on(depMap, 'error', bind(this, this.errback));
+                            on(depMap, strError, bind(this, this.errback));
                         }
                     }
 
@@ -1154,7 +1160,7 @@ var requirejs, require, define;
                 each(this.events[name], function (cb) {
                     cb(evt);
                 });
-                if (name === 'error') {
+                if (name === strError) {
                     //Now that the error handler was triggered, remove
                     //the listeners, since this broken Module instance
                     //can stay around for a while in the registry.
@@ -1198,12 +1204,12 @@ var requirejs, require, define;
             var node = evt.currentTarget || evt.srcElement;
 
             //Remove the listeners once here.
-            removeListener(node, context.onScriptLoad, 'load', 'onreadystatechange');
-            removeListener(node, context.onScriptError, 'error');
+            removeListener(node, context.onScriptLoad, 'load', strOnReadyStateChange);
+            removeListener(node, context.onScriptError, strError);
 
             return {
                 node: node,
-                id: node && node.getAttribute('data-requiremodule')
+                id: node && node.getAttribute(strDataRequiremodule)
             };
         }
 
@@ -1297,7 +1303,7 @@ var requirejs, require, define;
                     each(cfg.packages, function (pkgObj) {
                         var location;
 
-                        pkgObj = typeof pkgObj === 'string' ? { name: pkgObj } : pkgObj;
+                        pkgObj = typeof pkgObj === strString ? { name: pkgObj } : pkgObj;
                         location = pkgObj.location;
 
                         //Create a brand new object on pkgs, since currentPackages can
@@ -1361,7 +1367,7 @@ var requirejs, require, define;
                         callback.__requireJsBuild = true;
                     }
 
-                    if (typeof deps === 'string') {
+                    if (typeof deps === strString) {
                         if (isFunction(callback)) {
                             //Invalid call
                             return onError(makeError('requireargs', 'Invalid require call'), errback);
@@ -1693,7 +1699,7 @@ var requirejs, require, define;
             contextName = defContextName;
 
         // Determine if have config object in the call.
-        if (!isArray(deps) && typeof deps !== 'string') {
+        if (!isArray(deps) && typeof deps !== strString) {
             // deps is a config object
             config = deps;
             if (isArray(callback)) {
@@ -1764,7 +1770,7 @@ var requirejs, require, define;
     each([
         'toUrl',
         'undef',
-        'defined',
+        strDefined,
         'specified'
     ], function (prop) {
         //Reference from contexts instead of early binding to default context,
@@ -1823,8 +1829,8 @@ var requirejs, require, define;
             //In the browser so use a script tag
             node = req.createNode(config, moduleName, url);
 
-            node.setAttribute('data-requirecontext', context.contextName);
-            node.setAttribute('data-requiremodule', moduleName);
+            node.setAttribute(strDataRequirecontext, context.contextName);
+            node.setAttribute(strDataRequiremodule, moduleName);
 
             //Set up load listener. Test attachEvent first because IE9 has
             //a subtle issue in its addEventListener and script onload firings
@@ -1851,7 +1857,7 @@ var requirejs, require, define;
                 //readyState at the time of the define call.
                 useInteractive = true;
 
-                node.attachEvent('onreadystatechange', context.onScriptLoad);
+                node.attachEvent(strOnReadyStateChange, context.onScriptLoad);
                 //It would be great to add an error handler here to catch
                 //404s in IE9+. However, onreadystatechange will fire before
                 //the error handler, so that does not help. If addEventListener
@@ -1865,7 +1871,7 @@ var requirejs, require, define;
                 //node.attachEvent('onerror', context.onScriptError);
             } else {
                 node.addEventListener('load', context.onScriptLoad, false);
-                node.addEventListener('error', context.onScriptError, false);
+                node.addEventListener(strError, context.onScriptError, false);
             }
             node.src = url;
 
@@ -1974,7 +1980,7 @@ var requirejs, require, define;
         var node, context;
 
         //Allow for anonymous modules
-        if (typeof name !== 'string') {
+        if (typeof name !== strString) {
             //Adjust args appropriately
             callback = deps;
             deps = name;
@@ -2017,9 +2023,9 @@ var requirejs, require, define;
             node = currentlyAddingScript || getInteractiveScript();
             if (node) {
                 if (!name) {
-                    name = node.getAttribute('data-requiremodule');
+                    name = node.getAttribute(strDataRequiremodule);
                 }
-                context = contexts[node.getAttribute('data-requirecontext')];
+                context = contexts[node.getAttribute(strDataRequirecontext)];
             }
         }
 
