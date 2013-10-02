@@ -373,7 +373,6 @@ var requirejs, require, define;
         function hasPathFallback(id) {
             var pathConfig = getOwn(config.paths, id);
             if (pathConfig && isArray(pathConfig) && pathConfig.length > 1) {
-                removeScript(id);
                 //Pop off the first array value, since it failed, and
                 //retry
                 pathConfig.shift();
@@ -1463,6 +1462,8 @@ var requirejs, require, define;
 
                         var map = makeModuleMap(id, relMap, true),
                             mod = getOwn(registry, id);
+
+                        removeScript(id);
 
                         delete defined[id];
                         delete urlFetched[map.url];
