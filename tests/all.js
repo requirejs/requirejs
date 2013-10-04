@@ -38,6 +38,7 @@ if (location.href.indexOf('http://127.0.0.1/requirejs/') === 0) {
 
 
 doh.registerUrl("circular", "../circular.html");
+doh.registerUrl("circularDupe", "../circular/dupe/dupe.html");
 doh.registerUrl("circularPlugin", "../circular/circularPlugin.html");
 doh.registerUrl("circularComplexPlugin", "../circular/complexPlugin/complexPlugin.html");
 doh.registerUrl("circular414", "../circular/414/414.html");
