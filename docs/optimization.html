@@ -77,7 +77,10 @@ require(mods);</code></pre>
 &gt; r.js -o app.build.js
 </code></pre>
 
-<p>If on Windows, you may need to type <code>r.js.cmd</code> instead of <code>r.js</code>.
+<p>If on Windows, you may need to type <code>r.js.cmd</code> instead of <code>r.js</code>. Or, you can
+    use <a href="http://www.microsoft.com/resources/documentation/windows/xp/all/proddocs/en-us/doskey.mspx?mfr=true">DOSKEY</a>:</p>
+
+<pre><code>DOSKEY r.js=r.js.cmd $*</code></pre>
 
 <p>That will work for a project based in the directory in which "npm install" is run. You can also install it globally via the -g option to npm:</p>
 
