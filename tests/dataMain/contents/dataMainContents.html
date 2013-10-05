@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>require.js: data-main contents Test</title>
+    <script type="text/javascript" src="../../doh/runner.js"></script>
+    <script type="text/javascript" src="../../doh/_browserRunner.js"></script>
+    <script>
+    	var require = {
+            baseUrl: "./"
+        };
+    </script>
+    <script type="text/javascript" data-contents="a,b" data-main="dataMain.js" src="../../../require.js"></script>
+    <script>
+        require(['a', 'b', 'c'], function(){});
+    </script>
+</head>
+<body>
+    <h1>require.js: data-contents test</h1>
+
+    <p>Confirm that the data-contents dependency list is read by RequireJS and that those requirements are not
+    obtained twice.</p>
+
+    <p>Check console for messages</p>
+</body>
+</html>
