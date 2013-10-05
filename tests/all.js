@@ -15,6 +15,7 @@ doh.registerUrl("urlArgsToUrl", "../urlArgsToUrl.html");
 doh.registerUrl("config", "../config.html");
 doh.registerUrl("configRequirejs", "../configRequirejs.html");
 doh.registerUrl("dataMain", "../dataMain/dataMain.html");
+doh.registerUrl("skipDataMain", "../dataMain/skipDataMain/skipDataMain.html");
 doh.registerUrl("dataMainIndex", "../dataMain/dataMainIndex/dataMainIndex.html");
 doh.registerUrl("dataMainBaseUrl", "../dataMain/baseUrl/dataMainBaseUrl.html");
 
