@@ -803,6 +803,8 @@ some modules to load asynchronously as part of a config block.</p>
 
 <p id="config-scriptType"><strong><a href="#config-baseUrl">scriptType</a></strong>: Specify the value for the type="" attribute used for script tags inserted into the document by RequireJS. Default is "text/javascript". To use Firefox's JavaScript 1.8 features, use "text/javascript;version=1.8".</p>
 
+<p id="config-skipDataMain"><strong><a href="#config-skipDataMain">skipDataMain</a></strong>: Introduced in RequireJS 2.1.9: If set to <code>true</code>, skips the <a href="#data-main">data-main attribute scanning</a> done to start module loading. Useful if RequireJS is embedded in a utility library that may interact with other RequireJS library on the page, and the embedded version should not do data-main loading.</p>
+
 </div>
 
 <div class="section">
