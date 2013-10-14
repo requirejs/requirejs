@@ -38,6 +38,9 @@ When doing a release, do the following:
   * node (then use repl to do require("requirejs"))
   * Try a local install.
   * npm publish (in the requirejs-npm/requirejs directory)
+* Update requirejs-bower
+  * tag the repo, with "latest" too.
+  * git push
 * Update the requirejs-nuget directory (DO ON WINDOWS)
   * Update the require.js and r.js versions in content/Scripts using `volo add -nostamp -f`
   * Update Package.nuspec to rev version number.

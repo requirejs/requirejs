@@ -65,3 +65,7 @@ cp ../r.js/r.js ../require-cs/tools/r.js
 echo "Updating requirejs-npm"
 cp require.js ../requirejs-npm/requirejs/require.js
 cp ../r.js/r.js ../requirejs-npm/requirejs/bin/r.js
+
+# The bower container stuff
+echo "Updating requirejs-bower"
+cp require.js ../requirejs-bower/require.js
