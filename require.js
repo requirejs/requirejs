@@ -227,8 +227,8 @@ var requirejs, require, define;
          * @param {Array} ary the array of path segments.
          */
         function trimDots(ary) {
-            var i, part;
-            for (i = 0; ary[i]; i += 1) {
+            var i, part, len = ary.length;
+            for (i = 0; i < len; i += 1) {
                 part = ary[i];
                 if (part === '.') {
                     ary.splice(i, 1);
