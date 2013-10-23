@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>require.js: Additional Context Handlers Test</title>
+    <script type="text/javascript" src="doh/runner.js"></script>
+    <script type="text/javascript" src="doh/_browserRunner.js"></script>
+    <script type="text/javascript" data-main="additionalContextHandlers" src="../require.js"></script>
+</head>
+<body>
+    <h1>require.js: Additional Context Handlers Test</h1>
+    <p>New requirejs context is created and two additional
+    handlers are defined on it: PI and algebra.
+    A module required in that new context, populates object
+    passed to it via algebra handler and returns object
+    with value it received through the PI handler.</p>
+    <p>Check console for messages</p>
+</body>
+</html>

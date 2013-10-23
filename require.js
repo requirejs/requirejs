@@ -1259,6 +1259,14 @@ var requirejs, require, define;
                         map: true
                     };
 
+                if (cfg.handlers) {
+                    eachProp(cfg.handlers, function (value, prop) {
+                        if (handlers[prop]) return;
+                        handlers[prop] = value;
+                    });
+                    delete cfg.handlers;
+                }
+
                 eachProp(cfg, function (value, prop) {
                     if (objs[prop]) {
                         if (prop === 'map') {
