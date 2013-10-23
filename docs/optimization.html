@@ -71,9 +71,9 @@ require(mods);</code></pre>
 
 <p>1) You can download the tool on <a href="download.html#rjs">the download page</a>.</p>
 
-<p>2) If you are using Node with NPM, you can install r.js as part of the "requirejs" package in NPM:</p>
+<p>2) If you are using Node with NPM, you can install r.js globally as part of the "requirejs" package in NPM:</p>
 
-<pre><code>&gt; npm install requirejs
+<pre><code>&gt; npm install -g requirejs
 &gt; r.js -o app.build.js
 </code></pre>
 
@@ -82,12 +82,14 @@ require(mods);</code></pre>
 
 <pre><code>DOSKEY r.js=r.js.cmd $*</code></pre>
 
-<p>That will work for a project based in the directory in which "npm install" is run. You can also install it globally via the -g option to npm:</p>
+<p>If you want to install requirejs locally in a project as an npm package, instead of globally:</p>
 
-<pre><code>&gt; npm install -g requirejs
+<pre><code>&gt; npm install requirejs
 </code></pre>
 
-<p>If you install the requirejs npm package, you can also <a href="node.html#optimizer">use the optimizer via a function call</a> inside a node program.</p>
+<p>With this local install, you can run the optimizer by running the <code>r.js</code> or <code>r.js.cmd</code> file found in the project's <code>node_modules/.bin</code> directory.
+
+<p>With the local install, you can also <a href="node.html#optimizer">use the optimizer via a function call</a> inside a node program.</p>
 
 <p>The rest of this page assumes that r.js is just downloaded manually from the download page. It is normally the clearest, most portable way to use the optimizer.</p>
 
