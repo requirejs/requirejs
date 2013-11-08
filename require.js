@@ -275,17 +275,18 @@ var requirejs, require, define;
                 //be relative to baseUrl in the end.
                 if (baseName) {
                     if (getOwn(config.pkgs, baseName)) {
-                        //If the baseName is a package name, then just treat it as one
-                        //name to concat the name with.
-                        normalizedBaseParts = baseParts = [baseName];
-                    } else {
-                        //Convert baseName to array, and lop off the last part,
-                        //so that . matches that 'directory' and not name of the baseName's
-                        //module. For instance, baseName of 'one/two/three', maps to
-                        //'one/two/three.js', but we want the directory, 'one/two' for
-                        //this normalization.
-                        normalizedBaseParts = baseParts.slice(0, baseParts.length - 1);
+                        //If the baseName is a package name, then use package's main
+                        //as the new baseName to ensure that relative requires within
+                        //the package's main are resolved relatively to the main rather
+                        //than the root of the package.
+                        baseParts = [baseName].concat(config.pkgs[baseName].main.split("/"));
                     }
+                    //Convert baseName to array, and loop off the last part,
+                    //so that . matches that 'directory' and not name of the baseName's
+                    //module. For instance, baseName of 'one/two/three', maps to
+                    //'one/two/three.js', but we want the directory, 'one/two' for
+                    //this normalization.
+                    normalizedBaseParts = baseParts.slice(0, baseParts.length - 1);
 
                     name = normalizedBaseParts.concat(name.split('/'));
                     trimDots(name);
