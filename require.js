@@ -2047,24 +2047,7 @@ var requirejs, require, define;
         //where the module name is not known until the script onload event
         //occurs. If no context, use the global queue, and get it processed
         //in the onscript load callback.
-        queue = (context ? context.defQueue : globalDefQueue)
-
-        // If there is a module defined in the definition queue with the same
-        // name as the module defined now, then remove it, as it is going to be
-        // overwritten.
-        duplicate_positions = [];
-        for (var i in queue) {
-            if (queue[i][0] == name) {
-                duplicate_positions.push(i);
-            }
-        }
-
-        // Remove the duplicate definitions from the queue.
-        for (pos in duplicate_positions) {
-            queue.splice(duplicate_positions[pos], 1);
-        }
-
-        queue.push([name, deps, callback]);
+        (context ? context.defQueue : globalDefQueue).push([name, deps, callback]);
     };
 
     define.amd = {
