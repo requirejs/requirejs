@@ -544,6 +544,23 @@ var requirejs, require, define;
         function takeGlobalQueue() {
             //Push all the globalDefQueue items into the context's defQueue
             if (globalDefQueue.length) {
+                // If there is a module defined in the definition queue with the
+                // same name as a module from the globalDefQueue, then remove
+                // it, as it is going to be overwritten.
+                duplicate_positions = [];
+                for (var j in globalDefQueue) {
+                    for (var i in defQueue) {
+                        if (defQueue[i][0] == globalDefQueue[j][0]) {
+                            duplicate_positions.push(i);
+                        }
+                    }
+                }
+
+                // Remove the duplicate definitions from defQueue.
+                for (pos in duplicate_positions) {
+                    defQueue.splice(duplicate_positions[pos], 1);
+                }
+
                 //Array splice in the values since the context code has a
                 //local var ref to defQueue, so cannot just reassign the one
                 //on context.
@@ -2030,7 +2047,24 @@ var requirejs, require, define;
         //where the module name is not known until the script onload event
         //occurs. If no context, use the global queue, and get it processed
         //in the onscript load callback.
-        (context ? context.defQueue : globalDefQueue).push([name, deps, callback]);
+        queue = (context ? context.defQueue : globalDefQueue)
+
+        // If there is a module defined in the definition queue with the same
+        // name as the module defined now, then remove it, as it is going to be
+        // overwritten.
+        duplicate_positions = [];
+        for (var i in queue) {
+            if (queue[i][0] == name) {
+                duplicate_positions.push(i);
+            }
+        }
+
+        // Remove the duplicate definitions from the queue.
+        for (pos in duplicate_positions) {
+            queue.splice(duplicate_positions[pos], 1);
+        }
+
+        queue.push([name, deps, callback]);
     };
 
     define.amd = {
