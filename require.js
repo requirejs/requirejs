@@ -544,6 +544,23 @@ var requirejs, require, define;
         function takeGlobalQueue() {
             //Push all the globalDefQueue items into the context's defQueue
             if (globalDefQueue.length) {
+                // If there is a module defined in the definition queue with the
+                // same name as a module from the globalDefQueue, then remove
+                // it, as it is going to be overwritten.
+                duplicate_positions = [];
+                for (var j in globalDefQueue) {
+                    for (var i in defQueue) {
+                        if (defQueue[i][0] == globalDefQueue[j][0]) {
+                            duplicate_positions.push(i);
+                        }
+                    }
+                }
+
+                // Remove the duplicate definitions from defQueue.
+                for (pos in duplicate_positions) {
+                    defQueue.splice(duplicate_positions[pos], 1);
+                }
+
                 //Array splice in the values since the context code has a
                 //local var ref to defQueue, so cannot just reassign the one
                 //on context.
