@@ -548,7 +548,7 @@ var requirejs, require, define;
                 //local var ref to defQueue, so cannot just reassign the one
                 //on context.
                 apsp.apply(defQueue,
-                           [defQueue.length - 1, 0].concat(globalDefQueue));
+                           [defQueue.length, 0].concat(globalDefQueue));
                 globalDefQueue = [];
             }
         }
@@ -1468,6 +1468,15 @@ var requirejs, require, define;
                         delete defined[id];
                         delete urlFetched[map.url];
                         delete undefEvents[id];
+
+                        //Clean queued defines too. Go backwards
+                        //in array so that the splices do not
+                        //mess up the iteration.
+                        eachReverse(defQueue, function(args, i) {
+                            if(args[0] === id) {
+                                defQueue.splice(i, 1);
+                            }
+                        });
 
                         if (mod) {
                             //Hold on to listeners in case the
