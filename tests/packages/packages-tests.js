@@ -63,6 +63,7 @@ function(require,   alpha,   replace,         beta,   util,        bar,   baz,
                 t.is("beta", beta);
                 t.is("beta/util", util.name);
                 t.is("bar", bar.name);
+                t.is("bar/scripts/helper", bar.nestedHelperName);
                 t.is("0.4", bar.version);
                 t.is("baz", baz.name);
                 t.is("0.4", baz.barDepVersion);
