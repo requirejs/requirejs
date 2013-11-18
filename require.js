@@ -628,7 +628,7 @@ var requirejs, require, define;
         }
 
         function checkLoaded() {
-            var map, modId, err, usingPathFallback,
+            var err, usingPathFallback,
                 waitInterval = config.waitSeconds * 1000,
                 //It is possible to disable the wait interval by using waitSeconds of 0.
                 expired = waitInterval && (context.startTime + waitInterval) < new Date().getTime(),
@@ -646,8 +646,8 @@ var requirejs, require, define;
 
             //Figure out the state of all the modules.
             eachProp(enabledRegistry, function (mod) {
-                map = mod.map;
-                modId = map.id;
+                var map = mod.map,
+                    modId = map.id;
 
                 //Skip things that are not enabled or in error state.
                 if (!mod.enabled) {
