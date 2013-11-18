@@ -68,7 +68,7 @@ breakpoint in the file that contains the error.</p>
 <div class="section">
 <h2><a name="notloaded">Module name ... has not been loaded yet for context: ...</a><span class="sectionMark">&sect; 4</span></h2>
 
-<p>This occurs when there is is a require('name') call, but the 'name' module has not been loaded yet.</p>
+<p>This occurs when there is a require('name') call, but the 'name' module has not been loaded yet.</p>
 
 <p>If the error message includes <strong>Use require([])</strong>, then
 it was a top-level require call (not a require call inside a define() call) that should be using the async, callback version of require to load the code:</p>
