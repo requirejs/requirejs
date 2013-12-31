@@ -24,5 +24,12 @@ $(document).ready(function($) {
         $("#nav").css("position",(w < h) ? "" : "fixed");
     });
 
+    // open / close off-canvas navigation
+    $('.off-canvas-button').click(function() {
+        // transform button to close shape
+        $(this).toggleClass('open');
+        // slide in side navigation
+        $('#nav').toggleClass('open');
+    });
     // done!
 });
