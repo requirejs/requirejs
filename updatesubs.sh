@@ -41,7 +41,7 @@ cp require.js ../example-libglobal/lib/require.js
 cp ../r.js/r.js ../example-libglobal/tools/r.js
 
 echo "Updating volojs/create-template"
-cp require.js ../../volojs/create-template/www/js/lib/require.js
+cp require.js ../../volojs/create-template/www/lib/require.js
 cp ../r.js/r.js ../../volojs/create-template/tools/r.js
 
 echo "Updating volojs/create-responsive-template"
