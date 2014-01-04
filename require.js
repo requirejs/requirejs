@@ -590,7 +590,7 @@ var requirejs, require, define;
                                       getOwn(config.config, mod.map.id);
                             return  c || {};
                         },
-                        exports: defined[mod.map.id]
+                        exports: handlers.exports(mod)
                     });
                 }
             }
