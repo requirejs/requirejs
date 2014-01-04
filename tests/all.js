@@ -19,7 +19,7 @@ doh.registerUrl("skipDataMain", "../dataMain/skipDataMain/skipDataMain.html");
 doh.registerUrl("dataMainIndex", "../dataMain/dataMainIndex/dataMainIndex.html");
 doh.registerUrl("dataMainBaseUrl", "../dataMain/baseUrl/dataMainBaseUrl.html");
 
-doh.registerUrl("moduleExports", "../commonjs/tests/modules/1.0/moduleExports/program.html");
+doh.registerUrl("moduleExports", "../moduleExports/moduleExports.html");
 
 if (hasToString) {
     doh.registerUrl("anonSimple", "../anon/anonSimple.html");
