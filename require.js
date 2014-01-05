@@ -231,7 +231,7 @@ var requirejs, require, define;
          */
         function trimDots(ary) {
             var i, part;
-            for (i = 0; ary[i]; i += 1) {
+            for (i = 0, l = ary.length; i < l; i += 1) {
                 part = ary[i];
                 if (part === '.') {
                     ary.splice(i, 1);
