@@ -204,6 +204,7 @@ var requirejs, require, define;
                 waitSeconds: 7,
                 baseUrl: './',
                 paths: {},
+                bundles: {},
                 pkgs: {},
                 shim: {},
                 config: {}
@@ -217,6 +218,7 @@ var requirejs, require, define;
             defQueue = [],
             defined = {},
             urlFetched = {},
+            bundlesMap = {},
             requireCounter = 1,
             unnormalizedCounter = 1;
 
@@ -936,6 +938,7 @@ var requirejs, require, define;
 
                 on(pluginMap, 'defined', bind(this, function (plugin) {
                     var load, normalizedMap, normalizedMod,
+                        bundleId = getOwn(bundlesMap, this.map.id),
                         name = this.map.name,
                         parentName = this.map.parentMap ? this.map.parentMap.name : null,
                         localRequire = context.makeRequire(map.parentMap, {
@@ -978,6 +981,14 @@ var requirejs, require, define;
                             normalizedMod.enable();
                         }
 
+                        return;
+                    }
+
+                    //If a paths config, then just load that file instead to
+                    //resolve the plugin, as it is built into that paths layer.
+                    if (bundleId) {
+                        this.map.url = context.nameToUrl(bundleId);
+                        this.load();
                         return;
                     }
 
@@ -1251,6 +1262,7 @@ var requirejs, require, define;
                     shim = config.shim,
                     objs = {
                         paths: true,
+                        bundles: true,
                         config: true,
                         map: true
                     };
@@ -1265,6 +1277,17 @@ var requirejs, require, define;
                         config[prop] = value;
                     }
                 });
+
+                //Reverse map the bundles
+                if (cfg.bundles) {
+                    eachProp(cfg.bundles, function (value, prop) {
+                        each(value, function (v) {
+                            if (v !== prop) {
+                                bundlesMap[v] = prop;
+                            }
+                        });
+                    });
+                }
 
                 //Merge shim
                 if (cfg.shim) {
@@ -1564,7 +1587,12 @@ var requirejs, require, define;
              */
             nameToUrl: function (moduleName, ext, skipExt) {
                 var paths, pkgs, pkg, pkgPath, syms, i, parentModule, url,
-                    parentPath;
+                    parentPath,
+                    bundleId = getOwn(bundlesMap, moduleName);
+
+                if (bundleId) {
+                    return context.nameToUrl(bundleId, ext, skipExt);
+                }
 
                 //If a colon is in the URL, it indicates a protocol is used and it is just
                 //an URL to a file, or if it starts with a slash, contains a query arg (i.e. ?)

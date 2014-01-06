@@ -100,6 +100,8 @@ doh.registerUrl("mapConfigPluginBuilt", "../mapConfig/built/mapConfigPluginBuilt
 
 doh.registerUrl("layers", "../layers/layers.html", 10000);
 
+doh.registerUrl("bundles", "../bundles/bundles.html");
+
 doh.registerUrl("afterload", "../afterload.html", 10000);
 
 doh.registerUrl("universal", "../universal/universal.html");
@@ -112,6 +114,9 @@ doh.registerUrl("nestedDefine", "../nestedDefine/nestedDefine.html");
 doh.registerUrl("nestedDefine2", "../nestedDefine/nestedDefine2.html");
 doh.registerUrl("nestedRelativeRequire", "../nestedRelativeRequire/nestedRelativeRequire.html");
 doh.registerUrl("nestedRequireConfig", "../nestedRequireConfig/nestedRequireConfig.html");
+
+doh.registerUrl("pluginBundles", "../plugins/pluginBundles/pluginBundles.html");
+doh.registerUrl("pluginBundlesSeparateText", "../plugins/pluginBundlesSeparateText/pluginBundlesSeparateText.html");
 
 doh.registerUrl("pluginsSync", "../plugins/sync.html");
 doh.registerUrl("pluginsOnError", "../plugins/onerror/onerror.html");
