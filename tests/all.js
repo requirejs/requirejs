@@ -27,6 +27,7 @@ if (hasToString) {
     doh.registerUrl("cjsDotRequire", "../cjsSpace/cjsDotRequire.html");
     doh.registerUrl("packages", "../packages/packages.html");
     doh.registerUrl("packagesConfig", "../packages/config/config.html");
+    doh.registerUrl("packagesNestedMain", "../packagesNestedMain/packagesNestedMain.html");
     doh.registerUrl("specialDeps", "../specialDeps/specialDeps.html");
 }
 

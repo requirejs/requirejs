@@ -266,7 +266,7 @@ var requirejs, require, define;
          * @returns {String} normalized name
          */
         function normalize(name, baseName, applyMap) {
-            var pkgName, pkgConfig, mapValue, nameParts, i, j, nameSegment,
+            var pkgMain, mapValue, nameParts, i, j, nameSegment,
                 foundMap, foundI, foundStarMap, starI,
                 baseParts = baseName && baseName.split('/'),
                 normalizedBaseParts = baseParts,
@@ -279,29 +279,16 @@ var requirejs, require, define;
                 //otherwise, assume it is a top-level require that will
                 //be relative to baseUrl in the end.
                 if (baseName) {
-                    if (getOwn(config.pkgs, baseName)) {
-                        //If the baseName is a package name, then just treat it as one
-                        //name to concat the name with.
-                        normalizedBaseParts = baseParts = [baseName];
-                    } else {
-                        //Convert baseName to array, and lop off the last part,
-                        //so that . matches that 'directory' and not name of the baseName's
-                        //module. For instance, baseName of 'one/two/three', maps to
-                        //'one/two/three.js', but we want the directory, 'one/two' for
-                        //this normalization.
-                        normalizedBaseParts = baseParts.slice(0, baseParts.length - 1);
-                    }
+                    //Convert baseName to array, and lop off the last part,
+                    //so that . matches that 'directory' and not name of the baseName's
+                    //module. For instance, baseName of 'one/two/three', maps to
+                    //'one/two/three.js', but we want the directory, 'one/two' for
+                    //this normalization.
+                    normalizedBaseParts = baseParts.slice(0, baseParts.length - 1);
 
                     name = normalizedBaseParts.concat(name.split('/'));
                     trimDots(name);
-
-                    //Some use of packages may use a . path to reference the
-                    //'main' module name, so normalize for that.
-                    pkgConfig = getOwn(config.pkgs, (pkgName = name[0]));
                     name = name.join('/');
-                    if (pkgConfig && name === pkgName + '/' + pkgConfig.main) {
-                        name = pkgName;
-                    }
                 } else if (name.indexOf('./') === 0) {
                     // No baseName, so this is ID is resolved relative
                     // to baseUrl, pull off the leading dot.
@@ -356,7 +343,11 @@ var requirejs, require, define;
                 }
             }
 
-            return name;
+            // If the name points to a package's name, use
+            // the package main instead.
+            pkgMain = getOwn(config.pkgs, name);
+
+            return pkgMain ? pkgMain : name;
         }
 
         function removeScript(name) {
@@ -580,13 +571,7 @@ var requirejs, require, define;
                         id: mod.map.id,
                         uri: mod.map.url,
                         config: function () {
-                            var c,
-                                pkg = getOwn(config.pkgs, mod.map.id);
-                            // For packages, only support config targeted
-                            // at the main module.
-                            c = pkg ? getOwn(config.config, mod.map.id + '/' + pkg.main) :
-                                      getOwn(config.config, mod.map.id);
-                            return  c || {};
+                            return  getOwn(config.config, mod.map.id) || {};
                         },
                         exports: handlers.exports(mod)
                     });
@@ -1256,10 +1241,9 @@ var requirejs, require, define;
                     }
                 }
 
-                //Save off the paths and packages since they require special processing,
+                //Save off the paths since they require special processing,
                 //they are additive.
-                var pkgs = config.pkgs,
-                    shim = config.shim,
+                var shim = config.shim,
                     objs = {
                         paths: true,
                         bundles: true,
@@ -1309,29 +1293,25 @@ var requirejs, require, define;
                 //Adjust packages if necessary.
                 if (cfg.packages) {
                     each(cfg.packages, function (pkgObj) {
-                        var location;
+                        var location, name;
 
                         pkgObj = typeof pkgObj === 'string' ? { name: pkgObj } : pkgObj;
+
+                        name = pkgObj.name;
                         location = pkgObj.location;
+                        if (location) {
+                            config.paths[name] = pkgObj.location;
+                        }
 
-                        //Create a brand new object on pkgs, since currentPackages can
-                        //be passed in again, and config.pkgs is the internal transformed
-                        //state for all package configs.
-                        pkgs[pkgObj.name] = {
-                            name: pkgObj.name,
-                            location: location || pkgObj.name,
-                            //Remove leading dot in main, so main paths are normalized,
-                            //and remove any trailing .js, since different package
-                            //envs have different conventions: some use a module name,
-                            //some use a file name.
-                            main: (pkgObj.main || 'main')
-                                  .replace(currDirRegExp, '')
-                                  .replace(jsSuffixRegExp, '')
-                        };
+                        //Save pointer to main module ID for pkg name.
+                        //Remove leading dot in main, so main paths are normalized,
+                        //and remove any trailing .js, since different package
+                        //envs have different conventions: some use a module name,
+                        //some use a file name.
+                        config.pkgs[name] = pkgObj.name + '/' + (pkgObj.main || 'main')
+                                     .replace(currDirRegExp, '')
+                                     .replace(jsSuffixRegExp, '');
                     });
-
-                    //Done with modifications, assing packages back to context config
-                    config.pkgs = pkgs;
                 }
 
                 //If there are any "waiting to execute" modules in the registry,
@@ -1586,9 +1566,15 @@ var requirejs, require, define;
              * internal API, not a public one. Use toUrl for the public API.
              */
             nameToUrl: function (moduleName, ext, skipExt) {
-                var paths, pkgs, pkg, pkgPath, syms, i, parentModule, url,
-                    parentPath,
-                    bundleId = getOwn(bundlesMap, moduleName);
+                var paths, syms, i, parentModule, url,
+                    parentPath, bundleId,
+                    pkgMain = getOwn(config.pkgs, moduleName);
+
+                if (pkgMain) {
+                    moduleName = pkgMain;
+                }
+
+                bundleId = getOwn(bundlesMap, moduleName);
 
                 if (bundleId) {
                     return context.nameToUrl(bundleId, ext, skipExt);
@@ -1606,7 +1592,6 @@ var requirejs, require, define;
                 } else {
                     //A module that needs to be converted to a path.
                     paths = config.paths;
-                    pkgs = config.pkgs;
 
                     syms = moduleName.split('/');
                     //For each module name segment, see if there is a path
@@ -1614,7 +1599,7 @@ var requirejs, require, define;
                     //and work up from it.
                     for (i = syms.length; i > 0; i -= 1) {
                         parentModule = syms.slice(0, i).join('/');
-                        pkg = getOwn(pkgs, parentModule);
+
                         parentPath = getOwn(paths, parentModule);
                         if (parentPath) {
                             //If an array, it means there are a few choices,
@@ -1623,16 +1608,6 @@ var requirejs, require, define;
                                 parentPath = parentPath[0];
                             }
                             syms.splice(0, i, parentPath);
-                            break;
-                        } else if (pkg) {
-                            //If module name is just the package name, then looking
-                            //for the main module.
-                            if (moduleName === pkg.name) {
-                                pkgPath = pkg.location + '/' + pkg.main;
-                            } else {
-                                pkgPath = pkg.location;
-                            }
-                            syms.splice(0, i, pkgPath);
                             break;
                         }
                     }
