@@ -266,7 +266,7 @@ var requirejs, require, define;
          * @returns {String} normalized name
          */
         function normalize(name, baseName, applyMap) {
-            var pkgMain, mapValue, nameParts, i, j, nameSegment,
+            var pkgMain, mapValue, nameParts, i, j, nameSegment, lastIndex,
                 foundMap, foundI, foundStarMap, starI,
                 baseParts = baseName && baseName.split('/'),
                 normalizedBaseParts = baseParts,
@@ -285,8 +285,19 @@ var requirejs, require, define;
                     //'one/two/three.js', but we want the directory, 'one/two' for
                     //this normalization.
                     normalizedBaseParts = baseParts.slice(0, baseParts.length - 1);
+                    name = name.split('/');
+                    lastIndex = name.length - 1;
 
-                    name = normalizedBaseParts.concat(name.split('/'));
+                    // If inside a package and name ends in .js, strip
+                    // it out, because of node. Have to do this here, and
+                    // not in nameToUrl because node allows either .js or
+                    // non .js to map to same file.
+                    if (getOwn(config.pkgs, normalizedBaseParts[0]) &&
+                        req.jsExtRegExp.test(name[lastIndex])) {
+                        name[lastIndex] = name[lastIndex].replace(req.jsExtRegExp, '');
+                    }
+
+                    name = normalizedBaseParts.concat(name);
                     trimDots(name);
                     name = name.join('/');
                 } else if (name.indexOf('./') === 0) {
