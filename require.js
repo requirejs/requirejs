@@ -293,8 +293,8 @@ var requirejs, require, define;
                     // not in nameToUrl because node allows either .js or
                     // non .js to map to same file.
                     if (getOwn(config.pkgs, normalizedBaseParts[0]) &&
-                        req.jsExtRegExp.test(name[lastIndex])) {
-                        name[lastIndex] = name[lastIndex].replace(req.jsExtRegExp, '');
+                        jsSuffixRegExp.test(name[lastIndex])) {
+                        name[lastIndex] = name[lastIndex].replace(jsSuffixRegExp, '');
                     }
 
                     name = normalizedBaseParts.concat(name);
