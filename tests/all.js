@@ -29,6 +29,7 @@ if (hasToString) {
     doh.registerUrl("packagesConfig", "../packages/config/config.html");
     doh.registerUrl("packagesNestedMain", "../packagesNestedMain/packagesNestedMain.html");
     doh.registerUrl("packagesNode", "../packagesNode/packagesNode.html");
+    doh.registerUrl("packagesNodeAdapter", "../packagesNodeAdapter/packagesNodeAdapter.html");
     doh.registerUrl("specialDeps", "../specialDeps/specialDeps.html");
 }
 

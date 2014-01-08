@@ -795,6 +795,8 @@ define(['module'], function (module) {
 
 <p id="config-packages"><strong><a href="#config-packages">packages</a></strong>: configures loading modules from CommonJS packages. See the <a href="#packages">packages topic</a> for more information.</p>
 
+<p id="config-nodeIdCompat"><strong><a href="#config-nodeIdCompat">nodeIdCompat</a></strong>: Node treats module ID <code>example.js</code> and <code>example</code> the same. By default these are two different IDs in RequireJS. If you end up using modules installed from npm, then you may need to set this config value to <code>true</code> to avoid resolution issues.</p>
+
 <p id="config-waitSeconds"><strong><a href="#config-waitSeconds">waitSeconds</a></strong>: The number of seconds to wait before giving up on loading a script. Setting it to 0 disables the timeout. The default is 7 seconds.</p>
 
 <p id="config-context"><strong><a href="#config-context">context</a></strong>: A name to give to a loading context. This allows require.js to load multiple versions of modules in a page, as long as each top-level require call specifies a unique context string. To use it correctly, see the <a href="#multiversion">Multiversion Support</a> section.</p>
