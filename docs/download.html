@@ -25,10 +25,10 @@
 
 <div class="subSection">
 <h4 class="hbox">
-<a name="requirejs">require.js 2.1.9</a>
+<a name="requirejs">require.js 2.1.10</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/2.1.9/minified/require.js">Minified</a>
-<a class="download" href="http://requirejs.org/docs/release/2.1.9/comments/require.js">With Comments</a>
+<a class="download" href="http://requirejs.org/docs/release/2.1.10/minified/require.js">Minified</a>
+<a class="download" href="http://requirejs.org/docs/release/2.1.10/comments/require.js">With Comments</a>
 </h4>
 
 <p>All you need to start using require.js in the browser.</p>
@@ -38,7 +38,7 @@
 <h4 class="hbox">
 <a name="rjs">r.js: Optimizer and Node/Rhino/xpcshell adapter</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/2.1.9/r.js">Download</a>
+<a class="download" href="http://requirejs.org/docs/release/2.1.10/r.js">Download</a>
 </h4>
 
 <p>The r.js file allows you to run the optimizer as well as run modules in Node, Rhino or xpcshell.</p>
@@ -98,6 +98,24 @@ logic until the DOM is ready for querying/modification.</p>
 <div class="section">
 <h2><a name="releasenotes">Release Notes</a><span class="sectionMark">&sect; 3</span></h2>
 
+
+<h3 id="2-1-10">2.1.10</h3>
+
+<p>Mainly a maintenance release, and improves some cases when reusing code that was installed via npm. There are two new config options for the loader too:</p>
+
+<ul>
+    <li><a href="api.html#config-nodeIdCompat">nodeIdCompat</a>: some node modules installed by npm use module IDs like <code>example.js</code> and <code>example</code> interchangeably. Setting this config option to true will accommodate that style.</li>
+    <li><a href="api.html#config-bundles">bundles</a>: a more compact way to list a set of module IDs belonging to a bundle ID, and supports loader plugin resource IDs.</li>
+</ul>
+
+<p>And for the optimizer, the <a href="optimization.html#mainConfigFile">mainConfigFile</a> option can now take an array of file paths that have configs in them. Later values take precedent over earlier values.</p>
+
+<p>Full list of changes:</p>
+
+<ul>
+    <li><a href="https://github.com/jrburke/requirejs/issues?milestone=32&page=1&state=closed">Fixed require.js issues</a></li>
+    <li><a href="https://github.com/jrburke/r.js/issues?milestone=29&page=1&state=closed">Fixed r.js optimizer issues</a></li>
+</ul>
 
 <h3 id="2-1-9">2.1.9</h3>
 
