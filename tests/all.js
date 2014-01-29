@@ -50,8 +50,6 @@ doh.registerUrl("circularComplexPlugin", "../circular/complexPlugin/complexPlugi
 doh.registerUrl("circular414", "../circular/414/414.html");
 doh.registerUrl("circularTranspiler", "../circular/transpiler/transpiler.html");
 
-doh.registerUrl("complexNormalize", "../complexNormalize/complexNormalize.html");
-
 doh.registerUrl("nestedRequire", "../nestedRequire/nestedRequire.html");
 
 doh.registerUrl("depEmpty", "../depEmpty.html");
@@ -138,6 +136,7 @@ doh.registerUrl("pluginShim", "../plugins/pluginShim/pluginShim.html");
 doh.registerUrl("pluginMap", "../plugins/pluginMap/pluginMap.html");
 doh.registerUrl("pluginMapSameName", "../plugins/pluginMapSameName/pluginMapSameName.html");
 doh.registerUrl("pluginMapDynamic", "../plugins/pluginMap/dynamic/pluginMapDynamic.html");
+doh.registerUrl("pluginComplexNormalize", "../plugins/complexNormalize/complexNormalize.html");
 
 doh.registerUrl("requirePluginLoad", "../requirePluginLoad/requirePluginLoad.html");
 
