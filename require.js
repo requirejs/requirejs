@@ -567,7 +567,7 @@ var requirejs, require, define;
                 mod.usingExports = true;
                 if (mod.map.isDefine) {
                     if (mod.exports) {
-                        return mod.exports;
+                        return (defined[mod.map.id] = mod.exports);
                     } else {
                         return (mod.exports = defined[mod.map.id] = {});
                     }
@@ -583,7 +583,7 @@ var requirejs, require, define;
                         config: function () {
                             return  getOwn(config.config, mod.map.id) || {};
                         },
-                        exports: handlers.exports(mod)
+                        exports: mod.exports || (mod.exports = {})
                     });
                 }
             }
