@@ -50,6 +50,8 @@ doh.registerUrl("circularComplexPlugin", "../circular/complexPlugin/complexPlugi
 doh.registerUrl("circular414", "../circular/414/414.html");
 doh.registerUrl("circularTranspiler", "../circular/transpiler/transpiler.html");
 
+doh.registerUrl("complexNormalize", "../complexNormalize/complexNormalize.html");
+
 doh.registerUrl("nestedRequire", "../nestedRequire/nestedRequire.html");
 
 doh.registerUrl("depEmpty", "../depEmpty.html");
