@@ -141,7 +141,7 @@ var requirejs, require, define;
         throw err;
     }
 
-    //Allow getting a global that expressed in
+    //Allow getting a global that is expressed in
     //dot notation, like 'a.b.c'.
     function getGlobal(value) {
         if (!value) {
