@@ -5,6 +5,7 @@ var hasToString = (function () {
 }).toString().indexOf('hello world') !== -1;
 
 doh.registerUrl("pathsAndRelative", "../pathsNrelative/pathsNrelative.html");
+doh.registerUrl("pluginStrategyAndRelative", "../pluginStrategyNrelative/pluginStrategyNrelative.html");
 
 doh.registerUrl("simple", "../simple.html");
 
