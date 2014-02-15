@@ -665,6 +665,13 @@ loaded (a return from init is <strong>not</strong> used for <code>enforceDefine<
     AMD module may not be evaluated until after the shimmed code in the build
     executes, and an error will occur. The ultimate fix is to upgrade all the
     shimmed code to have optional AMD define() calls.</li>
+    <li>If it is not possible to upgrade the shimmed code to use AMD define()
+    calls, as of RequireJS 2.1.11, the optimizer has a
+    <a href="https://github.com/jrburke/r.js/blob/b8a6982d2923ae8389355edaa50d2b7f8065a01a/build/example.build.js#L68">wrapShim build option</a> that will
+    try to automatically wrap the shimmed code in a define() for a build. This
+    changes the scope of shimmed dependencies, so it is not guaranteed to always
+    work, but, for example, for shimmed dependencies that depend on an AMD version of Backbone,
+    it can be helpful.</li>
     <li>The init function will <strong>not</strong> be called for AMD modules.
     For example, you cannot use a shim init function to call jQuery's noConflict.
     See <a href="jquery.html#noconflictmap">Mapping Modules to use noConflict</a>
