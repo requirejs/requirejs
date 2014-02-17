@@ -1,4 +1,3 @@
-
 define('c1',{
     name: 'c1'
 });
@@ -98,3 +97,4 @@ require({
 );
 
 define("mapConfigStar-tests", function(){});
+

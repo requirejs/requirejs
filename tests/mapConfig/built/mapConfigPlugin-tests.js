@@ -1,4 +1,3 @@
-
 define('plug',{
     load: function (name, require, load, config) {
         if (!name) {
@@ -21,6 +20,8 @@ define('plug/c1',{
     name: 'plug!c1'
 });
 
+
+
 define('a',['c', 'c/sub'], function (c, csub) {
     return {
         c: c,
@@ -32,6 +33,8 @@ define('plug/main',{
     name: 'plug!main'
 });
 
+
+
 define('b',['c', 'c/sub'], function (c, csub) {
     return {
         c: c,
@@ -42,6 +45,8 @@ define('b',['c', 'c/sub'], function (c, csub) {
 define('plug/c2',{
     name: 'plug!c2'
 });
+
+
 
 define('a/sub/one',['c', 'c/sub'], function (c, csub) {
     return {
@@ -89,3 +94,4 @@ require({
 );
 
 define("mapConfigPlugin-tests", function(){});
+

@@ -1,4 +1,3 @@
-
 (function (root) {
     root.A = {
         name: 'a'
@@ -142,3 +141,4 @@ require({
 );
 
 define("basic-tests", function(){});
+

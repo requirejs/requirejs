@@ -1,4 +1,3 @@
-
 define('d',{
     name: 'd'
 });
@@ -47,3 +46,4 @@ require({
 );
 
 define("mapConfigStarAdapter-tests", function(){});
+
