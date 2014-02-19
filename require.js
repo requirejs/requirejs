@@ -822,60 +822,6 @@ var requirejs, require, define;
             },
 
             /**
-             * Create a extended context to be exported to the require callback.
-             * Need to be enabled in the configs using `extContext: true`.
-             * 
-             * It will prototype the window element, so it's retro-compatible
-             */
-            createExtContext: function (exports, depMaps, depExports) {
-                if (!config.extContext || exports || !depMaps) {
-                    return exports;
-                }
-
-                function ExtContext(){}
-                ExtContext.prototype = (function () { return this;})();
-
-                function resolvePath(map, path, exp, symbol) {
-                    if (!symbol) {
-                        resolvePath(map, path, exp, '/');
-                        symbol = '.';
-                    }
-                    path = path.replace(/\.\./g, 'parentDir');
-
-                    if (path.indexOf(symbol).length < 0) {
-                        return map[path] = exp;
-                    }
-
-                    var p = path.split(symbol);
-
-                    var level = map;
-                    for (var i = 0; i < p.length; i++) {
-                        if (!level[p[i]]) {
-                            level[p[i]] = {};
-                        }
-                        if (p.length - 1 === i) {
-                            level[p[i]] = exp;
-                        }
-                        level = level[p[i]];
-                    }
-                    return map;
-                }
-
-                var map = new ExtContext();
-                for (var i = 0; i < depMaps.length; i++) {
-                    if (depMaps[i].name !== depMaps[i].originalName) {
-                        resolvePath(map, depMaps[i].originalName, depExports[i]);
-                    }
-                    if (depMaps[i].name === depMaps[i].id) {
-                        resolvePath(map, depMaps[i].name, depExports[i]);
-                        continue;
-                    }
-                    resolvePath(map, depMaps[i].id, depExports[i]);
-                }
-                return map;
-            },
-
-            /**
              * Checks if the module is ready to define itself, and if so,
              * define it.
              */
@@ -887,7 +833,7 @@ var requirejs, require, define;
                 var err, cjsModule,
                     id = this.map.id,
                     depExports = this.depExports,
-                    exports = this.createExtContext(this.exports, this.depMaps, depExports),
+                    exports = this.exports,
                     factory = this.factory;
 
                 if (!this.inited) {
@@ -1339,6 +1285,23 @@ var requirejs, require, define;
 
                 //Merge shim
                 if (cfg.shim) {
+
+                    for (var id in cfg.shim) {
+                        if (cfg.shim[id].async !== false) continue;
+
+                        eachReverse(cfg.shim[id].deps, function (dep, index, deps) {
+                            if (index - 1 < 0) return;
+
+                            if (!cfg.shim[dep]) {
+                                cfg.shim[dep] = {};
+                            }
+                            if (!cfg.shim[dep].deps) {
+                                cfg.shim[dep].deps = [];
+                            }
+                            cfg.shim[dep].deps.push(deps[index - 1]);
+                        });
+                    }
+
                     eachProp(cfg.shim, function (value, id) {
                         //Normalize the structure
                         if (isArray(value)) {
