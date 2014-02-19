@@ -543,7 +543,7 @@ This example specifies some dependencies to load as soon as require.js defines r
 
 <p>When run in a browser, <a href="#pathsfallbacks">paths fallbacks</a> can be specified, to allow trying a load from a CDN location, but falling back to a local location if the CDN location fails to load.</p>
 
-<p id="config-bundles"><strong><a href="#config-bundles">bundles</a></strong>: Introduced in RequireJS 2.1.10: allows pointing multiple module IDs to a module ID that contains a bundle of modules. Example:</p>
+<p id="config-bundles"><strong><a href="#config-bundles">bundles</a></strong>: Introduced in RequireJS 2.1.10: allows configuring multiple module IDs to be found in another script. Example:</p>
 
 <pre><code>requirejs.config({
     bundles: {
@@ -551,12 +551,22 @@ This example specifies some dependencies to load as soon as require.js defines r
         'secondary': ['text!secondary.html']
     }
 });
+
+require(['util', 'text'], function(util, text) {
+    //The script for module ID 'primary' was loaded,
+    //and that script included the define()'d
+    //modules for 'util' and 'text'
+});
 </code></pre>
 
 <p>That config states: modules 'main', 'util', 'text' and 'text!template.html' will be found by loading module ID 'primary'. Module 'text!secondary.html' can be found by loading module ID 'secondary'.
 </p>
 
-<p>This is useful if doing a build and that build target was not an existing module ID, or if you have loader plugin resources in built JS files that should not be loaded by the loader plugin. <strong>Note that the keys and values are module IDs</strong>, not path segments. They are absolute module IDs, not a module ID prefix like <a href="#config-paths">paths config</a> or <a href="#config-map">map config</a>. Also, bundle config is different from map config in that map config is a one-to-one module ID relationship, where bundle config is for pointing multiple module IDs to a bundle's module ID.</p>
+<p>This only sets up where to find a module inside a script that has multiple define()'d modules in it. It does not automatically bind those modules to the bundle's module ID. The bundle's module ID is just used for locating the set of modules.</p>
+
+<p>Something similar is possible with paths config, but it is much wordier, and the paths config route does not allow loader plugin resource IDs in its configuration, since the paths config values are path segments, not IDs.</p>
+
+<p>bundles config is useful if doing a build and that build target was not an existing module ID, or if you have loader plugin resources in built JS files that should not be loaded by the loader plugin. <strong>Note that the keys and values are module IDs</strong>, not path segments. They are absolute module IDs, not a module ID prefix like <a href="#config-paths">paths config</a> or <a href="#config-map">map config</a>. Also, bundle config is different from map config in that map config is a one-to-one module ID relationship, where bundle config is for pointing multiple module IDs to a bundle's module ID.</p>
 
 <p id="config-shim"><strong><a href="#config-shim">shim</a></strong>: Configure the dependencies, exports, and custom initialization for older, traditional "browser globals" scripts that do not use define() to declare the dependencies and set a module value.</p>
 
