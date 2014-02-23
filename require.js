@@ -1624,13 +1624,16 @@ var requirejs, require, define;
 
                     //Join the path parts together, then figure out if baseUrl is needed.
                     url = syms.join('/');
+                    if(parentPath) {
+                        skipExt = true;
+                    }
                     url += (ext || (/^data\:|\?/.test(url) || skipExt ? '' : '.js'));
                     url = (url.charAt(0) === '/' || url.match(/^[\w\+\.\-]+:/) ? '' : config.baseUrl) + url;
                 }
 
-                return config.urlArgs ? url +
-                                        ((url.indexOf('?') === -1 ? '?' : '&') +
-                                         config.urlArgs) : url;
+                return config.urlArgs ? (parentPath ? url : (url +
+                    ((url.indexOf('?') === -1 ? '?' : '&') +
+                        config.urlArgs))) : url;
             },
 
             //Delegates to req.load. Broken out as a separate function to
