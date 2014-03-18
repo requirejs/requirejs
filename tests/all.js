@@ -193,4 +193,5 @@ doh.registerUrl("pluginErrorContinueLocal", "../error/pluginErrorContinueLocal.h
 doh.registerUrl("defineErrorLocal", "../error/defineErrorLocal.html");
 
 doh.registerUrl("pathArray", "../pathArray/pathArray.html", 8000);
+doh.registerUrl("pathArrayWithMap", "../pathArray/withMap/withMap.html", 8000);
 doh.registerUrl("pathArrayFail", "../pathArray/pathArrayFail.html", 10000);
