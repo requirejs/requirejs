@@ -590,14 +590,12 @@ var requirejs, require, define;
                             return  getOwn(config.config, mod.map.id) || {};
                         },
                         async: function async() {
-                            // Init status to pending
-                            if (mod.async === null) {
-                                mod.async = 'init';
-                            }
+                            // Init asynchronous exports mode
+                            mod.defineStage.asyncInit();
 
                             // Provide a asynchronous exports method
                             return function (exports) {
-                                mod.defineStageAsync(exports);
+                                mod.defineStage.asyncExports(exports);
                             };
                         },
                         exports: mod.exports || (mod.exports = {})
@@ -727,6 +725,196 @@ var requirejs, require, define;
             inCheckLoaded = false;
         }
 
+
+
+        function DefineStage(mod) {
+            this.mod = mod;
+
+            this.asyncStatus = null;
+            this.exporter = {};
+        }
+
+        /*
+         * Priority of exports types: first is lowest - last highest
+         *
+         * define(['require', 'exports', 'module'], function (require, exports, module) {
+         *     // Use of export module
+         *     exports.prop = prop;
+         *
+         *     // Use of modules property exports
+         *     module.exports = obj;
+         *
+         *     // Use the asynchronous exports of the module
+         *     module.async()(obj);
+         *
+         *     // Use the return statement
+         *     return obj;
+         * });
+         */
+
+        DefineStage.prototype = {
+
+            asyncInit: function () {
+                if (this.asyncStatus === null) {
+                    this.asyncStatus = 'init';
+                }
+            },
+
+            asyncExports: function (exports) {
+                var mod = this.mod,
+                    doExport = this.asyncStatus !== null && this.asyncStatus !== 'done',
+                    wasPending = this.asyncStatus === 'pending';
+
+                // Block multiple calls of asynchronous exports
+                if (doExport) {
+                    this.exports('async', exports);
+
+                    // Set status to done
+                    this.asyncStatus = 'done';
+                }
+
+                // Publish define if asynchronous was pending
+                if (wasPending) {
+                    this.publish();
+                }
+            },
+
+            startCycle: function () {
+                var err, cjsModule,
+                    mod = this.mod,
+                    id = mod.map.id,
+                    depExports = mod.depExports,
+                    exports = mod.exports,
+                    factory = mod.factory;
+
+                //The factory could trigger another require call
+                //that would result in checking this module to
+                //define itself again. If already in the process
+                //of doing that, skip this work.
+                mod.defining = true;
+
+                if (mod.depCount < 1 && !mod.defined) {
+                    if (isFunction(factory)) {
+                        //If there is an error listener, favor passing
+                        //to that instead of throwing an error. However,
+                        //only do it for define()'d  modules. require
+                        //errbacks should not be called for failures in
+                        //their callbacks (#699). However if a global
+                        //onError is set, use that.
+                        if ((mod.events.error && mod.map.isDefine) ||
+                            req.onError !== defaultOnError) {
+                            try {
+                                this.exports('factory', context.execCb(id, factory, depExports, exports));
+                            } catch (e) {
+                                err = e;
+                            }
+                        } else {
+                            this.exports('factory', context.execCb(id, factory, depExports, exports));
+                        }
+
+                        // Favor return value over exports. If node/cjs in play,
+                        // then will not have a return value anyway. Favor
+                        // module.exports assignment over exports object.
+                        if (this.exports('factory') === undefined) {
+                            cjsModule = mod.module;
+                            if (cjsModule) {
+                                this.exports('module', cjsModule.exports);
+                            } else if (mod.usingExports) {
+                                //exports already set the defined value.
+                                this.exports('exports', mod.exports);
+                            }
+                        }
+
+                        if (err) {
+                            err.requireMap = mod.map;
+                            err.requireModules = mod.map.isDefine ? [mod.map.id] : null;
+                            err.requireType = mod.map.isDefine ? 'define' : 'require';
+                            return onError((mod.error = err));
+                        }
+
+                    } else {
+                        //Just a literal value
+                        this.exports('factory', factory);
+                    }
+
+                    if (this.asyncStatus === 'init') {
+                        // Set asynchronous status to pending
+                        this.asyncStatus = 'pending';
+                    } else {
+                        // Publish define if asynchronous is not pending
+                        this.publish();
+                    }
+                } else {
+                    this.endCycle();
+                }
+            },
+
+            exports: function (name, exports) {
+                var exporter = this.exporter,
+                    l = arguments.length;
+
+                if (l === 2 && this.mod.map.isDefine) {
+                    // Set exports by exporter
+                    this.exporter[name] = exports;
+                } else if (l === 1) {
+                    // Get exports by exporter
+                    return this.exporter[name];
+                } else if (l === 0) {
+                    // Get exports from exporters by priority
+                    if (exporter.factory !== undefined) {
+                        exports = exporter.factory;
+                    } else if (exporter.result !== undefined) {
+                        exports = exporter.result;
+                    } else if (exporter.async !== undefined) {
+                        exports = exporter.async;
+                    } else if (exporter.module !== undefined) {
+                        exports = exporter.module;
+                    } else if (exporter.exports !== undefined) {
+                        exports = exporter.exports;
+                    }
+
+                    return exports;
+                }
+            },
+
+            publish: function () {
+                var mod = this.mod;
+
+                // Write exports to module
+                mod.exports = this.exports();
+
+                if (mod.map.isDefine && !mod.ignore) {
+                    defined[mod.map.id] = mod.exports;
+
+                    if (req.onResourceLoad) {
+                        req.onResourceLoad(context, mod.map, mod.depMaps);
+                    }
+                }
+
+                //Clean up
+                cleanRegistry(mod.map.id);
+
+                mod.defined = true;
+
+                this.endCycle();
+            },
+
+            endCycle: function () {
+                var mod = this.mod;
+
+                //Finished the define stage. Allow calling check again
+                //to allow define notifications below in the case of a
+                //cycle.
+                mod.defining = false;
+
+                if (mod.defined && !mod.defineEmitted) {
+                    mod.defineEmitted = true;
+                    mod.emit('defined', mod.exports);
+                    mod.defineEmitComplete = true;
+                }
+            }
+        };
+
         Module = function (map) {
             this.events = getOwn(undefEvents, map.id) || {};
             this.map = map;
@@ -736,6 +924,8 @@ var requirejs, require, define;
             this.depMatched = [];
             this.pluginMaps = {};
             this.depCount = 0;
+
+            this.defineStage = new DefineStage(this);
 
             /* this.exports this.factory
                this.depMaps = [],
@@ -852,136 +1042,7 @@ var requirejs, require, define;
                 } else if (this.error) {
                     this.emit('error', this.error);
                 } else if (!this.defining) {
-                    this.defineStageOpen();
-                }
-            },
-
-            defineStageOpen: function () {
-                var err, cjsModule,
-                    id = this.map.id,
-                    depExports = this.depExports,
-                    exports = this.exports,
-                    factory = this.factory;
-
-                //The factory could trigger another require call
-                //that would result in checking this module to
-                //define itself again. If already in the process
-                //of doing that, skip this work.
-                this.defining = true;
-
-                if (this.depCount < 1 && !this.defined) {
-                    if (isFunction(factory)) {
-                        //If there is an error listener, favor passing
-                        //to that instead of throwing an error. However,
-                        //only do it for define()'d  modules. require
-                        //errbacks should not be called for failures in
-                        //their callbacks (#699). However if a global
-                        //onError is set, use that.
-                        if ((this.events.error && this.map.isDefine) ||
-                            req.onError !== defaultOnError) {
-                            try {
-                                exports = context.execCb(id, factory, depExports, exports);
-                            } catch (e) {
-                                err = e;
-                            }
-                        } else {
-                            exports = context.execCb(id, factory, depExports, exports);
-                        }
-
-                        // Favor return value over exports. If node/cjs in play,
-                        // then will not have a return value anyway. Favor
-                        // module.exports assignment over exports object.
-
-                        if (this.map.isDefine && this.async === 'done') {
-                            exports = this.exports;
-                        }
-                        if (this.map.isDefine && exports === undefined) {
-                            cjsModule = this.module;
-                            if (cjsModule) {
-                                exports = cjsModule.exports;
-                            } else if (this.usingExports) {
-                                //exports already set the defined value.
-                                exports = this.exports;
-                            }
-                        }
-
-                        if (err) {
-                            err.requireMap = this.map;
-                            err.requireModules = this.map.isDefine ? [this.map.id] : null;
-                            err.requireType = this.map.isDefine ? 'define' : 'require';
-                            return onError((this.error = err));
-                        }
-
-                    } else {
-                        //Just a literal value
-                        exports = factory;
-                    }
-
-                    this.exports = exports;
-
-                    // Set asynchronous status to pending
-                    if (this.async === 'init') {
-                        this.async = 'pending';
-                    }
-
-                    // Publish define if asynchronous is not pending
-                    if (this.async !== 'pending') {
-                        this.defineStagePublish();
-                    }
-                } else {
-                    this.defineStageClose();
-                }
-            },
-
-            async: null,
-
-            defineStageAsync: function (exports) {
-                var doExport = this.async !== null && this.async !== 'done',
-                    wasPending = this.async === 'pending';
-
-                // Block multiple calls of asynchronous exports
-                if (doExport) {
-                    if (this.map.isDefine && exports !== undefined) {
-                        this.exports = exports;
-                    }
-
-                    // Set status to done
-                    this.async = 'done';
-                }
-
-                // Publish define if asynchronous was pending
-                if (wasPending) {
-                    this.defineStagePublish();
-                }
-            },
-
-            defineStagePublish: function () {
-                if (this.map.isDefine && !this.ignore) {
-                    defined[this.map.id] = this.exports;
-
-                    if (req.onResourceLoad) {
-                        req.onResourceLoad(context, this.map, this.depMaps);
-                    }
-                }
-
-                //Clean up
-                cleanRegistry(this.map.id);
-
-                this.defined = true;
-
-                this.defineStageClose();
-            },
-
-            defineStageClose: function () {
-                //Finished the define stage. Allow calling check again
-                //to allow define notifications below in the case of a
-                //cycle.
-                this.defining = false;
-
-                if (this.defined && !this.defineEmitted) {
-                    this.defineEmitted = true;
-                    this.emit('defined', this.exports);
-                    this.defineEmitComplete = true;
+                    this.defineStage.startCycle();
                 }
             },
 
