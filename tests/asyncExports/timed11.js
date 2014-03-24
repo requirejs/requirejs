@@ -1,0 +1,16 @@
+/*jslint browser: true, sloppy: true, unparam: true*/
+/*global define*/
+define("timed11", ["require", "exports", "module"], function (require, exports, module) {
+
+    var asyncExports = module.async();
+
+    setTimeout(function () {
+        asyncExports();
+    }, 3000);
+
+    exports.name = "timed11, use exports";
+
+    module.exports = {
+        name: "timed11"
+    };
+});
