@@ -21,6 +21,9 @@ doh.registerUrl("dataMainBaseUrl", "../dataMain/baseUrl/dataMainBaseUrl.html");
 
 doh.registerUrl("moduleExports", "../moduleExports/moduleExports.html");
 
+//Exports in async mode?
+doh.registerUrl("asyncExports", "../asyncExports/asyncExports.html");
+
 if (hasToString) {
     doh.registerUrl("anonSimple", "../anon/anonSimple.html");
     doh.registerUrl("cjsSpace", "../cjsSpace/cjsSpace.html");
