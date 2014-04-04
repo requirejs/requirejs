@@ -76,6 +76,16 @@
     <code>baseUrl + moduleID + '.js'</code>. The examples below show how to
     set baseUrl to be the directory for third-party, library code, and use
     one extra paths config for your app code.</p>
+
+<p>So to reiterate, you will likely get an error if you refer to jQuery with another module name, like <code>'lib/jquery'</code>. <strong>This example will not work</strong>:</p>
+
+<pre><code>
+    // THIS WILL NOT WORK
+    define(['lib/jquery'], function ($) {...});
+</code></pre>
+
+<p>It will not work, since jQuery registers itself with the name of 'jquery' and not 'lib/jquery'. In general, explicitly naming modules in the define() call are discouraged, but <a href="https://github.com/jrburke/requirejs/wiki/Updating-existing-libraries#anon">jQuery has some special constraints</a>.</p>
+
 </div>
 
 <div class="section">
