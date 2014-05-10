@@ -687,6 +687,12 @@ loaded (a return from init is <strong>not</strong> used for <code>enforceDefine<
     See <a href="jquery.html#noconflictmap">Mapping Modules to use noConflict</a>
     for an alternate approach to jQuery.</li>
     <li>Shim config is not supported when running AMD modules in node via RequireJS (it works for optimizer use though). Depending on the module being shimmed, it may fail in Node because Node does not have the same global environment as browsers. As of RequireJS 2.1.7, it will warn you in the console that shim config is not supported, and it may or may not work. If you wish to suppress that message, you can pass <code>requirejs.config({ suppress: { nodeShim: true }});</code>.</li>
+    <li>Note that RequireJS cannot know about libraries that were loaded outside of RequireJs. Therefore, if a library 
+        (for example underscore.js) is already loaded on the page via a script tag, when it is requested via RequireJS 
+        dependency, it will load once more and override its global variable. This is unnecessary http overheadand will 
+        reset any custom modifications (eg underscore mixins) that have been added to the object. The issue will happen 
+        whether the library is shimmed or not. Therefore it is recommended that you only ever load non-AMD modules via 
+        a shimmed RequireJs (preferred) or global script tag.</li>
 </ul>
 
 <p><b>Important optimizer notes for "shim" config</b>:</p>
