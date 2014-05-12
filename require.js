@@ -366,7 +366,7 @@ var requirejs, require, define;
             //  "path/../" with ""
             //  "/./" with "/"
             //  "./" with ""
-            path.replace(/(^|\/)\.\//,'$1');
+            path = path.replace(/(^|\/)\.\//,'$1');
             while( regParent.test(path) ){
                 path = path.replace( regParent, '$1');
             }
