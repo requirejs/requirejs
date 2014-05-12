@@ -271,6 +271,8 @@ var requirejs, require, define;
                 baseParts = baseName && baseName.split('/'),
                 normalizedBaseParts = baseParts,
                 map = config.map,
+                path = '',
+                regParent = /(^|\/)[a-z0-9][^\/]*\/\.\.\//ig,
                 starMap = map && map['*'];
 
             //Adjust any relative paths.
@@ -357,7 +359,19 @@ var requirejs, require, define;
             // the package main instead.
             pkgMain = getOwn(config.pkgs, name);
 
-            return pkgMain ? pkgMain : name;
+            path = (pkgMain ? pkgMain : name);
+
+            // format path, replacing
+            //  "/path/../" with "/"
+            //  "path/../" with ""
+            //  "/./" with "/"
+            //  "./" with ""
+            path.replace(/(^|\/)\.\//,'$1');
+            while( regParent.test(path) ){
+                path = path.replace( regParent, '$1');
+            }
+
+            return path;
         }
 
         function removeScript(name) {
