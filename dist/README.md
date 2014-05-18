@@ -25,6 +25,8 @@ When doing a release, do the following:
     * git tag -am "Release 0.0.0" 0.0.0
     * git push --tags
 
+* UPDATE THE "latest" tags
+
 * Commit changes to cajon, test
   * Rev cajon version
   * change package.json
