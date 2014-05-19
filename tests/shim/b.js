@@ -3,3 +3,4 @@ var B = {
     aValue: A.name,
     dValue: new D()
 };
+//ending comment
