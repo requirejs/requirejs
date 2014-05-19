@@ -239,14 +239,18 @@ var requirejs, require, define;
                     ary.splice(i, 1);
                     i -= 1;
                 } else if (part === '..') {
-                    if (i === 1 && (ary[2] === '..' || ary[0] === '..')) {
-                        //End of the line. Keep at least one non-dot
-                        //path segment at the front so it can be mapped
-                        //correctly to disk. Otherwise, there is likely
-                        //no path mapping for a path starting with '..'.
-                        //This can still fail, but catches the most reasonable
-                        //uses of ..
-                        break;
+                    // If at the start, or previous value is still ..,
+                    // keep them so that when converted to a path it may
+                    // still work when converted to a path, even though
+                    // as an ID it is less than ideal. In larger point
+                    // releases, may be better to just kick out an error.
+                    // Also, want to keep IDs that start with 'a/../', so
+                    // that the 'a' part can be used for ID-to-path mapping
+                    // configs like paths/packages config. This is done
+                    // for legacy code expectations, since previous approach
+                    // in this method used that logic.
+                    if (i < 2 || ary[i - 1] === '..') {
+                        continue;
                     } else if (i > 0) {
                         ary.splice(i - 1, 2);
                         i -= 2;
@@ -267,43 +271,37 @@ var requirejs, require, define;
          */
         function normalize(name, baseName, applyMap) {
             var pkgMain, mapValue, nameParts, i, j, nameSegment, lastIndex,
-                foundMap, foundI, foundStarMap, starI,
-                baseParts = baseName && baseName.split('/'),
-                normalizedBaseParts = baseParts,
+                foundMap, foundI, foundStarMap, starI, normalizedBaseParts,
+                baseParts = (baseName && baseName.split('/')),
                 map = config.map,
                 starMap = map && map['*'];
 
             //Adjust any relative paths.
-            if (name && name.charAt(0) === '.') {
-                //If have a base name, try to normalize against it,
-                //otherwise, assume it is a top-level require that will
-                //be relative to baseUrl in the end.
-                if (baseName) {
+            if (name) {
+                name = name.split('/');
+                lastIndex = name.length - 1;
+
+                // If wanting node ID compatibility, strip .js from end
+                // of IDs. Have to do this here, and not in nameToUrl
+                // because node allows either .js or non .js to map
+                // to same file.
+                if (config.nodeIdCompat && jsSuffixRegExp.test(name[lastIndex])) {
+                    name[lastIndex] = name[lastIndex].replace(jsSuffixRegExp, '');
+                }
+
+                // Starts with a '.' so need the baseName
+                if (name[0].charAt(0) === '.' && baseParts) {
                     //Convert baseName to array, and lop off the last part,
                     //so that . matches that 'directory' and not name of the baseName's
                     //module. For instance, baseName of 'one/two/three', maps to
                     //'one/two/three.js', but we want the directory, 'one/two' for
                     //this normalization.
                     normalizedBaseParts = baseParts.slice(0, baseParts.length - 1);
-                    name = name.split('/');
-                    lastIndex = name.length - 1;
-
-                    // If wanting node ID compatibility, strip .js from end
-                    // of IDs. Have to do this here, and not in nameToUrl
-                    // because node allows either .js or non .js to map
-                    // to same file.
-                    if (config.nodeIdCompat && jsSuffixRegExp.test(name[lastIndex])) {
-                        name[lastIndex] = name[lastIndex].replace(jsSuffixRegExp, '');
-                    }
-
                     name = normalizedBaseParts.concat(name);
-                    trimDots(name);
-                    name = name.join('/');
-                } else if (name.indexOf('./') === 0) {
-                    // No baseName, so this is ID is resolved relative
-                    // to baseUrl, pull off the leading dot.
-                    name = name.substring(2);
                 }
+
+                trimDots(name);
+                name = name.join('/');
             }
 
             //Apply map config if available.
