@@ -200,6 +200,7 @@ var requirejs, require, define;
                 //will run faster if there is no default.
                 waitSeconds: 7,
                 baseUrl: './',
+				ext: '.js',
                 paths: {},
                 pkgs: {},
                 shim: {},
@@ -1609,7 +1610,7 @@ var requirejs, require, define;
 
                     //Join the path parts together, then figure out if baseUrl is needed.
                     url = syms.join('/');
-                    url += (ext || (/\?/.test(url) || skipExt ? '' : '.js'));
+                    url += (ext || (/\?/.test(url) || skipExt ? '' : config.ext));
                     url = (url.charAt(0) === '/' || url.match(/^[\w\+\.\-]+:/) ? '' : config.baseUrl) + url;
                 }
 
