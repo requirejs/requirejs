@@ -368,12 +368,12 @@ having to know the directory's name.</p>
 <div class="subSection">
 <h4><a href="#circular" name="circular">Circular Dependencies</a><span class="sectionMark">&sect; 1.3.8</span></h4>
 
-<p>If you define a circular dependency (a needs b and b needs a), then in this case when b's module function is called, it will get an undefined value for a. b can fetch a later after modules have been defined by using the require() method (be sure to specify require as a dependency so the right context is used to look up a):</p>
+<p>If you define a circular dependency ("a" needs "b" and "b" needs "a"), then in this case when "b"'s module function is called, it will get an undefined value for "a". "b" can fetch "a" later after modules have been defined by using the require() method (be sure to specify require as a dependency so the right context is used to look up "a"):</p>
 
 <pre><code>//Inside b.js:
 define(["require", "a"],
     function(require, a) {
-        //"a" in this case will be null if a also asked for b,
+        //"a" in this case will be null if "a" also asked for "b",
         //a circular dependency.
         return function(title) {
             return require("a").doSomething();
@@ -390,7 +390,7 @@ define(["require", "a"],
 define(function(require, exports, module) {
     //If "a" has used exports, then we have a real
     //object reference here. However, we cannot use
-    //any of a's properties until after b returns a value.
+    //any of "a"'s properties until after "b" returns a value.
     var a = require("a");
 
     exports.foo = function () {
@@ -406,7 +406,7 @@ define(function(require, exports, module) {
 define(['a', 'exports'], function(a, exports) {
     //If "a" has used exports, then we have a real
     //object reference here. However, we cannot use
-    //any of a's properties until after b returns a value.
+    //any of "a"'s properties until after "b" returns a value.
 
     exports.foo = function () {
         return a.bar();
