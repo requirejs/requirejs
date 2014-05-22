@@ -759,6 +759,8 @@ requirejs.config({
 
 <p>Means that for any module except "some/oldmodule", when "foo" is wanted, use "foo1.2" instead. For "some/oldmodule" only, use "foo1.0" when it asks for "foo".</p>
 
+<p id="config-map-notes"><strong>Note:</strong> when doing builds with map config, the map config needs to be fed to the optimizer, and the build output must still contain a requirejs config call that sets up the map config. The optimizer does not do ID renaming during the build, because some dependency references in a project could depend on runtime variable state. So the optimizer does not invalidate the need for a map config after the build.</p>
+
 <p id="config-moduleconfig"><strong><a href="#config-moduleconfig">config</a></strong>: There is a common need to pass configuration info to a module.  That configuration info is usually known as part of the application, and there needs to be a way to pass that down to a module. In RequireJS, that is done with the <b>config</b> option for requirejs.config(). Modules can then read that info by asking for the special dependency "module" and calling <b>module.config()</b>. Example:</p>
 
 <pre><code>requirejs.config({
