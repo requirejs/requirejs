@@ -244,12 +244,7 @@ var requirejs, require, define;
                     // still work when converted to a path, even though
                     // as an ID it is less than ideal. In larger point
                     // releases, may be better to just kick out an error.
-                    // Also, want to keep IDs that start with 'a/../', so
-                    // that the 'a' part can be used for ID-to-path mapping
-                    // configs like paths/packages config. This is done
-                    // for legacy code expectations, since previous approach
-                    // in this method used that logic.
-                    if (i < 2 || ary[i - 1] === '..') {
+                    if (i === 0 || (i == 1 && ary[2] === '..') || ary[i - 1] === '..') {
                         continue;
                     } else if (i > 0) {
                         ary.splice(i - 1, 2);

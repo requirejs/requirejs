@@ -56,6 +56,7 @@ doh.registerUrl("depEmpty", "../depEmpty.html");
 doh.registerUrl("depoverlap", "../depoverlap.html");
 doh.registerUrl("urlfetch", "../urlfetch/urlfetch.html");
 doh.registerUrl("uniques", "../uniques/uniques.html");
+doh.registerUrl("dotTrim", "../dotTrim/dotTrim.html");
 doh.registerUrl("multiversion", "../multiversion.html", 10000);
 
 doh.registerUrl("isBrowser", "../isBrowser/isBrowser.html");
