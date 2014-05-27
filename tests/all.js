@@ -138,6 +138,7 @@ doh.registerUrl("pluginMap", "../plugins/pluginMap/pluginMap.html");
 doh.registerUrl("pluginMapSameName", "../plugins/pluginMapSameName/pluginMapSameName.html");
 doh.registerUrl("pluginMapDynamic", "../plugins/pluginMap/dynamic/pluginMapDynamic.html");
 doh.registerUrl("pluginComplexNormalize", "../plugins/complexNormalize/complexNormalize.html");
+doh.registerUrl("pluginNormalize", "../plugins/pluginNormalize/pluginNormalize.html");
 
 doh.registerUrl("requirePluginLoad", "../requirePluginLoad/requirePluginLoad.html");
 

@@ -444,7 +444,16 @@ var requirejs, require, define;
                             return normalize(name, parentName, applyMap);
                         });
                     } else {
-                        normalizedName = normalize(name, parentName, applyMap);
+                        // If nested plugin references, then do not try to
+                        // normalize, as it will not normalize correctly. This
+                        // places a restriction on resourceIds, and the longer
+                        // term solution is not to normalize until plugins are
+                        // loaded and all normalizations to allow for async
+                        // loading of a loader plugin. But for now, fixes the
+                        // common uses. Details in #1131
+                        normalizedName = name.indexOf('!') === -1 ?
+                                         normalize(name, parentName, applyMap) :
+                                         name;
                     }
                 } else {
                     //A regular module.
