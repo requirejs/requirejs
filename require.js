@@ -239,18 +239,14 @@ var requirejs, require, define;
                     ary.splice(i, 1);
                     i -= 1;
                 } else if (part === '..') {
-                    // If at the start, or previous value is still ..,
-                    // keep them so that when converted to a path it may
-                    // still work when converted to a path, even though
-                    // as an ID it is less than ideal. In larger point
-                    // releases, may be better to just kick out an error.
-                    // Also, want to keep IDs that start with 'a/../', so
-                    // that the 'a' part can be used for ID-to-path mapping
-                    // configs like paths/packages config. This is done
-                    // for legacy code expectations, since previous approach
-                    // in this method used that logic.
-                    if (i < 2 || ary[i - 1] === '..') {
-                        continue;
+                    //End of the line. Keep at least one non-dot
+                    //path segment at the front so it can be mapped
+                    //correctly to disk. Otherwise, there is likely
+                    //no path mapping for a path starting with '..'.
+                    //This can still fail, but catches the most reasonable
+                    //uses of ..
+                    if (i === 1 && (ary[2] === '..' || ary[0] === '..')) {
+                        break;
                     } else if (i > 0) {
                         ary.splice(i - 1, 2);
                         i -= 2;
