@@ -507,7 +507,7 @@ module loading that may use that module. See the <a href="#errbacks">errback sec
 &lt;/script&gt;
 </code></pre>
 
-<p>You may also call require.config from your <a href="api.html#data-main">data-main Entry Point</a>, but be aware that the data-main script is loaded asynchronously. Avoid other entry point scripts which wrongly assume that data-main and its require.config will always execute prior to their script loading.</a>
+<p>You may also call require.config from your <a href="api.html#data-main">data-main Entry Point</a>, but be aware that the data-main script is loaded asynchronously. Avoid other entry point scripts which wrongly assume that data-main and its require.config will always execute prior to their script loading.</a></p>
 
 <p>Also, you can define the config object as the global variable <code>require</code> <strong>before</strong> require.js is loaded, and have the values applied automatically.
 This example specifies some dependencies to load as soon as require.js defines require():</p>
@@ -528,6 +528,8 @@ This example specifies some dependencies to load as soon as require.js defines r
 
 <p><b>Note:</b> It is best to use <code>var require = {}</code> and do not use
 <code>window.require = {}</code>, it will not behave correctly in IE.</p>
+
+<p>There are <a href="https://github.com/jrburke/requirejs/wiki/Patterns-for-separating-config-from-the-main-module">some patterns for separating the config from main module loading</a>.</p>
 
 <p>Supported configuration options:</p>
 
