@@ -1844,7 +1844,12 @@ var requirejs, require, define;
             node;
         if (isBrowser) {
             //In the browser so use a script tag
-            node = req.createNode(config, moduleName, url);
+            var existingNode = false;
+            if ((node = head.querySelector("script[src='" + url + "']"))) {
+                existingNode = true;
+            } else {
+                node = req.createNode(config, moduleName, url);
+            }
 
             node.setAttribute('data-requirecontext', context.contextName);
             node.setAttribute('data-requiremodule', moduleName);
@@ -1890,19 +1895,22 @@ var requirejs, require, define;
                 node.addEventListener('load', context.onScriptLoad, false);
                 node.addEventListener('error', context.onScriptError, false);
             }
-            node.src = url;
 
-            //For some cache cases in IE 6-8, the script executes before the end
-            //of the appendChild execution, so to tie an anonymous define
-            //call to the module name (which is stored on the node), hold on
-            //to a reference to this node, but clear after the DOM insertion.
-            currentlyAddingScript = node;
-            if (baseElement) {
-                head.insertBefore(node, baseElement);
-            } else {
-                head.appendChild(node);
+            if (!existingNode) {
+                node.src = url;
+
+                //For some cache cases in IE 6-8, the script executes before the end
+                //of the appendChild execution, so to tie an anonymous define
+                //call to the module name (which is stored on the node), hold on
+                //to a reference to this node, but clear after the DOM insertion.
+                currentlyAddingScript = node;
+                if (baseElement) {
+                    head.insertBefore(node, baseElement);
+                } else {
+                    head.appendChild(node);
+                }
+                currentlyAddingScript = null;
             }
-            currentlyAddingScript = null;
 
             return node;
         } else if (isWebWorker) {
