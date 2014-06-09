@@ -1844,8 +1844,18 @@ var requirejs, require, define;
             node;
         if (isBrowser) {
             //In the browser so use a script tag
+            var findScriptBySrc = function(src) {
+                var scripts = document.scripts;
+                for (var i = 0, len = scripts.length; i < len; i++) {
+                    var script = scripts[i];
+                    if (script.src === src) {
+                        return script;
+                    }
+                }
+            }
+
             var existingNode = false;
-            if ((node = head.querySelector("script[src='" + url + "']"))) {
+            if ((node = findScriptBySrc(src))) {
                 existingNode = true;
             } else {
                 node = req.createNode(config, moduleName, url);
