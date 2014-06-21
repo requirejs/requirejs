@@ -52,8 +52,8 @@ var requirejs, require, define;
      */
     function each(ary, func) {
         if (ary) {
-            var i;
-            for (i = 0; i < ary.length; i += 1) {
+            var i, len;
+            for (i = 0, len = ary.length; i < len; i += 1) {
                 if (ary[i] && func(ary[i], i, ary)) {
                     break;
                 }
@@ -232,8 +232,8 @@ var requirejs, require, define;
          * @param {Array} ary the array of path segments.
          */
         function trimDots(ary) {
-            var i, part;
-            for (i = 0; i < ary.length; i++) {
+            var i, part, len;
+            for (i = 0, len = ary.length; i < len; i++) {
                 part = ary[i];
                 if (part === '.') {
                     ary.splice(i, 1);
