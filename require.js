@@ -1359,7 +1359,7 @@ var requirejs, require, define;
                 options = options || {};
 
                 function localRequire(deps, callback, errback) {
-                    var id, map, requireMod;
+                    var id, map, requireMod, message;
 
                     if (options.enableBuildCallback && callback && isFunction(callback)) {
                         callback.__requireJsBuild = true;
@@ -1368,7 +1368,12 @@ var requirejs, require, define;
                     if (typeof deps === 'string') {
                         if (isFunction(callback)) {
                             //Invalid call
-                            return onError(makeError('requireargs', 'Invalid require call'), errback);
+
+                            message = 'Invalid require call for module: "' +
+                                relMap.id + '". Expected array of deps while ' +
+                                'string "' + deps + '" found';
+
+                            return onError(makeError('requireargs', message), errback);
                         }
 
                         //If require|exports|module are requested, get the
@@ -1389,11 +1394,12 @@ var requirejs, require, define;
                         id = map.id;
 
                         if (!hasProp(defined, id)) {
-                            return onError(makeError('notloaded', 'Module name "' +
-                                        id +
-                                        '" has not been loaded yet for context: ' +
-                                        contextName +
-                                        (relMap ? '' : '. Use require([])')));
+                            message = 'Module name "' + id +
+                                '" has not been loaded yet for context: ' +
+                                contextName +
+                                (relMap ? '' : '. Use require([])');
+
+                            return onError(makeError('notloaded', message));
                         }
                         return defined[id];
                     }
