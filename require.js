@@ -1636,6 +1636,10 @@ var requirejs, require, define;
                     url = (url.charAt(0) === '/' || url.match(/^[\w\+\.\-]+:/) ? '' : config.baseUrl) + url;
                 }
 
+                if (config.transformUrl && isFunction(config.transformUrl)) {
+                    url = config.transformUrl(url, moduleName);
+                }
+
                 return config.urlArgs ? url +
                                         ((url.indexOf('?') === -1 ? '?' : '&') +
                                          config.urlArgs) : url;
