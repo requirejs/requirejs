@@ -166,9 +166,23 @@ require.config({
 // This code might be called before the require.config() in main.js
 // has executed. When that happens, require.js will attempt to
 // load 'scripts/foo.js' instead of 'scripts/libs/foo-1.1.3.js'
-require( ['foo'], function( foo ) {
+require(['foo'], function(foo) {
 
 });
+</code></pre>
+
+<p>If you want to to do <code>require()</code> calls in the HTML page, then it is best to not use data-main. data-main is only intended for use when the page just has one main entry point, the data-main script. For pages that want to do inline <code>require()</code> calls, it is best to nest those inside a <code>require()</code> call for the configuration:</p>
+
+<pre><code>&lt;script src="scripts/require.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+require(['scripts/config']), function() {
+    // Configuration loaded now, safe to do other require calls
+    // that depend on that config.
+    require(['foo'], function(foo) {
+
+    });
+});
+&lt;/script&gt;
 </code></pre>
 
 <h3>
