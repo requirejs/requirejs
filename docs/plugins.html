@@ -268,7 +268,7 @@ define(['index!2?./a:./b:./c'], function (indexResource) {
 
 <ul>
     <li><b>pluginName</b>: String. The <b>normalized</b> name for the plugin. Most plugins will not be authored with a name (they will be anonymous plugins) so it is useful to know the normalized name for the plugin module for use in the optimized file.</li>
-    <li><b>name</b>: String. The <b>normalized</b> resource name.</li>
+    <li><b>moduleName</b>: String. The <b>normalized</b> resource name.</li>
     <li><b>write</b>: Function. A function to be called with a string of output to write to the optimized file. This function also contains a property function, <b>write.asModule(moduleName, text)</b>. asModule can be used to write out a module that may have an anonymous define call in there that needs name insertion or/and contains implicit require("") dependencies that need to be pulled out for the optimized file. asModule is useful for text transform plugins, like a CoffeeScript plugin.</li>
 </ul>
 
