@@ -77,12 +77,13 @@
 &lt;html&gt;
     &lt;head&gt;
         &lt;title&gt;My Sample Project&lt;/title&gt;
-        &lt;!-- data-main attribute tells require.js to load
-             scripts/main.js after require.js loads. --&gt;
-        &lt;script data-main="scripts/main" src="scripts/require.js"&gt;&lt;/script&gt;
     &lt;/head&gt;
     &lt;body&gt;
         &lt;h1&gt;My Sample Project&lt;/h1&gt;
+        
+        &lt;!-- data-main attribute tells require.js to load
+             scripts/main.js after require.js loads. --&gt;
+        &lt;script data-main="scripts/main" src="scripts/require.js" async defer&gt;&lt;/script&gt;
     &lt;/body&gt;
 &lt;/html&gt;
 </code></pre>
