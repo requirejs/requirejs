@@ -87,6 +87,8 @@
 &lt;/html&gt;
 </code></pre>
 
+<p>You could also place the script tag end of the &lt;body&gt; section if you do not want the loading of the require.js script to block rendering. For browsers that support it, you could also add an <a href="https://developer.mozilla.org/en/docs/Web/HTML/Element/script#Attributes">async attribute</a> to the script tag.</p>
+
 <p>Inside of main.js, you can use require() to load any other scripts you need to run. This ensures a single entry point, since <a href="api.html#data-main">the data-main script you specify is loaded asynchronously</a>.</p>
 
 <pre><code>require(["helper/util"], function(util) {
