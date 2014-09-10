@@ -6,7 +6,7 @@
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/requirejs for details
  */
-/*jslint regexp: false, nomen: false, plusplus: false, strict: false */
+/*jslint regexp: false, nomen: false, plusplus: true, sloppy: true */
 /*global require: false, XMLHttpRequest: false, ActiveXObject: false,
   define: false, window: false, process: false, Packages: false,
   java: false, location: false, setTimeout */

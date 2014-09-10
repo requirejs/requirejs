@@ -1,5 +1,5 @@
 
-/*jslint strict: false, plusplus: false */
+/*jslint sloppy: true, plusplus: true */
 /*global define: false, require: false,  XMLHttpRequest: false, ActiveXObject: false,
   window: false, Packages: false, java: false, process: false */
 

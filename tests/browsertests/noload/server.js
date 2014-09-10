@@ -1,4 +1,4 @@
-/*jslint strict: false*/
+/*jslint sloppy: true */
 /*global require: false, console: false */
 
 var http = require('http'),
