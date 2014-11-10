@@ -79,7 +79,7 @@ API
 <ul>
     <li><b><a href="#apiload">load</a></b>: A function that is called to load a resource. This is the only mandatory API method that needs to be implemented for the plugin to be useful.</li>
     <li><b><a href="#apinormalize">normalize</a></b>: A function to normalize the resource name. This is useful in providing optimal caching and optimization, but only needed if the resource name is not a module name.</li>
-    <li><b><a href="#apiwrite">write</a></b>: used by the optimizer to indicate when the plugin should write out a representation of the the resource in the optimized file.</li>
+    <li><b><a href="#apiwrite">write</a></b>: used by the optimizer to indicate when the plugin should write out a representation of the resource in the optimized file.</li>
     <li><b><a href="#apipluginbuilder">pluginBuilder</a></b>: A module name string for a module that should be used in the optimizer to do optimization work. That module is used instead of the plugin module when the optimizer runs.</li>
 </ul>
 
