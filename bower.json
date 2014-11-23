@@ -1,0 +1,9 @@
+{
+  "name": "requirejs",
+  "version": "2.1.15",
+  "main": [
+    "require.js"
+  ],
+  "ignore": [
+  ]
+}
