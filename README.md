@@ -57,7 +57,7 @@ This repo assumes some other repos are checked out as siblings to this repo:
     git clone https://github.com/requirejs/text.git
     git clone https://github.com/requirejs/i18n.git
     git clone https://github.com/requirejs/domReady.git
-    git clone https://github.com/requirejs/requirejs.git
+    git clone https://github.com/jrburke/requirejs.git
 
 So when the above clones are done, the directory structure should look like:
 
