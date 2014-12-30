@@ -365,6 +365,39 @@ direct alignment of dependency name to the local variable used for that dependen
 <p>Relative paths are really useful if you are creating a few modules inside a directory, so that you can share the directory with other people or other projects, and you want to be able to get a handle on the sibling modules in that directory without
 having to know the directory's name.</p>
 
+<p id="modulenotes-relative-names"><strong>Relative module names are relative to other names, not paths</strong>: The loader stores modules by their name and not by their path internally. So for relative name references, those are resolved relative to the module name making the reference, then that module name, or ID, is converted to a path if needs to be loaded. Example code for a 'compute' package that has a 'main' and 'extras' modules in it:</p>
+
+<pre><code>* lib/
+    * compute/
+        * main.js
+        * extras.js
+</code></pre>
+
+<p>where the main.js module looks like this:</p>
+
+<pre><code>define(["./extras"], function(extras) {
+    //Uses extras in here.
+});
+</code></pre>
+
+<p>If this was the paths config:</p>
+
+<pre><code>require.config({
+    baseUrl: 'lib',
+    paths: {
+      'compute': 'compute/main'
+    }
+});
+</code></pre>
+
+<p>And a <code>require(['compute'])</code> is done, then lib/compute/main.js will have the module name of 'compute'. When it asks for './extras', that is resolved relative to 'compute', so 'compute/./extras', which normalizes to just 'extras'. Since there is no paths config for that module name, the path generated will be for 'lib/extras.js', which is incorrect.</p>
+
+<p>For this case, <a href="#packages">packages config</a> is a better option, since it allows setting the main module up as 'compute', but internally the loader will store the module with the ID of 'compute/main' so that the relative reference for './extras' works.</p>
+
+<p>Another option is to construct a module at lib/compute.js that is just <code>define(['./compute/main'], function(m) { return m; });</code>, then there is no need for paths or packages config.</p>
+
+<p>Or, do not set that paths or packages config and do the top level require call as <code>require(['compute/main'])</code>.</p>
+
 <p id="modulenotes-urls"><strong>Generate URLs relative to module</strong>: You may need to generate an URL that is relative to a module. To do so, ask for "require" as a dependency and then use require.toUrl() to generate the URL:</p>
 
 <pre><code>define(["require"], function(require) {
