@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>require.js: versionArgs + toUrl Test</title>
+    <script type="text/javascript" src="doh/runner.js"></script>
+    <script type="text/javascript" src="doh/_browserRunner.js"></script>
+    <script type="text/javascript" src="../require.js"></script>
+    <script>
+    require.config({
+        baseUrl: 'js',
+        versionArgs: {
+            'js/view.html': 3,
+            'js/view': 2
+        }
+    });
+
+    doh.register(
+        'urlArgsToUrl',
+        [
+            function urlArgsToUrl(t){
+                t.is('js/view.html?v_arg=3', require.toUrl('view.html'));
+                t.is('js/view?v_arg=2', require.toUrl('view'));
+            }
+        ]
+    );
+    doh.run();
+</script>
+</head>
+<body>
+    <h1>require.js: versionArgs + toUrl Test</h1>
+    <p>Makes sure versionArgs are working well.</p>
+    <p>Check console for messages.</p>
+</body>
+</html>

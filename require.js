@@ -1586,7 +1586,8 @@ var requirejs, require, define;
             nameToUrl: function (moduleName, ext, skipExt) {
                 var paths, syms, i, parentModule, url,
                     parentPath, bundleId,
-                    pkgMain = getOwn(config.pkgs, moduleName);
+                    pkgMain = getOwn(config.pkgs, moduleName),
+                    urlArgs = config.urlArgs;
 
                 if (pkgMain) {
                     moduleName = pkgMain;
@@ -1636,9 +1637,8 @@ var requirejs, require, define;
                     url = (url.charAt(0) === '/' || url.match(/^[\w\+\.\-]+:/) ? '' : config.baseUrl) + url;
                 }
 
-                return config.urlArgs ? url +
-                                        ((url.indexOf('?') === -1 ? '?' : '&') +
-                                         config.urlArgs) : url;
+                urlArgs = (config.versionArgs && config.versionArgs[url])? 'v_arg=' + config.versionArgs[url] : urlArgs;
+                return urlArgs ? url + ((url.indexOf('?') === -1 ? '?' : '&') + urlArgs) : url;
             },
 
             //Delegates to req.load. Broken out as a separate function to
