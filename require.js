@@ -1636,9 +1636,27 @@ var requirejs, require, define;
                     url = (url.charAt(0) === '/' || url.match(/^[\w\+\.\-]+:/) ? '' : config.baseUrl) + url;
                 }
 
-                return config.urlArgs ? url +
-                                        ((url.indexOf('?') === -1 ? '?' : '&') +
-                                         config.urlArgs) : url;
+                if (!config.urlArgs) {
+                    return url;
+                }
+
+                if (typeof config.urlArgs === 'string') {
+                    return url + ((url.indexOf('?') === -1 ? '?' : '&') + config.urlArgs);
+                }
+
+                //handle the urlArgs with a function 
+                //give each file it's own urlArgs 
+                if (isFunction(config.urlArgs)) {
+                    var urlArgs;
+                    try {
+                        urlArgs = config.urlArgs.call(config, moduleName, url);
+                    } catch (e) {
+                        urlArgs = "";
+                    }
+
+                    return url + ((url.indexOf('?') === -1 ? '?' : '&') + urlArgs);
+                }
+                
             },
 
             //Delegates to req.load. Broken out as a separate function to
