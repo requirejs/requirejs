@@ -532,6 +532,9 @@ var requirejs, require, define;
                 each(ids, function (id) {
                     var mod = getOwn(registry, id);
                     if (mod) {
+                    	
+                    	if(mod.__callStack) err.message += mod.__callStack();//MOD (russa) debugMode: use callStack information if available
+                        
                         //Set error on module, so it skips timeout checks.
                         mod.error = err;
                         if (mod.events.error) {
@@ -727,6 +730,8 @@ var requirejs, require, define;
             this.depMatched = [];
             this.pluginMaps = {};
             this.depCount = 0;
+            
+            this.__callStack = map.__callStack;//MOD (russa) debugMode: set callStack if available
 
             /* this.exports this.factory
                this.depMaps = [],
@@ -746,6 +751,12 @@ var requirejs, require, define;
                 }
 
                 this.factory = factory;
+                
+                if(errback && context.config.debugMode === true && errback.name == '__errback__'){//MOD (russa) debugMode: set callStack if available
+                	this.__callStack = errback;
+                	errback = errback.__cb;
+                	this.__callStack.__cb = void(0);
+                }
 
                 if (errback) {
                     //Register for errors on this module.
@@ -1115,6 +1126,10 @@ var requirejs, require, define;
                         }
 
                         this.depCount += 1;
+
+                        if(this.__callStack){//MOD (russa) debugMode: set callStack if available
+                        	depMap.__callStack = this.__callStack;
+                        }
 
                         on(depMap, 'defined', bind(this, function (depExports) {
                             this.defineDep(i, depExports);
@@ -1740,6 +1755,59 @@ var requirejs, require, define;
 
         if (config) {
             context.configure(config);
+        }
+        
+        //MOD (russa) debugMode:
+        //    if "debugMode" is enabled, create a call-stack/-trace
+        //    that will be used, if an error occurs
+        //    i.e. show from where the "failed dependency" was requested
+        //
+        // Usage of / enable "debugMode":
+        // set "debugMode" true in the config, e.g.
+        //
+        //    require.config({ debugMode: true });
+        //
+        if(context.config && context.config.debugMode === true){
+        	
+        	//create "call stack":
+	        var __callStack = new Error().stack;
+	        
+	        //only proceed if Error has a stack property
+	        if(__callStack){
+	        	
+		        var __errback__ = function __errback__(){
+		        	
+		        	//no arguments -> if called as "create additional information" function
+		        	if(arguments.length === 0){
+			        	var stack = __callStack;
+			        	//clean up stack-trace: remove first stack-entry using RegExpr for
+			        	// * Chrome: remove first 2 lines: Error\n  at <this>\n
+			        	// * Firefox: remove first line: <this function>@<this file>\n
+			        	return ', called from:\n' + stack.replace(/(^Error\n\r?\s*at.*?\n\r?)|(^\w*?@.*?\n\r?)/igm, '');
+		        	}
+		        	else {
+		        		//...something went wrong, and this function was called instead of the original error callback
+		        		
+		        		//invoke original error callback if available
+		        		if(__errback__.__cb){
+		        			__errback__.__cb.apply(this, arguments);
+		        		}
+		        		else if(console){
+		        			//otherwise: log error to console
+		        			var func = console.error? 'error' : 'log';//<- use error-logging if available
+		        			console[func](arguments[0])
+		        		}
+		        	}
+		        };
+		        
+		        //HACK: pass the additional stack-information on, by replacing the error-callback
+		        //      (attaching the original callback at __cb).
+		        //      This HACK avoids far-reaching changes, but if someone uses a named function
+		        //      with the same name, this mechanism may crash/collide
+		        __errback__.__cb = errback;
+		        errback = __errback__;
+	        }
+	        
         }
 
         return context.require(deps, callback, errback);
