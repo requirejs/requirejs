@@ -538,6 +538,11 @@ var requirejs, require, define;
                             notified = true;
                             mod.emit('error', err);
                         }
+                        else if(mod.__callStack){
+                        	//MOD (russa) debugMode: need to add callStack information "manually",
+                        	//                       if err was not emitted by the module itself
+                        	addCallStack(mod, err);
+                        }
                     }
                 });
 
@@ -1177,16 +1182,7 @@ var requirejs, require, define;
                 
                 //MOD (russa) debugMode: use callStack information if available
                 if(name === 'error' && this.__callStack){
-                    if(!evt.callStack){
-                        evt.callStack = '[resolving module ' + this.map.id + ']\n' + this.__callStack();
-                        evt.message += '\nDependency requested from: ' + evt.callStack;
-                    }
-                    else if(!this.error){
-                        //prepend to call-stack & message
-                        evt.message = evt.message.replace(evt.callStack, '');
-                        evt.callStack = '[resolving module ' + this.map.id + ']\n' + this.__callStack() + '\nand ' + evt.callStack;
-                        evt.message += evt.callStack;
-                    }
+                	addCallStack(this, evt);
                 }
                 
                 each(this.events[name], function (cb) {
@@ -1200,6 +1196,20 @@ var requirejs, require, define;
                 }
             }
         };
+        
+        //MOD (russa) debugMode: helper for creating the callStack / message
+        function addCallStack(module, errorEvt){
+            if(!errorEvt.callStack){
+                errorEvt.callStack = '[resolving module ' + module.map.id + ']\n' + module.__callStack();
+                errorEvt.message += '\nDependency requested from: ' + errorEvt.callStack;
+            }
+            else if(!this.error){
+                //prepend to call-stack & message
+                errorEvt.message = errorEvt.message.replace(errorEvt.callStack, '');
+                errorEvt.callStack = '[resolving module ' + module.map.id + ']\n' + module.__callStack() + '\nand ' + errorEvt.callStack;
+                errorEvt.message += errorEvt.callStack;
+            }
+        }
 
         function callGetModule(args) {
             //Skip modules already defined.
@@ -1796,11 +1806,12 @@ var requirejs, require, define;
                 
                 var __callStack = function __callStack(){
                     //clean up stack-trace: remove first stack-entry using RegExpr for
+                    // * trim _callStack String
                     // * Chrome: remove first 2 lines: Error\n  at <this>\n
                     // * Firefox: remove first line: <this function>@<this file>\n
                     // * Opera: remove first line: <this function/debug info>@<this file>:<line number>\n
-                    return _callStack.replace(
-                        /(^Error\n\r?\s*at.*?\n\r?)|(^\w*?@.*?\n\r?)|(^.*?@.*?:\d+\n\r?)/igm, ''
+                    return _callStack.replace(/^\s+/,'').replace(/\s+$/,'').replace(
+                        /(^Error\n\r?\s*at.*?\n\r?)|(^\w*?@.*?\n\r?)|(^.*?@.*?:\d+\n\r?)/i, ''
                     );
                 };
                 
