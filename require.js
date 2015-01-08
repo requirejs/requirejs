@@ -533,7 +533,11 @@ var requirejs, require, define;
                     var mod = getOwn(registry, id);
                     if (mod) {
                     	
-                    	if(mod.__callStack) err.message += mod.__callStack();//MOD (russa) debugMode: use callStack information if available
+                    	//MOD (russa) debugMode: use callStack information if available
+                    	if(mod.__callStack){
+                    		err.callStack = mod.__callStack();
+                    		err.message += '\nDependency requested from:\n' + err.callStack;
+                    	}
                         
                         //Set error on module, so it skips timeout checks.
                         mod.error = err;
@@ -752,7 +756,8 @@ var requirejs, require, define;
 
                 this.factory = factory;
                 
-                if(errback && context.config.debugMode === true && errback.name == '__errback__'){//MOD (russa) debugMode: set callStack if available
+                //MOD (russa) debugMode: set callStack if available
+                if(errback && context.config.debugMode === true && errback.name == '__callStack'){
                 	this.__callStack = errback;
                 	errback = errback.__cb;
                 	this.__callStack.__cb = void(0);
@@ -1126,8 +1131,9 @@ var requirejs, require, define;
                         }
 
                         this.depCount += 1;
-
-                        if(this.__callStack){//MOD (russa) debugMode: set callStack if available
+                        
+                        //MOD (russa) debugMode: set callStack if available
+                        if(this.__callStack){
                         	depMap.__callStack = this.__callStack;
                         }
 
@@ -1758,54 +1764,40 @@ var requirejs, require, define;
         }
         
         //MOD (russa) debugMode:
-        //    if "debugMode" is enabled, create a call-stack/-trace
-        //    that will be used, if an error occurs
-        //    i.e. show from where the "failed dependency" was requested
+        //    if "debugMode" is enabled, create a call-stack trace
+        //      that will be used, if an error occurs, i.e.
+        //      show from where the "failed dependency" was requested.
+        //    The call-stack information will be appended to the error-message
+        //      and be available as String property callStack on the error object.
         //
         // Usage of / enable "debugMode":
-        // set "debugMode" true in the config, e.g.
+        // set "debugMode" to true in the requirejs config, e.g.
         //
         //    require.config({ debugMode: true });
         //
         if(context.config && context.config.debugMode === true){
         	
         	//create "call stack":
-	        var __callStack = new Error().stack;
+	        var _callStack = new Error().stack;
 	        
 	        //only proceed if Error has a stack property
-	        if(__callStack){
+	        if(_callStack){
 	        	
-		        var __errback__ = function __errback__(){
-		        	
-		        	//no arguments -> if called as "create additional information" function
-		        	if(arguments.length === 0){
-			        	var stack = __callStack;
-			        	//clean up stack-trace: remove first stack-entry using RegExpr for
-			        	// * Chrome: remove first 2 lines: Error\n  at <this>\n
-			        	// * Firefox: remove first line: <this function>@<this file>\n
-			        	return ', called from:\n' + stack.replace(/(^Error\n\r?\s*at.*?\n\r?)|(^\w*?@.*?\n\r?)/igm, '');
-		        	}
-		        	else {
-		        		//...something went wrong, and this function was called instead of the original error callback
-		        		
-		        		//invoke original error callback if available
-		        		if(__errback__.__cb){
-		        			__errback__.__cb.apply(this, arguments);
-		        		}
-		        		else if(console){
-		        			//otherwise: log error to console
-		        			var func = console.error? 'error' : 'log';//<- use error-logging if available
-		        			console[func](arguments[0])
-		        		}
-		        	}
+		        var __callStack = function __callStack(){
+		        	//clean up stack-trace: remove first stack-entry using RegExpr for
+		        	// * Chrome: remove first 2 lines: Error\n  at <this>\n
+		        	// * Firefox: remove first line: <this function>@<this file>\n
+		        	return _callStack.replace(
+		        		/(^Error\n\r?\s*at.*?\n\r?)|(^\w*?@.*?\n\r?)/igm, ''
+		        	);
 		        };
 		        
-		        //HACK: pass the additional stack-information on, by replacing the error-callback
-		        //      (attaching the original callback at __cb).
-		        //      This HACK avoids far-reaching changes, but if someone uses a named function
-		        //      with the same name, this mechanism may crash/collide
-		        __errback__.__cb = errback;
-		        errback = __errback__;
+		        //HACK: in order to avoid massive code changes, the additional stack-information is passed on
+		        //        by replacing the error-callback (attaching the original callback at __cb).
+		        //      The error-callback is reverted back (i.e. replaced by __cb again) in the Module.init function:
+		        //        the Module instance will then have the function __callStack attached.
+		        __callStack.__cb = errback;
+		        errback = __callStack;
 	        }
 	        
         }
