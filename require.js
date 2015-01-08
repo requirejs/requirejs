@@ -539,9 +539,9 @@ var requirejs, require, define;
                             mod.emit('error', err);
                         }
                         else if(mod.__callStack){
-                        	//MOD (russa) debugMode: need to add callStack information "manually",
-                        	//                       if err was not emitted by the module itself
-                        	addCallStack(mod, err);
+                            //MOD (russa) debugMode: need to add callStack information "manually",
+                            //                       if err was not emitted by the module itself
+                            addCallStack(mod, err);
                         }
                     }
                 });
@@ -1182,7 +1182,7 @@ var requirejs, require, define;
                 
                 //MOD (russa) debugMode: use callStack information if available
                 if(name === 'error' && this.__callStack){
-                	addCallStack(this, evt);
+                    addCallStack(this, evt);
                 }
                 
                 each(this.events[name], function (cb) {
@@ -1805,12 +1805,20 @@ var requirejs, require, define;
             if(_callStack){
                 
                 var __callStack = function __callStack(){
-                    //clean up stack-trace: remove first stack-entry using RegExpr for
+
+                    if(!String.prototype.trim){
+                        String.prototype.trim = function(){
+                            return this.replace(/^\s+/,'').replace(/\s+$/,'');
+                        };
+                    }
+                    
+                    //clean up stack-trace:
                     // * trim _callStack String
-                    // * Chrome: remove first 2 lines: Error\n  at <this>\n
-                    // * Firefox: remove first line: <this function>@<this file>\n
-                    // * Opera: remove first line: <this function/debug info>@<this file>:<line number>\n
-                    return _callStack.replace(/^\s+/,'').replace(/\s+$/,'').replace(
+                    // * remove first stack-entry using RegExpr for
+                    //   * Chrome: remove first 2 lines: Error\n  at <this>\n
+                    //   * Firefox: remove first line: <this function>@<this file>\n
+                    //   * Opera: remove first line: <this function/debug info>@<this file>:<line number>\n
+                    return _callStack.trim().replace(
                         /(^Error\n\r?\s*at.*?\n\r?)|(^\w*?@.*?\n\r?)|(^.*?@.*?:\d+\n\r?)/i, ''
                     );
                 };
