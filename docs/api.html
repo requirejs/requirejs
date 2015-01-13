@@ -97,6 +97,7 @@ up locations of a group of scripts. All of these capabilities allow you to use s
                 <li>canvas.js</li>
             </ul></li>
             <li>app.js</li>
+            <li>require.js</li>
         </ul></li>
     </ul></li>
 </ul>
@@ -166,9 +167,23 @@ require.config({
 // This code might be called before the require.config() in main.js
 // has executed. When that happens, require.js will attempt to
 // load 'scripts/foo.js' instead of 'scripts/libs/foo-1.1.3.js'
-require( ['foo'], function( foo ) {
+require(['foo'], function(foo) {
 
 });
+</code></pre>
+
+<p>If you want to to do <code>require()</code> calls in the HTML page, then it is best to not use data-main. data-main is only intended for use when the page just has one main entry point, the data-main script. For pages that want to do inline <code>require()</code> calls, it is best to nest those inside a <code>require()</code> call for the configuration:</p>
+
+<pre><code>&lt;script src="scripts/require.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+require(['scripts/config'], function() {
+    // Configuration loaded now, safe to do other require calls
+    // that depend on that config.
+    require(['foo'], function(foo) {
+
+    });
+});
+&lt;/script&gt;
 </code></pre>
 
 <h3>
@@ -329,7 +344,7 @@ direct alignment of dependency name to the local variable used for that dependen
 
 <h4><a href="#modulenotes" name="modulenotes">Other Module Notes</a><span class="sectionMark">&sect; 1.3.7</span></h4>
 
-<p id="modulenotes-onemodule"><strong>One module per file.</strong>: Only one module should be defined per JavaScript file, given the nature of the module name-to-file-path lookup algorithm. Multiple modules will be grouped into optimized files by the <a href="optimization.html">optimization tool</a>, but you should only use the optimization tool to place more than one module in a file.</p>
+<p id="modulenotes-onemodule"><strong>One module per file.</strong>: Only one module should be defined per JavaScript file, given the nature of the module name-to-file-path lookup algorithm. You shoud only use the <a href="optimization.html">optimization tool</a> to group multiple modules into optimized files.</p>
 
 <p id="modulenotes-relative"><strong>Relative module names inside define()</strong>: For require("./relative/name") calls that can happen inside a define() function call, be sure to ask for "require" as a dependency, so that the relative name is resolved correctly:</p>
 
@@ -350,6 +365,39 @@ direct alignment of dependency name to the local variable used for that dependen
 <p>Relative paths are really useful if you are creating a few modules inside a directory, so that you can share the directory with other people or other projects, and you want to be able to get a handle on the sibling modules in that directory without
 having to know the directory's name.</p>
 
+<p id="modulenotes-relative-names"><strong>Relative module names are relative to other names, not paths</strong>: The loader stores modules by their name and not by their path internally. So for relative name references, those are resolved relative to the module name making the reference, then that module name, or ID, is converted to a path if needs to be loaded. Example code for a 'compute' package that has a 'main' and 'extras' modules in it:</p>
+
+<pre><code>* lib/
+    * compute/
+        * main.js
+        * extras.js
+</code></pre>
+
+<p>where the main.js module looks like this:</p>
+
+<pre><code>define(["./extras"], function(extras) {
+    //Uses extras in here.
+});
+</code></pre>
+
+<p>If this was the paths config:</p>
+
+<pre><code>require.config({
+    baseUrl: 'lib',
+    paths: {
+      'compute': 'compute/main'
+    }
+});
+</code></pre>
+
+<p>And a <code>require(['compute'])</code> is done, then lib/compute/main.js will have the module name of 'compute'. When it asks for './extras', that is resolved relative to 'compute', so 'compute/./extras', which normalizes to just 'extras'. Since there is no paths config for that module name, the path generated will be for 'lib/extras.js', which is incorrect.</p>
+
+<p>For this case, <a href="#packages">packages config</a> is a better option, since it allows setting the main module up as 'compute', but internally the loader will store the module with the ID of 'compute/main' so that the relative reference for './extras' works.</p>
+
+<p>Another option is to construct a module at lib/compute.js that is just <code>define(['./compute/main'], function(m) { return m; });</code>, then there is no need for paths or packages config.</p>
+
+<p>Or, do not set that paths or packages config and do the top level require call as <code>require(['compute/main'])</code>.</p>
+
 <p id="modulenotes-urls"><strong>Generate URLs relative to module</strong>: You may need to generate an URL that is relative to a module. To do so, ask for "require" as a dependency and then use require.toUrl() to generate the URL:</p>
 
 <pre><code>define(["require"], function(require) {
@@ -368,12 +416,12 @@ having to know the directory's name.</p>
 <div class="subSection">
 <h4><a href="#circular" name="circular">Circular Dependencies</a><span class="sectionMark">&sect; 1.3.8</span></h4>
 
-<p>If you define a circular dependency (a needs b and b needs a), then in this case when b's module function is called, it will get an undefined value for a. b can fetch a later after modules have been defined by using the require() method (be sure to specify require as a dependency so the right context is used to look up a):</p>
+<p>If you define a circular dependency ("a" needs "b" and "b" needs "a"), then in this case when "b"'s module function is called, it will get an undefined value for "a". "b" can fetch "a" later after modules have been defined by using the require() method (be sure to specify require as a dependency so the right context is used to look up "a"):</p>
 
 <pre><code>//Inside b.js:
 define(["require", "a"],
     function(require, a) {
-        //"a" in this case will be null if a also asked for b,
+        //"a" in this case will be null if "a" also asked for "b",
         //a circular dependency.
         return function(title) {
             return require("a").doSomething();
@@ -390,7 +438,7 @@ define(["require", "a"],
 define(function(require, exports, module) {
     //If "a" has used exports, then we have a real
     //object reference here. However, we cannot use
-    //any of a's properties until after b returns a value.
+    //any of "a"'s properties until after "b" returns a value.
     var a = require("a");
 
     exports.foo = function () {
@@ -406,7 +454,7 @@ define(function(require, exports, module) {
 define(['a', 'exports'], function(a, exports) {
     //If "a" has used exports, then we have a real
     //object reference here. However, we cannot use
-    //any of a's properties until after b returns a value.
+    //any of "a"'s properties until after "b" returns a value.
 
     exports.foo = function () {
         return a.bar();
@@ -472,7 +520,7 @@ module loading that may use that module. See the <a href="#errbacks">errback sec
 
 <p>RequireJS loads each dependency as a script tag, using head.appendChild().</p>
 
-<p>RequireJS waits for all dependencies to load, figures out the right order in which to call the functions that define the modules, then calls the module definition functions in the right order.</p>
+<p>RequireJS waits for all dependencies to load, figures out the right order in which to call the functions that define the modules, then calls the module definition functions once the dependencies for those functions have been called. Note that the dependencies for a given module definition function could be called in any order, due to their sub-dependency relationships and network load order.</p>
 
 <p>Using RequireJS in a server-side JavaScript environment that has synchronous loading should be as easy as redefining require.load(). The build system does this, the require.load method for that environment can be found in build/jslib/requirePatch.js.</p>
 
@@ -507,7 +555,7 @@ module loading that may use that module. See the <a href="#errbacks">errback sec
 &lt;/script&gt;
 </code></pre>
 
-<p>You may also call require.config from your <a href="api.html#data-main">data-main Entry Point</a>, but be aware that the data-main script is loaded asynchronously. Avoid other entry point scripts which wrongly assume that data-main and its require.config will always execute prior to their script loading.</a>
+<p>You may also call require.config from your <a href="api.html#data-main">data-main Entry Point</a>, but be aware that the data-main script is loaded asynchronously. Avoid other entry point scripts which wrongly assume that data-main and its require.config will always execute prior to their script loading.</a></p>
 
 <p>Also, you can define the config object as the global variable <code>require</code> <strong>before</strong> require.js is loaded, and have the values applied automatically.
 This example specifies some dependencies to load as soon as require.js defines require():</p>
@@ -528,6 +576,8 @@ This example specifies some dependencies to load as soon as require.js defines r
 
 <p><b>Note:</b> It is best to use <code>var require = {}</code> and do not use
 <code>window.require = {}</code>, it will not behave correctly in IE.</p>
+
+<p>There are <a href="https://github.com/jrburke/requirejs/wiki/Patterns-for-separating-config-from-the-main-module">some patterns for separating the config from main module loading</a>.</p>
 
 <p>Supported configuration options:</p>
 
@@ -759,6 +809,8 @@ requirejs.config({
 
 <p>Means that for any module except "some/oldmodule", when "foo" is wanted, use "foo1.2" instead. For "some/oldmodule" only, use "foo1.0" when it asks for "foo".</p>
 
+<p id="config-map-notes"><strong>Note:</strong> when doing builds with map config, the map config needs to be fed to the optimizer, and the build output must still contain a requirejs config call that sets up the map config. The optimizer does not do ID renaming during the build, because some dependency references in a project could depend on runtime variable state. So the optimizer does not invalidate the need for a map config after the build.</p>
+
 <p id="config-moduleconfig"><strong><a href="#config-moduleconfig">config</a></strong>: There is a common need to pass configuration info to a module.  That configuration info is usually known as part of the application, and there needs to be a way to pass that down to a module. In RequireJS, that is done with the <b>config</b> option for requirejs.config(). Modules can then read that info by asking for the special dependency "module" and calling <b>module.config()</b>. Example:</p>
 
 <pre><code>requirejs.config({
@@ -812,7 +864,7 @@ define(['module'], function (module) {
 
 <p id="config-packages"><strong><a href="#config-packages">packages</a></strong>: configures loading modules from CommonJS packages. See the <a href="#packages">packages topic</a> for more information.</p>
 
-<p id="config-nodeIdCompat"><strong><a href="#config-nodeIdCompat">nodeIdCompat</a></strong>: Node treats module ID <code>example.js</code> and <code>example</code> the same. By default these are two different IDs in RequireJS. If you end up using modules installed from npm, then you may need to set this config value to <code>true</code> to avoid resolution issues.</p>
+<p id="config-nodeIdCompat"><strong><a href="#config-nodeIdCompat">nodeIdCompat</a></strong>: Node treats module ID <code>example.js</code> and <code>example</code> the same. By default these are two different IDs in RequireJS. If you end up using modules installed from npm, then you may need to set this config value to <code>true</code> to avoid resolution issues. Available in 2.1.10 and greater.</p>
 
 <p id="config-waitSeconds"><strong><a href="#config-waitSeconds">waitSeconds</a></strong>: The number of seconds to wait before giving up on loading a script. Setting it to 0 disables the timeout. The default is 7 seconds.</p>
 

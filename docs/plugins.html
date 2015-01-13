@@ -26,7 +26,7 @@ Intro
 
 <p>Examples of existing loader plugins are the <a href="api.html#text">text!</a> and <a href="api.html#i18n">i18n!</a> plugins. The text! plugin handles loading text, and the i18n plugin handles loading a JavaScript object that is made up from objects from a few different modules. The object contains localized strings.</p>
 
-<p>The RequireJS wiki has a longer <a href="https://github.com/jrburke/requirejs/wiki/Plugins">list of plugins on the RequireJS</a>.</p>
+<p>The RequireJS wiki has a longer <a href="https://github.com/jrburke/requirejs/wiki/Plugins">list of plugins</a>.</p>
 
 </div>
 
@@ -79,7 +79,7 @@ API
 <ul>
     <li><b><a href="#apiload">load</a></b>: A function that is called to load a resource. This is the only mandatory API method that needs to be implemented for the plugin to be useful.</li>
     <li><b><a href="#apinormalize">normalize</a></b>: A function to normalize the resource name. This is useful in providing optimal caching and optimization, but only needed if the resource name is not a module name.</li>
-    <li><b><a href="#apiwrite">write</a></b>: used by the optimizer to indicate when the plugin should write out a representation of the the resource in the optimized file.</li>
+    <li><b><a href="#apiwrite">write</a></b>: used by the optimizer to indicate when the plugin should write out a representation of the resource in the optimized file.</li>
     <li><b><a href="#apipluginbuilder">pluginBuilder</a></b>: A module name string for a module that should be used in the optimizer to do optimization work. That module is used instead of the plugin module when the optimizer runs.</li>
 </ul>
 
@@ -268,7 +268,7 @@ define(['index!2?./a:./b:./c'], function (indexResource) {
 
 <ul>
     <li><b>pluginName</b>: String. The <b>normalized</b> name for the plugin. Most plugins will not be authored with a name (they will be anonymous plugins) so it is useful to know the normalized name for the plugin module for use in the optimized file.</li>
-    <li><b>name</b>: String. The <b>normalized</b> resource name.</li>
+    <li><b>moduleName</b>: String. The <b>normalized</b> resource name.</li>
     <li><b>write</b>: Function. A function to be called with a string of output to write to the optimized file. This function also contains a property function, <b>write.asModule(moduleName, text)</b>. asModule can be used to write out a module that may have an anonymous define call in there that needs name insertion or/and contains implicit require("") dependencies that need to be pulled out for the optimized file. asModule is useful for text transform plugins, like a CoffeeScript plugin.</li>
 </ul>
 
@@ -311,7 +311,7 @@ write: function (pluginName, moduleName, write) {
 
 
 <h3>
-<a name="apiwritefile">writeFile: function (pluginName, name, write)</a>
+<a name="apiwritefile">writeFile: function (pluginName, name, parentRequire, write)</a>
 <span class="sectionMark">&sect; 3.5</span>
 </h3>
 

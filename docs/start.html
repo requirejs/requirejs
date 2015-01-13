@@ -11,6 +11,9 @@
         <li class="hbox">
             <a href="#optimize">Optimize</a><span class="spacer boxFlex"></span><span class="sect">&sect; 3</span>
         </li>
+        <li class="hbox">
+            <a href="#examples">Examples</a><span class="spacer boxFlex"></span><span class="sect">&sect; 4</span>
+        </li>
     </ul>
 
     <span class="note">Note: If you are using jQuery, there is a <a href="jquery.md">targeted jQuery tutorial</a></span>
@@ -84,6 +87,8 @@
 &lt;/html&gt;
 </code></pre>
 
+<p>You could also place the script tag end of the &lt;body&gt; section if you do not want the loading of the require.js script to block rendering. For browsers that support it, you could also add an <a href="https://developer.mozilla.org/en/docs/Web/HTML/Element/script#Attributes">async attribute</a> to the script tag.</p>
+
 <p>Inside of main.js, you can use require() to load any other scripts you need to run. This ensures a single entry point, since <a href="api.html#data-main">the data-main script you specify is loaded asynchronously</a>.</p>
 
 <pre><code>require(["helper/util"], function(util) {
@@ -108,3 +113,19 @@ modules.</p>
 
 <p>Once you are finished doing development and want to deploy your code for your end users, you can use the <a href="optimization.md">optimizer</a> to combine the JavaScript files together and minify it. In the example above, it can combine main.js and helper/util.js into one file and minify the result.</p>
 </div>
+
+<div class="section">
+<h2>
+    <a name="examples">Examples</a>
+    <span class="sectionMark">&sect; 4</span>
+</h2>
+
+<p>If you want a starting project to use to try out RequireJS, here are some options:</p>
+
+<ul>
+    <li><a href="https://github.com/volojs/create-template">Simple one page app</a></li>
+    <li><a href="https://github.com/requirejs/example-multipage">Multipage app</a></li>
+    <li><a href="https://github.com/requirejs/example-multipage-shim">Multipage app with shim config</a></li>
+</ul>
+</div>
+
