@@ -442,7 +442,7 @@ var requirejs, require, define;
                         //Plugin is loaded, use its normalize method.
                         normalizedName = pluginModule.normalize(name, function (name) {
                             return normalize(name, parentName, applyMap);
-                        }, parentName);
+                        });
                     } else {
                         // If nested plugin references, then do not try to
                         // normalize, as it will not normalize correctly. This
@@ -955,7 +955,7 @@ var requirejs, require, define;
                         if (plugin.normalize) {
                             name = plugin.normalize(name, function (name) {
                                 return normalize(name, parentName, true);
-                            }, parentName) || '';
+                            }) || '';
                         }
 
                         //prefix and name should already be normalized, no need
