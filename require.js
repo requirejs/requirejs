@@ -1441,19 +1441,23 @@ var requirejs, require, define;
                      */
                     toUrl: function (moduleNamePlusExt) {
                         var ext,
-                            index = moduleNamePlusExt.lastIndexOf('.'),
-                            segment = moduleNamePlusExt.split('/')[0],
+                            segments = moduleNamePlusExt.split('/'),
+                            segment = segments[0],
+                            lastSegment = segments[segments.length - 1],
+                            extIndex = lastSegment === '.' || lastSegment === '..' ? -1 : lastSegment.lastIndexOf('.'),
                             isRelative = segment === '.' || segment === '..';
 
                         //Have a file extension alias, and it is not the
                         //dots from a relative path.
-                        if (index !== -1 && (!isRelative || index > 1)) {
-                            ext = moduleNamePlusExt.substring(index, moduleNamePlusExt.length);
-                            moduleNamePlusExt = moduleNamePlusExt.substring(0, index);
+                        if (extIndex !== -1) {
+                            // make the extIndex relative to the whole path
+                            extIndex = moduleNamePlusExt.length - (lastSegment.length - extIndex);
+                            ext = moduleNamePlusExt.substring(extIndex, moduleNamePlusExt.length);
+                            moduleNamePlusExt = moduleNamePlusExt.substring(0, extIndex);
                         }
 
                         return context.nameToUrl(normalize(moduleNamePlusExt,
-                                                relMap && relMap.id, true), ext,  true);
+                                                relMap && relMap.id, true), ext, true);
                     },
 
                     defined: function (id) {
