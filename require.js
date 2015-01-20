@@ -149,7 +149,9 @@ var requirejs, require, define;
         }
         var g = global;
         each(value.split('.'), function (part) {
-            g = g[part];
+            if (typeof g !== 'undefined') {
+                g = g[part];
+            }
         });
         return g;
     }
