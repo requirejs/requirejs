@@ -27,7 +27,7 @@
 <li>Optimizes CSS by inlining CSS files referenced by @import and removing comments.</li>
 </ul>
 
-<p>The optimizer is part of the <a href="https://github.com/jrburke/r.js">r.js adapter for Node and Rhino</a>, and it is designed to be run as part of a build or packaging step after you are done with development and are ready to deploy the code for your users.</p>
+<p>The optimizer is part of the <a href="https://github.com/jrburke/r.js">r.js adapter for Node and Nashorn</a>, and it is designed to be run as part of a build or packaging step after you are done with development and are ready to deploy the code for your users.</p>
 
 <p>The optimizer will only combine modules that are specified in arrays of string literals that are passed to top-level require and define calls, or the require('name') string literal calls in a <a href="whyamd.html#sugar">simplified CommonJS wrapping</a>. So, it will not find modules that are loaded via a variable name:</p>
 
@@ -52,7 +52,7 @@ require(mods);</code></pre>
 <span class="sectionMark">&sect; 1</span>
 </h2>
 
-<p>The optimizer can be run using Node, Java with Rhino, or in the browser. The requirements for each option:<p>
+<p>The optimizer can be run using Node, Java with Rhino or Nashorn, or in the browser. The requirements for each option:<p>
 
 <ul>
    <li><strong>Node:</strong> (preferred) <a href="http://nodejs.org">Node</a> 0.4.0 or later.</li>

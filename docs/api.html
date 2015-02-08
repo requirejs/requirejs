@@ -32,7 +32,8 @@
         <li class="hbox"><a href="#afterload">Loading Code After Page Load</a><span class="spacer boxFlex"></span><span class="sect">&sect; 4.3</span></li>
         <li class="hbox"><a href="#webworker">Web Worker Support</a><span class="spacer boxFlex"></span><span class="sect">&sect; 4.4</span></li>
         <li class="hbox"><a href="#rhino">Rhino Support</a><span class="spacer boxFlex"></span><span class="sect">&sect; 4.5</span></li>
-        <li class="hbox"><a href="#errors">Handling Errors</a><span class="spacer boxFlex"></span><span class="sect">&sect; 4.6</span></li>
+        <li class="hbox"><a href="#nashorn">Nashorn Support</a><span class="spacer boxFlex"></span><span class="sect">&sect; 4.6</span></li>
+        <li class="hbox"><a href="#errors">Handling Errors</a><span class="spacer boxFlex"></span><span class="sect">&sect; 4.7</span></li>
     </ul>
     <li class="hbox"><a href="#plugins">Loader Plugins</a><span class="spacer boxFlex"></span><span class="sect">&sect;&sect; 5-5.4</span></li>
         <ul>
@@ -1083,7 +1084,12 @@ function(require,   alpha,   beta) {
 <p>RequireJS can be used in Rhino via the <a href="download.html#rjs">r.js adapter</a>.
 See <a href="https://github.com/jrburke/r.js/blob/master/README.md">the r.js README</a> for more information.</p>
 
-<h3><a href="#errors" name="errors">Handling Errors</a><span class="sectionMark">&sect; 4.6</span></h3>
+<h3><a href="#nashorn" name="nashorn">Nashorn Support</a><span class="sectionMark">&sect; 4.6</span></h3>
+
+<p>As of RequireJS 2.1.16, RequireJS can be used in <a href="http://www.oracle.com/technetwork/articles/java/jf14-nashorn-2126515.html">Nashorn</a>, Java 8+'s JavaScript engine, via the <a href="download.html#rjs">r.js adapter</a>.
+See <a href="https://github.com/jrburke/r.js/blob/master/README.md">the r.js README</a> for more information.</p>
+
+<h3><a href="#errors" name="errors">Handling Errors</a><span class="sectionMark">&sect; 4.7</span></h3>
 
 <p>The general class of errors are 404s for scripts (not found), network timeouts or errors in the scripts that are loaded. RequireJS has a few tools to deal with them: require-specific errbacks, a "paths" array config, and a global requirejs.onError.</p>
 
