@@ -1123,6 +1123,13 @@ var requirejs, require, define;
 
                         if (this.errback) {
                             on(depMap, 'error', bind(this, this.errback));
+                        } else if (this.events.error) {
+                            // No direct errback on this module, but something
+                            // else is listening for errors, so be sure to
+                            // propagate the error correctly.
+                            on(depMap, 'error', bind(this, function(err) {
+                                this.emit('error', err);
+                            }));
                         }
                     }
 

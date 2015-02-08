@@ -193,6 +193,8 @@ doh.registerUrl("errorGlobalOnError", "../error/globalOnError.html", 2000);
 doh.registerUrl("pluginErrorContinue", "../error/pluginErrorContinue.html", 8000);
 doh.registerUrl("pluginErrorContinueLocal", "../error/pluginErrorContinueLocal.html", 8000);
 doh.registerUrl("defineErrorLocal", "../error/defineErrorLocal.html");
+doh.registerUrl("errorChild", "../error/errorChild.html");
+
 
 doh.registerUrl("pathArray", "../pathArray/pathArray.html", 8000);
 doh.registerUrl("pathArrayWithMap", "../pathArray/withMap/withMap.html", 8000);
