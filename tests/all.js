@@ -27,6 +27,8 @@ if (hasToString) {
     doh.registerUrl("cjsDotRequire", "../cjsSpace/cjsDotRequire.html");
     doh.registerUrl("packages", "../packages/packages.html");
     doh.registerUrl("packagesConfig", "../packages/config/config.html");
+    doh.registerUrl("packagesMultiLevel", "../packagesMultiLevel/packagesMultiLevel.html");
+    doh.registerUrl("packagesMultiLevelBuilt", "../packagesMultiLevel/packagesMultiLevel-built.html");
     doh.registerUrl("packagesNestedMain", "../packagesNestedMain/packagesNestedMain.html");
     doh.registerUrl("packagesNode", "../packagesNode/packagesNode.html");
     doh.registerUrl("packagesNodeAdapter", "../packagesNodeAdapter/packagesNodeAdapter.html");
