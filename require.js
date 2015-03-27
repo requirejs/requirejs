@@ -2001,10 +2001,11 @@ var requirejs, require, define;
      * name.
      */
     define = function (name, deps, callback) {
-        var node, context;
+        var node, context,
+            isAnonymousMod = (typeof name !== 'string');
 
         //Allow for anonymous modules
-        if (typeof name !== 'string') {
+        if (isAnonymousMod) {
             //Adjust args appropriately
             callback = deps;
             deps = name;
@@ -2043,7 +2044,7 @@ var requirejs, require, define;
 
         //If in IE 6-8 and hit an anonymous define() call, do the interactive
         //work.
-        if (useInteractive) {
+        if (isAnonymousMod && useInteractive) {
             node = currentlyAddingScript || getInteractiveScript();
             if (node) {
                 if (!name) {
