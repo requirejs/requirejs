@@ -1117,6 +1117,9 @@ var requirejs, require, define;
                         this.depCount += 1;
 
                         on(depMap, 'defined', bind(this, function (depExports) {
+                            if (this.undefed) {
+                                return;
+                            }
                             this.defineDep(i, depExports);
                             this.check();
                         }));
@@ -1483,6 +1486,7 @@ var requirejs, require, define;
                         var map = makeModuleMap(id, relMap, true),
                             mod = getOwn(registry, id);
 
+                        mod.undefed = true;
                         removeScript(id);
 
                         delete defined[id];
