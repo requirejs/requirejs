@@ -1193,7 +1193,7 @@ var requirejs, require, define;
             //Favor detachEvent because of IE9
             //issue, see attachEvent/addEventListener comment elsewhere
             //in this file.
-            if (node.detachEvent && !isOpera) {
+            if (!isOpera && node.detachEvent) {
                 //Probably IE. If not it will throw an error, which will be
                 //useful to know.
                 if (ieName) {
@@ -1868,7 +1868,7 @@ var requirejs, require, define;
             //https://connect.microsoft.com/IE/feedback/details/648057/script-onload-event-is-not-fired-immediately-after-script-execution
             //UNFORTUNATELY Opera implements attachEvent but does not follow the script
             //script execution mode.
-            if (node.attachEvent &&
+            if (!isOpera && node.attachEvent &&
                     //Check if node.attachEvent is artificially added by custom script or
                     //natively supported by browser
                     //read https://github.com/jrburke/requirejs/issues/187
@@ -1876,8 +1876,7 @@ var requirejs, require, define;
                     //in IE8, node.attachEvent does not have toString()
                     //Note the test for "[native code" with no closing brace, see:
                     //https://github.com/jrburke/requirejs/issues/273
-                    !(node.attachEvent.toString && node.attachEvent.toString().indexOf('[native code') < 0) &&
-                    !isOpera) {
+                    !(node.attachEvent.toString && node.attachEvent.toString().indexOf('[native code') < 0)) {
                 //Probably IE. IE (at least 6-8) do not fire
                 //script onload right after executing the script, so
                 //we cannot tie the anonymous define call to a name.
