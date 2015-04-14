@@ -1,0 +1,9 @@
+{
+  "preset": "google",
+  "validateIndentation": 4,
+  "excludeFiles": [
+    "dist/**",
+    "node_modules/**",
+    "tests/**"
+  ]
+}
