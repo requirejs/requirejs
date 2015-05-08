@@ -1340,7 +1340,7 @@ define({
 });
 </code></pre>
 
-<p>RequireJS will use the browser's navigator.language or navigator.userLanguage property to determine what locale values to use for my/nls/colors, so your app does not have to change. If you prefer to set the locale, you can use the <a href="#moduleconfig">module config</a> to pass the locale to the plugin:</p>
+<p>RequireJS will use the browser's navigator.languages, navigator.language or navigator.userLanguage property to determine what locale values to use for my/nls/colors, so your app does not have to change. If you prefer to set the locale, you can use the <a href="#moduleconfig">module config</a> to pass the locale to the plugin:</p>
 
 <pre><code>requirejs.config({
     config: {
