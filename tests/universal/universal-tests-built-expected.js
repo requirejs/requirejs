@@ -21,7 +21,7 @@
 ;
 define("eye", function(){});
 
-/*jslint strict: false */
+/*jslint sloppy: true */
 /*global define: false, module: false, require: false, window: false */
 
 (function (define) {
@@ -54,7 +54,7 @@ define("eye", function(){});
     }
 }));
 
-/*jslint strict: false */
+/*jslint sloppy: true */
 /*global define: false, module: false, require: false, window: false */
 
 (function (define) {

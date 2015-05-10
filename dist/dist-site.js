@@ -11,7 +11,7 @@ To run this file:
 
 */
 
-/*jslint regexp: false, nomen: false, plusplus: false, strict: false */
+/*jslint regexp: false, nomen: false, plusplus: true, sloppy: true */
 /*global require: false, console: false */
 
 var files, htmlFile, transFile, fileContents,

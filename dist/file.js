@@ -4,7 +4,7 @@
  * see: http://github.com/jrburke/requirejs for details
  */
 
-/*jslint plusplus: false, octal:false, strict: false */
+/*jslint plusplus: true, octal: false, sloppy: true */
 /*global require: false, exports: false */
 
 var fs = require('fs'),
