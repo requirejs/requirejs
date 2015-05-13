@@ -4,6 +4,7 @@ var hasToString = (function () {
     var test = 'hello world';
 }).toString().indexOf('hello world') !== -1;
 
+
 doh.registerUrl("simple", "../simple.html");
 
 //PS3 does not like this test
@@ -103,6 +104,7 @@ doh.registerUrl("mapConfigRelative", "../mapConfig/mapConfigRelative.html");
 doh.registerUrl("mapConfigSpecificity", "../mapConfig/mapConfigSpecificity.html");
 doh.registerUrl("mapConfigPlugin", "../mapConfig/mapConfigPlugin.html");
 doh.registerUrl("mapConfigPluginBuilt", "../mapConfig/built/mapConfigPluginBuilt.html");
+doh.registerUrl("secondLateConfigPlugin", "../secondLateConfigPlugin/secondLateConfigPlugin.html");
 
 doh.registerUrl("layers", "../layers/layers.html", 10000);
 

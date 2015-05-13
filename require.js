@@ -1351,7 +1351,7 @@ var requirejs, require, define;
                     //late to modify them, and ignore unnormalized ones
                     //since they are transient.
                     if (!mod.inited && !mod.map.unnormalized) {
-                        mod.map = makeModuleMap(id);
+                        mod.map = makeModuleMap(id, null, true);
                     }
                 });
 
