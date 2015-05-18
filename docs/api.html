@@ -349,7 +349,7 @@ direct alignment of dependency name to the local variable used for that dependen
 
 <p id="modulenotes-relative"><strong>Relative module names inside define()</strong>: For require("./relative/name") calls that can happen inside a define() function call, be sure to ask for "require" as a dependency, so that the relative name is resolved correctly:</p>
 
-<pre><code>define(["require", "./relative/name"], function(require) {
+<pre><code>define(["require"], function(require) {
     var mod = require("./relative/name");
 });
 </code></pre>
