@@ -1547,7 +1547,7 @@ var requirejs, require, define;
 
                 while (defQueue.length) {
                     args = defQueue.shift();
-                    if (args[0] == null) {
+                    if (args[0] === null || args[0] === void 0) {
                         args[0] = moduleName;
                         //If already found an anonymous module and bound it
                         //to this name, then this is some other anon module
