@@ -1857,6 +1857,9 @@ var requirejs, require, define;
         if (isBrowser) {
             //In the browser so use a script tag
             node = req.createNode(config, moduleName, url);
+            if (config.onNodeCreated) {
+                config.onNodeCreated(node, config, moduleName, url);
+            }
 
             node.setAttribute('data-requirecontext', context.contextName);
             node.setAttribute('data-requiremodule', moduleName);
