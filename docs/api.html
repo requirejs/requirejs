@@ -74,7 +74,7 @@ up locations of a group of scripts. All of these capabilities allow you to use s
 <ul>
 <li>Ends in ".js".</li>
 <li>Starts with a "/".</li>
-<li>Contains an URL protocol, like "http:" or "https:".</li>
+<li>Contains a URL protocol, like "http:" or "https:".</li>
 </ul>
 
 <p>In general though, it is best to use the baseUrl and "paths" config to set paths for module IDs. By doing so, it gives you more flexibility in renaming and configuring the paths to different locations for optimization builds.</p>
@@ -399,7 +399,7 @@ having to know the directory's name.</p>
 
 <p>Or, do not set that paths or packages config and do the top level require call as <code>require(['compute/main'])</code>.</p>
 
-<p id="modulenotes-urls"><strong>Generate URLs relative to module</strong>: You may need to generate an URL that is relative to a module. To do so, ask for "require" as a dependency and then use require.toUrl() to generate the URL:</p>
+<p id="modulenotes-urls"><strong>Generate URLs relative to module</strong>: You may need to generate a URL that is relative to a module. To do so, ask for "require" as a dependency and then use require.toUrl() to generate the URL:</p>
 
 <pre><code>define(["require"], function(require) {
     var cssUrl = require.toUrl("./style.css");
