@@ -12,13 +12,13 @@
                 require: "../../require"
             }
         },
-        ["require", "lamp", "https://api.twitter.com/1/users/show.json?screen_name=jrburke&callback=define"],
+        ["require", "lamp", "https://api.github.com/users/jrburke?callback=define"],
         function (require, lamp, user) {
             doh.register(
                 "jsonp",
                 [
                     function jsonp(t){
-                        t.is("James Burke", user.name);
+                        t.is("James Burke", user.data.name);
                         t.is('blue', lamp.color);
                     }
                 ]

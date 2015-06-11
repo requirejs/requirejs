@@ -31,7 +31,3 @@ define('tests', ['require', 'a', 'b'], function(require, a, b) {
 
 require(['tests']);
 
-doh.is(true, require.specified('a'));
-doh.is(true, require.specified('b'));
-doh.is(false, require.defined('a'));
-doh.is(false, require.defined('b'));

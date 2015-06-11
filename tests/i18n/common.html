@@ -23,7 +23,11 @@
             blue = "bleu";
         }
         require({
-            locale: locale,
+            config: {
+                'i18n': {
+                    locale: locale
+                }
+            },
             baseUrl: "./",
             paths: {
                 i18n: "../../../i18n/i18n"

@@ -49,3 +49,27 @@ placed outside the tests directory for testing paths that go outside a baseUrl.
 * **updatesubs.sh**: Updates projects that depend on require.js Assumes the
 projects are siblings to this directory and have specific names. Useful to
 copy require.js to dependent projects easily while in development.
+
+## Tests
+
+This repo assumes some other repos are checked out as siblings to this repo:
+
+    git clone https://github.com/requirejs/text.git
+    git clone https://github.com/requirejs/i18n.git
+    git clone https://github.com/requirejs/domReady.git
+    git clone https://github.com/jrburke/requirejs.git
+
+So when the above clones are done, the directory structure should look like:
+
+* domReady
+* i18n
+* text
+* requirejs (this repo)
+
+You will need to be connected to the internet because the JSONP and
+remoteUrls tests access the internet to complete their tests.
+
+Serve the directory with these 4 siblings from a web server. It can be a local web server.
+
+Open requirejs/tests/index.html in all the browsers, click the arrow button to run all
+the tests.

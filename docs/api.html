@@ -4,21 +4,22 @@
 <span class="note">This is the <a href="https://github.com/jrburke/requirejs/wiki/Upgrading-to-RequireJS-2.0">RequireJS 2.0 API</a>. If you want 1.0: <a href="1.0/">Link to 1.0</a>.</span>
 
 <ul class="index mono">
-    <li class="hbox"><a href="#usage">Usage</a><span class="spacer boxFlex"></span><span class="sect">&sect;&sect; 1-1.2</span></li>
+    <li class="hbox"><a href="#usage">Usage</a><span class="spacer boxFlex"></span><span class="sect">&sect;&sect; 1-1.3</span></li>
         <ul>
             <li class="hbox"><a href="#jsfiles">Load JavaScript Files</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.1</span></li>
-            <li class="hbox"><a href="#define">Define a Module</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2</span></li>
+            <li class="hbox"><a href="#data-main">data-main Entry Point</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2</span></li>
+            <li class="hbox"><a href="#define">Define a Module</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.3</span></li>
             <ul>
-                <li class="hbox"><a href="#defsimple">Simple Name/Value Pairs</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2.1</span></li>
-                <li class="hbox"><a href="#deffunc">Definition Functions</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2.2</span></li>
-                <li class="hbox"><a href="#defdep">Definition Functions with Dependencies</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2.3</span></li>
-                <li class="hbox"><a href="#funcmodule">Define a Module as a Function</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2.4</span></li>
-                <li class="hbox"><a href="#cjsmodule">Define a Module with Simplified CommonJS Wrapper</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2.5</span></li>
-                <li class="hbox"><a href="#modulename">Define a Module with a name</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2.6</span></li>
-                <li class="hbox"><a href="#modulenotes">Other Module Notes</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2.7</span></li>
-                <li class="hbox"><a href="#circular">Circular Dependencies</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2.8</span></li>
-                <li class="hbox"><a href="#jsonp">Specify a JSONP Service Dependency</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2.9</span></li>
-                <li class="hbox"><a href="#undef">Undefining a Module</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.2.10</span></li>
+                <li class="hbox"><a href="#defsimple">Simple Name/Value Pairs</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.3.1</span></li>
+                <li class="hbox"><a href="#deffunc">Definition Functions</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.3.2</span></li>
+                <li class="hbox"><a href="#defdep">Definition Functions with Dependencies</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.3.3</span></li>
+                <li class="hbox"><a href="#funcmodule">Define a Module as a Function</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.3.4</span></li>
+                <li class="hbox"><a href="#cjsmodule">Define a Module with Simplified CommonJS Wrapper</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.3.5</span></li>
+                <li class="hbox"><a href="#modulename">Define a Module with a name</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.3.6</span></li>
+                <li class="hbox"><a href="#modulenotes">Other Module Notes</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.3.7</span></li>
+                <li class="hbox"><a href="#circular">Circular Dependencies</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.3.8</span></li>
+                <li class="hbox"><a href="#jsonp">Specify a JSONP Service Dependency</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.3.9</span></li>
+                <li class="hbox"><a href="#undef">Undefining a Module</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1.3.10</span></li>
 
             </ul>
         </ul>
@@ -31,7 +32,8 @@
         <li class="hbox"><a href="#afterload">Loading Code After Page Load</a><span class="spacer boxFlex"></span><span class="sect">&sect; 4.3</span></li>
         <li class="hbox"><a href="#webworker">Web Worker Support</a><span class="spacer boxFlex"></span><span class="sect">&sect; 4.4</span></li>
         <li class="hbox"><a href="#rhino">Rhino Support</a><span class="spacer boxFlex"></span><span class="sect">&sect; 4.5</span></li>
-        <li class="hbox"><a href="#errors">Handling Errors</a><span class="spacer boxFlex"></span><span class="sect">&sect; 4.6</span></li>
+        <li class="hbox"><a href="#nashorn">Nashorn Support</a><span class="spacer boxFlex"></span><span class="sect">&sect; 4.6</span></li>
+        <li class="hbox"><a href="#errors">Handling Errors</a><span class="spacer boxFlex"></span><span class="sect">&sect; 4.7</span></li>
     </ul>
     <li class="hbox"><a href="#plugins">Loader Plugins</a><span class="spacer boxFlex"></span><span class="sect">&sect;&sect; 5-5.4</span></li>
         <ul>
@@ -53,9 +55,9 @@
 <span class="sectionMark">&sect; 1.1</span>
 </h3>
 
-<p>RequireJS takes a different approach to script loading than traditional &lt;script&gt; tags. Its goal is to encourage modular code. While it can also run fast and optimize well, the primary goal is to encourage modular code. As part of that, it encourages using <strong>module IDs</strong> instead of URLs for script tags.</p>
+<p>RequireJS takes a different approach to script loading than traditional &lt;script&gt; tags.  While it can also run fast and optimize well, the primary goal is to encourage modular code. As part of that, it encourages using <strong>module IDs</strong> instead of URLs for script tags.</p>
 
-<p>RequireJS loads all code relative to a <a href="#config-baseUrl">baseUrl</a>. The baseUrl is normally set to the same directory as the script used in a data-main attribute for the top level script to load for a page. The data-main attribute is a special attribute that require.js will check to start script loading. This example will end up with a baseUrl of <strong>scripts</strong>:</p>
+<p>RequireJS loads all code relative to a <a href="#config-baseUrl">baseUrl</a>. The baseUrl is normally set to the same directory as the script used in a data-main attribute for the top level script to load for a page. The <a href="#data-main">data-main attribute</a> is a special attribute that require.js will check to start script loading. This example will end up with a baseUrl of <strong>scripts</strong>:</p>
 
 <pre><code>&lt;!--This sets the baseUrl to the "scripts" directory, and
     loads a script that will have a module ID of 'main'--&gt;
@@ -67,7 +69,7 @@
 <p>RequireJS also assumes by default that all dependencies are scripts, so it does not expect to see a trailing ".js" suffix on module IDs. RequireJS will automatically add it when translating the module ID to a path. With the <a href="#config-paths">paths config</a>, you can set
 up locations of a group of scripts. All of these capabilities allow you to use smaller strings for scripts as compared to traditional  &lt;script&gt; tags.</p>
 
-<p>There may be times when you do want to reference a script directly and not conform to the "baseUrl + paths" rules for finding it. If a module ID has one of the following characterstics, the ID will not be passed through the "baseUrl + paths" configuration, and just be treated like a regular URL that is relative to the document:</p>
+<p>There may be times when you do want to reference a script directly and not conform to the "baseUrl + paths" rules for finding it. If a module ID has one of the following characteristics, the ID will not be passed through the "baseUrl + paths" configuration, and just be treated like a regular URL that is relative to the document:</p>
 
 <ul>
 <li>Ends in ".js".</li>
@@ -77,7 +79,7 @@ up locations of a group of scripts. All of these capabilities allow you to use s
 
 <p>In general though, it is best to use the baseUrl and "paths" config to set paths for module IDs. By doing so, it gives you more flexibility in renaming and configuring the paths to different locations for optimization builds.</p>
 
-<p>Similarly, to avoid a bunch of configuration, it is best to avoid deep folder hierarchies for scripts, and instead either keep all the scripts in baseUrl, or if you want to separate your library/vendor-supplied code form your app code, use a directory layout like this:</p>
+<p>Similarly, to avoid a bunch of configuration, it is best to avoid deep folder hierarchies for scripts, and instead either keep all the scripts in baseUrl, or if you want to separate your library/vendor-supplied code from your app code, use a directory layout like this:</p>
 
 <ul>
     <li>www/
@@ -96,6 +98,7 @@ up locations of a group of scripts. All of these capabilities allow you to use s
                 <li>canvas.js</li>
             </ul></li>
             <li>app.js</li>
+            <li>require.js</li>
         </ul></li>
     </ul></li>
 </ul>
@@ -134,22 +137,73 @@ function   ($,        canvas,   sub) {
 <p>If you do not express the dependencies, you will likely get loading errors since RequireJS loads scripts asynchronously and out of order for speed.</p>
 
 <h3>
-<a href="#define" name="define">Define a Module</a>
+<a href="#data-main" name="data-main">data-main Entry Point</a>
 <span class="sectionMark">&sect; 1.2</span>
+</h3>
+
+<p>The data-main attribute is a special attribute that require.js will check to start script loading:</p>
+
+<pre><code>&lt;!--when require.js loads it will inject another script tag
+    (with async attribute) for scripts/main.js--&gt;
+&lt;script data-main="scripts/main" src="scripts/require.js"&gt;&lt;/script&gt;
+</code></pre>
+
+<p>You will typically use a data-main script to <a href="#config">set configuration options</a> and then load the first application module. Note: the script tag require.js generates for your data-main module includes the <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script#attr-async">async attribute</a>. This means that <strong>you cannot assume that the load and execution of your data-main script will finish prior to other scripts referenced later in the same page.</strong></p>
+
+<p>For example, this arrangement will fail randomly when the require.config path for the 'foo' module has not been set prior to it being require()'d later:</p>
+
+<pre><code>&lt;script data-main="scripts/main" src="scripts/require.js"&gt;&lt;/script&gt;
+&lt;script src="scripts/other.js"&gt;&lt;/script&gt;
+</code></pre>
+
+<pre><code>// contents of main.js:
+require.config({
+    paths: {
+        foo: 'libs/foo-1.1.3'
+    }
+});
+</code></pre>
+<pre><code>// contents of other.js:
+
+// This code might be called before the require.config() in main.js
+// has executed. When that happens, require.js will attempt to
+// load 'scripts/foo.js' instead of 'scripts/libs/foo-1.1.3.js'
+require(['foo'], function(foo) {
+
+});
+</code></pre>
+
+<p>If you want to to do <code>require()</code> calls in the HTML page, then it is best to not use data-main. data-main is only intended for use when the page just has one main entry point, the data-main script. For pages that want to do inline <code>require()</code> calls, it is best to nest those inside a <code>require()</code> call for the configuration:</p>
+
+<pre><code>&lt;script src="scripts/require.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+require(['scripts/config'], function() {
+    // Configuration loaded now, safe to do other require calls
+    // that depend on that config.
+    require(['foo'], function(foo) {
+
+    });
+});
+&lt;/script&gt;
+</code></pre>
+
+<h3>
+<a href="#define" name="define">Define a Module</a>
+<span class="sectionMark">&sect; 1.3</span>
 </h3>
 
 <p>A module is different from a traditional script file in that it defines a well-scoped object that avoids polluting the global namespace. It can explicitly list its dependencies and get a handle on those dependencies without needing to refer to global objects, but instead receive the dependencies as arguments to the function that defines the module. Modules in RequireJS are an extension of the <a href="http://www.adequatelygood.com/2010/3/JavaScript-Module-Pattern-In-Depth">Module Pattern</a>, with the benefit of not needing globals to refer to other modules.</p>
 
 <p>The RequireJS syntax for modules allows them to be loaded as fast as possible, even out of order, but evaluated in the correct dependency order, and since global variables are not created, it makes it possible to <a href="#multiversion">load multiple versions of a module in a page</a>.</p>
 
-<p>(If you are familiar with or are using CommonJS modules, then please also see <a href="commonjs.html">CommonJS Notes</a> for information on how the RequirejS module format maps to CommonJS modules).</p>
+<p>(If you are familiar with or are using CommonJS modules, then please also see <a href="commonjs.html">CommonJS Notes</a> for information on how the RequireJS module format maps to CommonJS modules).</p>
 
 <p>There should only be <strong>one</strong> module definition per file on disk. The modules can be grouped into optimized bundles by the <a href="optimization.html">optimization tool</a>.</p>
 
 <div class="subSection">
 <h4>
 <a href="#defsimple" name="defsimple">Simple Name/Value Pairs</a>
-<span class="sectionMark">&sect; 1.2.1</span>
+<span class="sectionMark">&sect; 1.3.1</span>
 </h4>
 
 <p>If the module does not have any dependencies, and it is just a collection of name/value pairs, then just pass an object literal to define():</p>
@@ -165,7 +219,7 @@ define({
 <div class="subSection">
 <h4>
 <a href="#deffunc" name="deffunc">Definition Functions</a>
-<span class="sectionMark">&sect; 1.2.2</span>
+<span class="sectionMark">&sect; 1.3.2</span>
 </h4>
 
 <p>If the module does not have dependencies, but needs to use a function to do some setup work, then define itself, pass a function to define():</p>
@@ -184,7 +238,7 @@ define(function () {
 </div>
 
 <div href="#subSection" class="subSection">
-<h4><a href="#defdep" name="defdep">Definition Functions with Dependencies</a><span class="sectionMark">&sect; 1.2.3</span></h4>
+<h4><a href="#defdep" name="defdep">Definition Functions with Dependencies</a><span class="sectionMark">&sect; 1.3.3</span></h4>
 
 <p>If the module has dependencies, the first argument should be an array of dependency names, and the second argument should be a definition function. The function will be called to define the module once all dependencies have loaded. The function should return an object that defines the module. The dependencies will be passed to the definition function as function arguments, listed in the same order as the order in the dependency array:</p>
 
@@ -222,13 +276,13 @@ define(["./cart", "./inventory"], function(cart, inventory) {
 </div>
 
 <div class="subSection">
-<h4><a href="#funcmodule" name="funcmodule">Define a Module as a Function</a><span class="sectionMark">&sect; 1.2.4</span></h4>
+<h4><a href="#funcmodule" name="funcmodule">Define a Module as a Function</a><span class="sectionMark">&sect; 1.3.4</span></h4>
 
 <p>Modules do not have to return objects. Any valid return value from a function is allowed. Here is a module that returns a function as its module definition:</p>
 
 <pre><code>//A module definition inside foo/title.js. It uses
 //my/cart and my/inventory modules from before,
-//but since foo/bar.js is in a different directory than
+//but since foo/title.js is in a different directory than
 //the "my" modules, it uses the "my" in the module dependency
 //name to find them. The "my" part of the name can be mapped
 //to any directory, but by default, it is assumed to be a
@@ -248,7 +302,7 @@ define(["my/cart", "my/inventory"],
 
 
 <div class="subSection">
-<h4><a href="#cjsmodule" name="cjsmodule">Define a Module with Simplified CommonJS Wrapper</a><span class="sectionMark">&sect; 1.2.5</span></h4>
+<h4><a href="#cjsmodule" name="cjsmodule">Define a Module with Simplified CommonJS Wrapper</a><span class="sectionMark">&sect; 1.3.5</span></h4>
 
 <p>If you wish to reuse some code that was written in the traditional <a href="http://wiki.commonjs.org/wiki/Modules/1.1.1">CommonJS module format</a> it may be difficult to re-work to the array of dependencies used above, and you may prefer to have
 direct alignment of dependency name to the local variable used for that dependency. You can use the <a href="commonjs.html">simplified CommonJS wrapper</a> for those cases:</p>
@@ -266,12 +320,12 @@ direct alignment of dependency name to the local variable used for that dependen
 
 <p>This wrapper relies on Function.prototype.toString() to give a useful string value of the function contents. This does not work on some devices like the PS3 and some older Opera mobile browsers. Use the <a href="optimization.html">optimizer</a> to pull out the dependencies in the array format for use on those devices.</p>
 
-<p>More information is available on the <a href="commonjs.html">CommonJS page</a>, and in the in the <a href="whyamd.html#sugar">"Sugar" section in the Why AMD page</a>.
+<p>More information is available on the <a href="commonjs.html">CommonJS page</a>, and in the <a href="whyamd.html#sugar">"Sugar" section in the Why AMD page</a>.
 </div>
 
 
 <div class="subSection">
-<h4><a href="#modulename" name="modulename">Define a Module with a Name</a><span class="sectionMark">&sect; 1.2.6</span></h4>
+<h4><a href="#modulename" name="modulename">Define a Module with a Name</a><span class="sectionMark">&sect; 1.3.6</span></h4>
 
 <p>You may encounter some define() calls that include a name for the module as the first argument to define():</p>
 
@@ -289,9 +343,9 @@ direct alignment of dependency name to the local variable used for that dependen
 
 <div class="subSection">
 
-<h4><a href="#modulenotes" name="modulenotes">Other Module Notes</a><span class="sectionMark">&sect; 1.2.7</span></h4>
+<h4><a href="#modulenotes" name="modulenotes">Other Module Notes</a><span class="sectionMark">&sect; 1.3.7</span></h4>
 
-<p id="modulenotes-onemodule"><strong>One module per file.</strong>: Only one module should be defined per JavaScript file, given the nature of the module name-to-file-path lookup algorithm. Multiple modules will be grouped into optimized files by the <a href="optimization.html">optimization tool</a>, but you should only use the optimization tool to place more than one module in a file.</p>
+<p id="modulenotes-onemodule"><strong>One module per file.</strong>: Only one module should be defined per JavaScript file, given the nature of the module name-to-file-path lookup algorithm. You shoud only use the <a href="optimization.html">optimization tool</a> to group multiple modules into optimized files.</p>
 
 <p id="modulenotes-relative"><strong>Relative module names inside define()</strong>: For require("./relative/name") calls that can happen inside a define() function call, be sure to ask for "require" as a dependency, so that the relative name is resolved correctly:</p>
 
@@ -312,6 +366,39 @@ direct alignment of dependency name to the local variable used for that dependen
 <p>Relative paths are really useful if you are creating a few modules inside a directory, so that you can share the directory with other people or other projects, and you want to be able to get a handle on the sibling modules in that directory without
 having to know the directory's name.</p>
 
+<p id="modulenotes-relative-names"><strong>Relative module names are relative to other names, not paths</strong>: The loader stores modules by their name and not by their path internally. So for relative name references, those are resolved relative to the module name making the reference, then that module name, or ID, is converted to a path if needs to be loaded. Example code for a 'compute' package that has a 'main' and 'extras' modules in it:</p>
+
+<pre><code>* lib/
+    * compute/
+        * main.js
+        * extras.js
+</code></pre>
+
+<p>where the main.js module looks like this:</p>
+
+<pre><code>define(["./extras"], function(extras) {
+    //Uses extras in here.
+});
+</code></pre>
+
+<p>If this was the paths config:</p>
+
+<pre><code>require.config({
+    baseUrl: 'lib',
+    paths: {
+      'compute': 'compute/main'
+    }
+});
+</code></pre>
+
+<p>And a <code>require(['compute'])</code> is done, then lib/compute/main.js will have the module name of 'compute'. When it asks for './extras', that is resolved relative to 'compute', so 'compute/./extras', which normalizes to just 'extras'. Since there is no paths config for that module name, the path generated will be for 'lib/extras.js', which is incorrect.</p>
+
+<p>For this case, <a href="#packages">packages config</a> is a better option, since it allows setting the main module up as 'compute', but internally the loader will store the module with the ID of 'compute/main' so that the relative reference for './extras' works.</p>
+
+<p>Another option is to construct a module at lib/compute.js that is just <code>define(['./compute/main'], function(m) { return m; });</code>, then there is no need for paths or packages config.</p>
+
+<p>Or, do not set that paths or packages config and do the top level require call as <code>require(['compute/main'])</code>.</p>
+
 <p id="modulenotes-urls"><strong>Generate URLs relative to module</strong>: You may need to generate an URL that is relative to a module. To do so, ask for "require" as a dependency and then use require.toUrl() to generate the URL:</p>
 
 <pre><code>define(["require"], function(require) {
@@ -328,14 +415,14 @@ having to know the directory's name.</p>
 </div>
 
 <div class="subSection">
-<h4><a href="#circular" name="circular">Circular Dependencies</a><span class="sectionMark">&sect; 1.2.8</span></h4>
+<h4><a href="#circular" name="circular">Circular Dependencies</a><span class="sectionMark">&sect; 1.3.8</span></h4>
 
-<p>If you define a circular dependency (a needs b and b needs a), then in this case when b's module function is called, it will get an undefined value for a. b can fetch a later after modules have been defined by using the require() method (be sure to specify require as a dependency so the right context is used to look up a):</p>
+<p>If you define a circular dependency ("a" needs "b" and "b" needs "a"), then in this case when "b"'s module function is called, it will get an undefined value for "a". "b" can fetch "a" later after modules have been defined by using the require() method (be sure to specify require as a dependency so the right context is used to look up "a"):</p>
 
 <pre><code>//Inside b.js:
 define(["require", "a"],
     function(require, a) {
-        //"a" in this case will be null if a also asked for b,
+        //"a" in this case will be null if "a" also asked for "b",
         //a circular dependency.
         return function(title) {
             return require("a").doSomething();
@@ -352,7 +439,7 @@ define(["require", "a"],
 define(function(require, exports, module) {
     //If "a" has used exports, then we have a real
     //object reference here. However, we cannot use
-    //any of a's properties until after b returns a value.
+    //any of "a"'s properties until after "b" returns a value.
     var a = require("a");
 
     exports.foo = function () {
@@ -368,7 +455,7 @@ define(function(require, exports, module) {
 define(['a', 'exports'], function(a, exports) {
     //If "a" has used exports, then we have a real
     //object reference here. However, we cannot use
-    //any of a's properties until after b returns a value.
+    //any of "a"'s properties until after "b" returns a value.
 
     exports.foo = function () {
         return a.bar();
@@ -379,7 +466,7 @@ define(['a', 'exports'], function(a, exports) {
 </div>
 
 <div class="subSection">
-<h4><a href="#jsonp" name="jsonp">Specify a JSONP Service Dependency</a><span class="sectionMark">&sect; 1.2.9</span></h4>
+<h4><a href="#jsonp" name="jsonp">Specify a JSONP Service Dependency</a><span class="sectionMark">&sect; 1.3.9</span></h4>
 
 <p><a href="http://en.wikipedia.org/wiki/JSON#JSONP">JSONP</a> is a way of calling some services in JavaScript. It works across domains and it is an established approach to calling services that just require an HTTP GET via a script tag.</p>
 
@@ -389,7 +476,7 @@ define(['a', 'exports'], function(a, exports) {
 
 <pre><code>require(["http://example.com/api/data.json?callback=define"],
     function (data) {
-        //The dta object will be the API response for the
+        //The data object will be the API response for the
         //JSONP data call.
         console.log(data);
     }
@@ -408,7 +495,7 @@ define(['a', 'exports'], function(a, exports) {
 
 
 <div class="subSection">
-<h4><a href="#undef" name="undef">Undefining a Module</a><span class="sectionMark">&sect; 1.2.10</span></h4>
+<h4><a href="#undef" name="undef">Undefining a Module</a><span class="sectionMark">&sect; 1.3.10</span></h4>
 
 <p>There is a global function, <b>requirejs.undef()</b>, that allows undefining a module. It will reset the
 loader's internal state to forget about the previous definition of the module.</p>
@@ -434,7 +521,7 @@ module loading that may use that module. See the <a href="#errbacks">errback sec
 
 <p>RequireJS loads each dependency as a script tag, using head.appendChild().</p>
 
-<p>RequireJS waits for all dependencies to load, figures out the right order in which to call the functions that define the modules, then calls the module definition functions in the right order.</p>
+<p>RequireJS waits for all dependencies to load, figures out the right order in which to call the functions that define the modules, then calls the module definition functions once the dependencies for those functions have been called. Note that the dependencies for a given module definition function could be called in any order, due to their sub-dependency relationships and network load order.</p>
 
 <p>Using RequireJS in a server-side JavaScript environment that has synchronous loading should be as easy as redefining require.load(). The build system does this, the require.load method for that environment can be found in build/jslib/requirePatch.js.</p>
 
@@ -469,6 +556,8 @@ module loading that may use that module. See the <a href="#errbacks">errback sec
 &lt;/script&gt;
 </code></pre>
 
+<p>You may also call require.config from your <a href="api.html#data-main">data-main Entry Point</a>, but be aware that the data-main script is loaded asynchronously. Avoid other entry point scripts which wrongly assume that data-main and its require.config will always execute prior to their script loading.</a></p>
+
 <p>Also, you can define the config object as the global variable <code>require</code> <strong>before</strong> require.js is loaded, and have the values applied automatically.
 This example specifies some dependencies to load as soon as require.js defines require():</p>
 
@@ -489,20 +578,58 @@ This example specifies some dependencies to load as soon as require.js defines r
 <p><b>Note:</b> It is best to use <code>var require = {}</code> and do not use
 <code>window.require = {}</code>, it will not behave correctly in IE.</p>
 
+<p>There are <a href="https://github.com/jrburke/requirejs/wiki/Patterns-for-separating-config-from-the-main-module">some patterns for separating the config from main module loading</a>.</p>
+
 <p>Supported configuration options:</p>
 
-<p id="config-baseUrl"><strong><a href="#config-baseUrl">baseUrl</a></strong>: the root path to use for all module lookups. So in the above example, "my/module"'s script tag will have a src="/another/path/my/module.js". baseUrl is <strong>not</strong> used when loading plain .js files, those strings are used as-is, so a.js and b.js will be loaded from the same directory as the HTML page that contains the above snippet.</p>
+<p id="config-baseUrl"><strong><a href="#config-baseUrl">baseUrl</a></strong>: the root path to use for all module lookups. So in the above example, "my/module"'s script tag will have a src="/another/path/my/module.js". baseUrl is <strong>not</strong> used when loading plain .js files (indicated by a dependency string <a href="#jsfiles">starting with a slash, has a protocol, or ends in .js</a>), those strings are used as-is, so a.js and b.js will be loaded from the same directory as the HTML page that contains the above snippet.</p>
 
 <p>If no baseUrl is explicitly set in the configuration, the default value will be the location of the HTML page that loads require.js. If a <strong>data-main</strong> attribute is used, that path will become the baseUrl.</p>
 
 <p>The baseUrl can be a URL on a different domain as the page that will load require.js. RequireJS script loading works across domains. The only restriction is on text content loaded by text! plugins: those paths should be on the same domain as the page, at least during development. The optimization tool will inline text! plugin resources so after using the optimization tool, you can use resources that reference text! plugin resources from another domain.</p>
 
-<p id="config-paths"><strong><a href="#config-paths">paths</a></strong>: path mappings for module names not found directly under baseUrl. The path settings are assumed to be relative to baseUrl, unless the paths setting starts with a "/" or has a URL protocol in it ("like http:"). In those cases, the path is determined relative to baseUrl. Using the above sample config, "some/module"'s script tag will be src="/another/path/some/v1.0/module.js". The path that is used for a module name should <strong>not</strong> include the .js extension, since the path mapping could be for a directory. The path mapping code will automatically add the .js extension when mapping the module name to a path.</p>
+<p id="config-paths"><strong><a href="#config-paths">paths</a></strong>: path mappings for module names not found directly under baseUrl. The path settings are assumed to be relative to baseUrl, unless the paths setting starts with a "/" or has a URL protocol in it ("like http:"). Using the above sample config, "some/module"'s script tag will be src="/another/path/some/v1.0/module.js".</p>
 
-<p id="config-shim"><strong><a href="#config-shim">shim</a></strong>: Configure the dependencies and exports for older, traditional "browser globals" scripts that do not use define() to declare the dependencies and set a module value. Example (RequireJS 2.1.0+):</p>
+<p>The path that is used for a module name should <strong>not</strong> include an extension, since the path mapping could be for a directory. The path mapping code will automatically add the .js extension when mapping the module name to a path. If <a href="#modulenotes-urls">require.toUrl()</a> is used, it will add the appropriate extension, if it is for something like a text template.</p>
 
+<p>When run in a browser, <a href="#pathsfallbacks">paths fallbacks</a> can be specified, to allow trying a load from a CDN location, but falling back to a local location if the CDN location fails to load.</p>
+
+<p id="config-bundles"><strong><a href="#config-bundles">bundles</a></strong>: Introduced in RequireJS 2.1.10: allows configuring multiple module IDs to be found in another script. Example:</p>
 
 <pre><code>requirejs.config({
+    bundles: {
+        'primary': ['main', 'util', 'text', 'text!template.html'],
+        'secondary': ['text!secondary.html']
+    }
+});
+
+require(['util', 'text'], function(util, text) {
+    //The script for module ID 'primary' was loaded,
+    //and that script included the define()'d
+    //modules for 'util' and 'text'
+});
+</code></pre>
+
+<p>That config states: modules 'main', 'util', 'text' and 'text!template.html' will be found by loading module ID 'primary'. Module 'text!secondary.html' can be found by loading module ID 'secondary'.
+</p>
+
+<p>This only sets up where to find a module inside a script that has multiple define()'d modules in it. It does not automatically bind those modules to the bundle's module ID. The bundle's module ID is just used for locating the set of modules.</p>
+
+<p>Something similar is possible with paths config, but it is much wordier, and the paths config route does not allow loader plugin resource IDs in its configuration, since the paths config values are path segments, not IDs.</p>
+
+<p>bundles config is useful if doing a build and that build target was not an existing module ID, or if you have loader plugin resources in built JS files that should not be loaded by the loader plugin. <strong>Note that the keys and values are module IDs</strong>, not path segments. They are absolute module IDs, not a module ID prefix like <a href="#config-paths">paths config</a> or <a href="#config-map">map config</a>. Also, bundle config is different from map config in that map config is a one-to-one module ID relationship, where bundle config is for pointing multiple module IDs to a bundle's module ID.</p>
+
+<p id="config-shim"><strong><a href="#config-shim">shim</a></strong>: Configure the dependencies, exports, and custom initialization for older, traditional "browser globals" scripts that do not use define() to declare the dependencies and set a module value.</p>
+
+<p>Here is an example. It requires RequireJS 2.1.0+, and assumes backbone.js, underscore.js and jquery.js have been installed in the baseUrl directory. If not, then you may need to set a paths config for them:</p>
+
+<pre><code>requirejs.config({
+    //Remember: only use shim config for non-AMD scripts,
+    //scripts that do not already call define(). The shim
+    //config will not work correctly if used on AMD scripts,
+    //in particular, the exports and init config will not
+    //be triggered, and the deps config will be confusing
+    //for those cases.
     shim: {
         'backbone': {
             //These script dependencies should be loaded before loading
@@ -511,6 +638,9 @@ This example specifies some dependencies to load as soon as require.js defines r
             //Once loaded, use the global 'Backbone' as the
             //module value.
             exports: 'Backbone'
+        },
+        'underscore': {
+            exports: '_'
         },
         'foo': {
             deps: ['bar'],
@@ -524,18 +654,30 @@ This example specifies some dependencies to load as soon as require.js defines r
                 //function arguments. If this function returns a value,
                 //then that value is used as the module export value
                 //instead of the object found via the 'exports' string.
+                //Note: jQuery registers as an AMD module via define(),
+                //so this will not work for jQuery. See notes section
+                //below for an approach for jQuery.
                 return this.Foo.noConflict();
             }
         }
     }
+});
+
+//Then, later in a separate file, call it 'MyModel.js', a module is
+//defined, specifying 'backbone' as a dependency. RequireJS will use
+//the shim config to properly load 'backbone' and give a local
+//reference to this module. The global Backbone will still exist on
+//the page too.
+define(['backbone'], function (Backbone) {
+  return Backbone.Model.extend({});
 });
 </code></pre>
 
 <p>In RequireJS 2.0.*, the "exports" property in the shim config could have
     been a function instead of a string. In that case, it functioned
 the same as the "init" property as shown above. The "init" pattern is used in
-RequireJS 2.1.0+ so a string value for the exports can be used for
-<a href="config-enforceDefine">enforceDefine</a>, but then allow
+RequireJS 2.1.0+ so a string value for <code>exports</code> can be used for
+<a href="#config-enforceDefine">enforceDefine</a>, but then allow
 functional work once the library is known to have loaded.</p>
 
 <p>For "modules" that are just jQuery or Backbone plugins that do not need to export
@@ -550,7 +692,8 @@ any module value, the shim config can just be an array of dependencies:</p>
 });
 </code></pre>
 
-<p>Note however if you want to get 404 load detection in IE so that you can  use paths fallbacks or errbacks, then a string exports value should be given so the loader can check if the scripts actually loaded:</p>
+<p>Note however if you want to get 404 load detection in IE so that you can  use paths fallbacks or errbacks, then a string exports value should be given so the loader can check if the scripts actually
+loaded (a return from init is <strong>not</strong> used for <code>enforceDefine</code> checking):</p>
 
 <pre><code>requirejs.config({
     shim: {
@@ -570,9 +713,12 @@ any module value, the shim config can just be an array of dependencies:</p>
 });
 </code></pre>
 
-<p><b>Important caveat for "shim" config:</b></p>
+<p><b>Important notes for "shim" config:</b></p>
 
 <ul>
+    <li>The shim config only sets up code relationships. To load modules that
+    are part of or use shim config, a normal require/define call is needed. Setting shim by
+    itself does not trigger code to load.</li>
     <li>Only use other "shim" modules as dependencies for shimmed scripts, or
     AMD libraries that have no dependencies and call define() after they also
     create a global (like jQuery or lodash). Otherwise, if you use an AMD
@@ -580,13 +726,26 @@ any module value, the shim config can just be an array of dependencies:</p>
     AMD module may not be evaluated until after the shimmed code in the build
     executes, and an error will occur. The ultimate fix is to upgrade all the
     shimmed code to have optional AMD define() calls.</li>
+    <li>If it is not possible to upgrade the shimmed code to use AMD define()
+    calls, as of RequireJS 2.1.11, the optimizer has a
+    <a href="https://github.com/jrburke/r.js/blob/b8a6982d2923ae8389355edaa50d2b7f8065a01a/build/example.build.js#L68">wrapShim build option</a> that will
+    try to automatically wrap the shimmed code in a define() for a build. This
+    changes the scope of shimmed dependencies, so it is not guaranteed to always
+    work, but, for example, for shimmed dependencies that depend on an AMD version of Backbone,
+    it can be helpful.</li>
+    <li>The init function will <strong>not</strong> be called for AMD modules.
+    For example, you cannot use a shim init function to call jQuery's noConflict.
+    See <a href="jquery.html#noconflictmap">Mapping Modules to use noConflict</a>
+    for an alternate approach to jQuery.</li>
+    <li>Shim config is not supported when running AMD modules in node via RequireJS (it works for optimizer use though). Depending on the module being shimmed, it may fail in Node because Node does not have the same global environment as browsers. As of RequireJS 2.1.7, it will warn you in the console that shim config is not supported, and it may or may not work. If you wish to suppress that message, you can pass <code>requirejs.config({ suppress: { nodeShim: true }});</code>.</li>
 </ul>
 
 <p><b>Important optimizer notes for "shim" config</b>:</p>
 
 <ul>
     <li>You should use the <a href="optimization.html#mainConfigFile">mainConfigFile build option</a> to specify the file where to find the shim config. Otherwise the optimizer will not know of the shim config. The other option is to duplicate the shim config in the build profile.</li>
-    <li>Do not mix CDN loading with shim config in a build. Example scenario: you load jQuery from the CDN but use the shim config to load something like the stock version of Backbone that depends on jQuery. When you do the build, be sure to inline jQuery in the built file and do not load it from the CDN. Otherwise, Backbone will be inlined in the built file and it will execute before the CDN-loaded jQuery will load. This is because the shim config just delays loading of the files until dependencies are loaded, but does not do any auto-wrapping of define. After a build, the dependencies are already inlined, the shim config cannot delay execution of the non-define()'d code until later. define()'d modules do work with CDN loaded code after a build because they properly wrap their source in define factory function that will not execute until dependencies are loaded. So the lesson: shim config is a stop-gap measure for for non-modular code, legacy code. define()'d modules are better.</li>
+    <li>Do not mix CDN loading with shim config in a build. Example scenario: you load jQuery from the CDN but use the shim config to load something like the stock version of Backbone that depends on jQuery. When you do the build, be sure to inline jQuery in the built file and do not load it from the CDN. Otherwise, Backbone will be inlined in the built file and it will execute before the CDN-loaded jQuery will load. This is because the shim config just delays loading of the files until dependencies are loaded, but does not do any auto-wrapping of define. After a build, the dependencies are already inlined, the shim config cannot delay execution of the non-define()'d code until later. define()'d modules do work with CDN loaded code after a build because they properly wrap their source in define factory function that will not execute until dependencies are loaded. So the lesson: shim config is a stop-gap measure for non-modular code, legacy code. define()'d modules are better.</li>
+    <li>For local, multi-file builds, the above CDN advice also applies. For any shimmed script, its dependencies <strong>must</strong> be loaded before the shimmed script executes. This means either building its dependencies directly in the buid layer that includes the shimmed script, or loading its dependencies with a <code>require([], function (){})</code> call, then doing a nested <code>require([])</code> call for the build layer that has the shimmed script.</li>
     <li>If you are using uglifyjs to minify the code, <strong>do not</strong> set the uglify
         option <code>toplevel</code> to true, or if using the command line
         <strong>do not</strong> pass <code>-mt</code>. That option mangles
@@ -632,7 +791,7 @@ still need to cooperate with each other.</p>
 and when 'some/oldmodule' does `require('foo')` it will get the foo1.0.js file.</p>
 
 <p>This feature only works well for scripts that are real AMD modules that call
-define() and register as anonymous modules.</p>
+define() and register as anonymous modules. Also, <strong>only use absolute module IDs</strong> for map config. Relative IDs (like <code>'../some/thing'</code>) do not work.</p>
 
 <p>There is also support for a "*" map value which means "for all modules loaded, use this map config". If there is a more specific map config, that one will take precedence over the star config. Example:</p>
 
@@ -650,6 +809,8 @@ requirejs.config({
 </code></pre>
 
 <p>Means that for any module except "some/oldmodule", when "foo" is wanted, use "foo1.2" instead. For "some/oldmodule" only, use "foo1.0" when it asks for "foo".</p>
+
+<p id="config-map-notes"><strong>Note:</strong> when doing builds with map config, the map config needs to be fed to the optimizer, and the build output must still contain a requirejs config call that sets up the map config. The optimizer does not do ID renaming during the build, because some dependency references in a project could depend on runtime variable state. So the optimizer does not invalidate the need for a map config after the build.</p>
 
 <p id="config-moduleconfig"><strong><a href="#config-moduleconfig">config</a></strong>: There is a common need to pass configuration info to a module.  That configuration info is usually known as part of the application, and there needs to be a way to pass that down to a module. In RequireJS, that is done with the <b>config</b> option for requirejs.config(). Modules can then read that info by asking for the special dependency "module" and calling <b>module.config()</b>. Example:</p>
 
@@ -680,15 +841,41 @@ define(['module'], function (module) {
 });
 </code></pre>
 
+<p>For passing config to a <a href="#packages">package</a>, target the main module in the package,
+    not the package ID:</p>
+
+<pre><code>requirejs.config({
+    //Pass an API key for use in the pixie package's
+    //main module.
+    config: {
+        'pixie/index': {
+            apiKey: 'XJKDLNS'
+        }
+    },
+    //Set up config for the "pixie" package, whose main
+    //module is the index.js file in the pixie folder.
+    packages: [
+        {
+            name: 'pixie',
+            main: 'index'
+        }
+    ]
+});
+</code></pre>
+
 <p id="config-packages"><strong><a href="#config-packages">packages</a></strong>: configures loading modules from CommonJS packages. See the <a href="#packages">packages topic</a> for more information.</p>
 
-<p id="config-waitSeconds"><strong><a href="#config-waitSeconds">waitSeconds</a></strong>: The number of seconds to wait before giving up on loading a script. The default is 7 seconds.</p>
+<p id="config-nodeIdCompat"><strong><a href="#config-nodeIdCompat">nodeIdCompat</a></strong>: Node treats module ID <code>example.js</code> and <code>example</code> the same. By default these are two different IDs in RequireJS. If you end up using modules installed from npm, then you may need to set this config value to <code>true</code> to avoid resolution issues. Available in 2.1.10 and greater.</p>
+
+<p id="config-waitSeconds"><strong><a href="#config-waitSeconds">waitSeconds</a></strong>: The number of seconds to wait before giving up on loading a script. Setting it to 0 disables the timeout. The default is 7 seconds.</p>
 
 <p id="config-context"><strong><a href="#config-context">context</a></strong>: A name to give to a loading context. This allows require.js to load multiple versions of modules in a page, as long as each top-level require call specifies a unique context string. To use it correctly, see the <a href="#multiversion">Multiversion Support</a> section.</p>
 
-<p id="config-deps"><strong><a href="#config-deps">deps</a></strong>: An array of dependencies to load. Useful when require is defined as a config object before require.js is loaded, and you want to specify dependencies to load as soon as require() is defined.</p>
+<p id="config-deps"><strong><a href="#config-deps">deps</a></strong>: An array of dependencies to load. Useful when require is defined as a config object before require.js is loaded, and you want to specify dependencies to load as soon as require() is defined. Using deps is just like doing a <code>require([])</code> call, but done as soon as the loader has processed the configuration. <strong>It does not block</strong>
+any other require() calls from starting their requests for modules, it is just a way to specify
+some modules to load asynchronously as part of a config block.</p>
 
-<p id="config-callback"><strong><a href="#config-callback">callback</a></strong>: A function to pass to require that should be require after <strong>deps</strong> have been loaded. Useful when require is defined as a config object before require.js is loaded, and you want to specify a function to require after the configuration's <strong>deps</strong> array has been loaded.</p>
+<p id="config-callback"><strong><a href="#config-callback">callback</a></strong>: A function to execute after <strong>deps</strong> have been loaded. Useful when require is defined as a config object before require.js is loaded, and you want to specify a function to require after the configuration's <strong>deps</strong> array has been loaded.</p>
 
 <p id="config-enforceDefine"><strong><a href="#config-enforceDefine">enforceDefine</a></strong>: If set to true, an error will be thrown if a script loads that does not call define() or have a shim exports string value that can be checked. See <a href="#ieloadfail">Catching load failures in IE</a> for more information.</p>
 
@@ -702,6 +889,8 @@ define(['module'], function (module) {
 <p>During development it can be useful to use this, however <strong>be sure</strong> to remove it before deploying your code.</p>
 
 <p id="config-scriptType"><strong><a href="#config-baseUrl">scriptType</a></strong>: Specify the value for the type="" attribute used for script tags inserted into the document by RequireJS. Default is "text/javascript". To use Firefox's JavaScript 1.8 features, use "text/javascript;version=1.8".</p>
+
+<p id="config-skipDataMain"><strong><a href="#config-skipDataMain">skipDataMain</a></strong>: Introduced in RequireJS 2.1.9: If set to <code>true</code>, skips the <a href="#data-main">data-main attribute scanning</a> done to start module loading. Useful if RequireJS is embedded in a utility library that may interact with other RequireJS library on the page, and the embedded version should not do data-main loading.</p>
 
 </div>
 
@@ -753,11 +942,6 @@ define(['module'], function (module) {
 <li>project.html</li>
 <li>scripts/
 <ul>
-<li>omega/
-<ul>
-<li>main.js</li>
-</ul></li>
-</ul></li>
 <li>cart/
 <ul>
 <li>main.js</li>
@@ -900,7 +1084,12 @@ function(require,   alpha,   beta) {
 <p>RequireJS can be used in Rhino via the <a href="download.html#rjs">r.js adapter</a>.
 See <a href="https://github.com/jrburke/r.js/blob/master/README.md">the r.js README</a> for more information.</p>
 
-<h3><a href="#errors" name="errors">Handling Errors</a><span class="sectionMark">&sect; 4.6</span></h3>
+<h3><a href="#nashorn" name="nashorn">Nashorn Support</a><span class="sectionMark">&sect; 4.6</span></h3>
+
+<p>As of RequireJS 2.1.16, RequireJS can be used in <a href="http://www.oracle.com/technetwork/articles/java/jf14-nashorn-2126515.html">Nashorn</a>, Java 8+'s JavaScript engine, via the <a href="download.html#rjs">r.js adapter</a>.
+See <a href="https://github.com/jrburke/r.js/blob/master/README.md">the r.js README</a> for more information.</p>
+
+<h3><a href="#errors" name="errors">Handling Errors</a><span class="sectionMark">&sect; 4.7</span></h3>
 
 <p>The general class of errors are 404s for scripts (not found), network timeouts or errors in the scripts that are loaded. RequireJS has a few tools to deal with them: require-specific errbacks, a "paths" array config, and a global requirejs.onError.</p>
 
@@ -933,7 +1122,7 @@ See <a href="https://github.com/jrburke/r.js/blob/master/README.md">the r.js REA
 
 <p><b>NOTE</b>: If you do set enforceDefine: true, and you use data-main="" to load your main JS module, then that main JS module <b>must call define()</b> instead of require() to load the code it needs. The main JS module can still call require/requirejs to set config values, but for loading modules it should use define().</p>
 
-<p>If you then also use <a href="https://github.com/jrburke/almond">almond</a> to build your code without require.js, be sure to use the <a href="https://github.com/jrburke/r.js/blob/master/build/example.build.js#L289">insertRequire</a> build setting to insert a require call for the main module -- that serves the same purpose of the initial require() call that data-main does.</p>
+<p>If you then also use <a href="https://github.com/jrburke/almond">almond</a> to build your code without require.js, be sure to use the <a href="https://github.com/jrburke/r.js/blob/master/build/example.build.js#L413">insertRequire</a> build setting to insert a require call for the main module -- that serves the same purpose of the initial require() call that data-main does.</p>
 
 <h4>
 <a href="#errbacks" name="errbacks">require([]) errbacks</a>
@@ -959,7 +1148,7 @@ require(['jquery'], function ($) {
 }, function (err) {
     //The errback, error callback
     //The error has a list of modules that failed
-    var failedId = err.requireModules && err.requireModules[0],
+    var failedId = err.requireModules && err.requireModules[0];
     if (failedId === 'jquery') {
         //undef is function only on the global requirejs object.
         //Use it to clear internal knowledge of jQuery. Any modules
@@ -1073,7 +1262,7 @@ a generic path search path solution, since those are inefficient in the browser.
 </code></pre>
 
 <p>Since DOM ready is a common application need, ideally the nested functions
-in the API above could be avoided. The domReady module also implements the <a href="plugin.html">Loader Plugin API</a>,
+in the API above could be avoided. The domReady module also implements the <a href="plugins.html">Loader Plugin API</a>,
 so you can use the loader plugin syntax (notice the <b>!</b> in the domReady dependency) to force the
 require() callback function to wait for the DOM to be ready before executing. domReady will return
 the current document when used as a loader plugin:</p>
@@ -1082,7 +1271,6 @@ the current document when used as a loader plugin:</p>
     //This function is called once the DOM is ready,
     //notice the value for 'domReady!' is the current
     //document.
-  });
 });
 </code></pre>
 
@@ -1152,7 +1340,7 @@ define({
 });
 </code></pre>
 
-<p>RequireJS will use the browser's navigator.language or navigator.userLanguage property to determine what locale values to use for my/nls/colors, so your app does not have to change. If you prefer to set the locale, you can use the <a href="#moduleconfig">module config</a> to pass the locale to the plugin:</p>
+<p>RequireJS will use the browser's navigator.languages, navigator.language or navigator.userLanguage property to determine what locale values to use for my/nls/colors, so your app does not have to change. If you prefer to set the locale, you can use the <a href="#moduleconfig">module config</a> to pass the locale to the plugin:</p>
 
 <pre><code>requirejs.config({
     config: {

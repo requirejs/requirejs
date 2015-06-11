@@ -36,19 +36,21 @@ require({
     },
     ["app/run"],
     function() {
-        doh.register(
-            "requirePluginLoad",
-            [
-                function requirePluginLoad(t){
-                    var main = globals.main;
+        require(["plug!app/main"], function () {
+            doh.register(
+                "requirePluginLoad",
+                [
+                    function requirePluginLoad(t){
+                        var main = globals.main;
 
-                    t.is("main", main.name);
-                    t.is("test", main.test.name);
-                    t.is("test2", main.test2.name);
-                }
-            ]
-        );
+                        t.is("main", main.name);
+                        t.is("test", main.test.name);
+                        t.is("test2", main.test2.name);
+                    }
+                ]
+            );
 
-        doh.run();
+            doh.run();
+        });
     }
 );

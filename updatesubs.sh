@@ -19,17 +19,37 @@ cd ../require-jquery/parts
 cd ../../requirejs
 
 # The sample projects
+
+echo "Updating requirejs/example-jquery-cdn"
+cp require.js ../example-jquery-cdn/www/js/lib/require.js
+cp ../r.js/r.js ../example-jquery-cdn/tools/r.js
+
+echo "Updating requirejs/example-jquery-shim"
+cp require.js ../example-jquery-shim/www/js/lib/require.js
+cp ../r.js/r.js ../example-jquery-shim/tools/r.js
+
 echo "Updating requirejs/example-multipage"
 cp require.js ../example-multipage/www/js/lib/require.js
 cp ../r.js/r.js ../example-multipage/tools/r.js
 
+echo "Updating requirejs/example-multipage-shim"
+cp require.js ../example-multipage-shim/www/js/lib/require.js
+cp ../r.js/r.js ../example-multipage-shim/tools/r.js
+
+echo "Updating requirejs/example-libglobal"
+cp require.js ../example-libglobal/lib/require.js
+cp ../r.js/r.js ../example-libglobal/tools/r.js
+
 echo "Updating volojs/create-template"
-cp require.js ../../volojs/create-template/www/js/lib/require.js
+cp require.js ../../volojs/create-template/www/lib/require.js
 cp ../r.js/r.js ../../volojs/create-template/tools/r.js
 
 echo "Updating volojs/create-responsive-template"
 cp require.js ../../volojs/create-responsive-template/www/js/lib/require.js
 cp ../r.js/r.js ../../volojs/create-responsive-template/tools/r.js
+
+echo "Updating amodrojs/amodro-trace"
+cp require.js ../../amodrojs/amodro-trace/lib/loader/require.js
 
 # The cajon project
 echo "Updating the cajon project"
@@ -48,3 +68,7 @@ cp ../r.js/r.js ../require-cs/tools/r.js
 echo "Updating requirejs-npm"
 cp require.js ../requirejs-npm/requirejs/require.js
 cp ../r.js/r.js ../requirejs-npm/requirejs/bin/r.js
+
+# The bower container stuff
+echo "Updating requirejs-bower"
+cp require.js ../requirejs-bower/require.js

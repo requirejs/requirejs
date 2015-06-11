@@ -1,4 +1,3 @@
-
 (function (root) {
     root.A = {
         name: 'a'
@@ -27,8 +26,8 @@ var B = {
     aValue: A.name,
     dValue: new D()
 };
-
-define("b", function(){});
+//ending comment;
+define("b", ["a","d"], function(){});
 
 var C = {
     name: 'c',
@@ -64,6 +63,26 @@ define("e", (function (global) {
     };
 }(this)));
 
+var FCAP = {
+    name: 'FCAP',
+    globalA: A
+};
+
+define("f", ["a"], (function (global) {
+    return function () {
+        var ret, fn;
+       fn = function (a) {
+                    return {
+                        name: FCAP.name,
+                        globalA: FCAP.globalA,
+                        a: a
+                    };
+                };
+        ret = fn.apply(global, arguments);
+        return ret;
+    };
+}(this)));
+
 require({
         baseUrl: './',
         shim: {
@@ -85,11 +104,21 @@ require({
                         name: e.nested.e.name + 'Modified'
                     };
                 }
+            },
+            'f': {
+                deps: ['a'],
+                init: function (a) {
+                    return {
+                        name: FCAP.name,
+                        globalA: FCAP.globalA,
+                        a: a
+                    };
+                }
             }
         }
     },
-    ['a', 'c', 'e'],
-    function(a, c, e) {
+    ['a', 'c', 'e', 'f'],
+    function(a, c, e, f) {
         doh.register(
             'shimBasic',
             [
@@ -101,6 +130,9 @@ require({
                     t.is('c', c.name);
                     t.is('d', c.b.dValue.name);
                     t.is('eModified', e.name);
+                    t.is('FCAP', f.name);
+                    t.is('a', f.globalA.name);
+                    t.is('a', f.a);
                 }
             ]
         );
@@ -109,3 +141,4 @@ require({
 );
 
 define("basic-tests", function(){});
+
