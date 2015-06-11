@@ -1198,15 +1198,18 @@ var requirejs, require, define;
         };
         
         //MOD (russa) debugMode: helper for creating the callStack / message
-        function addCallStack(module, errorEvt){
+        function addCallStack(mod, errorEvt){
+        	
+        	var msg = '[resolving module ' + mod.map.id + ']\n' + mod.__callStack();
+        	
             if(!errorEvt.callStack){
-                errorEvt.callStack = '[resolving module ' + module.map.id + ']\n' + module.__callStack();
+                errorEvt.callStack = msg;
                 errorEvt.message += '\nDependency requested from: ' + errorEvt.callStack;
             }
-            else if(!this.error){
+            else if(!this.error && errorEvt.callStack.indexOf(msg) === -1){//test if new callStack is already contained
                 //prepend to call-stack & message
                 errorEvt.message = errorEvt.message.replace(errorEvt.callStack, '');
-                errorEvt.callStack = '[resolving module ' + module.map.id + ']\n' + module.__callStack() + '\nand ' + errorEvt.callStack;
+                errorEvt.callStack = msg + '\nand ' + errorEvt.callStack;
                 errorEvt.message += errorEvt.callStack;
             }
         }
