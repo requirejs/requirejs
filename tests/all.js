@@ -4,6 +4,7 @@ var hasToString = (function () {
     var test = 'hello world';
 }).toString().indexOf('hello world') !== -1;
 
+
 doh.registerUrl("simple", "../simple.html");
 
 //PS3 does not like this test
@@ -27,6 +28,8 @@ if (hasToString) {
     doh.registerUrl("cjsDotRequire", "../cjsSpace/cjsDotRequire.html");
     doh.registerUrl("packages", "../packages/packages.html");
     doh.registerUrl("packagesConfig", "../packages/config/config.html");
+    doh.registerUrl("packagesMultiLevel", "../packagesMultiLevel/packagesMultiLevel.html");
+    doh.registerUrl("packagesMultiLevelBuilt", "../packagesMultiLevel/packagesMultiLevel-built.html");
     doh.registerUrl("packagesNestedMain", "../packagesNestedMain/packagesNestedMain.html");
     doh.registerUrl("packagesNode", "../packagesNode/packagesNode.html");
     doh.registerUrl("packagesNodeAdapter", "../packagesNodeAdapter/packagesNodeAdapter.html");
@@ -101,6 +104,7 @@ doh.registerUrl("mapConfigRelative", "../mapConfig/mapConfigRelative.html");
 doh.registerUrl("mapConfigSpecificity", "../mapConfig/mapConfigSpecificity.html");
 doh.registerUrl("mapConfigPlugin", "../mapConfig/mapConfigPlugin.html");
 doh.registerUrl("mapConfigPluginBuilt", "../mapConfig/built/mapConfigPluginBuilt.html");
+doh.registerUrl("secondLateConfigPlugin", "../secondLateConfigPlugin/secondLateConfigPlugin.html");
 
 doh.registerUrl("layers", "../layers/layers.html", 10000);
 
@@ -193,6 +197,8 @@ doh.registerUrl("errorGlobalOnError", "../error/globalOnError.html", 2000);
 doh.registerUrl("pluginErrorContinue", "../error/pluginErrorContinue.html", 8000);
 doh.registerUrl("pluginErrorContinueLocal", "../error/pluginErrorContinueLocal.html", 8000);
 doh.registerUrl("defineErrorLocal", "../error/defineErrorLocal.html");
+doh.registerUrl("errorChild", "../error/errorChild.html");
+
 
 doh.registerUrl("errorContinueDebugMode", "../error/errorContinueDebugMode.html", 8000);
 doh.registerUrl("errorContinueLocalDebugMode", "../error/errorContinueLocalDebugMode.html", 8000);

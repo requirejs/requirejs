@@ -1,0 +1,16 @@
+{
+  "preset": "google",
+  "validateIndentation": 4,
+  "disallowSpacesInAnonymousFunctionExpression": null,
+  "disallowMultipleVarDecl": null,
+  "maximumLineLength": {
+    "value": 120,
+    "allowComments": true,
+    "allowRegex": true
+  },
+  "excludeFiles": [
+    "dist/**",
+    "node_modules/**",
+    "tests/**"
+  ]
+}

@@ -32,7 +32,8 @@
         <li class="hbox"><a href="#afterload">Loading Code After Page Load</a><span class="spacer boxFlex"></span><span class="sect">&sect; 4.3</span></li>
         <li class="hbox"><a href="#webworker">Web Worker Support</a><span class="spacer boxFlex"></span><span class="sect">&sect; 4.4</span></li>
         <li class="hbox"><a href="#rhino">Rhino Support</a><span class="spacer boxFlex"></span><span class="sect">&sect; 4.5</span></li>
-        <li class="hbox"><a href="#errors">Handling Errors</a><span class="spacer boxFlex"></span><span class="sect">&sect; 4.6</span></li>
+        <li class="hbox"><a href="#nashorn">Nashorn Support</a><span class="spacer boxFlex"></span><span class="sect">&sect; 4.6</span></li>
+        <li class="hbox"><a href="#errors">Handling Errors</a><span class="spacer boxFlex"></span><span class="sect">&sect; 4.7</span></li>
     </ul>
     <li class="hbox"><a href="#plugins">Loader Plugins</a><span class="spacer boxFlex"></span><span class="sect">&sect;&sect; 5-5.4</span></li>
         <ul>
@@ -319,7 +320,7 @@ direct alignment of dependency name to the local variable used for that dependen
 
 <p>This wrapper relies on Function.prototype.toString() to give a useful string value of the function contents. This does not work on some devices like the PS3 and some older Opera mobile browsers. Use the <a href="optimization.html">optimizer</a> to pull out the dependencies in the array format for use on those devices.</p>
 
-<p>More information is available on the <a href="commonjs.html">CommonJS page</a>, and in the in the <a href="whyamd.html#sugar">"Sugar" section in the Why AMD page</a>.
+<p>More information is available on the <a href="commonjs.html">CommonJS page</a>, and in the <a href="whyamd.html#sugar">"Sugar" section in the Why AMD page</a>.
 </div>
 
 
@@ -1083,7 +1084,12 @@ function(require,   alpha,   beta) {
 <p>RequireJS can be used in Rhino via the <a href="download.html#rjs">r.js adapter</a>.
 See <a href="https://github.com/jrburke/r.js/blob/master/README.md">the r.js README</a> for more information.</p>
 
-<h3><a href="#errors" name="errors">Handling Errors</a><span class="sectionMark">&sect; 4.6</span></h3>
+<h3><a href="#nashorn" name="nashorn">Nashorn Support</a><span class="sectionMark">&sect; 4.6</span></h3>
+
+<p>As of RequireJS 2.1.16, RequireJS can be used in <a href="http://www.oracle.com/technetwork/articles/java/jf14-nashorn-2126515.html">Nashorn</a>, Java 8+'s JavaScript engine, via the <a href="download.html#rjs">r.js adapter</a>.
+See <a href="https://github.com/jrburke/r.js/blob/master/README.md">the r.js README</a> for more information.</p>
+
+<h3><a href="#errors" name="errors">Handling Errors</a><span class="sectionMark">&sect; 4.7</span></h3>
 
 <p>The general class of errors are 404s for scripts (not found), network timeouts or errors in the scripts that are loaded. RequireJS has a few tools to deal with them: require-specific errbacks, a "paths" array config, and a global requirejs.onError.</p>
 
@@ -1116,7 +1122,7 @@ See <a href="https://github.com/jrburke/r.js/blob/master/README.md">the r.js REA
 
 <p><b>NOTE</b>: If you do set enforceDefine: true, and you use data-main="" to load your main JS module, then that main JS module <b>must call define()</b> instead of require() to load the code it needs. The main JS module can still call require/requirejs to set config values, but for loading modules it should use define().</p>
 
-<p>If you then also use <a href="https://github.com/jrburke/almond">almond</a> to build your code without require.js, be sure to use the <a href="https://github.com/jrburke/r.js/blob/master/build/example.build.js#L289">insertRequire</a> build setting to insert a require call for the main module -- that serves the same purpose of the initial require() call that data-main does.</p>
+<p>If you then also use <a href="https://github.com/jrburke/almond">almond</a> to build your code without require.js, be sure to use the <a href="https://github.com/jrburke/r.js/blob/master/build/example.build.js#L413">insertRequire</a> build setting to insert a require call for the main module -- that serves the same purpose of the initial require() call that data-main does.</p>
 
 <h4>
 <a href="#errbacks" name="errbacks">require([]) errbacks</a>
@@ -1334,7 +1340,7 @@ define({
 });
 </code></pre>
 
-<p>RequireJS will use the browser's navigator.language or navigator.userLanguage property to determine what locale values to use for my/nls/colors, so your app does not have to change. If you prefer to set the locale, you can use the <a href="#moduleconfig">module config</a> to pass the locale to the plugin:</p>
+<p>RequireJS will use the browser's navigator.languages, navigator.language or navigator.userLanguage property to determine what locale values to use for my/nls/colors, so your app does not have to change. If you prefer to set the locale, you can use the <a href="#moduleconfig">module config</a> to pass the locale to the plugin:</p>
 
 <pre><code>requirejs.config({
     config: {

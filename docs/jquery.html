@@ -39,7 +39,7 @@
 <a name="globalvars" href="#globalvars">Global Functions</a>
 <span class="sectionMark">&sect; 2</span>
 </h2>
-<p>jQuery registers itself as the global variables "$" and "jQuery", even when it detects AMD/RequireJS. The AMD approach advises against the use of global functions, but the decision to turn off these jQuery globals hinges on whether you have non-AMD code that depends on them. jQuery has a <a href="http://api.jquery.com/jQuery.noConflict/">noConflict function</a> that supports releasing control of the global variables and this can be automated in your require.config, as we will see <a href="#noconflictmap">later</a>.</p>
+<p>jQuery registers itself as the global variables "$" and "jQuery", even when it detects AMD/RequireJS. The AMD approach advises against the use of global functions, but the decision to turn off these jQuery globals hinges on whether you have non-AMD code that depends on them. jQuery has a <a href="http://api.jquery.com/jQuery.noConflict/">noConflict function</a> that supports releasing control of the global variables and this can be automated in your requirejs.config, as we will see <a href="#noconflictmap">later</a>.</p>
 </div>
 
 <div class="section">
@@ -48,11 +48,11 @@
 <span class="sectionMark">&sect; 3</span>
 </h2>
 
-<p>jQuery defines <a href="api.html#modulename">named AMD module</a> 'jquery' (all lower case) when it detects AMD/RequireJS. To reduce confusion, we recommend using 'jquery' as the module name in your require.config.
+<p>jQuery defines <a href="api.html#modulename">named AMD module</a> 'jquery' (all lower case) when it detects AMD/RequireJS. To reduce confusion, we recommend using 'jquery' as the module name in your requirejs.config.
 
 <p>Example:</p>
 
-<pre><code>require.config({
+<pre><code>requirejs.config({
     baseUrl: 'js/lib',
     paths: {
         // the left side is the module ID,
@@ -118,11 +118,11 @@
 <span class="sectionMark">&sect; 6</span>
 </h2>
 
-<p>If <strong>all of your modules</strong> (including any third party jQuery plugins or library code that depend on jQuery) are AMD compatible and you want to avoid having $ or jQuery in the global namespace when they call <code>require(['jquery'])</code>, you can use the <a href="api.html#config-map">map config</a> to map the use of jQuery to a module that calls noConflict and returns that value of jQuery for the 'jquery' module ID.</p>
+<p>If <strong>all of your modules</strong> (including any third party jQuery plugins or library code that depend on jQuery) are AMD compatible and you want to avoid having $ or jQuery in the global namespace when they call <code>requirejs(['jquery'])</code>, you can use the <a href="api.html#config-map">map config</a> to map the use of jQuery to a module that calls noConflict and returns that value of jQuery for the 'jquery' module ID.</p>
 
 <p>You can use this example with the CDN example above -- the shim example will not work since shimmed libraries need a global jQuery.</p>
 
-<pre><code>require.config({
+<pre><code>requirejs.config({
     // Add this map config in addition to any baseUrl or
     // paths config you may already have in the project.
     map: {
@@ -148,15 +148,15 @@ define(['jquery'], function (jq) {
 <p>This means that any module which uses jQuery will need to use the AMD return value rather than depending on the global $:</p>
 
 <pre><code>
-require(['jquery'], function( $ ) {
+requirejs(['jquery'], function( $ ) {
     console.log( $ ) // OK
 });
 
-require(['jquery'], function( jq ) {
+requirejs(['jquery'], function( jq ) {
     console.log( jq ) // OK
 });
 
-require(['jquery'], function( ) {
+requirejs(['jquery'], function( ) {
     console.log( $ ) // UNDEFINED!
 });
 </code></pre>

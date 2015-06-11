@@ -1,6 +1,17 @@
 {
-    "volo": {
-        "url": "https://raw.github.com/jrburke/requirejs/{version}/require.js"
-    },
-    "main": "require.js"
+  "volo": {
+    "url": "https://raw.github.com/jrburke/requirejs/{version}/require.js"
+  },
+  "main": "require.js",
+  "scripts": {
+    "pretest": "jscs . && jshint require.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jrburke/requirejs.git"
+  },
+  "devDependencies": {
+    "jscs": "^1.12.0",
+    "jshint": "^2.7.0"
+  }
 }
