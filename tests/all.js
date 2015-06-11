@@ -194,6 +194,15 @@ doh.registerUrl("pluginErrorContinue", "../error/pluginErrorContinue.html", 8000
 doh.registerUrl("pluginErrorContinueLocal", "../error/pluginErrorContinueLocal.html", 8000);
 doh.registerUrl("defineErrorLocal", "../error/defineErrorLocal.html");
 
+doh.registerUrl("errorContinueDebugMode", "../error/errorContinueDebugMode.html", 8000);
+doh.registerUrl("errorContinueLocalDebugMode", "../error/errorContinueLocalDebugMode.html", 8000);
+doh.registerUrl("errorDoubleRequireDebugMode", "../error/doubleRequire/doubleRequireDebugMode.html", 8000);
+doh.registerUrl("errorRequireErrbackDebugMode", "../error/requireErrbackDebugMode.html", 2000);
+doh.registerUrl("errorGlobalOnErrorDebugMode", "../error/globalOnErrorDebugMode.html", 2000);
+doh.registerUrl("pluginErrorContinueDebugMode", "../error/pluginErrorContinueDebugMode.html", 8000);
+doh.registerUrl("pluginErrorContinueLocalDebugMode", "../error/pluginErrorContinueLocalDebugMode.html", 8000);
+doh.registerUrl("defineErrorLocalDebugMode", "../error/defineErrorLocalDebugMode.html");
+
 doh.registerUrl("pathArray", "../pathArray/pathArray.html", 8000);
 doh.registerUrl("pathArrayWithMap", "../pathArray/withMap/withMap.html", 8000);
 doh.registerUrl("pathArrayFail", "../pathArray/pathArrayFail.html", 10000);
