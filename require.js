@@ -552,6 +552,16 @@ var requirejs, require, define;
                 });
 
                 if (!notified) {
+                	
+					//MOD (russa) debugMode: add callStack information "manually",
+					//                       if missing on err
+                	if(!err.callStack && err.requireMap && err.requireMap.id){
+                        var mod = getOwn(registry, err.requireMap.id);
+                        if (mod && mod.__callStack){//russa: mod.__callStack will only be set in debugMode
+    						addCallStack(mod, err);
+                        }
+                    };
+                    
                     req.onError(err);
                 }
             }
