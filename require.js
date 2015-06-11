@@ -499,6 +499,10 @@ var requirejs, require, define;
             if (!mod) {
                 mod = registry[id] = new context.Module(depMap);
             }
+            else if(!mod.__callStack && depMap.__callStack){
+            	//MOD (russa) debugMode: tranfere call-stack if missing
+            	mod.__callStack = depMap.__callStack;
+            }
 
             return mod;
         }
