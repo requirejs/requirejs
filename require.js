@@ -1832,7 +1832,7 @@ var requirejs, require, define;
     /**
      * Creates the node for the load command. Only used in browser envs.
      */
-    req.createNode = function (config, moduleName, url) {
+    req.createNode = function (config) {
         var node = config.xhtml ?
                 document.createElementNS('http://www.w3.org/1999/xhtml', 'html:script') :
                 document.createElement('script');
@@ -1856,7 +1856,7 @@ var requirejs, require, define;
             node;
         if (isBrowser) {
             //In the browser so use a script tag
-            node = req.createNode(config, moduleName, url);
+            node = req.createNode(config);
             if (config.onNodeCreated) {
                 config.onNodeCreated(node, config, moduleName, url);
             }
