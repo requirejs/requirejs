@@ -208,6 +208,9 @@ doh.registerUrl("errorGlobalOnErrorDebugMode", "../error/globalOnErrorDebugMode.
 doh.registerUrl("pluginErrorContinueDebugMode", "../error/pluginErrorContinueDebugMode.html", 8000);
 doh.registerUrl("pluginErrorContinueLocalDebugMode", "../error/pluginErrorContinueLocalDebugMode.html", 8000);
 doh.registerUrl("defineErrorLocalDebugMode", "../error/defineErrorLocalDebugMode.html");
+doh.registerUrl("errorChildDebugMode", "../error/errorChildDebugMode.html");
+doh.registerUrl("globalErrorChildDebugMode", "../error/globalErrorChildDebugMode.html");
+
 
 doh.registerUrl("pathArray", "../pathArray/pathArray.html", 8000);
 doh.registerUrl("pathArrayWithMap", "../pathArray/withMap/withMap.html", 8000);
