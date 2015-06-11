@@ -515,6 +515,11 @@ var requirejs, require, define;
             } else {
                 mod = getModule(depMap);
                 if (mod.error && name === 'error') {
+                	if(depMap.__callStack){
+                        //MOD (russa) debugMode: need to add (additional) callStack information "manually",
+                        //                       if err was not emitted by the module itself
+                        addCallStack(depMap, mod.error);
+                    }
                     fn(mod.error);
                 } else {
                     mod.on(name, fn);
@@ -1200,7 +1205,7 @@ var requirejs, require, define;
         //MOD (russa) debugMode: helper for creating the callStack / message
         function addCallStack(mod, errorEvt){
         	
-        	var msg = '[resolving module ' + mod.map.id + ']\n' + mod.__callStack();
+        	var msg = '[resolving module ' + (mod.id? mod.id : mod.map.id) + ']\n' + mod.__callStack();
         	
             if(!errorEvt.callStack){
                 errorEvt.callStack = msg;
