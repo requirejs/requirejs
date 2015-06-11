@@ -27,7 +27,7 @@ var B = {
     dValue: new D()
 };
 //ending comment;
-define("b", function(){});
+define("b", ["a","d"], function(){});
 
 var C = {
     name: 'c',

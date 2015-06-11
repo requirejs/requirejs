@@ -179,7 +179,7 @@ requirejs.optimize(config, function (buildResponse) {
 });
 </code></pre>
 
-<p>This allows you to build other optimization workflows, like <a href="https://github.com/jrburke/r.js/tree/master/build/tests/http">a web builder</a> that can be used if you prefer to always develop with the "one script file included before the &lt;/body&gt; tag" approach. The optimizer running in Node if fairly fast, but for larger projects that do not want to regenerate the build for every browser request, but just if you modify a script that is part of the build. You could use Node's fs.watchFile() to watch files and then trigger the build when a file changes.</p>
+<p>This allows you to build other optimization workflows, like <a href="https://github.com/jrburke/r.js/tree/master/build/tests/http">a web builder</a> that can be used if you prefer to always develop with the "one script file included before the &lt;/body&gt; tag" approach. The optimizer running in Node is fairly fast, but for larger projects that do not want to regenerate the build for every browser request, but just if you modify a script that is part of the build. You could use Node's fs.watchFile() to watch files and then trigger the build when a file changes.</p>
 
 <h3 id="feedback">Feedback</h3>
 

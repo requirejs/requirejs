@@ -28,7 +28,7 @@ require({
     },
     ['e', 'adapter/d'],
     function(e, adapterD) {
-        
+        'use strict';
         doh.register(
             'mapConfigStarAdapter',
             [

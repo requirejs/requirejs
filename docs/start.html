@@ -36,7 +36,7 @@
 
 <span class="note">Note: For jQuery-specific advice, see the <a href="jquery.html">jQuery integration page</a></span>
 
-<p>This setup assumes you keep all your JavaScript files in a "scripts" directory in your project. For example, if you have a project that has an project.html page, with some scripts, the directory layout might look like so:</p>
+<p>This setup assumes you keep all your JavaScript files in a "scripts" directory in your project. For example, if you have a project that has a project.html page, with some scripts, the directory layout might look like so:</p>
 
 <ul>
     <li>project-directory/
@@ -71,7 +71,7 @@
     </ul></li>
 </ul>
 
-<p>To take full advantage of the optimization tool, it is suggested that you keep all inline script out of the HTML, and only reference require.js with a require call like so to load your script:</p>
+<p>To take full advantage of the optimization tool, it is suggested that you keep all inline script out of the HTML, and only reference require.js with a requirejs call like so to load your script:</p>
 
 <pre><code>&lt;!DOCTYPE html&gt;
 &lt;html&gt;
@@ -89,9 +89,9 @@
 
 <p>You could also place the script tag end of the &lt;body&gt; section if you do not want the loading of the require.js script to block rendering. For browsers that support it, you could also add an <a href="https://developer.mozilla.org/en/docs/Web/HTML/Element/script#Attributes">async attribute</a> to the script tag.</p>
 
-<p>Inside of main.js, you can use require() to load any other scripts you need to run. This ensures a single entry point, since <a href="api.html#data-main">the data-main script you specify is loaded asynchronously</a>.</p>
+<p>Inside of main.js, you can use requirejs() to load any other scripts you need to run. This ensures a single entry point, since <a href="api.html#data-main">the data-main script you specify is loaded asynchronously</a>.</p>
 
-<pre><code>require(["helper/util"], function(util) {
+<pre><code>requirejs(["helper/util"], function(util) {
     //This function is called when scripts/helper/util.js is loaded.
     //If util.js calls define(), then this function is not fired until
     //util's dependencies have loaded, and the util argument will hold

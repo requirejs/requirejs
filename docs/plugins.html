@@ -38,7 +38,7 @@ Plugin Names
 
 <p>Loader plugins are just another module, but they implement a specific API. Loader plugins can also participate in the optimizer optimizations, allowing the resources they load to be inlined in an optimized build.</p>
 
-<p><b>Note</b>: the plugin and its dependencies should be able to run in non-browser environments like Node and Rhino. If they cannot, you should use an alternate <a href="#apipluginbuilder">plugin builder</a> module that can run in those environments
+<p><b>Note</b>: the plugin and its dependencies should be able to run in non-browser environments like Node and Nashorn. If they cannot, you should use an alternate <a href="#apipluginbuilder">plugin builder</a> module that can run in those environments
 so that they can participate in optimization builds.</p>
 
 <p>You can reference your plugin by putting its module name before a ! in the dependency. For instance, if you create a plugin with the name "foo.js", you would use it like so:</p>
@@ -179,7 +179,7 @@ define({
 </code></pre>
 
 <p>Some plugins may do an async operation in the browser, but opt to complete
-the resource load synchronously when run in Node/Rhino. This is what the text
+the resource load synchronously when run in Node/Nashorn. This is what the text
 plugin does. If you just want to run AMD modules and load plugin
 dependencies using <a href="http://github.com/jrburke/amdefine">amdefine</a> in Node, those also need to complete
 synchronously to match Node's synchronous module system.</p>
@@ -344,7 +344,7 @@ write: function (pluginName, moduleName, write) {
 
 <ul>
     <li>Do not use named modules for the plugin or the pluginBuilder. The pluginBuilder text contents are used instead of the contents of the plugin file, but that will only work if the files do not call define() with a name.</li>
-    <li>Plugins and pluginBuilders that run as part of the build process have a very limited environment. Right now the optimizer runs on top of Rhino, but it may in the future run also on Node. Be careful of the environment assumptions if you want the plugin to run as part of the optimizer.</li>
+    <li>Plugins and pluginBuilders that run as part of the build process have a very limited environment. The optimizer runs in a few different JS environments. Be careful of the environment assumptions if you want the plugin to run as part of the optimizer.</li>
 </ul>
 
 </div>
