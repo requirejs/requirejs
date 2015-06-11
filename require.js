@@ -991,6 +991,9 @@ var requirejs, require, define;
 
                         normalizedMod = getOwn(registry, normalizedMap.id);
                         if (normalizedMod) {
+                        	if(!normalizedMod.__callStack && this.__callStack){//MOD (russa) debugMode: set callStack if available
+                        		normalizedMod.__callStack = this.__callStack;
+                            }
                             //Mark this as a dependency for this plugin, so it
                             //can be traced for cycles.
                             this.depMaps.push(normalizedMap);
