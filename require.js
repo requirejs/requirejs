@@ -1230,7 +1230,7 @@ var requirejs, require, define;
         //MOD (russa) debugMode: helper for creating the callStack / message
         function addCallStack(mod, errorEvt) {
 
-            var msg = '[resolving module ' + (mod.id? mod.id : mod.map.id) + ']\n' + mod.__callStack();
+            var msg = '[resolving module ' + (mod.id ? mod.id : mod.map.id) + ']\n' + mod.__callStack();
 
             if (!errorEvt.callStack) {
                 errorEvt.callStack = msg;
@@ -1848,7 +1848,7 @@ var requirejs, require, define;
 
                     if (!String.prototype.trim) {
                         String.prototype.trim = function() {
-                            return this.replace(/^\s+/,'').replace(/\s+$/,'');
+                            return this.replace(/^\s+/, '').replace(/\s+$/, '');
                         };
                     }
 
