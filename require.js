@@ -562,7 +562,7 @@ var requirejs, require, define;
                         if (mod && mod.__callStack) {//russa: mod.__callStack will only be set in debugMode
                             addCallStack(mod, err);
                         }
-                    };
+                    }
 
                     req.onError(err);
                 }
