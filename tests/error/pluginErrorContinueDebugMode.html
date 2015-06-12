@@ -13,10 +13,10 @@
         }
 
         requirejs.onError = function (err) {
-        	
-        	if(typeof new Error().stack !== 'undefined'){
-        		doh.t(typeof err.callStack === 'string');
-        	}
+
+            if (typeof new Error().stack !== 'undefined') {
+                doh.t(typeof err.callStack === 'string');
+            }
 
             if (err.requireModules && err.plugMessage === 'broken') {
                 var id = err.requireModules[0],

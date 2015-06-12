@@ -22,10 +22,10 @@
             doh.is("shouldNotBeReached", b.name);
             done();
         }, function (err) {
-        	
-        	if(typeof new Error().stack !== 'undefined'){
-        		doh.t(typeof err.callStack === 'string');
-        	}
+
+            if (typeof new Error().stack !== 'undefined') {
+                doh.t(typeof err.callStack === 'string');
+            }
 
             if (err.requireType === 'define') {
                 requirejs(['c', 'd'], function (c, d) {
@@ -41,9 +41,9 @@
                             doh.is("shouldNotBeReached", de.name);
                             done();
                         }, function (err) {
-                        	if(typeof new Error().stack !== 'undefined'){
-                        		doh.t(typeof err.callStack === 'string');
-                        	}
+                            if (typeof new Error().stack !== 'undefined') {
+                                doh.t(typeof err.callStack === 'string');
+                            }
                             doh.is("define", err.requireType);
                             done();
                         });

@@ -10,11 +10,11 @@
             failed = false;
 
         requirejs.onError = function (err) {
-        	
-        	if(typeof new Error().stack !== 'undefined'){
-        		doh.t(typeof err.callStack === 'string');
-        	}
-        	
+
+            if (typeof new Error().stack !== 'undefined') {
+                doh.t(typeof err.callStack === 'string');
+            }
+
             if (!failed) {
                 master.callback(true);
             }
@@ -23,15 +23,15 @@
         define('a', {name: 'a'});
 
         require({
-        	debugMode: true
+            debugMode: true
         }, ['a'], function (a) {
             a.whatever.fail = 'fail';
         }, function (err) {
-        	
-        	if(typeof new Error().stack !== 'undefined'){
-        		doh.t(typeof err.callStack === 'string');
-        	}
-        	
+
+            if (typeof new Error().stack !== 'undefined') {
+                doh.t(typeof err.callStack === 'string');
+            }
+
             failed = true;
         });
 

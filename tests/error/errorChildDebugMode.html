@@ -19,15 +19,15 @@
         });
 
         require({
-        	debugMode: true
+            debugMode: true
         },['a'], function (a) {
             failed = false;
         }, function (err) {
-        	
-        	if(typeof new Error().stack !== 'undefined'){
-        		doh.t(typeof err.callStack === 'string');
-        	}
-        	
+
+            if (typeof new Error().stack !== 'undefined') {
+                doh.t(typeof err.callStack === 'string');
+            }
+
             failed = true;
         });
 

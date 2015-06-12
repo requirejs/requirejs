@@ -19,11 +19,11 @@
             doh.is("not-a", a.name);
             done();
         }, function (err) {
-        	
-        	if(typeof new Error().stack !== 'undefined'){
-        		doh.t(typeof err.callStack === 'string');
-        	}
-        	
+
+            if (typeof new Error().stack !== 'undefined') {
+                doh.t(typeof err.callStack === 'string');
+            }
+
             if (err.requireModules && err.plugMessage === 'broken') {
                 setTimeout(function () {
                     requirejs(['c', 'd', 'plug!nested'], function (c, d, nested) {

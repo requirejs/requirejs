@@ -17,18 +17,18 @@
         define('a', ['missing'], function(m) {
             return {};
         });
-        
-		requirejs.onError = function (err) {
-        	
-        	if(typeof new Error().stack !== 'undefined'){
-        		doh.t(typeof err.callStack === 'string');
-        	}
-        	
-        	failed = true;
+
+        requirejs.onError = function (err) {
+
+            if (typeof new Error().stack !== 'undefined') {
+                doh.t(typeof err.callStack === 'string');
+            }
+
+            failed = true;
         };
 
         require({
-        	debugMode: true
+            debugMode: true
         },['a'], function (a) {
             failed = false;
         });

@@ -29,18 +29,18 @@
         require(['b'], function (b) {
             throw new Error('Should not reach here 1');
         }, function (err) {
-        	if(typeof new Error().stack !== 'undefined'){
-        		doh.t(typeof err.callStack === 'string');
-        	}
+            if (typeof new Error().stack !== 'undefined') {
+                doh.t(typeof err.callStack === 'string');
+            }
             console.log(err);
             done();
             setTimeout(function () {
                 requirejs(['c'], function (c) {
                     throw new Error('Should not reach here 2');
                 }, function (err) {
-                	if(typeof new Error().stack !== 'undefined'){
-                		doh.t(typeof err.callStack === 'string');
-                	}
+                    if (typeof new Error().stack !== 'undefined') {
+                        doh.t(typeof err.callStack === 'string');
+                    }
                     console.log(err);
                     done();
                 });
