@@ -37,14 +37,14 @@ var requirejs, require, define;
         cfg = {},
         globalDefQueue = [],
         useInteractive = false;
-
-    function isFunction(it) {
-        return ostring.call(it) === '[object Function]';
-    }
-
-    function isArray(it) {
-        return ostring.call(it) === '[object Array]';
-    }
+    
+    var isType = function(type) {
+        return function(obj) {
+            return ostring.call(obj) == '[object ' + type + ']';
+        }
+    };
+    var isFunction = isType('Function'),
+        isArray = Array.isArray || isType('Array');
 
     /**
      * Helper function for iterating over an array. If the func returns
