@@ -309,7 +309,7 @@ require(mods);</code></pre>
 
 <p>However, it is more likely that you do not want to include that resource in the build. If the script does not have any dependencies, or you do not want to include its dependencies or will be including them in another way, then you can use the special <strong>'empty:' scheme</strong> in the paths config to just skip the file when doing an optimization.</p>
 
-<p>In your main.js file, create a paths config that gives the script a module name. This can be done even if the script does not define a module via a call to define(). paths config are just used to map short module/script IDs to an URL. This allows you to use a a different paths config for the optimization. In main.js:</p>
+<p>In your main.js file, create a paths config that gives the script a module name. This can be done even if the script does not define a module via a call to define(). paths config are just used to map short module/script IDs to an URL. This allows you to use a different paths config for the optimization. In main.js:</p>
 
 <pre><code>requirejs.config({
     paths: {
