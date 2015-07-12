@@ -20,7 +20,7 @@ When doing a release, do the following:
   * requirejs/example-libglobal
   * volojs/create-template
   * volojs/create-responsive-template
-  * amodrojs/amodro-trace (run tests too)
+  * amodrojs/amodro-trace (UPDATE ESPRIMA(?), run tests too)
 
 * Tag the requirejs and r.js trees:
     * git tag -am "Release 0.0.0" 0.0.0
