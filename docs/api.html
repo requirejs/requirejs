@@ -173,7 +173,7 @@ require(['foo'], function(foo) {
 });
 </code></pre>
 
-<p>If you want to to do <code>require()</code> calls in the HTML page, then it is best to not use data-main. data-main is only intended for use when the page just has one main entry point, the data-main script. For pages that want to do inline <code>require()</code> calls, it is best to nest those inside a <code>require()</code> call for the configuration:</p>
+<p>If you want to do <code>require()</code> calls in the HTML page, then it is best to not use data-main. data-main is only intended for use when the page just has one main entry point, the data-main script. For pages that want to do inline <code>require()</code> calls, it is best to nest those inside a <code>require()</code> call for the configuration:</p>
 
 <pre><code>&lt;script src="scripts/require.js"&gt;&lt;/script&gt;
 &lt;script&gt;
@@ -406,12 +406,12 @@ having to know the directory's name.</p>
 });
 </code></pre>
 
-<p id="modulenotes-console"><strong>Console debugging</strong>: If you need to work with a module you already loaded via a require(["module/name"], function(){}) call in the JavaScript console, then you can use  the require() form that just uses the string name of the module to fetch it:</p>
+<p id="modulenotes-console"><strong>Console debugging</strong>: If you need to work with a module you already loaded via a <code>require(["module/name"], function(){})</code> call in the JavaScript console, then you can use  the require() form that just uses the string name of the module to fetch it:</p>
 
 <pre><code>require("module/name").callSomeFunction()
 </code></pre>
 
-<p>Note this only works if "module/name" was previously loaded via the async version of require: require(["module/name"]). If using a relative path, like './module/name', those only work inside define</p>
+<p>Note this only works if "module/name" was previously loaded via the async version of require: <code>require(["module/name"])</code>. If using a relative path, like './module/name', those only work inside define</p>
 </div>
 
 <div class="subSection">
