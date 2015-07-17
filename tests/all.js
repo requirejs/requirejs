@@ -55,6 +55,7 @@ doh.registerUrl("circularTranspiler", "../circular/transpiler/transpiler.html");
 
 doh.registerUrl("nestedRequire", "../nestedRequire/nestedRequire.html");
 
+doh.registerUrl("unorderedDefine", "../unorderedDefine/unorderedDefine.html");
 doh.registerUrl("depEmpty", "../depEmpty.html");
 doh.registerUrl("depoverlap", "../depoverlap.html");
 doh.registerUrl("urlfetch", "../urlfetch/urlfetch.html");
