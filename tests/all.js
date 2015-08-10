@@ -7,6 +7,8 @@ var hasToString = (function () {
 
 doh.registerUrl("simple", "../simple.html");
 
+doh.registerUrl("setTimeout", "../setTimeout.html");
+
 //PS3 does not like this test
 doh.registerUrl("baseUrl", "../baseUrl.html");
 
