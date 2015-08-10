@@ -10,11 +10,7 @@
     	return localSetTimeout.call(global, fn, delay);
     };
 
-    require({
-        baseUrl: "./"
-        },
-        ["simple"],
-        function(simple) {
+    require({ baseUrl: "./" }, ["simple"], function(simple) {
         doh.register(
             "setTimeout",
             [
@@ -25,6 +21,5 @@
         );
 
         doh.run();
-        }
-    );
+    });
 })(this);
