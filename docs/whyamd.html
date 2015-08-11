@@ -109,7 +109,7 @@ exports.myExample = function () {};
 <li>inherent asynchronicity</li>
 </ul>
 
-<p>It also meant they placed more of a burden on web developers to implement the format, and the stop-gap measures meant debugging was worse. eval-based debugging or debugging multiple files that are concatenated into one file have practical weaknesses. Those weaknesses may be addressed in browser tooling some day, but the end result: using CommonJS modules in the most common of JS environments, the browser, is non-optimal today.</p>
+<p>It also meant they placed more of a burden on web developers to implement the format, and the stop-gap measures meant debugging was worse. eval-based debugging or debugging multiple files that are concatenated into one file have practical weaknesses. Those weaknesses may be addressed in browser tooling someday, but the end result: using CommonJS modules in the most common of JS environments, the browser, is non-optimal today.</p>
 
 </div>
 
@@ -296,7 +296,7 @@ if (someCondition) {
 
 <ul>
     <li>the tooling dependency cost</li>
-    <li>edge cases that break in browsers, like cross domain access</li>
+    <li>edge cases that break in browsers, like cross-domain access</li>
     <li>worse debugging, a cost that continues to add up over time</li>
 </ul>
 
@@ -314,7 +314,7 @@ if (someCondition) {
 <li><strong><a href="http://requirejs.org/docs/plugins.html">Loader plugins</a></strong> are incredibly useful. It helps avoid the nested brace indenting common in callback-based programming.</li>
 <li><strong>Selectively mapping one module</strong> to load from another location makes it easy to provide mock objects for testing.</li>
 <li>There should only be at most <strong>one IO action for each module</strong>, and it should be straightforward. Web browsers are not tolerant of multiple IO lookups to find a module. This argues against the multiple path lookups that Node does now, and avoiding the use of a package.json "main" property. Just use module names that map easily to one location based on the project's location, using a reasonable default convention that does not require verbose configuration, but allow for simple configuration when needed.</li>
-<li>It is best if there is an <strong>"opt-in" call</strong> that can be done so that older JS code can partcipate in the new system.</li>
+<li>It is best if there is an <strong>"opt-in" call</strong> that can be done so that older JS code can participate in the new system.</li>
 </ul>
 
 <p>If a JS module system cannot deliver on the above features, it is at a significant disadvantage when compared to AMD and its related APIs around <a href="https://github.com/amdjs/amdjs-api/wiki/require">callback-require</a>, <a href="https://github.com/amdjs/amdjs-api/wiki/Loader-Plugins">loader plugins</a>, and paths-based module IDs.</p>
@@ -327,7 +327,7 @@ if (someCondition) {
 <span class="sectionMark">&sect; 9</span>
 </h2>
 
-<p>As of mid October 2011, AMD already has good adoption on the web:</p>
+<p>As of mid-October 2011, AMD already has good adoption on the web:</p>
 
 <ul>
 <li><a href="http://jquery.com/">jQuery</a> 1.7</li>
