@@ -66,8 +66,8 @@ var requirejs, require, define;
      */
     function eachReverse(ary, func) {
         if (ary) {
-            var i;
-            for (i = ary.length - 1; i > -1; i -= 1) {
+            var i = ary.length;
+            while (i--) {
                 if (ary[i] && func(ary[i], i, ary)) {
                     break;
                 }
