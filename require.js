@@ -1933,9 +1933,9 @@ var requirejs, require, define;
                 //In a web worker, use importScripts. This is not a very
                 //efficient use of importScripts, importScripts will block until
                 //its script is downloaded and evaluated. However, if web workers
-                //are in play, the expectation that a build has been done so that
-                //only one script needs to be loaded anyway. This may need to be
-                //reevaluated if other use cases become common.
+                //are in play, the expectation is that a build has been done so
+                //that only one script needs to be loaded anyway. This may need
+                //to be reevaluated if other use cases become common.
                 importScripts(url);
 
                 //Account for anonymous modules
