@@ -92,7 +92,7 @@ API
 
 <ul>
     <li><b>name</b>: String. The name of the resource to load. This is the part after the ! separator in the name. So, if a module asks for 'foo!something/for/foo', the foo module's load function will receive 'something/for/foo' as the name.</li>
-    <li><b>parentRequire</b>: Function. A local "require" function to use to load other modules. This require function has some utilities on it:
+    <li><b>parentRequire</b>: Function. A local "require" function to use to load other modules. This function will resolve relative module names relative to the module name that asked for this plugin resource, since the loader plugin is taking over loading responsibilities for the resource. This require function has some utilities on it:
     <ul>
         <li><b>parentRequire.toUrl(moduleResource)</b>:where moduleResource is a module name plus an extension. For instance "view/templates/main.html". It will return a full path to the resource, obeying any RequireJS configuration.</li>
         <li><b>parentRequire.defined(moduleName)</b>: Returns true if the module has already been loaded and defined. Used to be called require.isDefined before RequireJS 0.25.0.</li>
