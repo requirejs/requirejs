@@ -38,7 +38,12 @@
 
 <p><strong>Best practice</strong>: Use npm to install Node-only packages/modules into the projects <strong>node_modules</strong> directory, but do not configure RequireJS to look inside the node_modules directory. Also avoid using relative module IDs to reference modules that are Node-only modules. So, <strong>do not</strong> do something like <strong>require("./node_modules/foo/foo")</strong>.</p>
 
-<p>Finally, RequireJS in Node can only load modules that are on the local disk -- fetching modules across http, for instance, is not supported at this time.</p>
+<p>Other notes:</p>
+
+<ul>
+    <li>RequireJS in Node can only load modules that are on the local disk -- fetching modules across http, for instance, is not supported at this time.</li>
+    <li>RequireJS config options like map, packages, paths are only applied if RequireJS loads the module. If RequireJS needs to ask the node module system, the original ID is passed to Node.</li>
+</ul>
 
 </div>
 
