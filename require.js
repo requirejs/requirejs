@@ -1704,9 +1704,23 @@ var requirejs, require, define;
              * Callback for script errors.
              */
             onScriptError: function (evt) {
-                var data = getScriptData(evt);
+                data = getScriptData(evt);
                 if (!hasPathFallback(data.id)) {
-                    return onError(makeError('scripterror', 'Script error for: ' + data.id, evt, [data.id]));
+                    var parents = [];
+                    eachProp(registry, function(value, key) {
+                        if (key.indexOf('_@r') !== 0) {
+                            each(value.depMaps, function(depMap) {
+                                if (depMap.id === data.id) {
+                                    parents.push(key);
+                                }
+                                return true;
+                            });
+                        }
+                    });
+                    return onError(makeError('scripterror', 'Script error for "' + data.id +
+                                             (parents.length ?
+                                             '", needed by: ' + parents.join(', ') :
+                                             '"'), evt, [data.id]));
                 }
             }
         };
