@@ -42,7 +42,7 @@
 
 <ul>
     <li>RequireJS in Node can only load modules that are on the local disk -- fetching modules across http, for instance, is not supported at this time.</li>
-    <li>RequireJS config options like map, packages, paths are only applied if RequireJS loads the module. If RequireJS needs to ask the node module system, the original ID is passed to Node.</li>
+    <li>RequireJS config options like map, packages, paths are only applied if RequireJS loads the module. If RequireJS needs to ask the node module system, the original ID is passed to Node. If you need a node module to work with a map config, inline define() calls work, as shown in <a href="https://groups.google.com/forum/#!msg/requirejs/ur_UQLr04rc/sSpM8y87VNMJ">this email list thread.</a></li>
 </ul>
 
 </div>
