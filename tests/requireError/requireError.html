@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>require.js: require Error in Callback Test</title>
+    <script type="text/javascript" src="../../require.js"></script>
+    <script type="text/javascript" src="../doh/runner.js"></script>
+    <script type="text/javascript" src="../doh/_browserRunner.js"></script>
+    <script>
+
+    require(['b'],function(b) {
+        doh.register(
+            "requireError",
+            [
+                function requireError(t) {
+                    t.is('b', b.name);
+                    t.is('a', b.a.name);
+                }
+            ]
+        );
+
+        doh.run();
+    });
+    require(['a'],function() {
+        throw new Error('Test error case');
+    });
+    </script>
+</head>
+<body>
+    <h1>require.js: require Error in Callback Test</h1>
+    <p>Error in require callback does not stop other resolution.
+    <a href="https://github.com/jrburke/requirejs/issues/1440">More info</a>.</p>
+    <p>Check console for messages</p>
+</body>
+</html>

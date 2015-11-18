@@ -148,6 +148,7 @@ doh.registerUrl("pluginNormalize", "../plugins/pluginNormalize/pluginNormalize.h
 doh.registerUrl("requirePluginLoad", "../requirePluginLoad/requirePluginLoad.html");
 
 doh.registerUrl("requireAsync", "../requireAsync/requireAsync.html");
+doh.registerUrl("requireError", "../requireError/requireError.html");
 
 doh.registerUrl("issue379", "../issue379/issue379.html");
 
