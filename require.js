@@ -916,7 +916,11 @@ var requirejs, require, define;
                             defined[id] = exports;
 
                             if (req.onResourceLoad) {
-                                req.onResourceLoad(context, this.map, this.depMaps);
+                                var resLoadMaps = [];
+                                each(this.depMaps, function (depMap) {
+                                    resLoadMaps.push(depMap.normalizedMap || depMap);
+                                });
+                                req.onResourceLoad(context, this.map, resLoadMaps);
                             }
                         }
 
@@ -975,6 +979,7 @@ var requirejs, require, define;
                                                       this.map.parentMap);
                         on(normalizedMap,
                             'defined', bind(this, function (value) {
+                                this.map.normalizedMap = normalizedMap;
                                 this.init([], function () { return value; }, null, {
                                     enabled: true,
                                     ignore: true
