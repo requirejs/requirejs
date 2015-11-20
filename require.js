@@ -1716,7 +1716,7 @@ var requirejs, require, define;
              * Callback for script errors.
              */
             onScriptError: function (evt) {
-                data = getScriptData(evt);
+                var data = getScriptData(evt);
                 if (!hasPathFallback(data.id)) {
                     var parents = [];
                     eachProp(registry, function(value, key) {
