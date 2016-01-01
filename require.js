@@ -1962,6 +1962,11 @@ var requirejs, require, define;
                 //are in play, the expectation is that a build has been done so
                 //that only one script needs to be loaded anyway. This may need
                 //to be reevaluated if other use cases become common.
+
+                // Post a task to the event loop to work around a bug in WebKit
+                // where the worker gets garbage-collected after calling
+                // importScripts(): https://webkit.org/b/153317
+                setTimeout(function() {}, 0);
                 importScripts(url);
 
                 //Account for anonymous modules
