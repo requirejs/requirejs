@@ -99,7 +99,7 @@ API
         <li><b>parentRequire.specified(moduleName)</b>: Returns true if the module has already been requested or is in the process of loading and should be available at some point.</li>
     </ul></li>
     <li><b>onload</b>: Function. A function to call with the value for name. This tells the loader that the plugin is done loading the resource. <b>onload.error()</b> can be called, passing an error object to it, if the plugin detects an error condition that means the resource will fail to load correctly.</li>
-    <li><b>config</b>: Object. A configuration object. This is a way for the optimizer and the web app to pass configuration information to the plugin. The i18n! plugin uses this to get the current current locale, if the web app wants to force a specific locale. The optimizer will set an <b>isBuild</b> property in the config to true if this plugin (or pluginBuilder) is being called as part of an optimizer build.</li>
+    <li><b>config</b>: Object. A configuration object. This is a way for the optimizer and the web app to pass configuration information to the plugin. The i18n! plugin uses this to get the current locale, if the web app wants to force a specific locale. The optimizer will set an <b>isBuild</b> property in the config to true if this plugin (or pluginBuilder) is being called as part of an optimizer build.</li>
 </ul>
 
 <p>An example plugin that does not do anything interesting, just does a normal require to load a JS module:</p>
