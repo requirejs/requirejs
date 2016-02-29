@@ -1,4 +1,5 @@
 .DS_Store
+requirejs.iml
 docs/jquery-require-sample/webapp-build/
 docs/jquery-require-sample/dist
 dist/dist-site/

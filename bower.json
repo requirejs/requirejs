@@ -1,0 +1,28 @@
+{
+  "name": "requirejs-easyhi",
+  "description": "A file and module loader for JavaScript",
+  "main": "require.js",
+  "authors": [
+    "JounQin <liujiaren1992@vip.qq.com>"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "requirejs",
+    "urlArgs"
+  ],
+  "homepage": "https://github.com/JounQin/requirejs",
+  "moduleType": [
+    "amd",
+    "es6",
+    "globals",
+    "node",
+    "yui"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
