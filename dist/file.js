@@ -1,9 +1,3 @@
-/**
- * @license Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
- * Available via the MIT or new BSD license.
- * see: http://github.com/jrburke/requirejs for details
- */
-
 /*jslint plusplus: false, octal:false, strict: false */
 /*global require: false, exports: false */
 
