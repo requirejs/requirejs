@@ -21,9 +21,9 @@
 all your modules into one file, then wrap them in a function and use an AMD API shim. This allows you to ship code that does not ship with all
 of RequireJS, and allows you to export any kind of API that works on a plain web page without an AMD loader.</p>
 
-<p><a href="https://github.com/jrburke/almond">almond</a> is an AMD API shim that is very small, so it can be used in place of require.js
+<p><a href="https://github.com/requirejs/almond">almond</a> is an AMD API shim that is very small, so it can be used in place of require.js
 when all of your modules are built into one file using the RequireJS optimizer. The
-<a href="https://github.com/jrburke/r.js/blob/master/build/example.build.js#L464">wrap</a> build config option will put a function
+<a href="https://github.com/requirejs/r.js/blob/master/build/example.build.js#L464">wrap</a> build config option will put a function
 wrapper around the code, or you can provide your own wrapper if you need to do extra logic.</p>
 
 <p>See the almond project for details on how to build with the API shim and with wrap.</p>
@@ -39,7 +39,7 @@ load code. Instead, you may want to namespace your use of require/define. See ne
 doing a simple <a href="#wrap">one file build with a wrapper</a> is not enough. You also may want isolate your loading needs from
 the page's AMD loader.</p>
 
-<p>There is a <a href="https://github.com/jrburke/r.js/blob/master/build/example.build.js#L296">namespace</a> build option that
+<p>There is a <a href="https://github.com/requirejs/r.js/blob/master/build/example.build.js#L296">namespace</a> build option that
 does the following:</p>
 
 <ul>

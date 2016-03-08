@@ -27,7 +27,7 @@
 <li>Optimizes CSS by inlining CSS files referenced by @import and removing comments.</li>
 </ul>
 
-<p>The optimizer is part of the <a href="https://github.com/jrburke/r.js">r.js adapter for Node and Nashorn</a>, and it is designed to be run as part of a build or packaging step after you are done with development and are ready to deploy the code for your users.</p>
+<p>The optimizer is part of the <a href="https://github.com/requirejs/r.js">r.js adapter for Node and Nashorn</a>, and it is designed to be run as part of a build or packaging step after you are done with development and are ready to deploy the code for your users.</p>
 
 <p>The optimizer will only combine modules that are specified in arrays of string literals that are passed to top-level require and define calls, or the require('name') string literal calls in a <a href="whyamd.html#sugar">simplified CommonJS wrapping</a>. So, it will not find modules that are loaded via a variable name:</p>
 
@@ -57,12 +57,12 @@ require(mods);</code></pre>
 <ul>
    <li><strong>Node:</strong> (preferred) <a href="http://nodejs.org">Node</a> 0.4.0 or later.</li>
    <li><strong>Java:</strong> <a href="http://java.com/">Java 1.6</a> or later.</li>
-   <li><strong>Browser:</strong> as of 2.1.2, the optimizer can run in a web browser that has <a href="http://dev.opera.com/articles/view/javascript-array-extras-in-detail/">array extras</a>. While the optimizer options are the same as shown below, it is called via JavaScript instead of command line options. It is also only good for generating optimized single files, not a directory optimization. See <a href="https://github.com/jrburke/r.js/blob/master/tests/browser/r.html">the browser example</a>. This option is really only useful for providing web-based custom builds of your library.</li>
+   <li><strong>Browser:</strong> as of 2.1.2, the optimizer can run in a web browser that has <a href="http://dev.opera.com/articles/view/javascript-array-extras-in-detail/">array extras</a>. While the optimizer options are the same as shown below, it is called via JavaScript instead of command line options. It is also only good for generating optimized single files, not a directory optimization. See <a href="https://github.com/requirejs/r.js/blob/master/tests/browser/r.html">the browser example</a>. This option is really only useful for providing web-based custom builds of your library.</li>
 </ul>
 
 <p>For command line use, Node is the preferred execution environment. The optimizer runs <strong>much faster</strong> with Node.</p>
 
-<p>All the example commands in this page assume Node usage, and running on a Linux/OS X command line. See the <a href="https://github.com/jrburke/r.js">r.js README</a> for how to run it in Java.</p>
+<p>All the example commands in this page assume Node usage, and running on a Linux/OS X command line. See the <a href="https://github.com/requirejs/r.js">r.js README</a> for how to run it in Java.</p>
 
 </div>
 
@@ -224,7 +224,7 @@ require(mods);</code></pre>
 
 <p>This is because the config settings for a build can be very different, with multiple optimization targets. So a separate set of config options need to be specified for the optimizer.</p>
 
-<p>In version 1.0.5+ of the optimizer, the <strong><a href="https://github.com/jrburke/r.js/blob/master/build/example.build.js#L27">mainConfigFile</a></strong> option can be used to specify the location of the runtime config. If specified with the path to your main JS file, the first <code>requirejs({}), requirejs.config({}), require({}), or require.config({})</code> found in that file will be parsed out and used as part of the configuration options passed to the optimizer:</p>
+<p>In version 1.0.5+ of the optimizer, the <strong><a href="https://github.com/requirejs/r.js/blob/master/build/example.build.js#L27">mainConfigFile</a></strong> option can be used to specify the location of the runtime config. If specified with the path to your main JS file, the first <code>requirejs({}), requirejs.config({}), require({}), or require.config({})</code> found in that file will be parsed out and used as part of the configuration options passed to the optimizer:</p>
 
 <pre><code>mainConfigFile: 'path/to/main.js'
 </code></pre>
@@ -452,7 +452,7 @@ if (true) {
 }
 </code></pre>
 
-<p>Then, if you use the default optimize setting of "uglify" in r.js 0.26.0 or later, or if the <b>optimize</b> setting is set to "closure" (when <a href="https://github.com/jrburke/r.js">run under Java</a>), the minifier will optimize out the dead code branch! So you can do custom builds of your code that are optimized for a set of has() tests.</p>
+<p>Then, if you use the default optimize setting of "uglify" in r.js 0.26.0 or later, or if the <b>optimize</b> setting is set to "closure" (when <a href="https://github.com/requirejs/r.js">run under Java</a>), the minifier will optimize out the dead code branch! So you can do custom builds of your code that are optimized for a set of has() tests.</p>
 
 </div>
 
@@ -471,13 +471,13 @@ if (true) {
 <div class="section">
 <h2><a href="#options" name="options">All configuration options</a><span class="sectionMark">&sect; 14</span></h2>
 
-<p>There is an <a href="https://github.com/jrburke/r.js/blob/master/build/example.build.js">example.build.js</a> file in the requirejs/build directory that details all of the allowed optimizer configuration options.</p>
+<p>There is an <a href="https://github.com/requirejs/r.js/blob/master/build/example.build.js">example.build.js</a> file in the requirejs/build directory that details all of the allowed optimizer configuration options.</p>
 </div>
 
 <div class="section">
 <h2><a href="#deployment" name="deployment">Deployment techniques</a><span class="sectionMark">&sect; 15</span></h2>
 
-<p>The r.js optimizer is designed to offer some primitives that can be used for different deployment scenarios by adding other code on top of it. See the <a href="https://github.com/jrburke/r.js/wiki/Deployment-Techniques">deployment techniques wiki page</a> for ideas on how to use the optimizer in that fashion.</p>
+<p>The r.js optimizer is designed to offer some primitives that can be used for different deployment scenarios by adding other code on top of it. See the <a href="https://github.com/requirejs/r.js/wiki/Deployment-Techniques">deployment techniques wiki page</a> for ideas on how to use the optimizer in that fashion.</p>
 
 </div>
 

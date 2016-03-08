@@ -1,7 +1,7 @@
 <div id="directory" class="section">
 <h1>RequireJS API</h1>
 
-<span class="note">This is the <a href="https://github.com/jrburke/requirejs/wiki/Upgrading-to-RequireJS-2.0">RequireJS 2.0 API</a>. If you want 1.0: <a href="1.0/">Link to 1.0</a>.</span>
+<span class="note">This is the <a href="https://github.com/requirejs/requirejs/wiki/Upgrading-to-RequireJS-2.0">RequireJS 2.0 API</a>. If you want 1.0: <a href="1.0/">Link to 1.0</a>.</span>
 
 <ul class="index mono">
     <li class="hbox"><a href="#usage">Usage</a><span class="spacer boxFlex"></span><span class="sect">&sect;&sect; 1-1.3</span></li>
@@ -449,7 +449,7 @@ define(function(require, exports, module) {
 </code></pre>
 
 <p>Or, if you are using the dependency array approach, ask for the special
-<a href="https://github.com/jrburke/requirejs/wiki/Differences-between-the-simplified-CommonJS-wrapper-and-standard-AMD-define#wiki-magic">'exports' dependency:</a></p>
+<a href="https://github.com/requirejs/requirejs/wiki/Differences-between-the-simplified-CommonJS-wrapper-and-standard-AMD-define#wiki-magic">'exports' dependency:</a></p>
 
 <pre><code>//Inside b.js:
 define(['a', 'exports'], function(a, exports) {
@@ -506,7 +506,7 @@ error situations when no other modules have gotten a handle on a module value, o
 module loading that may use that module. See the <a href="#errbacks">errback section</a> for an example.</p>
 
 <p>If you want to do more sophisticated dependency graph analysis for undefining work, the semi-private
-<a href="https://github.com/jrburke/requirejs/wiki/Internal-API:-onResourceLoad">onResourceLoad API</a> may be helpful.</p>
+<a href="https://github.com/requirejs/requirejs/wiki/Internal-API:-onResourceLoad">onResourceLoad API</a> may be helpful.</p>
 
 </div>
 
@@ -578,7 +578,7 @@ This example specifies some dependencies to load as soon as require.js defines r
 <p><b>Note:</b> It is best to use <code>var require = {}</code> and do not use
 <code>window.require = {}</code>, it will not behave correctly in IE.</p>
 
-<p>There are <a href="https://github.com/jrburke/requirejs/wiki/Patterns-for-separating-config-from-the-main-module">some patterns for separating the config from main module loading</a>.</p>
+<p>There are <a href="https://github.com/requirejs/requirejs/wiki/Patterns-for-separating-config-from-the-main-module">some patterns for separating the config from main module loading</a>.</p>
 
 <p>Supported configuration options:</p>
 
@@ -728,7 +728,7 @@ loaded (a return from init is <strong>not</strong> used for <code>enforceDefine<
     shimmed code to have optional AMD define() calls.</li>
     <li>If it is not possible to upgrade the shimmed code to use AMD define()
     calls, as of RequireJS 2.1.11, the optimizer has a
-    <a href="https://github.com/jrburke/r.js/blob/b8a6982d2923ae8389355edaa50d2b7f8065a01a/build/example.build.js#L68">wrapShim build option</a> that will
+    <a href="https://github.com/requirejs/r.js/blob/b8a6982d2923ae8389355edaa50d2b7f8065a01a/build/example.build.js#L68">wrapShim build option</a> that will
     try to automatically wrap the shimmed code in a define() for a build. This
     changes the scope of shimmed dependencies, so it is not guaranteed to always
     work, but, for example, for shimmed dependencies that depend on an AMD version of Backbone,
@@ -834,7 +834,7 @@ define(function (require, exports, module) {
 
 //baz.js which uses a dependency array,
 //it asks for the special module ID, 'module':
-//https://github.com/jrburke/requirejs/wiki/Differences-between-the-simplified-CommonJS-wrapper-and-standard-AMD-define#wiki-magic
+//https://github.com/requirejs/requirejs/wiki/Differences-between-the-simplified-CommonJS-wrapper-and-standard-AMD-define#wiki-magic
 define(['module'], function (module) {
     //Will be the value 'blue'
     var color = module.config().color;
@@ -1077,17 +1077,17 @@ function(require,   alpha,   beta) {
 
 <p>You will likely need to set the <strong>baseUrl</strong> <a href="#config">configuration option</a> to make sure require() can find the scripts to load.</p>
 
-<p>You can see an example of its use by looking at one of the files used in <a href="http://github.com/jrburke/requirejs/blob/master/tests/workers.js">the unit test</a>.</p>
+<p>You can see an example of its use by looking at one of the files used in <a href="http://github.com/requirejs/requirejs/blob/master/tests/workers.js">the unit test</a>.</p>
 
 <h3><a href="#rhino" name="rhino">Rhino Support</a><span class="sectionMark">&sect; 4.5</span></h3>
 
 <p>RequireJS can be used in Rhino via the <a href="download.html#rjs">r.js adapter</a>.
-See <a href="https://github.com/jrburke/r.js/blob/master/README.md">the r.js README</a> for more information.</p>
+See <a href="https://github.com/requirejs/r.js/blob/master/README.md">the r.js README</a> for more information.</p>
 
 <h3><a href="#nashorn" name="nashorn">Nashorn Support</a><span class="sectionMark">&sect; 4.6</span></h3>
 
 <p>As of RequireJS 2.1.16, RequireJS can be used in <a href="http://www.oracle.com/technetwork/articles/java/jf14-nashorn-2126515.html">Nashorn</a>, Java 8+'s JavaScript engine, via the <a href="download.html#rjs">r.js adapter</a>.
-See <a href="https://github.com/jrburke/r.js/blob/master/README.md">the r.js README</a> for more information.</p>
+See <a href="https://github.com/requirejs/r.js/blob/master/README.md">the r.js README</a> for more information.</p>
 
 <h3><a href="#errors" name="errors">Handling Errors</a><span class="sectionMark">&sect; 4.7</span></h3>
 
@@ -1122,7 +1122,7 @@ See <a href="https://github.com/jrburke/r.js/blob/master/README.md">the r.js REA
 
 <p><b>NOTE</b>: If you do set enforceDefine: true, and you use data-main="" to load your main JS module, then that main JS module <b>must call define()</b> instead of require() to load the code it needs. The main JS module can still call require/requirejs to set config values, but for loading modules it should use define().</p>
 
-<p>If you then also use <a href="https://github.com/jrburke/almond">almond</a> to build your code without require.js, be sure to use the <a href="https://github.com/jrburke/r.js/blob/master/build/example.build.js#L413">insertRequire</a> build setting to insert a require call for the main module -- that serves the same purpose of the initial require() call that data-main does.</p>
+<p>If you then also use <a href="https://github.com/requirejs/almond">almond</a> to build your code without require.js, be sure to use the <a href="https://github.com/requirejs/r.js/blob/master/build/example.build.js#L413">insertRequire</a> build setting to insert a require call for the main module -- that serves the same purpose of the initial require() call that data-main does.</p>
 
 <h4>
 <a href="#errbacks" name="errbacks">require([]) errbacks</a>
@@ -1237,7 +1237,7 @@ a generic path search path solution, since those are inefficient in the browser.
 <span class="sectionMark">&sect; 5</span>
 </h2>
 
-<p>RequireJS supports <a href="plugins.html">loader plugins</a>. This is a way to support dependencies that are not plain JS files, but are still important for a script to have loaded before it can do its work. The RequireJS wiki has <a href="https://github.com/jrburke/requirejs/wiki/Plugins">a list of plugins</a>. This section talks about some specific plugins that are maintained alongside RequireJS:</p>
+<p>RequireJS supports <a href="plugins.html">loader plugins</a>. This is a way to support dependencies that are not plain JS files, but are still important for a script to have loaded before it can do its work. The RequireJS wiki has <a href="https://github.com/requirejs/requirejs/wiki/Plugins">a list of plugins</a>. This section talks about some specific plugins that are maintained alongside RequireJS:</p>
 
 <h3><a href="#text" name="text">Specify a Text File Dependency</a><span class="sectionMark">&sect; 5.1</span></h3>
 

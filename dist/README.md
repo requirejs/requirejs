@@ -53,7 +53,7 @@ When doing a release, do the following:
 Now pull down the tagged version to do a distribution, do this in git/ directory:
 
 * rm -rf ./requirejs-dist ./requirejs-build
-* git clone git://github.com/jrburke/requirejs.git requirejs-dist
+* git clone git://github.com/requirejs/requirejs.git requirejs-dist
 * cd requirejs-dist
 * git checkout 0.0.0
 * cd dist
