@@ -1722,8 +1722,8 @@ var requirejs, require, define;
                             each(value.depMaps, function(depMap) {
                                 if (depMap.id === data.id) {
                                     parents.push(key);
+                                    return true;
                                 }
-                                return true;
                             });
                         }
                     });
