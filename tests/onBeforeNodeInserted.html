@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>require.js: Empty Dependency Test</title>
+    <script type="text/javascript" src="doh/runner.js"></script>
+    <script type="text/javascript" src="doh/_browserRunner.js"></script>
+    <script type="text/javascript">
+        var gotHere = false;
+        var pathUrl = '//code.jquery.com/jquery-2.2.0.min.js';
+        var depURL = '';
+
+        var require = {
+            urlArgs: 'v=1',
+            paths: {
+                jquery: pathUrl.replace('.js', '')
+            },
+            onBeforeNodeInserted: function(node, config, moduleName, url) {
+                gotHere = true;
+                depURL = url.replace('?' + config.urlArgs, '');
+            }
+        };
+    </script>
+    <script type="text/javascript" src="../require.js"></script>
+    <script type="text/javascript">
+        require(['jquery'], function ($) {
+            doh.register(
+                'onBeforeNodeInserted',
+                [
+                    function onBeforeNodeInserted(t) {
+                        t.is(true, gotHere, 'event triggered');
+                        t.is(pathUrl, depURL, 'urlArgs removed');
+                    }
+                ]
+            );
+            doh.run();
+        });
+    </script>
+</head>
+<body>
+    <h1>require.js: onBeforeNodeInserted Test</h1>
+    <p>If <code>onBeforeNodeInserted</code> is specified, fire it before inserting the node into the DOM.</p>
+    <p>Check console for messages</p>
+</body>
+</html>

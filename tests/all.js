@@ -206,3 +206,5 @@ doh.registerUrl("errorChild", "../error/errorChild.html");
 doh.registerUrl("pathArray", "../pathArray/pathArray.html", 8000);
 doh.registerUrl("pathArrayWithMap", "../pathArray/withMap/withMap.html", 8000);
 doh.registerUrl("pathArrayFail", "../pathArray/pathArrayFail.html", 10000);
+
+doh.registerUrl("onBeforeNodeInserted", "../onBeforeNodeInserted.html");

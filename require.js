@@ -1944,6 +1944,10 @@ var requirejs, require, define;
             }
             node.src = url;
 
+            if (config.onBeforeNodeInserted) {
+                config.onBeforeNodeInserted(node, config, moduleName, url);
+            }
+
             //For some cache cases in IE 6-8, the script executes before the end
             //of the appendChild execution, so to tie an anonymous define
             //call to the module name (which is stored on the node), hold on
