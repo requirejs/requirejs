@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>require.js: commentParen Test</title>
+    <script type="text/javascript" src="../../require.js"></script>
+    <script type="text/javascript" src="../doh/runner.js"></script>
+    <script type="text/javascript" src="../doh/_browserRunner.js"></script>
+    <script>
+      requirejs.config({
+          baseUrl: './'
+      });
+
+      require(['a'], function(a) {
+          doh.register(
+              'commentParen',
+              [
+                  function cjsDotRequire(t){
+                      t.is('a', a.name);
+                      t.is('b', a.b.name);
+                  }
+              ]
+          );
+          doh.run();
+      });
+    </script>
+</head>
+<body>
+    <h1>require.js: commentParen Test</h1>
+    <p>Test for <a href="https://github.com/requirejs/requirejs/issues/1492">Issue 1492</a>.
+    Make sure a comment right next the require paren does not break dependency scanning.</p>
+    <p>Check console for messages</p>
+</body>
+</html>

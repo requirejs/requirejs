@@ -35,6 +35,11 @@ var requirejs, require, define;
         globalDefQueue = [],
         useInteractive = false;
 
+    //Could match something like ')//comment', do not lose the prefix to comment.
+    function commentReplace(match, multi, multiText, singlePrefix) {
+        return singlePrefix || '';
+    }
+
     function isFunction(it) {
         return ostring.call(it) === '[object Function]';
     }
@@ -2072,7 +2077,7 @@ var requirejs, require, define;
             if (callback.length) {
                 callback
                     .toString()
-                    .replace(commentRegExp, '')
+                    .replace(commentRegExp, commentReplace)
                     .replace(cjsRequireRegExp, function (match, dep) {
                         deps.push(dep);
                     });

@@ -26,6 +26,7 @@ if (hasToString) {
     doh.registerUrl("anonSimple", "../anon/anonSimple.html");
     doh.registerUrl("cjsSpace", "../cjsSpace/cjsSpace.html");
     doh.registerUrl("cjsDotRequire", "../cjsSpace/cjsDotRequire.html");
+    doh.registerUrl("commentParen", "../commentParen/commentParen.html");
     doh.registerUrl("packages", "../packages/packages.html");
     doh.registerUrl("packagesConfig", "../packages/config/config.html");
     doh.registerUrl("packagesMultiLevel", "../packagesMultiLevel/packagesMultiLevel.html");
