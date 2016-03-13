@@ -1894,9 +1894,6 @@ var requirejs, require, define;
         if (isBrowser) {
             //In the browser so use a script tag
             node = req.createNode(config, moduleName, url);
-            if (config.onNodeCreated) {
-                config.onNodeCreated(node, config, moduleName, url);
-            }
 
             node.setAttribute('data-requirecontext', context.contextName);
             node.setAttribute('data-requiremodule', moduleName);
@@ -1943,6 +1940,12 @@ var requirejs, require, define;
                 node.addEventListener('error', context.onScriptError, false);
             }
             node.src = url;
+
+            //Calling onNodeCreated after all properties on the node have been
+            //set, but before it is placed in the DOM.
+            if (config.onNodeCreated) {
+                config.onNodeCreated(node, config, moduleName, url);
+            }
 
             //For some cache cases in IE 6-8, the script executes before the end
             //of the appendChild execution, so to tie an anonymous define
