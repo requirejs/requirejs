@@ -886,6 +886,20 @@ some modules to load asynchronously as part of a config block.</p>
 <pre><code>urlArgs: "bust=" +  (new Date()).getTime()
 </code></pre>
 
+<p>As of RequireJS 2.1.23, urlArgs can be a function. If a function, it will receive the module ID and the URL as parameters, and it should return a string that will be added to the end of the URL. Return an empty string if no args. Be sure to take care of adding the '?' or '&' depending on the existing state of the URL. Example:</p>
+
+<pre><code>requirejs.config({
+    urlArgs: function(id, url) {
+        var args = 'v=1';
+        if (url.indexOf('view.html') !== -1) {
+            args = 'v=2'
+        }
+
+        return (url.indexOf('?') === -1 ? '?' : '&') + args;
+    }
+});
+</code></pre>
+
 <p>During development it can be useful to use this, however <strong>be sure</strong> to remove it before deploying your code.</p>
 
 <p id="config-scriptType"><strong><a href="#config-baseUrl">scriptType</a></strong>: Specify the value for the type="" attribute used for script tags inserted into the document by RequireJS. Default is "text/javascript". To use Firefox's JavaScript 1.8 features, use "text/javascript;version=1.8".</p>

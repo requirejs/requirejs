@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>require.js: urlArgs Function + toUrl Test</title>
+    <script type="text/javascript" src="doh/runner.js"></script>
+    <script type="text/javascript" src="doh/_browserRunner.js"></script>
+    <script type="text/javascript" src="../require.js"></script>
+    <script>
+    require.config({
+        baseUrl: 'js',
+        urlArgs: function(id, url) {
+            var args = 'v=1';
+            if (url.indexOf('view.html') !== -1) {
+                args = 'v=2'
+            }
+
+            return (url.indexOf('?') === -1 ? '?' : '&') + args;
+        }
+    });
+
+    doh.register(
+        'urlArgsToUrlFunction',
+        [
+            function urlArgsToUrlFunction(t){
+                t.is('js/view.html?v=2', require.toUrl('view.html'));
+                t.is('js/view?v=1', require.toUrl('view'));
+            }
+        ]
+    );
+    doh.run();
+</script>
+</head>
+<body>
+    <h1>require.js: urlArgs Function + toUrl Test</h1>
+    <p>Makes sure urlArgs can be a function.
+        <a href="https://github.com/requirejs/requirejs/issues/1481">More info</a>.</p>
+    <p>Check console for messages.</p>
+</body>
+</html>
