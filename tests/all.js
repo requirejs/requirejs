@@ -14,6 +14,10 @@ doh.registerUrl("toUrl", "../toUrl/toUrl.html");
 doh.registerUrl("urlArgsToUrl", "../urlArgsToUrl.html");
 doh.registerUrl("urlArgsToUrlFunction", "../urlArgsToUrlFunction.html");
 
+if (typeof Blob === 'function') {
+    doh.registerUrl("urlArgsBlob", "../urlArgsBlob.html");
+}
+
 doh.registerUrl("config", "../config.html");
 doh.registerUrl("configRequirejs", "../configRequirejs.html");
 doh.registerUrl("dataMain", "../dataMain/dataMain.html");
