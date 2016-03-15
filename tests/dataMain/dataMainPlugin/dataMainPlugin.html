@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>require.js: data-main plugin Test</title>
+    <script type="text/javascript" src="../../doh/runner.js"></script>
+    <script type="text/javascript" src="../../doh/_browserRunner.js"></script>
+    <script type="text/javascript" data-main="my/plugin!sub/test" src="../../../require.js"></script>
+</head>
+<body>
+    <h1>require.js: data-main plugin Test</h1>
+
+    <p>Confirm that a data-main="som/plugin!some/value" works. More info:
+    <a href="https://github.com/requirejs/requirejs/issues/1472">1472</a>.
+
+    <p>Check console for messages</p>
+</body>
+</html>

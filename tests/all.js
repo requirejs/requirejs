@@ -24,6 +24,7 @@ doh.registerUrl("dataMain", "../dataMain/dataMain.html");
 doh.registerUrl("skipDataMain", "../dataMain/skipDataMain/skipDataMain.html");
 doh.registerUrl("dataMainIndex", "../dataMain/dataMainIndex/dataMainIndex.html");
 doh.registerUrl("dataMainBaseUrl", "../dataMain/baseUrl/dataMainBaseUrl.html");
+doh.registerUrl("dataMainPlugin", "../dataMain/dataMainPlugin/dataMainPlugin.html");
 
 doh.registerUrl("moduleExports", "../moduleExports/moduleExports.html");
 
