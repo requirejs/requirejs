@@ -864,10 +864,21 @@ var requirejs, require, define;
 
                     if (this.depCount < 1 && !this.defined) {
                         if (isFunction(factory)) {
-                            try {
+                            //If there is an error listener, favor passing
+                            //to that instead of throwing an error. However,
+                            //only do it for define()'d  modules. require
+                            //errbacks should not be called for failures in
+                            //their callbacks (#699). However if a global
+                            //onError is set, use that.
+                            if ((this.events.error && this.map.isDefine) ||
+                                req.onError !== defaultOnError) {
+                                try {
+                                    exports = context.execCb(id, factory, depExports, exports);
+                                } catch (e) {
+                                    err = e;
+                                }
+                            } else {
                                 exports = context.execCb(id, factory, depExports, exports);
-                            } catch (e) {
-                                err = e;
                             }
 
                             // Favor return value over exports. If node/cjs in play,
@@ -884,30 +895,12 @@ var requirejs, require, define;
                             }
 
                             if (err) {
-                                // If there is an error listener, favor passing
-                                // to that instead of throwing an error. However,
-                                // only do it for define()'d  modules. require
-                                // errbacks should not be called for failures in
-                                // their callbacks (#699). However if a global
-                                // onError is set, use that.
-                                if ((this.events.error && this.map.isDefine) ||
-                                    req.onError !== defaultOnError) {
-                                    err.requireMap = this.map;
-                                    err.requireModules = this.map.isDefine ? [this.map.id] : null;
-                                    err.requireType = this.map.isDefine ? 'define' : 'require';
-                                    return onError((this.error = err));
-                                } else if (typeof console !== 'undefined' &&
-                                           console.error) {
-                                    // Log the error for debugging. If promises could be
-                                    // used, this would be different, but making do.
-                                    console.error(err);
-                                } else {
-                                    // Do not want to completely lose the error. While this
-                                    // will mess up processing and lead to similar results
-                                    // as bug 1440, it at least surfaces the error.
-                                    req.onError(err);
-                                }
+                                err.requireMap = this.map;
+                                err.requireModules = this.map.isDefine ? [this.map.id] : null;
+                                err.requireType = this.map.isDefine ? 'define' : 'require';
+                                return onError((this.error = err));
                             }
+
                         } else {
                             //Just a literal value
                             exports = factory;
