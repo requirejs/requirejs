@@ -619,6 +619,8 @@ require(['util', 'text'], function(util, text) {
 
 <p>bundles config is useful if doing a build and that build target was not an existing module ID, or if you have loader plugin resources in built JS files that should not be loaded by the loader plugin. <strong>Note that the keys and values are module IDs</strong>, not path segments. They are absolute module IDs, not a module ID prefix like <a href="#config-paths">paths config</a> or <a href="#config-map">map config</a>. Also, bundle config is different from map config in that map config is a one-to-one module ID relationship, where bundle config is for pointing multiple module IDs to a bundle's module ID.</p>
 
+<p>As of RequireJS 2.2.0, the optimizer can generate the bundles config and insert it into the top level requirejs.config() call. See the <a href="https://github.com/requirejs/r.js/blob/98a9949480d68a781c8d6fc4ce0a07c16a2c8a2a/build/example.build.js#L641">bundlesConfigOutFile</a> build config option for more details.</p>
+
 <p id="config-shim"><strong><a href="#config-shim">shim</a></strong>: Configure the dependencies, exports, and custom initialization for older, traditional "browser globals" scripts that do not use define() to declare the dependencies and set a module value.</p>
 
 <p>Here is an example. It requires RequireJS 2.1.0+, and assumes backbone.js, underscore.js and jquery.js have been installed in the baseUrl directory. If not, then you may need to set a paths config for them:</p>
