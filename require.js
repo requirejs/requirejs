@@ -8,7 +8,7 @@
 /*global window, navigator, document, importScripts, setTimeout, opera */
 
 var requirejs, require, define;
-(function (global) {
+(function (global, setTimeout) {
     var req, s, head, baseElement, dataMain, src,
         interactiveScript, currentlyAddingScript, mainScript, subPath,
         version = '2.2.0',
@@ -2139,4 +2139,4 @@ var requirejs, require, define;
 
     //Set up with config info.
     req(cfg);
-}(this));
+}(this, setTimeout));
