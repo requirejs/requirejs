@@ -395,9 +395,9 @@ var requirejs, require, define;
                 if (index > -1) {
                     name = name.substring(0, index);
                     prefix = name.substring(index + 1, name.length);
-                    if (prefix.length == 0){
+                    if (prefix.length == 0) {
                         index = name ? name.lastIndexOf('.') : -1;
-                        if (index > -1){
+                        if (index > -1) {
                             prefix = name.substring(index + 1, name.length);
                         }
                     }
