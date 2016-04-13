@@ -391,7 +391,7 @@ var requirejs, require, define;
         function splitPrefix(name) {
             var prefix,
                 index = name ? name.indexOf('!') : -1;
-            if (config.plugin == 'suffix'){
+            if (getOwn(config, 'plugin') == 'suffix'){
                 if (index > -1) {
                     name = name.substring(0, index);
                     prefix = name.substring(index + 1, name.length);
