@@ -36,6 +36,10 @@
                         t.is(true, text.useXhr('https://some.domain.com:444/some/thing.html', 'https', 'some.domain.com', '444'));
                         t.is(false, text.useXhr('https://some.domain.com/some/thing.html', 'https', 'some.domain.com', '444'));
                         t.is(true, text.useXhr('http://localhost/some/thing.html', 'http', 'localhost'));
+                        t.is(true, text.useXhr('http://localhost:80/some/thing.html', 'http', 'localhost'));
+                        t.is(true, text.useXhr('http://localhost/some/thing.html', 'http', 'localhost', '80'));
+                        t.is(true, text.useXhr('https://localhost:443/some/thing.html', 'https', 'localhost'));
+                        t.is(true, text.useXhr('https://localhost/some/thing.html', 'https', 'localhost', '443'));
                     }
                 ]
             );
