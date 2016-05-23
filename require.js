@@ -295,8 +295,7 @@ var requirejs, require, define;
                         baseParts = baseName.split('/');
                         normalizedBaseParts = baseParts.slice(0, baseParts.length - 1);
                         nameParts = normalizedBaseParts.concat(name.split('/'));
-                    }
-                    else {
+                    } else {
                         nameParts = name.split('/');
                     }
 
@@ -1636,7 +1635,7 @@ var requirejs, require, define;
              */
             nameToUrl: function (moduleName, ext, skipExt) {
                 var paths, syms, i, parentModule, url,
-                    parentPath, bundleId,
+                    parentPath, bundleId, key,
                     pkgMain = getOwn(config.pkgs, moduleName);
 
                 if (pkgMain) {
@@ -1649,7 +1648,8 @@ var requirejs, require, define;
                     return context.nameToUrl(bundleId, ext, skipExt);
                 }
 
-                url = urlMap[moduleName];
+                key = moduleName + '|' + ext + '|' + skipExt;
+                url = urlMap[key];
                 if (!url) {
 
                     //If a colon is in the URL, it indicates a protocol is used and it is just
@@ -1686,11 +1686,11 @@ var requirejs, require, define;
 
                         //Join the path parts together, then figure out if baseUrl is needed.
                         url = syms.join('/');
-                    url += (ext || (/^data\:|^blob\:|\?/.test(url) || skipExt ? '' : '.js'));
+                        url += (ext || (/^data\:|^blob\:|\?/.test(url) || skipExt ? '' : '.js'));
                         url = (url.charAt(0) === '/' || url.match(/^[\w\+\.\-]+:/) ? '' : config.baseUrl) + url;
                     }
 
-                    urlMap[moduleName] = url;
+                    urlMap[key] = url;
                 }
 
                 return config.urlArgs && !dataOrBlogRegExp.test(url) ?
