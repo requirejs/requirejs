@@ -27,7 +27,7 @@ var requirejs, require, define;
         // then 'complete'. The UA check is unfortunate, but not sure how
         //to feature test w/o causing perf issues.
         readyRegExp = isBrowser && navigator.platform === 'PLAYSTATION 3' ?
-            /^complete$/ : /^(complete|loaded)$/,
+                      /^complete$/ : /^(complete|loaded)$/,
         defContextName = '_',
         //Oh the tragedy, detecting opera. See the usage of isOpera for reason.
         isOpera = typeof opera !== 'undefined' && opera.toString() === '[object Opera]',
@@ -740,7 +740,7 @@ var requirejs, require, define;
             /* this.exports this.factory
                this.depMaps = [],
                this.enabled, this.fetched
-             */
+            */
         };
 
         function execCb(context, id, factory, depExports, exports) {
@@ -1078,7 +1078,7 @@ var requirejs, require, define;
                         } catch (e) {
                             return onError(makeError('fromtexteval',
                                              'fromText eval for ' + id +
-                                             ' failed: ' + e,
+                                            ' failed: ' + e,
                                              e,
                                              [id]));
                         }
@@ -1725,7 +1725,7 @@ var requirejs, require, define;
                 //all old browsers will be supported, but this one was easy enough
                 //to support and still makes sense.
                 if (evt.type === 'load' ||
-                    (readyRegExp.test((evt.currentTarget || evt.srcElement).readyState))) {
+                        (readyRegExp.test((evt.currentTarget || evt.srcElement).readyState))) {
                     //Reset interactive script so a script node is not held onto for
                     //to long.
                     interactiveScript = null;
