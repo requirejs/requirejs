@@ -22,14 +22,14 @@ var requirejs, require, define;
         hasOwn = op.hasOwnProperty,
         isBrowser = !!(typeof window !== 'undefined' && typeof navigator !== 'undefined' && window.document),
         isWebWorker = !isBrowser && typeof importScripts !== 'undefined',
-    //PS3 indicates loaded and complete, but need to wait for complete
-    //specifically. Sequence is 'loading', 'loaded', execution,
-    // then 'complete'. The UA check is unfortunate, but not sure how
-    //to feature test w/o causing perf issues.
+        //PS3 indicates loaded and complete, but need to wait for complete
+        //specifically. Sequence is 'loading', 'loaded', execution,
+        // then 'complete'. The UA check is unfortunate, but not sure how
+        //to feature test w/o causing perf issues.
         readyRegExp = isBrowser && navigator.platform === 'PLAYSTATION 3' ?
             /^complete$/ : /^(complete|loaded)$/,
         defContextName = '_',
-    //Oh the tragedy, detecting opera. See the usage of isOpera for reason.
+        //Oh the tragedy, detecting opera. See the usage of isOpera for reason.
         isOpera = typeof opera !== 'undefined' && opera.toString() === '[object Opera]',
         contexts = {},
         cfg = {},
@@ -213,9 +213,9 @@ var requirejs, require, define;
                 config: {}
             },
             registry = {},
-        //registry of just enabled modules, to speed
-        //cycle breaking code when lots of modules
-        //are registered, but not activated.
+            //registry of just enabled modules, to speed
+            //cycle breaking code when lots of modules
+            //are registered, but not activated.
             enabledRegistry = {},
             undefEvents = {},
             defQueue = [],
@@ -363,7 +363,7 @@ var requirejs, require, define;
             if (isBrowser) {
                 each(scripts(), function (scriptNode) {
                     if (scriptNode.getAttribute('data-requiremodule') === name &&
-                        scriptNode.getAttribute('data-requirecontext') === context.contextName) {
+                            scriptNode.getAttribute('data-requirecontext') === context.contextName) {
                         scriptNode.parentNode.removeChild(scriptNode);
                         return true;
                     }
@@ -458,8 +458,8 @@ var requirejs, require, define;
                         // loading of a loader plugin. But for now, fixes the
                         // common uses. Details in #1131
                         normalizedName = name.indexOf('!') === -1 ?
-                            normalize(name, parentName, applyMap) :
-                            name;
+                                         normalize(name, parentName, applyMap) :
+                                         name;
                     }
                 } else {
                     //A regular module.
@@ -481,8 +481,8 @@ var requirejs, require, define;
             //normalization, stamp it with a unique ID so two matching relative
             //ids that may conflict can be separate.
             suffix = prefix && !pluginModule && !isNormalized ?
-            '_unnormalized' + (unnormalizedCounter += 1) :
-                '';
+                     '_unnormalized' + (unnormalizedCounter += 1) :
+                     '';
 
             return {
                 prefix: prefix,
@@ -493,8 +493,8 @@ var requirejs, require, define;
                 originalName: originalName,
                 isDefine: isDefine,
                 id: (prefix ?
-                prefix + '!' + normalizedName :
-                    normalizedName) + suffix
+                        prefix + '!' + normalizedName :
+                        normalizedName) + suffix
             };
         }
 
@@ -515,7 +515,7 @@ var requirejs, require, define;
                 mod = getOwn(registry, id);
 
             if (hasProp(defined, id) &&
-                (!mod || mod.defineEmitComplete)) {
+                    (!mod || mod.defineEmitComplete)) {
                 if (name === 'defined') {
                     fn(defined[id]);
                 }
@@ -643,7 +643,7 @@ var requirejs, require, define;
         function checkLoaded() {
             var err, usingPathFallback,
                 waitInterval = config.waitSeconds * 1000,
-            //It is possible to disable the wait interval by using waitSeconds of 0.
+                //It is possible to disable the wait interval by using waitSeconds of 0.
                 expired = waitInterval && (context.startTime + waitInterval) < new Date().getTime(),
                 noLoads = [],
                 reqCalls = [],
@@ -738,8 +738,8 @@ var requirejs, require, define;
             this.depCount = 0;
 
             /* this.exports this.factory
-             this.depMaps = [],
-             this.enabled, this.fetched
+               this.depMaps = [],
+               this.enabled, this.fetched
              */
         };
 
@@ -956,7 +956,7 @@ var requirejs, require, define;
             callPlugin: function () {
                 var map = this.map,
                     id = map.id,
-                //Map already normalized the prefix.
+                    //Map already normalized the prefix.
                     pluginMap = makeModuleMap(map.prefix);
 
                 //Mark this as a dependency for this plugin, so it
@@ -978,14 +978,14 @@ var requirejs, require, define;
                         //Normalize the ID if the plugin allows it.
                         if (plugin.normalize) {
                             name = plugin.normalize(name, function (name) {
-                                    return normalize(name, parentName, true);
-                                }) || '';
+                                return normalize(name, parentName, true);
+                            }) || '';
                         }
 
                         //prefix and name should already be normalized, no need
                         //for applying map config again either.
                         normalizedMap = makeModuleMap(map.prefix + '!' + name,
-                            this.map.parentMap);
+                                                      this.map.parentMap);
                         on(normalizedMap,
                             'defined', bind(this, function (value) {
                                 this.map.normalizedMap = normalizedMap;
@@ -1077,10 +1077,10 @@ var requirejs, require, define;
                             req.exec(text);
                         } catch (e) {
                             return onError(makeError('fromtexteval',
-                                'fromText eval for ' + id +
-                                ' failed: ' + e,
-                                e,
-                                [id]));
+                                             'fromText eval for ' + id +
+                                             ' failed: ' + e,
+                                             e,
+                                             [id]));
                         }
 
                         if (hasInteractive) {
@@ -1127,9 +1127,9 @@ var requirejs, require, define;
                         //Dependency needs to be converted to a depMap
                         //and wired up to this module.
                         depMap = makeModuleMap(depMap,
-                            (this.map.isDefine ? this.map : this.map.parentMap),
-                            false,
-                            !this.skipMap);
+                                               (this.map.isDefine ? this.map : this.map.parentMap),
+                                               false,
+                                               !this.skipMap);
                         this.depMaps[i] = depMap;
 
                         handler = getOwn(handlers, depMap.id);
@@ -1374,8 +1374,8 @@ var requirejs, require, define;
                         //envs have different conventions: some use a module name,
                         //some use a file name.
                         config.pkgs[name] = pkgObj.name + '/' + (pkgObj.main || 'main')
-                                .replace(currDirRegExp, '')
-                                .replace(jsSuffixRegExp, '');
+                                     .replace(currDirRegExp, '')
+                                     .replace(jsSuffixRegExp, '');
                     });
                 }
 
@@ -1445,10 +1445,10 @@ var requirejs, require, define;
 
                         if (!hasProp(defined, id)) {
                             return onError(makeError('notloaded', 'Module name "' +
-                                id +
-                                '" has not been loaded yet for context: ' +
-                                contextName +
-                                (relMap ? '' : '. Use require([])')));
+                                        id +
+                                        '" has not been loaded yet for context: ' +
+                                        contextName +
+                                        (relMap ? '' : '. Use require([])')));
                         }
                         return defined[id];
                     }
@@ -1500,7 +1500,7 @@ var requirejs, require, define;
                         }
 
                         return context.nameToUrl(normalize(moduleNamePlusExt,
-                            relMap && relMap.id, true), ext,  true);
+                                                relMap && relMap.id, true), ext,  true);
                     },
 
                     defined: function (id) {
@@ -1612,9 +1612,9 @@ var requirejs, require, define;
                             return;
                         } else {
                             return onError(makeError('nodefine',
-                                'No define call for ' + moduleName,
-                                null,
-                                [moduleName]));
+                                             'No define call for ' + moduleName,
+                                             null,
+                                             [moduleName]));
                         }
                     } else {
                         //A script that does not call define(), so just simulate
@@ -1754,9 +1754,9 @@ var requirejs, require, define;
                         }
                     });
                     return onError(makeError('scripterror', 'Script error for "' + data.id +
-                        (parents.length ?
-                        '", needed by: ' + parents.join(', ') :
-                            '"'), evt, [data.id]));
+                                             (parents.length ?
+                                             '", needed by: ' + parents.join(', ') :
+                                             '"'), evt, [data.id]));
                 }
             }
         };
@@ -1892,8 +1892,8 @@ var requirejs, require, define;
      */
     req.createNode = function (config, moduleName, url) {
         var node = config.xhtml ?
-            document.createElementNS('http://www.w3.org/1999/xhtml', 'html:script') :
-            document.createElement('script');
+                document.createElementNS('http://www.w3.org/1999/xhtml', 'html:script') :
+                document.createElement('script');
         node.type = config.scriptType || 'text/javascript';
         node.charset = 'utf-8';
         node.async = true;
@@ -1962,8 +1962,8 @@ var requirejs, require, define;
                     //in IE8, node.attachEvent does not have toString()
                     //Note the test for "[native code" with no closing brace, see:
                     //https://github.com/requirejs/requirejs/issues/273
-                !(node.attachEvent.toString && node.attachEvent.toString().indexOf('[native code') < 0) &&
-                !isOpera) {
+                    !(node.attachEvent.toString && node.attachEvent.toString().indexOf('[native code') < 0) &&
+                    !isOpera) {
                 //Probably IE. IE (at least 6-8) do not fire
                 //script onload right after executing the script, so
                 //we cannot tie the anonymous define call to a name.
