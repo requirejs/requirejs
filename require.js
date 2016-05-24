@@ -1530,6 +1530,9 @@ var requirejs, require, define;
                         delete urlFetched[map.url];
                         delete undefEvents[id];
 
+                        //Clear entire URL map
+                        urlMap = {};
+
                         //Clean queued defines too. Go backwards
                         //in array so that the splices do not
                         //mess up the iteration.
