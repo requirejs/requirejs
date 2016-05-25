@@ -17,6 +17,7 @@ var requirejs, require, define;
         jsSuffixRegExp = /\.js$/,
         currDirRegExp = /^\.\//,
         dataOrBlogRegExp = /^data\:|^blob\:|\?/,
+        hasDotRegExp = /(^|\/)\.([./]|$)/,
         op = Object.prototype,
         ostring = op.toString,
         hasOwn = op.hasOwnProperty,
@@ -285,7 +286,7 @@ var requirejs, require, define;
                     name = name.replace(jsSuffixRegExp, '');
                 }
 
-                if (name.indexOf('.') !== -1) {
+                if (hasDotRegExp.test(name)) {
                     if (name.charAt(0) === '.' && baseName) {
                         //Convert baseName to array, and lop off the last part,
                         //so that . matches that 'directory' and not name of the baseName's
@@ -654,8 +655,11 @@ var requirejs, require, define;
             if (inCheckLoaded) {
                 return;
             }
-
             inCheckLoaded = true;
+
+            if (expired) {
+
+            }
 
             //Figure out the state of all the modules.
             eachProp(enabledRegistry, function (mod) {
@@ -671,10 +675,10 @@ var requirejs, require, define;
                     reqCalls.push(mod);
                 }
 
-                if (!mod.error) {
+                if (!mod.error && !mod.inited) {
                     //If the module should be executed, and it has not
                     //been inited and time is up, remember it.
-                    if (!mod.inited && expired) {
+                    if (expired) {
                         if (hasPathFallback(modId)) {
                             usingPathFallback = true;
                             stillLoading = true;
@@ -682,7 +686,7 @@ var requirejs, require, define;
                             noLoads.push(modId);
                             removeScript(modId);
                         }
-                    } else if (!mod.inited && mod.fetched && map.isDefine) {
+                    } else if (mod.fetched && map.isDefine) {
                         stillLoading = true;
                         if (!map.prefix) {
                             //No reason to keep looking for unfinished
@@ -1689,7 +1693,7 @@ var requirejs, require, define;
 
                         //Join the path parts together, then figure out if baseUrl is needed.
                         url = syms.join('/');
-                        url += (ext || (/^data\:|^blob\:|\?/.test(url) || skipExt ? '' : '.js'));
+                        url += (ext || (dataOrBlogRegExp.test(url) || skipExt ? '' : '.js'));
                         url = (url.charAt(0) === '/' || url.match(/^[\w\+\.\-]+:/) ? '' : config.baseUrl) + url;
                     }
 
