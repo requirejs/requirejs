@@ -318,7 +318,7 @@ var requirejs, require, define;
                             //this name.
                             if (mapValue) {
                                 mapValue = getOwn(mapValue, nameSegment);
-                                if (typeof mapValue === "string") {
+                                if (typeof mapValue === 'string') {
                                     //Match, update name to the new value.
                                     foundMap = mapValue;
                                     foundI = i;
@@ -337,14 +337,17 @@ var requirejs, require, define;
                     }
                 }
 
-                if (typeof foundMap !== "string" && typeof foundStarMap === "string") {
+                if (typeof foundMap !== 'string' && typeof foundStarMap === 'string') {
                     foundMap = foundStarMap;
                     foundI = starI;
                 }
 
-                if (typeof foundMap === "string") {
-                    if (foundMap) nameParts.splice(0, foundI, foundMap);
-                    else nameParts.splice(0, foundI);
+                if (typeof foundMap === 'string') {
+                    if (foundMap) {
+                        nameParts.splice(0, foundI, foundMap);
+                    } else {
+                        nameParts.splice(0, foundI);
+                    }
 
                     name = nameParts.join('/');
                 }
