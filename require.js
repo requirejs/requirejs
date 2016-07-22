@@ -1849,7 +1849,10 @@ var requirejs, require, define;
     });
 
     if (isBrowser) {
-        head = s.head = document.getElementsByTagName('head')[0];
+        // Pure XML documents do not have HEAD, so we instead get the
+        // root's first child.
+        head = head || document.rootNode.firstChild;
+        head = s.head = document.getElementsByTagName('head')[0] || document.rootNode.firstChild;
         //If BASE tag is in play, using appendChild is a problem for IE6.
         //When that browser dies, this can be removed. Details in this jQuery bug:
         //http://dev.jquery.com/ticket/2709
@@ -1870,9 +1873,7 @@ var requirejs, require, define;
      * Creates the node for the load command. Only used in browser envs.
      */
     req.createNode = function (config, moduleName, url) {
-        // We force config.xhtml if the document has no body (ie, it is
-        // an XML document)
-        var node = (config.xhtml||!document.body) ?
+        var node = config.xhtml ?
                 document.createElementNS('http://www.w3.org/1999/xhtml', 'html:script') :
                 document.createElement('script');
         node.type = config.scriptType || 'text/javascript';
@@ -1954,9 +1955,6 @@ var requirejs, require, define;
             //call to the module name (which is stored on the node), hold on
             //to a reference to this node, but clear after the DOM insertion.
             currentlyAddingScript = node;
-            // Pure XML documents do not have head, so we instead get the
-            // root's first child.
-            head = head || document.rootNode.firstChild;
             if (baseElement) {
                 head.insertBefore(node, baseElement);
             } else {
