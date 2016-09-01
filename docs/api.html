@@ -1280,7 +1280,7 @@ a generic path search path solution, since those are inefficient in the browser.
 <p>Since DOM ready is a common application need, ideally the nested functions
 in the API above could be avoided. The domReady module also implements the <a href="plugins.html">Loader Plugin API</a>,
 so you can use the loader plugin syntax (notice the <b>!</b> in the domReady dependency) to force the
-require() callback function to wait for the DOM to be ready before executing. domReady will return
+require() callback function to wait for the DOM to be ready before executing. <pre>domReady</pre> will return
 the current document when used as a loader plugin:</p>
 
 <pre><code>require(['domReady!'], function (doc) {
@@ -1290,7 +1290,7 @@ the current document when used as a loader plugin:</p>
 });
 </code></pre>
 
-<p><b>Note:</b> If the document takes a while to load (maybe it is a very large document, or has HTML script tags loading large JS files that block DOM completion until they are done), using domReady as a loader plugin may result in a RequireJS "timeout" error. If this a problem either increase the <a href="#config-waitSeconds">waitSeconds</a> configuration, or just use domReady as a module and
+<p><b>Note:</b> If the document takes a while to load (maybe it is a very large document, or has HTML script tags loading large JS files that block DOM completion until they are done), using domReady as a loader plugin may result in a RequireJS "timeout" error. If this is a problem either increase the <a href="#config-waitSeconds">waitSeconds</a> configuration, or just use domReady as a module and
 call domReady() inside the require() callback.</p>
 
 <h3><a href="#i18n" name="i18n">Define an I18N Bundle</a><span class="sectionMark">&sect; 5.3</span></h3>
