@@ -268,7 +268,7 @@ var requirejs, require, define;
          */
         function normalize(name, baseName, applyMap) {
             var pkgMain, mapValue, nameParts, i, j, nameSegment, lastIndex,
-                foundMap, foundI, foundStarMap, starI, normalizedBaseParts,
+                foundMap, foundI, starMapEntry, foundStarMap, starI, normalizedBaseParts,
                 baseParts = (baseName && baseName.split('/')),
                 map = config.map,
                 starMap = map && map['*'];
@@ -318,7 +318,7 @@ var requirejs, require, define;
                             //this name.
                             if (mapValue) {
                                 mapValue = getOwn(mapValue, nameSegment);
-                                if (mapValue) {
+                                if (typeof mapValue === 'string') {
                                     //Match, update name to the new value.
                                     foundMap = mapValue;
                                     foundI = i;
@@ -331,19 +331,27 @@ var requirejs, require, define;
                     //Check for a star map match, but just hold on to it,
                     //if there is a shorter segment match later in a matching
                     //config, then favor over this star map.
-                    if (!foundStarMap && starMap && getOwn(starMap, nameSegment)) {
-                        foundStarMap = getOwn(starMap, nameSegment);
-                        starI = i;
+                    if (!foundStarMap && starMap) {
+                        starMapEntry = getOwn(starMap, nameSegment);
+                        if (typeof starMapEntry === 'string') {
+                            foundStarMap = starMapEntry;
+                            starI = i;
+                        }
                     }
                 }
 
-                if (!foundMap && foundStarMap) {
+                if (typeof foundMap !== 'string' && typeof foundStarMap === 'string') {
                     foundMap = foundStarMap;
                     foundI = starI;
                 }
 
-                if (foundMap) {
-                    nameParts.splice(0, foundI, foundMap);
+                if (typeof foundMap === 'string') {
+                    if (foundMap) {
+                        nameParts.splice(0, foundI, foundMap);
+                    } else {
+                        nameParts.splice(0, foundI);
+                    }
+
                     name = nameParts.join('/');
                 }
             }
