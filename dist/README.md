@@ -47,8 +47,9 @@ When doing a release, do the following:
 * Update the requirejs-nuget directory (DO ON WINDOWS)
   * Update the require.js and r.js versions in content/Scripts using `volo add -nostamp -f`
   * Update Package.nuspec to rev version number.
-  * NuGet.exe Pack Package.nuspec
-  * NuGet.exe Push RequireJS.0.0.0.nupkg
+  * .\nuget.exe pack Package.nuspec
+  * .\nuget.exe push RequireJS.0.0.0.nupkg API_KEY -Source https://www.nuget.org/api/v2/package
+* Update alameada, alameda-prim if appropriate
 
 Now pull down the tagged version to do a distribution, do this in git/ directory:
 
