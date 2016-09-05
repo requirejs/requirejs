@@ -25,10 +25,10 @@
 
 <div class="subSection">
 <h4 class="hbox">
-<a name="requirejs">require.js 2.3.0</a>
+<a name="requirejs">require.js 2.3.1</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/2.3.0/minified/require.js">Minified</a>
-<a class="download" href="http://requirejs.org/docs/release/2.3.0/comments/require.js">With Comments</a>
+<a class="download" href="http://requirejs.org/docs/release/2.3.1/minified/require.js">Minified</a>
+<a class="download" href="http://requirejs.org/docs/release/2.3.1/comments/require.js">With Comments</a>
 </h4>
 
 <p>All you need to start using require.js in the browser.</p>
@@ -38,7 +38,7 @@
 <h4 class="hbox">
 <a name="rjs">r.js: Optimizer and Node/Rhino/Nashorn/xpcshell adapter</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/2.3.0/r.js">Download</a>
+<a class="download" href="http://requirejs.org/docs/release/2.3.1/r.js">Download</a>
 </h4>
 
 <p>The r.js file allows you to run the optimizer as well as run modules in Node, Rhino, Nashorn or xpcshell.</p>
@@ -97,6 +97,11 @@ logic until the DOM is ready for querying/modification.</p>
 
 <div class="section">
 <h2><a name="releasenotes">Release Notes</a><span class="sectionMark">&sect; 3</span></h2>
+
+<h3 id="2-3-1">2.3.1</h3>
+
+<p>Only one change from 2.3.0, and it is in the optimizer. <a href="https://github.com/requirejs/r.js/issues/929">It fixes how the bundled uglifyjs declares the addFile function</a>. Without the fix, it causes an error in Node 0.10/0.12. Newer versions of Node are not affected.</p>
+
 
 <h3 id="2-3-0">2.3.0</h3>
 
