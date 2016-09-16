@@ -2139,4 +2139,4 @@ var requirejs, require, define;
 
     //Set up with config info.
     req(cfg);
-}(this, setTimeout));
+}(this, (typeof setTimeout === 'undefined' ? undefined : setTimeout)));
