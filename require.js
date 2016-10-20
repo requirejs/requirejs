@@ -221,6 +221,7 @@ var requirejs, require, define;
             defined = {},
             urlFetched = {},
             bundlesMap = {},
+            initedModules = {},
             requireCounter = 1,
             unnormalizedCounter = 1;
 
@@ -773,6 +774,8 @@ var requirejs, require, define;
 
                 //Indicate this module has be initialized
                 this.inited = true;
+                //Store reference for module aliases
+                initedModules[this.map.id] = true;
 
                 this.ignore = options.ignore;
 
@@ -825,11 +828,19 @@ var requirejs, require, define;
 
             load: function () {
                 var url = this.map.url;
-
+                
                 //Regular dependency.
                 if (!urlFetched[url]) {
-                    urlFetched[url] = true;
+                    urlFetched[url] = this.map.id;
                     context.load(this.map.id, url);
+                }
+                //If module was already loaded by another name.
+                else if (initedModules[urlFetched[url]] && context.defined.hasOwnProperty(urlFetched[url])) {
+                    this.inited = true;
+                    initedModules[this.map.id] = true;
+                    cleanRegistry(this.map.id);
+                    this.defined = true;
+                    this.check();
                 }
             },
 
@@ -1265,6 +1276,7 @@ var requirejs, require, define;
             registry: registry,
             defined: defined,
             urlFetched: urlFetched,
+            initedModules: initedModules,
             defQueue: defQueue,
             defQueueMap: {},
             Module: Module,
