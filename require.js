@@ -828,7 +828,7 @@ var requirejs, require, define;
 
             load: function () {
                 var url = this.map.url;
-                
+
                 //Regular dependency.
                 if (!urlFetched[url]) {
                     urlFetched[url] = this.map.id;
