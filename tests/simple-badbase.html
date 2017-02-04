@@ -2,10 +2,10 @@
 <head>
     <title>require.js: Simple Bad Base Test</title>
     <base href="http://some.example.com/path/" />
-    <script type="text/javascript" src="http://127.0.0.1/requirejs/requirejs/require.js"></script>
-    <script type="text/javascript" src="http://127.0.0.1/requirejs/requirejs/tests/doh/runner.js"></script>
-    <script type="text/javascript" src="http://127.0.0.1/requirejs/requirejs/tests/doh/_browserRunner.js"></script>
-    <script type="text/javascript">
+    <script src="http://127.0.0.1/requirejs/requirejs/require.js"></script>
+    <script src="http://127.0.0.1/requirejs/requirejs/tests/doh/runner.js"></script>
+    <script src="http://127.0.0.1/requirejs/requirejs/tests/doh/_browserRunner.js"></script>
+    <script>
         require({
                 baseUrl: "http://127.0.0.1/requirejs/requirejs/tests/"
             },
@@ -25,7 +25,7 @@
             }
         );
     </script>
-    <script type="text/javascript">
+    <script>
         //This test is only in the HTML since it uses an URL for a require
         //argument. It will not work well in say, the Rhino tests.
         var path = location.href.replace(/simple-badbase\.html$/, "foo"),
