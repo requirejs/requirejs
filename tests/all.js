@@ -140,6 +140,8 @@ doh.registerUrl("pluginsSync", "../plugins/sync.html");
 doh.registerUrl("pluginsOnError", "../plugins/onerror/onerror.html");
 doh.registerUrl("doublePluginCall", "../plugins/double.html");
 doh.registerUrl("pluginsNameOnly", "../plugins/nameOnly.html");
+doh.registerUrl("pluginNormalize", "../pluginNormalize/pluginNormalize.html");
+doh.registerUrl("pluginNormalizeLoad", "../pluginNormalizeLoad/pluginNormalizeLoad.html");
 doh.registerUrl("pluginsDelegated", "../plugins/delegated/delegated.html");
 doh.registerUrl("pluginsFromText", "../plugins/fromText/fromText.html");
 doh.registerUrl("pluginsFromTextEvalError", "../plugins/fromTextEvalError/fromTextEvalError.html");
