@@ -32,6 +32,7 @@ When doing a release, do the following:
   * Rev cajon version
   * change package.json
   * tag it
+  * npm publish
 * Update the requirejs-npm directory
   * Update version in package.json
   * Modify bin/r.js to add: #!/usr/bin/env node
