@@ -390,7 +390,19 @@ var requirejs, require, define;
         //did not have a plugin prefix.
         function splitPrefix(name) {
             var prefix,
-                index = name ? name.indexOf('!') : -1;
+                index = name ? name.indexOf('|') : -1;
+            if (index > -1) {
+                name = name.substring(0, index);
+                prefix = name.substring(index + 1, name.length);
+                if (prefix.length === 0) {
+                    index = name ? name.lastIndexOf('.') : -1;
+                    if (index > -1) {
+                        prefix = name.substring(index + 1, name.length);
+                    }
+                }
+                return [prefix, name];
+            }
+            index = name ? name.indexOf('!') : -1;
             if (index > -1) {
                 prefix = name.substring(0, index);
                 name = name.substring(index + 1, name.length);
