@@ -12,7 +12,7 @@ var requirejs, require, define;
     var req, s, head, baseElement, dataMain, src,
         interactiveScript, currentlyAddingScript, mainScript, subPath,
         version = '2.3.2',
-        commentRegExp = /\/\*[\s\S]*?\*\/|([^:"'=]|^)\/\/.*$/mg,
+        commentRegExp = /('(?:[^']|\\')*'|"(?:[^"]|\\")*"|\/(?:[^\/]|\\\/)+\/)|\/[*][\s\S]*?[*]\/|\/\/.*$/mg,
         cjsRequireRegExp = /[^.]\s*require\s*\(\s*["']([^'"\s]+)["']\s*\)/g,
         jsSuffixRegExp = /\.js$/,
         currDirRegExp = /^\.\//,
@@ -35,9 +35,14 @@ var requirejs, require, define;
         globalDefQueue = [],
         useInteractive = false;
 
-    //Could match something like ')//comment', do not lose the prefix to comment.
-    function commentReplace(match, singlePrefix) {
-        return singlePrefix || '';
+    // Keep strings and regexp literals, convert /**/ comments to space in case there's no space on either side of them;
+    // simpler alternative if `some/* comments */thing`->`something` instead of `some thing` does not matter: commentReplace = '$1'
+    function commentReplace(match, keep) {
+        if (/^\/[*][\s\S]*?[*]\/$/.test(match)) {
+            return ' ';
+        } else {
+            return keep || '';
+        }
     }
 
     function isFunction(it) {
