@@ -595,7 +595,7 @@ var requirejs, require, define;
                         id: mod.map.id,
                         uri: mod.map.url,
                         config: function () {
-                            return getOwn(config.config, mod.map.id) || {};
+                            return getOwn(config.config, mod.map.originalName) || {};
                         },
                         exports: mod.exports || (mod.exports = {})
                     });
