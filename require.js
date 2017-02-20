@@ -1250,10 +1250,10 @@ var requirejs, require, define;
             //Make sure any remaining defQueue items get properly processed.
             while (defQueue.length) {
                 args = defQueue.shift();
-                if (args[0] === null) {
+                if (args[0] === void 0) {
                     return onError(makeError('mismatch', 'Mismatched anonymous define() module: ' +
                         args[args.length - 1]));
-                } else {
+                } else if (args[0] !== null) {
                     //args are id, deps, factory. Should be normalized by the
                     //define() function.
                     callGetModule(args);
@@ -1573,7 +1573,7 @@ var requirejs, require, define;
 
                 while (defQueue.length) {
                     args = defQueue.shift();
-                    if (args[0] === null) {
+                    if (args[0] === null || args[0] === void 0) {
                         args[0] = moduleName;
                         //If already found an anonymous module and bound it
                         //to this name, then this is some other anon module
@@ -2062,11 +2062,11 @@ var requirejs, require, define;
         var node, context;
 
         //Allow for anonymous modules
-        if (typeof name !== 'string') {
+        if (typeof name !== 'string' && name !== null) {
             //Adjust args appropriately
             callback = deps;
             deps = name;
-            name = null;
+            name = void 0;
         }
 
         //This module may not have dependencies
