@@ -54,8 +54,8 @@ var requirejs, require, define;
      */
     function each(ary, func) {
         if (ary) {
-            var i;
-            for (i = 0; i < ary.length; i += 1) {
+            var i, length;
+            for (i = 0, length = ary.length; i < length; i++) {
                 if (ary[i] && func(ary[i], i, ary)) {
                     break;
                 }
@@ -70,7 +70,7 @@ var requirejs, require, define;
     function eachReverse(ary, func) {
         if (ary) {
             var i;
-            for (i = ary.length - 1; i > -1; i -= 1) {
+            for (i = ary.length; i--; ) {
                 if (ary[i] && func(ary[i], i, ary)) {
                     break;
                 }
@@ -2029,7 +2029,7 @@ var requirejs, require, define;
                     //baseUrl.
                     src = mainScript.split('/');
                     mainScript = src.pop();
-                    subPath = src.length ? src.join('/')  + '/' : './';
+                    subPath = src.length ? src.join('/') + '/' : './';
 
                     cfg.baseUrl = subPath;
                 }
