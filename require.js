@@ -502,6 +502,9 @@ var requirejs, require, define;
 
             if (!mod) {
                 mod = registry[id] = new context.Module(depMap);
+            } else if (!mod.__callStack && depMap.__callStack) {
+                //MOD (russa) debugMode: tranfere call-stack if missing
+                mod.__callStack = depMap.__callStack;
             }
 
             return mod;
@@ -519,6 +522,11 @@ var requirejs, require, define;
             } else {
                 mod = getModule(depMap);
                 if (mod.error && name === 'error') {
+                    if (depMap.__callStack) {
+                        //MOD (russa) debugMode: need to add (additional) callStack information "manually",
+                        //                       if err was not emitted by the module itself
+                        addCallStack(depMap, mod.error);
+                    }
                     fn(mod.error);
                 } else {
                     mod.on(name, fn);
@@ -541,11 +549,25 @@ var requirejs, require, define;
                         if (mod.events.error) {
                             notified = true;
                             mod.emit('error', err);
+                        } else if (mod.__callStack) {
+                            //MOD (russa) debugMode: need to add callStack information "manually",
+                            //                       if err was not emitted by the module itself
+                            addCallStack(mod, err);
                         }
                     }
                 });
 
                 if (!notified) {
+
+                    //MOD (russa) debugMode: add callStack information "manually",
+                    //                       if missing on err
+                    if (!err.callStack && err.requireMap && err.requireMap.id) {
+                        var mod = getOwn(registry, err.requireMap.id);
+                        if (mod && mod.__callStack) {//russa: mod.__callStack will only be set in debugMode
+                            addCallStack(mod, err);
+                        }
+                    };
+
                     req.onError(err);
                 }
             }
@@ -734,6 +756,8 @@ var requirejs, require, define;
             this.pluginMaps = {};
             this.depCount = 0;
 
+            this.__callStack = map.__callStack;//MOD (russa) debugMode: set callStack if available
+
             /* this.exports this.factory
                this.depMaps = [],
                this.enabled, this.fetched
@@ -752,6 +776,13 @@ var requirejs, require, define;
                 }
 
                 this.factory = factory;
+
+                //MOD (russa) debugMode: set callStack if available
+                if (errback && context.config.debugMode === true && errback.name == '__callStack') {
+                    this.__callStack = errback;
+                    errback = errback.__cb;
+                    this.__callStack.__cb = void(0);
+                }
 
                 if (errback) {
                     //Register for errors on this module.
@@ -987,6 +1018,9 @@ var requirejs, require, define;
 
                         normalizedMod = getOwn(registry, normalizedMap.id);
                         if (normalizedMod) {
+                            if (!normalizedMod.__callStack && this.__callStack) {//MOD (russa) debugMode: set callStack if available
+                                normalizedMod.__callStack = this.__callStack;
+                            }
                             //Mark this as a dependency for this plugin, so it
                             //can be traced for cycles.
                             this.depMaps.push(normalizedMap);
@@ -1131,6 +1165,11 @@ var requirejs, require, define;
 
                         this.depCount += 1;
 
+                        //MOD (russa) debugMode: set callStack if available
+                        if (this.__callStack) {
+                            depMap.__callStack = this.__callStack;
+                        }
+
                         on(depMap, 'defined', bind(this, function (depExports) {
                             if (this.undefed) {
                                 return;
@@ -1185,6 +1224,12 @@ var requirejs, require, define;
             },
 
             emit: function (name, evt) {
+
+                //MOD (russa) debugMode: use callStack information if available
+                if (name === 'error' && this.__callStack) {
+                    addCallStack(this, evt);
+                }
+
                 each(this.events[name], function (cb) {
                     cb(evt);
                 });
@@ -1196,6 +1241,22 @@ var requirejs, require, define;
                 }
             }
         };
+
+        //MOD (russa) debugMode: helper for creating the callStack / message
+        function addCallStack(mod, errorEvt) {
+
+            var msg = '[resolving module ' + (mod.id? mod.id : mod.map.id) + ']\n' + mod.__callStack();
+
+            if (!errorEvt.callStack) {
+                errorEvt.callStack = msg;
+                errorEvt.message += '\nDependency requested from: ' + errorEvt.callStack;
+            } else if (!this.error && errorEvt.callStack.indexOf(msg) === -1) {//test if new callStack is already contained
+                //prepend to call-stack & message
+                errorEvt.message = errorEvt.message.replace(errorEvt.callStack, '');
+                errorEvt.callStack = msg + '\nand ' + errorEvt.callStack;
+                errorEvt.message += errorEvt.callStack;
+            }
+        }
 
         function callGetModule(args) {
             //Skip modules already defined.
@@ -1792,6 +1853,64 @@ var requirejs, require, define;
 
         if (config) {
             context.configure(config);
+        }
+
+        //MOD (russa) debugMode:
+        //    if "debugMode" is enabled, create a call-stack trace
+        //      that will be used, if an error occurs, i.e.
+        //      show from where the "failed dependency" was requested.
+        //    The call-stack information will be appended to the error-message
+        //      and be available as String property callStack on the error object.
+        //
+        // Usage of / enable "debugMode":
+        // set "debugMode" to true in the requirejs config, e.g.
+        //
+        //    require.config({ debugMode: true });
+        //
+        if (context.config && context.config.debugMode === true) {
+
+            //create "call stack":
+            var _callStack = new Error().stack;
+
+            //if no stack: try to force a stack by throwing the exception
+            if (!_callStack) {
+                try {
+                    throw new Error();
+                } catch (err) {
+                    _callStack = err.stack;
+                }
+            }
+
+            //only proceed if Error has a stack property
+            if (_callStack) {
+
+                var __callStack = function __callStack() {
+
+                    if (!String.prototype.trim) {
+                        String.prototype.trim = function() {
+                            return this.replace(/^\s+/,'').replace(/\s+$/,'');
+                        };
+                    }
+
+                    //clean up stack-trace:
+                    // * trim _callStack String
+                    // * remove first stack-entry using RegExpr for
+                    //   * Chrome: remove first 2 lines: Error\n  at <this>\n
+                    //   * Firefox: remove first line: <this function>@<this file>\n
+                    //   * Opera: remove first line: <this function/debug info>@<this file>:<line number>\n
+                    return _callStack.trim().replace(
+                        /(^Error\n\r?\s*at.*?\n\r?)|(^\w*?@.*?\n\r?)|(^.*?@.*?:\d+\n\r?)/i, ''
+                    );
+                };
+
+                //HACK: in order to avoid massive code changes, the additional stack-information is passed on
+                //        by replacing the error-callback (attaching the original callback at __cb).
+                //      The error-callback is reverted back (i.e. replaced by __cb again) in the Module.init function:
+                //        the Module instance will then have the function __callStack attached.
+                __callStack.__cb = errback;
+                errback = __callStack;
+            }
+
         }
 
         return context.require(deps, callback, errback);
