@@ -5,7 +5,7 @@
 //Not using strict: uneven strict support in browsers, #392, and causes
 //problems with requirejs.exec()/transpiler plugins that may not be strict.
 /*jslint regexp: true, nomen: true, sloppy: true */
-/*global window, navigator, document, importScripts, setTimeout, opera */
+/*global window, navigator, document, importScripts, opera */
 
 var requirejs, require, define;
 (function (global, setTimeout) {
@@ -33,7 +33,8 @@ var requirejs, require, define;
         contexts = {},
         cfg = {},
         globalDefQueue = [],
-        useInteractive = false;
+        useInteractive = false,
+        setTimeout = global.setTimeout;
 
     //Could match something like ')//comment', do not lose the prefix to comment.
     function commentReplace(match, singlePrefix) {
