@@ -1,0 +1,15 @@
+{
+  "name": "requirejs",
+  "version": "2.1.8",
+  "ignore": [
+    ".*",
+    "dist",
+    "docs",
+    "tests",
+    "*.html",
+    "package.json",
+    "tasks.txt",
+    "testBaseUrl.js",
+    "updatesubs.sh"
+  ]
+}
