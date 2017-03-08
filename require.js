@@ -1624,7 +1624,7 @@ var requirejs, require, define;
              */
             nameToUrl: function (moduleName, ext, skipExt) {
                 var paths, syms, i, parentModule, url,
-                    parentPath, bundleId, pathSplit
+                    parentPath, bundleId, pathSplit,
                     pkgMain = getOwn(config.pkgs, moduleName),
                     versionSuffix = 1;
 
@@ -1661,8 +1661,8 @@ var requirejs, require, define;
                         parentPath = getOwn(paths, parentModule);
 
                         // attach version number to js files
-                        if(typeof parentPath === 'string' && parentPath.indexOf('?') != -1) {
-                            pathSplit = parentPath.split("?");
+                        if (typeof parentPath === 'string' && parentPath.indexOf('?') != -1) {
+                            pathSplit = parentPath.split('?');
                             parentPath = pathSplit[0];
                             versionSuffix = pathSplit[1]
                         }
