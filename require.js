@@ -1659,14 +1659,12 @@ var requirejs, require, define;
                         parentModule = syms.slice(0, i).join('/');
 
                         parentPath = getOwn(paths, parentModule);
-                        
                         // attach version number to js files
                         if (typeof parentPath === 'string' && parentPath.indexOf('?') != -1) {
                             pathSplit = parentPath.split('?');
                             parentPath = pathSplit[0];
-                            versionSuffix = pathSplit[1]
+                            versionSuffix = pathSplit[1];
                         }
-                        
                         if (parentPath) {
                             //If an array, it means there are a few choices,
                             //Choose the one that is desired
