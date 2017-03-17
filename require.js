@@ -1977,9 +1977,6 @@ var requirejs, require, define;
                 // importScripts(): https://webkit.org/b/153317
                 setTimeout(function() {}, 0);
                 importScripts(url);
-
-                //Account for anonymous modules
-                context.completeLoad(moduleName);
             } catch (e) {
                 context.onError(makeError('importscripts',
                                 'importScripts failed for ' +
@@ -1987,6 +1984,9 @@ var requirejs, require, define;
                                 e,
                                 [moduleName]));
             }
+
+            //Account for anonymous modules
+            context.completeLoad(moduleName);
         }
     };
 
