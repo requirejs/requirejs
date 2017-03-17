@@ -600,6 +600,9 @@ var requirejs, require, define;
                         exports: mod.exports || (mod.exports = {})
                     });
                 }
+            },
+            ':empty': function () {
+                return null;
             }
         };
 
