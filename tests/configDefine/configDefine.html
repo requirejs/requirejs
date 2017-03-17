@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>require.js: config.define Test</title>
+    <script type="text/javascript" src="../../require.js"></script>
+    <script type="text/javascript" src="../doh/runner.js"></script>
+    <script type="text/javascript" src="../doh/_browserRunner.js"></script>
+    <script type="text/javascript">
+    require({
+            baseUrl: "./",
+            define: {
+                "a": { foo: "bar" },
+                "b": function() { return "baz"; }
+            }
+        },
+        ["lamp", "a", "b"],
+        function(lamp, a, b) {
+            doh.register(
+                "configRequire",
+                [
+                    function configRequire(t) {
+                        t.is("blue", lamp.color);
+                        t.is("bar", a.foo);
+                        t.is("baz", b());
+                    }
+                ]
+            );
+            doh.run();
+        }
+    );
+    </script>
+</head>
+<body>
+    <h1>require.js: paths Test</h1>
+    <p>Tests for modules defined using the 'define' config key</p>
+    <p>Check console for messages</p>
+</body>
+</html>
