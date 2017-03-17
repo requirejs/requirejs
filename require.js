@@ -723,6 +723,22 @@ var requirejs, require, define;
 
             inCheckLoaded = false;
         }
+        
+        // If config has classMapping defined, go through the list of 
+        // exclusions and make sure this id is OK to be mapped into 
+        // the module.
+        function getIsClassMappingExcluded(id) {
+            if (!config.classMapping.exclusions) {
+                return false;
+            }
+            var excluded = false;
+            each(config.classMapping.exclusions, function(exclusion, i) {
+                if (id.indexOf(exclusion.replace(/\*\/*/g, '')) === 0) {
+                    return excluded = true;
+                }
+            });
+            return excluded;
+        }
 
         Module = function (map) {
             this.events = getOwn(undefEvents, map.id) || {};
@@ -909,6 +925,14 @@ var requirejs, require, define;
                         }
 
                         this.exports = exports;
+                        
+                        // If this is mappable for association, add the 
+                        // __classPath variable.
+                        if (exports &&
+                                config.classMapping &&
+                                !getIsClassMappingExcluded(id)) {
+                            exports.__classPath = id;
+                        }
 
                         if (this.map.isDefine && !this.ignore) {
                             defined[id] = exports;
