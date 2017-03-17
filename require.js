@@ -1637,7 +1637,7 @@ var requirejs, require, define;
                     return context.nameToUrl(bundleId, ext, skipExt);
                 }
 
-                //If a colon is in the URL, it indicates a protocol is used and it is just
+                //If a :// is in the URL, it indicates a protocol is used and it is just
                 //an URL to a file, or if it starts with a slash, contains a query arg (i.e. ?)
                 //or ends with .js, then assume the user meant to use an url and not a module id.
                 //The slash is important for protocol-less URLs as well as full paths.
@@ -1825,7 +1825,7 @@ var requirejs, require, define;
     req.version = version;
 
     //Used to filter out dependencies that are already paths.
-    req.jsExtRegExp = /^\/|:|\?|\.js$/;
+    req.jsExtRegExp = /^\/|:\/\/|\?|\.js$/;
     req.isBrowser = isBrowser;
     s = req.s = {
         contexts: contexts,
