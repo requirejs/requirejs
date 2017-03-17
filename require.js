@@ -600,6 +600,14 @@ var requirejs, require, define;
                         exports: mod.exports || (mod.exports = {})
                     });
                 }
+            },
+            'delay': function (mod) {
+                mod.delay = true ; //This modules wants to use delayed definition
+                return function( exports ){ //The callback function received by the module
+                    mod.exports = exports || {} ; //Register the response of the module
+                    mod.delayed = true ; //The module returned it's value
+                    mod.check() ; //Call the check method to emit the "defined" event
+                } ;
             }
         };
 
@@ -840,6 +848,7 @@ var requirejs, require, define;
              * define it.
              */
             check: function () {
+            
                 if (!this.enabled || this.enabling) {
                     return;
                 }
@@ -857,58 +866,68 @@ var requirejs, require, define;
                     }
                 } else if (this.error) {
                     this.emit('error', this.error);
-                } else if (!this.defining) {
+                } else if (!this.defining || (this.delayed && !this.defined)) { //also enter there if the defining process is on, but the delayed occured and defined event not already triggered
                     //The factory could trigger another require call
                     //that would result in checking this module to
                     //define itself again. If already in the process
                     //of doing that, skip this work.
                     this.defining = true;
-
+                    
                     if (this.depCount < 1 && !this.defined) {
-                        if (isFunction(factory)) {
-                            //If there is an error listener, favor passing
-                            //to that instead of throwing an error. However,
-                            //only do it for define()'d  modules. require
-                            //errbacks should not be called for failures in
-                            //their callbacks (#699). However if a global
-                            //onError is set, use that.
-                            if ((this.events.error && this.map.isDefine) ||
-                                req.onError !== defaultOnError) {
-                                try {
+                    
+                        if( !(this.delay && this.delayed) ){ //Skip it and go to the "defined" trigger if the module was already loaded and delayed
+                    
+                            if (isFunction(factory)) {
+                                //If there is an error listener, favor passing
+                                //to that instead of throwing an error. However,
+                                //only do it for define()'d  modules. require
+                                //errbacks should not be called for failures in
+                                //their callbacks (#699). However if a global
+                                //onError is set, use that.
+                                if ((this.events.error && this.map.isDefine) ||
+                                    req.onError !== defaultOnError) {
+                                    try {
+                                        exports = context.execCb(id, factory, depExports, exports);
+                                    } catch (e) {
+                                        err = e;
+                                    }
+                                } else {
                                     exports = context.execCb(id, factory, depExports, exports);
-                                } catch (e) {
-                                    err = e;
                                 }
+
+                                // Favor return value over exports. If node/cjs in play,
+                                // then will not have a return value anyway. Favor
+                                // module.exports assignment over exports object.
+                                if (this.map.isDefine && exports === undefined) {
+                                    cjsModule = this.module;
+                                    if (cjsModule) {
+                                        exports = cjsModule.exports;
+                                    } else if (this.usingExports) {
+                                        //exports already set the defined value.
+                                        exports = this.exports;
+                                    }
+                                }
+
+                                if (err) {
+                                    err.requireMap = this.map;
+                                    err.requireModules = this.map.isDefine ? [this.map.id] : null;
+                                    err.requireType = this.map.isDefine ? 'define' : 'require';
+                                    return onError((this.error = err));
+                                }
+
                             } else {
-                                exports = context.execCb(id, factory, depExports, exports);
+                                //Just a literal value
+                                exports = factory;
                             }
-
-                            // Favor return value over exports. If node/cjs in play,
-                            // then will not have a return value anyway. Favor
-                            // module.exports assignment over exports object.
-                            if (this.map.isDefine && exports === undefined) {
-                                cjsModule = this.module;
-                                if (cjsModule) {
-                                    exports = cjsModule.exports;
-                                } else if (this.usingExports) {
-                                    //exports already set the defined value.
-                                    exports = this.exports;
-                                }
+                            
+                            this.exports = exports ; //Will be overridden by the delay call if delay is set 
+                            
+                            if( this.delay ){ //From now we're waiting for de delay call, letting the module perform an asynchronous task during its initialization
+                                return ; 
                             }
-
-                            if (err) {
-                                err.requireMap = this.map;
-                                err.requireModules = this.map.isDefine ? [this.map.id] : null;
-                                err.requireType = this.map.isDefine ? 'define' : 'require';
-                                return onError((this.error = err));
-                            }
-
-                        } else {
-                            //Just a literal value
-                            exports = factory;
+                            
                         }
-
-                        this.exports = exports;
+                        
 
                         if (this.map.isDefine && !this.ignore) {
                             defined[id] = exports;
