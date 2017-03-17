@@ -1,4 +1,4 @@
-define(["require", "exports", "module", "test","bogus"], function(require, exports, module) {
+define(["require", "exports", "module", "test", "bogus"], function(require, exports, module) {
 var test = require('test');
 try {
     require('bogus');
