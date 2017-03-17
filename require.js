@@ -1329,6 +1329,23 @@ var requirejs, require, define;
 
                 //Merge shim
                 if (cfg.shim) {
+
+                    for (var id in cfg.shim) {
+                        if (cfg.shim[id].async !== false) continue;
+
+                        eachReverse(cfg.shim[id].deps, function (dep, index, deps) {
+                            if (index - 1 < 0) return;
+
+                            if (!cfg.shim[dep]) {
+                                cfg.shim[dep] = {};
+                            }
+                            if (!cfg.shim[dep].deps) {
+                                cfg.shim[dep].deps = [];
+                            }
+                            cfg.shim[dep].deps.push(deps[index - 1]);
+                        });
+                    }
+
                     eachProp(cfg.shim, function (value, id) {
                         //Normalize the structure
                         if (isArray(value)) {
