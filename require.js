@@ -1344,6 +1344,11 @@ var requirejs, require, define;
                     config.shim = shim;
                 }
 
+                //Insert custom onError
+                if (cfg.onError && typeof cfg.onError === 'function') {
+                    req.onError = cfg.onError;
+                }
+
                 //Adjust packages if necessary.
                 if (cfg.packages) {
                     each(cfg.packages, function (pkgObj) {
