@@ -33,7 +33,8 @@ var requirejs, require, define;
         contexts = {},
         cfg = {},
         globalDefQueue = [],
-        useInteractive = false;
+        useInteractive = false,
+        dataBaseUrl;
 
     //Could match something like ')//comment', do not lose the prefix to comment.
     function commentReplace(match, singlePrefix) {
@@ -2047,6 +2048,16 @@ var requirejs, require, define;
                 cfg.deps = cfg.deps ? cfg.deps.concat(mainScript) : [mainScript];
 
                 return true;
+            }
+
+            //Look for a data-baseurl attribute to set the baseUrl.
+            //Used only in optimized mode where require.js is included in output.
+            //Will override data-main reference to baseUrl.
+            //Useful when require.js is included in base module and
+            //the application intend to do dynamic loading of scripts.
+            dataBaseUrl = script.getAttribute('data-baseurl');
+            if(dataBaseUrl) {
+                cfg.baseUrl = dataBaseUrl;
             }
         });
     }
