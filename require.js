@@ -697,6 +697,7 @@ var requirejs, require, define;
                 //If wait time expired, throw error of unloaded modules.
                 err = makeError('timeout', 'Load timeout for modules: ' + noLoads, null, noLoads);
                 err.contextName = context.contextName;
+                inCheckLoaded = false;
                 return onError(err);
             }
 
