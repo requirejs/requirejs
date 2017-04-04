@@ -1595,8 +1595,8 @@ var requirejs, require, define;
                 //of those calls/init calls changes the registry.
                 mod = getOwn(registry, moduleName);
 
-                if (!found) {
-                    if (!hasProp(defined, moduleName) && mod && !mod.inited && config.enforceDefine &&
+                if (!found && mod && !mod.inited) {
+                    if (!hasProp(defined, moduleName) && config.enforceDefine &&
                         (!shExports || !getGlobal(shExports))
                     ) {
                         if (hasPathFallback(moduleName)) {
@@ -1607,7 +1607,7 @@ var requirejs, require, define;
                                              null,
                                              [moduleName]));
                         }
-                    } else if (mod && !mod.inited) {
+                    } else {
                         //A script that does not call define(), so just simulate
                         //the call for it.
                         callGetModule([moduleName, (shim.deps || []), shim.exportsFn], true);
