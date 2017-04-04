@@ -1596,7 +1596,9 @@ var requirejs, require, define;
                 mod = getOwn(registry, moduleName);
 
                 if (!found) {
-                    if (!hasProp(defined, moduleName) && mod && !mod.inited && config.enforceDefine && (!shExports || !getGlobal(shExports))) {
+                    if (!hasProp(defined, moduleName) && mod && !mod.inited && config.enforceDefine &&
+                        (!shExports || !getGlobal(shExports))
+                    ) {
                         if (hasPathFallback(moduleName)) {
                             return;
                         } else {
