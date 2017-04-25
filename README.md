@@ -1,5 +1,7 @@
 # RequireJS
 
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bhttps%3A%2F%2Fgithub.com%2Frequirejs%2Frequirejs.svg?type=shield)](https://app.fossa.io/projects/git%2Bhttps%3A%2F%2Fgithub.com%2Frequirejs%2Frequirejs?ref=badge_shield)
+
 RequireJS loads plain JavaScript files as well as more defined modules. It is
 optimized for in-browser use, including in
 [a Web Worker](http://requirejs.org/docs/api.html#webworker), but it can be used
@@ -36,6 +38,8 @@ RequireJS works in IE 6+, Firefox 2+, Safari 3.2+, Chrome 3+, and Opera 10+.
 ## License
 
 MIT
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bhttps%3A%2F%2Fgithub.com%2Frequirejs%2Frequirejs.svg?type=large)](https://app.fossa.io/projects/git%2Bhttps%3A%2F%2Fgithub.com%2Frequirejs%2Frequirejs?ref=badge_large)
 
 ## Code of Conduct
 
