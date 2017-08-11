@@ -908,6 +908,11 @@ some modules to load asynchronously as part of a config block.</p>
 
 <p id="config-skipDataMain"><strong><a href="#config-skipDataMain">skipDataMain</a></strong>: Introduced in RequireJS 2.1.9: If set to <code>true</code>, skips the <a href="#data-main">data-main attribute scanning</a> done to start module loading. Useful if RequireJS is embedded in a utility library that may interact with other RequireJS library on the page, and the embedded version should not do data-main loading.</p>
 
+<p id="config-moduleExtension"><strong><a href="#config-moduleExtension">moduleExtension</a></strong>: Specify the module file extension with dot. Default is ".js". Useful when using gzip:</p>
+
+<pre><code>moduleExtension: ".jz.gz"
+</code></pre>
+
 </div>
 
 <div class="section">
