@@ -10,7 +10,7 @@ When doing a release, do the following:
     * pre.html
     * post.html
 * Update version in x.js in the r.js project if necessary.
-* .updatesubs.sh
+* ./updatesubs.sh
 * Check in changes to r.js project.
 * Check in changes to sample projects:
   * requirejs/example-jquery-cdn
@@ -72,4 +72,3 @@ To generate the web site:
 * cd dist-site
 * zip -r docs.zip ./*
 * mv docs.zip ../../../requirejs-build/
-
