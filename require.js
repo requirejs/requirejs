@@ -221,8 +221,36 @@ var requirejs, require, define;
             defined = {},
             urlFetched = {},
             bundlesMap = {},
+            bundlesMapExp = null,//expression
             requireCounter = 1,
             unnormalizedCounter = 1;
+
+        function getBundleId(moduleName) {
+            var bundleId = getOwn(bundlesMap, moduleName);
+            if (!bundleId && bundlesMapExp) { // pssibility for already checked in the list??? performance ...
+                eachProp(bundlesMapExp, function (prop, name) {
+                    if (moduleName.indexOf(name) === 0) {
+                        bundleId = prop;
+                        bundlesMap[moduleName] = prop;
+                        return true;
+                    }
+                });
+            }
+            return bundleId;
+        }
+
+        function addBundleMap(bundleName, moduleName) {
+            if (moduleName !== bundleName) {
+                if (moduleName.charAt(moduleName.length - 1) === '*') {
+                    if (!bundlesMapExp) {
+                        bundlesMapExp = {};
+                    }
+                    bundlesMapExp[moduleName.substr(0, moduleName.length - 1)] = bundleName;
+                } else {
+                    bundlesMap[moduleName] = bundleName;
+                }
+            }
+        }
 
         /**
          * Trims the . and .. from an array of path segments.
@@ -954,7 +982,7 @@ var requirejs, require, define;
 
                 on(pluginMap, 'defined', bind(this, function (plugin) {
                     var load, normalizedMap, normalizedMod,
-                        bundleId = getOwn(bundlesMap, this.map.id),
+                        bundleId = getBundleId(this.map.id),
                         name = this.map.name,
                         parentName = this.map.parentMap ? this.map.parentMap.name : null,
                         localRequire = context.makeRequire(map.parentMap, {
@@ -1320,9 +1348,7 @@ var requirejs, require, define;
                 if (cfg.bundles) {
                     eachProp(cfg.bundles, function (value, prop) {
                         each(value, function (v) {
-                            if (v !== prop) {
-                                bundlesMap[v] = prop;
-                            }
+                            addBundleMap(prop, v);
                         });
                     });
                 }
@@ -1631,7 +1657,7 @@ var requirejs, require, define;
                     moduleName = pkgMain;
                 }
 
-                bundleId = getOwn(bundlesMap, moduleName);
+                bundleId = getBundleId(moduleName);
 
                 if (bundleId) {
                     return context.nameToUrl(bundleId, ext, skipExt);
