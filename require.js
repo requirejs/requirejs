@@ -2018,7 +2018,7 @@ var requirejs, require, define;
             if (urlArgs) {
                 //Set the cfg.urlArgs, if it is not cfg.urlArgs set.
                 if (!cfg.urlArgs) {
-                    cfg.urlArgs= urlArgs;
+                    cfg.urlArgs = urlArgs;
                 }
             }
 
