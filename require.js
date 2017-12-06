@@ -2013,6 +2013,34 @@ var requirejs, require, define;
                 head = script.parentNode;
             }
 
+            //Look for a data-urlargs attribute to set default urlargs of the config
+            var urlArgs = script.getAttribute('data-urlargs');
+            if (urlArgs) {
+                //Set the cfg.urlArgs, if it is not cfg.urlArgs set.
+                if (!cfg.urlArgs) {
+                    cfg.urlArgs = urlArgs;
+                }
+            }
+
+            //Look for a data-config attribute to set config script for the page
+            var configMain = script.getAttribute('data-config');
+            if (configMain) {
+                //Preserve configMain in case it is a path (i.e. contains '?')
+                var configScript = configMain;
+
+                //Strip off any trailing .js since configScript is now
+                //like a module name.
+                configScript = configScript.replace(jsSuffixRegExp, '');
+
+                //If configScript is still a path, fall back to dataMain
+                if (req.jsExtRegExp.test(configScript)) {
+                    configScript = configMain;
+                }
+
+                //Put the data-config script in the files to load.
+                cfg.deps = cfg.deps ? cfg.deps.concat(configScript) : [configScript];
+            }
+
             //Look for a data-main attribute to set main script for the page
             //to load. If it is there, the path to data main becomes the
             //baseUrl, if it is not already set.
