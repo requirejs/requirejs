@@ -2028,12 +2028,6 @@ var requirejs, require, define;
                 //Preserve configMain in case it is a path (i.e. contains '?')
                 var configScript = configMain;
 
-                //Check configScript value is or not a loader plugin module ID.
-                if (configScript.indexOf('!') === -1) {
-                    src = configScript.split('/');
-                    configScript = src.pop();
-                }
-
                 //Strip off any trailing .js since configScript is now
                 //like a module name.
                 configScript = configScript.replace(jsSuffixRegExp, '');
