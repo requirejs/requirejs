@@ -2013,6 +2013,15 @@ var requirejs, require, define;
                 head = script.parentNode;
             }
 
+            //Look for a data-urlargs attribute to set default urlargs of the config
+            var urlArgs = script.getAttribute('data-urlargs');
+            if (urlArgs) {
+                //Set the cfg.urlArgs, if it is not cfg.urlArgs set.
+                if (!cfg.urlArgs) {
+                    cfg.urlArgs= urlArgs;
+                }
+            }
+
             //Look for a data-main attribute to set main script for the page
             //to load. If it is there, the path to data main becomes the
             //baseUrl, if it is not already set.
