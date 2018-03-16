@@ -1,7 +1,7 @@
 
 !function (name, definition) {
   if (typeof module != 'undefined') module.exports = definition()
-  else if (typeof define == 'function' && typeof define.amd == 'object') define('tail',[], function(){return definition()})
+  else if (typeof define == 'function' && typeof define.amd == 'object') define('tail', [],function(){return definition()})
   else this[name] = definition()
 }('tail', function() {
     return {
@@ -61,7 +61,7 @@ define("eye", function(){});
     //The 'id' is optional, but recommended if this is
     //a popular web library that is used mostly in
     //non-AMD/Node environments.
-    define('spell',['require','newt'], function (require) {
+    define('spell', ['require','newt'],function (require) {
         //If have dependencies, get them here
         var newt = require('newt');
 

@@ -1,4 +1,3 @@
-
 define('c1',{
     name: 'c1'
 });
@@ -80,3 +79,4 @@ require({
 );
 
 define("mapConfig-tests", function(){});
+

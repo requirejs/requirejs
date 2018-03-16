@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>require.js: Unordered Defines</title>
+    <script src="../doh/runner.js"></script>
+    <script src="../doh/_browserRunner.js"></script>
+    <script src="../../require.js"></script>
+    <script>
+    var hasBadLoad = false;
+    var oldLoad = requirejs.load;
+
+    requirejs.load = function(context, id, url) {
+        if (id === 'foo') {
+            hasBadLoad = true;
+        }
+        return oldLoad.call(requirejs, context, id, url);
+    };
+
+    require(['app'], function(app) {
+        doh.register(
+            "unorderedDefine",
+            [
+                function unorderedDefine(t){
+                    t.is('app', app.name);
+                    t.is('bar', app.bar.name);
+                    t.is(false, hasBadLoad, 'has a bad load for foo');
+                }
+            ]
+        );
+
+        doh.run();
+
+    });
+    </script>
+</head>
+<body>
+    <h1>require.js: Unordered Defines</h1>
+
+    <p>In a list of defines in a file, if a dep is after the main module that
+    is defined in the file, it should still work, and not try to load the dep.
+        <a href="https://github.com/requirejs/requirejs/issues/1389">More info</a>.</p>
+
+    <p>Check console for messages</p>
+</body>
+</html>

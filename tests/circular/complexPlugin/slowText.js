@@ -4,7 +4,7 @@
 /**
  * @license RequireJS text 1.0.2 Copyright (c) 2010-2011, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
- * see: http://github.com/jrburke/requirejs for details
+ * see: http://github.com/requirejs/requirejs for details
  */
 /*jslint regexp: false, nomen: false, plusplus: false, strict: false */
 /*global require: false, XMLHttpRequest: false, ActiveXObject: false,

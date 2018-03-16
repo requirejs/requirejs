@@ -25,11 +25,11 @@ Next release
 
 - ie 10, order plugin not working?
 
-https://github.com/jrburke/requirejs/issues/185
+https://github.com/requirejs/requirejs/issues/185
 
 - add pluginBuilder to the load api
 
-- require-cs circular ref: https://github.com/jrburke/require-cs/issues/13
+- require-cs circular ref: https://github.com/requirejs/require-cs/issues/13
 
 - make a decision matrix of when to use what. Mention lowercase names for file name convention.
 

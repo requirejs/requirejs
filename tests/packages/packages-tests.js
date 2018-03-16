@@ -53,7 +53,8 @@ require({
 function(require,   alpha,   replace,         beta,   util,        bar,   baz,
          foo,   second,       chair,         table,         door,         pane,
          window,         legs,               funky) {
-    var dataUrl = require.toUrl('foo/../data.html');
+    var dataUrl = require.toUrl('foo/../data.html'),
+        dataUrl2 = require.toUrl('foo/data.html');
     doh.register(
         "packages",
         [
@@ -71,7 +72,8 @@ function(require,   alpha,   replace,         beta,   util,        bar,   baz,
                 t.is("foo", foo.name);
                 t.is("alpha", foo.alphaName);
                 t.is("foo/second", second.name);
-                t.is((requirejs.isBrowser ? "./foo/lib/../data.html" : "./packages/foo/lib/../data.html"), dataUrl);
+                t.is("./data.html", dataUrl);
+                t.is("./foo/lib/data.html", dataUrl2);
                 t.is('dojox/chair', chair.name);
                 t.is('dojox/chair/legs', chair.legsName);
                 t.is('dojox/table', table.name);

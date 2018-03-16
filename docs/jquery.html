@@ -1,177 +1,174 @@
 <div id="directory" class="section">
 <h1>How to use RequireJS with jQuery</h1>
+
 <ul class="index mono">
     <li class="hbox">
-        <a href="#get">Get RequireJS</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1</span>
+        <a href="#intro">Introduction</a><span class="spacer boxFlex"></span><span class="sect">&sect; 1</span>
     </li>
     <li class="hbox">
-        <a href="#setup">Set up your HTML page</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2</span>
+        <a href="#globalvars">Global Functions</a><span class="spacer boxFlex"></span><span class="sect">&sect; 2</span>
     </li>
     <li class="hbox">
-        <a href="#optimize">Feel the need for speed</a><span class="spacer boxFlex"></span><span class="sect">&sect; 3</span>
+        <a href="#modulename">Module Name</a><span class="spacer boxFlex"></span><span class="sect">&sect; 3</span>
     </li>
     <li class="hbox">
-        <a href="#advanced">Advanced use</a><span class="spacer boxFlex"></span><span class="sect">&sect; 4</span>
+        <a href="#shimconfig">Example using shim config</a><span class="spacer boxFlex"></span><span class="sect">&sect; 4</span>
+    </li>
+    <li class="hbox">
+        <a href="#cdnconfig">Example loading jquery from a CDN</a><span class="spacer boxflex"></span><span class="sect">&sect; 5</span>
+    </li>
+    <li class="hbox">
+        <a href="#noconflictmap">Mapping Modules to use noConflict</a><span class="spacer boxflex"></span><span class="sect">&sect; 6</span>
+    </li>
+    <li class="hbox">
+        <a href="#oldexample">The previous example with a concatenated require-jquery file</a><span class="spacer boxflex"></span><span class="sect">&sect; 7</span>
     </li>
 </ul>
-<p>When a project reaches a certain size, managing the script modules for a project starts to get tricky. You need to be sure to sequence the scripts in the right order, and you need to start seriously thinking about combining scripts together into a bundle for deployment, so that only one or a very small number of requests are made to load the scripts.</p>
-
-<p>You may also want to load code on the fly, after page load.</p>
-
-<p>RequireJS can help you manage the script modules, load them in the right order, and make it easy to combine the scripts later via the RequireJS <a href="optimization.md">optimizer</a> without needing to change your markup. It also gives you an easy way to load scripts after the page has loaded, allowing you to spread out the download size over time.</p>
-
-<p>RequireJS has a module system that lets you define well-scoped modules, but you do not have to follow that system to get the benefits of dependency management and build-time optimizations. Over time, if you start to create more modular code that needs to be reused in a few places, the module format for RequireJS makes it easy to write encapsulated code that can be loaded on the fly. It can grow with you, particularly if you want to incorporate internationalization (i18n) string bundles, to localize your project for different languages, or load some HTML strings and make sure those strings are available before executing code, or even use JSONP services as dependencies.</p>
 </div>
 
 <div class="section">
 <h2>
-<a name="get">Get RequireJS</a>
+<a name="intro" href="#intro">Introduction</a>
 <span class="sectionMark">&sect; 1</span>
 </h2>
 
-<p>First step is to get RequireJS:</p>
-<ul>
-    <li><a href="download.html#samplejquery">download the sample project</a>.</li>
-</ul>
-
-<p>This sample project uses a combined jQuery+RequireJS file. If you prefer to not bundle jQuery with RequireJS, the <a href="https://github.com/jrburke/require-jquery">sample project's README</a> has an alternate way to use jQuery with RequireJS, but it requires consideration of more edge cases.</p>
-
-</div>
+<p>While RequireJS loads jQuery just like any other dependency, jQuery's wide use and extensive plugin ecosystem mean you'll likely have other scripts in your project that also depend on jQuery. You might approach your jQuery RequireJS configuration differently depending on whether you are starting a new project or whether you are adapting existing code.</p>
 
 <div class="section">
 <h2>
-<a name="setup">Set up your HTML page</a>
+<a name="globalvars" href="#globalvars">Global Functions</a>
 <span class="sectionMark">&sect; 2</span>
 </h2>
-
-<p>A sample HTML page would look like this (assuming you put all your .js files in a "scripts" subdirectory):</p>
-
-<pre><code>&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-    &lt;head&gt;
-        &lt;title&gt;jQuery+RequireJS Sample Page&lt;/title&gt;
-        &lt;script data-main="scripts/main" src="scripts/require-jquery.js"&gt;&lt;/script&gt;
-    &lt;/head&gt;
-    &lt;body&gt;
-        &lt;h1&gt;jQuery+RequireJS Sample Page&lt;/h1&gt;
-    &lt;/body&gt;
-&lt;/html&gt;
-</code></pre>
-
-<p>The data-main attribute on the script tag for require.js tells RequireJS to load the scripts/main.js file. RequireJS will load any dependency that is passed to require() without a ".js" file from the same directory as the one used for data-main. If you feel more comfortable specifying the whole path, you can also do the following:</p>
-
-<pre><code>&lt;script data-main="scripts/main.js" src="scripts/require-jquery.js"&gt;&lt;/script&gt;
-</code></pre>
-
-<p>What is in main.js? A call to require() to load all the scripts you need and any init work you want to do for the page. This example main.js script loads two plugins, jquery.alpha.js and jquery.beta.js (not the names of real plugins, just an example). The plugins should be in the same directory as require-jquery.js:</p>
-
-<p>main.js:</p>
-
-<pre><code>require(["jquery", "jquery.alpha", "jquery.beta"], function($) {
-    //the jquery.alpha.js and jquery.beta.js plugins have been loaded.
-    $(function() {
-        $('body').alpha().beta();
-    });
-});
-</code></pre>
-
-<p>In the require() call, "jquery" was referenced as a dependency. The require-jquery.js file has special code in it to register jQuery as a RequireJS module, and since it is registered as a module, you can get a handle on that module as the first argument to the function callback passed to require. In the above example, $ is used to reference the jQuery module.</p>
-
-<p>Since jquery.alpha and jquery.beta are just plugins that augment jQuery, they do not return modules that you can reference as function arguments.</p>
-
+<p>jQuery registers itself as the global variables "$" and "jQuery", even when it detects AMD/RequireJS. The AMD approach advises against the use of global functions, but the decision to turn off these jQuery globals hinges on whether you have non-AMD code that depends on them. jQuery has a <a href="http://api.jquery.com/jQuery.noConflict/">noConflict function</a> that supports releasing control of the global variables and this can be automated in your requirejs.config, as we will see <a href="#noconflictmap">later</a>.</p>
 </div>
 
 <div class="section">
 <h2>
-<a name="optimize">Feel the need for speed</a>
+<a name="modulename" href="#modulename">Module Name</a>
 <span class="sectionMark">&sect; 3</span>
 </h2>
 
-<p>Now your page is set up to be optimized very easily via the <a href="optimization.html">optimizer</a>.</p>
+<p>jQuery defines <a href="api.html#modulename">named AMD module</a> 'jquery' (all lower case) when it detects AMD/RequireJS. To reduce confusion, we recommend using 'jquery' as the module name in your requirejs.config.
 
-<p>If you downloaded the jQuery sample project, then the optimizer that is part of the RequireJS source is already included.</p>
+<p>Example:</p>
 
-<p>If you are not using the jQuery sample project, get the optimizer by downloading the <a href="download.html#rjs">r.js file</a> and place it anywhere you like outside your web development area.</p>
-
-<p>For the purposes of this example, the RequireJS source is placed as a sibling to the <strong>webapp</strong> directory, which contains the HTML page and the scripts directory with all the scripts. Complete directory structure:</p>
-
-<ul>
-<li>r.js  (the file that includes the optimizer)</li>
-<li>webapp/app.html</li>
-<li>webapp/scripts/main.js</li>
-<li>webapp/scripts/require-jquery.js</li>
-<li>webapp/scripts/jquery.alpha.js</li>
-<li>webapp/scripts/jquery.beta.js</li>
-</ul>
-
-<p>Then, in the scripts directory that has require-jquery.js and main.js, create a file called app.build.js with the following contents:</p>
-
-<pre><code>({
-    appDir: "../",
-    baseUrl: "scripts",
-    dir: "../../webapp-build",
-    //Comment out the optimize line if you want
-    //the code minified by UglifyJS.
-    optimize: "none",
-
+<pre><code>requirejs.config({
+    baseUrl: 'js/lib',
     paths: {
-        "jquery": "require-jquery"
-    },
-
-    modules: [
-        {
-            name: "main",
-            exclude: ["jquery"]
-        }
-    ]
-})
-</code></pre>
-
-<p>To use the optimizer, you need <a href="http://nodejs.org">Node</a> or Java 6 installed. These instructions assume Node is being used. See the <a href="optimization.html">Optimization page</a> for more information.</p>
-
-<p>To start the build, go to the <strong>webapp/scripts</strong> directory, execute the following command:</p>
-
-<pre><code>node ../../r.js -o app.build.js
-</code></pre>
-
-<p>Now, in the webapp-build directory, main.js will have the main.js contents, jquery.alpha.js and jquery.beta.js inlined. If you then load the app.html file in the webapp-build directory, you should not see any network requests for jquery.alpha.js and jquery.beta.js.</p>
-</div>
-
-
-<div class="section">
-<h2>
-<a name="advanced">Advanced use</a>
-<span class="sectionMark">&sect; 4</span>
-</h2>
-
-<p>The steps above make it easy start modular development with jQuery, particularly if you are using
-jQuery plugins that assume jQuery is already loaded in the page. The trade-off with the above approach
-is using a combined RequireJS and jQuery file.</p>
-
-<p>Ideally you would not need to include jQuery with RequireJS, and just use RequireJS to load jQuery
-on demand. However, by default scripts can load out of order with RequireJS, and this does not work well
-with jQuery plugins.</p>
-
-<p>Some options:</p>
-
-<ul>
-    <li>Use the <a href="api.html#config-shim">shim config</a> to specify the
-    dependencies for the plugins so that jQuery will load before the
-    plugin is loaded.</li>
-    <li>Wrap the plugins in a define() call.</li>
-</ul>
-
-<p>Ideally all the jQuery plugins you use would optionally call define() to register
-as a module. Some of the plugins you use may already call define() to register as an
-AMD module. If they do not, then you can wrap the code yourself with this wrapper:
-
-<pre><code>define(['jquery'], function ($) {
-    //Plugin code goes here.
+        // the left side is the module ID,
+        // the right side is the path to
+        // the jQuery file, relative to baseUrl.
+        // Also, the path should NOT include
+        // the '.js' file extension. This example
+        // is using jQuery 1.9.0 located at
+        // js/lib/jquery-1.9.0.js, relative to
+        // the HTML page.
+        jquery: 'jquery-1.9.0'
+    }
 });
 </code></pre>
 
-<p>In addition, you can ask the plugin author to optionally calling define()
-in their code. The <a href="https://github.com/umdjs/umd">umdjs project</a>
-has some resources and examples to help them.</p>
+<p>The other (recommended) solution is to just name the file 'jquery.js' and
+    place it in the baseUrl directory. Then the above paths entry is not needed.</p>
 
+<p>You can avoid lots of configuration lines by placing the files according to
+    the default ID-to-path convention of
+    <code>baseUrl + moduleID + '.js'</code>. The examples below show how to
+    set baseUrl to be the directory for third-party, library code, and use
+    one extra paths config for your app code.</p>
+
+<p>So to reiterate, you will likely get an error if you refer to jQuery with another module name, like <code>'lib/jquery'</code>. <strong>This example will not work</strong>:</p>
+
+<pre><code>
+    // THIS WILL NOT WORK
+    define(['lib/jquery'], function ($) {...});
+</code></pre>
+
+<p>It will not work, since jQuery registers itself with the name of 'jquery' and not 'lib/jquery'. In general, explicitly naming modules in the define() call are discouraged, but <a href="https://github.com/requirejs/requirejs/wiki/Updating-existing-libraries#anon">jQuery has some special constraints</a>.</p>
+
+</div>
+
+<div class="section">
+<h2>
+<a name="shimconfig" href="#shimconfig">Example using shim config</a>
+<span class="sectionMark">&sect; 4</span>
+</h2>
+
+<p>This example shows how to use the <a href="api.html#config-shim">shim config</a> to specify dependencies for jQuery plugins that do not call <a href="api.html#define">define()</a>. This example is useful if you have an existing jQuery project you want to convert and do not want to modify the sources of the jQuery plugins to call define().</p>
+
+<h4><a class="download" href="http://github.com/requirejs/example-jquery-shim">Example using jQuery with shim config</a></h4>
+
+</div>
+
+<div class="section">
+<h2>
+<a name="cdnconfig" href="#cdnconfig">Example loading jquery from a CDN</a>
+<span class="sectionMark">&sect; 5</span>
+</h2>
+
+<p>This is an example on how to load an optimize your code while loading jQuery from a <a href="http://en.wikipedia.org/wiki/Content_delivery_network">Content Delivery Network</a> (CDN). This example requires all your jQuery plugins to call <a href="api.html#define">define()</a> to properly express their dependencies. <a href="api.html#config-shim">Shim config</a> does not work after optimization builds with CDN resources.</p>
+
+<h4><a class="download" href="http://github.com/requirejs/example-jquery-cdn">Example using jQuery from a CDN</a></h4>
+
+</div>
+
+<div class="section">
+<h2>
+<a name="noconflictmap" href="#noconflictmap">Mapping Modules to use noConflict</a>
+<span class="sectionMark">&sect; 6</span>
+</h2>
+
+<p>If <strong>all of your modules</strong> (including any third party jQuery plugins or library code that depend on jQuery) are AMD compatible and you want to avoid having $ or jQuery in the global namespace when they call <code>requirejs(['jquery'])</code>, you can use the <a href="api.html#config-map">map config</a> to map the use of jQuery to a module that calls noConflict and returns that value of jQuery for the 'jquery' module ID.</p>
+
+<p>You can use this example with the CDN example above -- the shim example will not work since shimmed libraries need a global jQuery.</p>
+
+<pre><code>requirejs.config({
+    // Add this map config in addition to any baseUrl or
+    // paths config you may already have in the project.
+    map: {
+      // '*' means all modules will get 'jquery-private'
+      // for their 'jquery' dependency.
+      '*': { 'jquery': 'jquery-private' },
+
+      // 'jquery-private' wants the real jQuery module
+      // though. If this line was not here, there would
+      // be an unresolvable cyclic dependency.
+      'jquery-private': { 'jquery': 'jquery' }
+    }
+});
+
+// and the 'jquery-private' module, in the
+// jquery-private.js file:
+define(['jquery'], function (jq) {
+    return jq.noConflict( true );
+});
+</code></pre>
+
+
+<p>This means that any module which uses jQuery will need to use the AMD return value rather than depending on the global $:</p>
+
+<pre><code>
+requirejs(['jquery'], function( $ ) {
+    console.log( $ ) // OK
+});
+
+requirejs(['jquery'], function( jq ) {
+    console.log( jq ) // OK
+});
+
+requirejs(['jquery'], function( ) {
+    console.log( $ ) // UNDEFINED!
+});
+</code></pre>
+
+</div>
+
+<div class="section">
+<h2>
+<a name="oldexample">The previous example with a concatenated require-jquery file</a>
+<span class="sectionMark">&sect; 7</span>
+</h2>
+<p>
+Previously, we've been pointing to an example using a special require-jquery file, which consisted of require.js and jQuery concatenated. This is no longer the recommended way to use jQuery with require.js, but if you're looking for the (no longer maintained) example, <a href="https://github.com/requirejs/require-jquery">you can find require-jquery here</a>.
+</p>
 </div>

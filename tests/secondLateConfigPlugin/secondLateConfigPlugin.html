@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>require.js: Second Late Config With Plugin</title>
+    <script src="../doh/runner.js"></script>
+    <script src="../doh/_browserRunner.js"></script>
+    <script src="../../require.js"></script>
+    <script>
+    require.config({
+        baseUrl: "",
+        paths: {
+            "wrap": "app/lib_/amd/nonamd",
+            "text": "app/lib_/amd/text",
+        "plugin1": "plugin1_ko"
+        },
+        map: {
+           "*": {
+           // Hide the wrapping by using a map.
+               "app/lib/jquery":     "wrap!app/lib_/jquery",
+           "app/lib/jquery.foo": "wrap!app/lib_/jquery.foo"
+           }
+        },
+        config: {
+            // "wrap" amd plugin options
+            wrap: {
+                shim: {
+                    // How to wrap the ~jquery~ module
+                    "app/lib_/jquery": {
+                        postscript: "return $.noConflict(true);"
+                    },
+
+            // How to wrap the ~jquery.foo~ module
+                    "app/lib_/jquery.foo": {
+                        deps: {
+                            // Module "jquery" goes to parameter "jQuery"
+                            "app/lib/jquery": "jQuery"
+                        },
+                        exports: "jQuery"
+                    }
+                }
+            }
+        }
+    });
+
+    require(["app/lib/jquery.foo", "plugin1/A"], function(jq, a) {
+      doh.register(
+          "secondLateConfigPlugin",
+          [
+              function secondLateConfigPlugin(t) {
+                  t.is("A loaded!", a);
+                  t.is("jQuery FOO here!", jq.foo);
+              }
+          ]
+      );
+      doh.run();
+    });
+    </script>
+</head>
+<body>
+    <h1>require.js: Second Late Config With Plugin Test</h1>
+
+    <p>Tests for a second config that modifies a loader plugin config. In that
+       case, the re-generated maps for in-flight modules should stay normalized.
+        <a href="https://github.com/requirejs/requirejs/issues/1343">More info</a>.</p>
+
+    <p>Check console for messages</p>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>require.js: urlArgsBlob Test</title>
+    <script type="text/javascript" src="doh/runner.js"></script>
+    <script type="text/javascript" src="doh/_browserRunner.js"></script>
+    <script type="text/javascript" src="../require.js"></script>
+    <script>
+
+    var blob = new Blob(["define({name: 'a'});"],
+                        {type : 'application/javascript'});
+
+    var url = URL.createObjectURL(blob);
+
+console.log(url);
+
+    require.config({
+        baseUrl: 'js',
+        urlArgs: 'v=1234',
+        paths: {
+            a: url
+        }
+    });
+
+    require(['a'], function(a) {
+        doh.register(
+            'urlArgsBlob',
+            [
+                function urlArgsBlob(t){
+                    t.is(url, require.toUrl('a'));
+                    t.is('a', a.name);
+                }
+            ]
+        );
+        doh.run();
+    });
+</script>
+</head>
+<body>
+    <h1>require.js: urlArgsBlob Test</h1>
+    <p>Makes sure urlArgs are not applied to blob URLs.
+        <a href="https://github.com/requirejs/requirejs/issues/1508">More info</a>.
+    <p>Check console for messages.</p>
+</body>
+</html>

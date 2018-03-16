@@ -1,4 +1,3 @@
-
 define('d',{
     name: 'd'
 });
@@ -29,7 +28,7 @@ require({
     },
     ['e', 'adapter/d'],
     function(e, adapterD) {
-        
+        'use strict';
         doh.register(
             'mapConfigStarAdapter',
             [
@@ -47,3 +46,4 @@ require({
 );
 
 define("mapConfigStarAdapter-tests", function(){});
+
