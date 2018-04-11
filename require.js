@@ -41,7 +41,7 @@ var requirejs, require, define;
     }
 
     function isFunction(it) {
-        return ostring.call(it) === '[object Function]';
+        return ostring.call(it) === '[object Function]' || ostring.call(it) === '[object AsyncFunction]';
     }
 
     function isArray(it) {
