@@ -1,5 +1,7 @@
 # RequireJS
 
+[![Mentioned in Awesome JavaScript](https://awesome.re/mentioned-badge.svg)](https://github.com/sorrycc/awesome-javascript)
+
 RequireJS loads plain JavaScript files as well as more defined modules. It is
 optimized for in-browser use, including in
 [a Web Worker](http://requirejs.org/docs/api.html#webworker), but it can be used
