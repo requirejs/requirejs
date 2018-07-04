@@ -2,12 +2,12 @@
 <html>
 <head>
     <title>require.js: Simple Test</title>
-    <script type="text/javascript" src="../require.js"></script>
-    <script type="text/javascript" src="doh/runner.js"></script>
-    <script type="text/javascript" src="doh/_browserRunner.js"></script>
+    <script src="../require.js"></script>
+    <script src="doh/runner.js"></script>
+    <script src="doh/_browserRunner.js"></script>
     <script>moreSimpleTests = true</script>
-    <script type="text/javascript" src="simple-tests.js"></script>
-    <script type="text/javascript">
+    <script src="simple-tests.js"></script>
+    <script>
         //This test is only in the HTML since it uses an URL for a require
         //argument. It will not work well in say, the Rhino tests.
         var path = location.href.replace(/simple\.html$/, "foo"),

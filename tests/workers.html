@@ -2,9 +2,9 @@
 <html>
 <head>
     <title>require.js: Web Workers Test</title>
-    <script type="text/javascript" src="doh/runner.js"></script>
-    <script type="text/javascript" src="doh/_browserRunner.js"></script>
-    <script type="text/javascript">
+    <script src="doh/runner.js"></script>
+    <script src="doh/_browserRunner.js"></script>
+    <script>
         //Start up a web worker and wait for a response from it.
         var worker = new Worker('workers.js'),
             d = new doh.Deferred(),
