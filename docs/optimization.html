@@ -265,7 +265,7 @@ require(mods);</code></pre>
 
 <p>You can use the <a href="#onejs">one JavaScript file optimization</a> approach to make your development experience faster. By optimizing all the modules in your project into one file, except the one you are currently developing, you can reload your project quickly in the browser, but still give you the option of fine grained debugging in a module.</p>
 
-<p>You can do this by using the <strong>excludeShallow</strong> option. Using the <a href="#example">example setup</a> above, assume you are currently building out or debugging two.js. You could use this optimization command:</p>
+<p>You can do this by using the <strong>excludeShallow</strong> option. Using the <a href="#setup">example setup</a> above, assume you are currently building out or debugging two.js. You could use this optimization command:</p>
 
 <pre><code>node ../../r.js -o name=main excludeShallow=two out=main-built.js baseUrl=.
 </code></pre>
