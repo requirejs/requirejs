@@ -50,7 +50,7 @@ When doing a release, do the following:
   * Update Package.nuspec to rev version number.
   * .\nuget.exe pack Package.nuspec
   * .\nuget.exe push RequireJS.0.0.0.nupkg API_KEY -Source https://www.nuget.org/api/v2/package
-* Update alameada, alameda-prim if appropriate
+* Update alameda, alameda-prim if appropriate
 
 Now pull down the tagged version to do a distribution, do this in git/ directory:
 
