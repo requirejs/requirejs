@@ -2111,6 +2111,13 @@ var requirejs, require, define;
             }
         }
 
+        // calling define() without name leads to errors in intakeDefines(), but many packages call define() without a name.
+        // This is a typical error when mixing up scripts in a page, see also https://stackoverflow.com/a/23467090/1667804.
+        // Therefore lets just assign a random name here.
+        if (!name) {
+            name = "ANON-" + Math.random();
+        }
+
         //Always save off evaluating the def call until the script onload handler.
         //This allows multiple modules to be in a file without prematurely
         //tracing dependencies, and allows for anonymous module support,
