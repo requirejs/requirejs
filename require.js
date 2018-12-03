@@ -2115,7 +2115,7 @@ var requirejs, require, define;
         // This is a typical error when mixing up scripts in a page, see also https://stackoverflow.com/a/23467090/1667804.
         // Therefore lets just assign a random name here.
         if (!name) {
-            name = "ANON-" + Math.random();
+            name = 'ANON-' + Math.random();
         }
 
         //Always save off evaluating the def call until the script onload handler.
