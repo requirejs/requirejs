@@ -1467,16 +1467,15 @@ var requirejs, require, define;
                     return localRequire;
                 }
 
-
                 /**
                  * This method finds the index of the '.' of a file extension un a valid url.
                  * Regex is based on https://stackoverflow.com/questions/6997262/how-to-pull-url-file-extension-out-of-url-string-using-javascript
                  */
-                function findExtension( url ) {
+                function findExtension(url) {
                     var matchext = url.match(/\.([^\./\?\#]+)($|\?|\#)/);
                     return matchext ? matchext.index : -1;
                 }
-		
+
                 mixin(localRequire, {
                     isBrowser: isBrowser,
 
