@@ -1485,20 +1485,20 @@ var requirejs, require, define;
                      * You may also use it to generate a URL that is relative to a module.
                      * To do so, ask for "require" as a dependency and then use require.toUrl() to generate the URL.
                      */
-                    toUrl: function (moduleNamePlusExt) {
+                    toUrl: function (path) {
                         var ext,
-                            index = findExtension(moduleNamePlusExt),
-                            segment = moduleNamePlusExt.split('/')[0],
+                            index = findExtension(path),
+                            segment = path.split('/')[0],
                             isRelative = segment === '.' || segment === '..';
 
                         //Have a file extension alias, and it is not the
                         //dots from a relative path.
                         if (index !== -1 && (!isRelative || index > 1)) {
-                            ext = moduleNamePlusExt.substring(index, moduleNamePlusExt.length);
-                            moduleNamePlusExt = moduleNamePlusExt.substring(0, index);
+                            ext = path.substring(index, path.length);
+                            path = path.substring(0, index);
                         }
 
-                        return context.nameToUrl(normalize(moduleNamePlusExt,
+                        return context.nameToUrl(normalize(path,
                                                 relMap && relMap.id, true), ext,  true);
                     },
 
