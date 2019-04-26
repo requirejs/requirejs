@@ -1467,17 +1467,27 @@ var requirejs, require, define;
                     return localRequire;
                 }
 
+
+                /**
+                 * This method finds the index of the '.' of a file extension un a valid url.
+                 * Regex is based on https://stackoverflow.com/questions/6997262/how-to-pull-url-file-extension-out-of-url-string-using-javascript
+                 */
+                function findExtension( url ) {
+                    var matchext = url.match(/\.([^\./\?\#]+)($|\?|\#)/);
+                    return matchext ? matchext.index : -1;
+                }
+		
                 mixin(localRequire, {
                     isBrowser: isBrowser,
 
                     /**
-                     * Converts a module name + .extension into an URL path.
-                     * *Requires* the use of a module name. It does not support using
-                     * plain URLs like nameToUrl.
+                     * This method converts a module name + .extension into an URL path.
+                     * You may also use it to generate a URL that is relative to a module.
+                     * To do so, ask for "require" as a dependency and then use require.toUrl() to generate the URL.
                      */
                     toUrl: function (moduleNamePlusExt) {
                         var ext,
-                            index = moduleNamePlusExt.lastIndexOf('.'),
+                            index = findExtension(moduleNamePlusExt),
                             segment = moduleNamePlusExt.split('/')[0],
                             isRelative = segment === '.' || segment === '..';
 
