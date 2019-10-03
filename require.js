@@ -698,7 +698,7 @@ var requirejs, require, define;
                 //If wait time expired, throw error of unloaded modules.
                 err = makeError('timeout', 'Load timeout for modules: ' + noLoads, null, noLoads);
                 err.contextName = context.contextName;
-                const ret = onError(err);
+                var ret = onError(err);
                 each(reqCalls, function (mod) {
                     if (mod.map.id in enabledRegistry) {
                         context.require.undef(mod.map.id);
