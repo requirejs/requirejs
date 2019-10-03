@@ -1467,6 +1467,7 @@ var requirejs, require, define;
                         requireMod.init(deps, callback, errback, {
                             enabled: true
                         });
+
                         checkLoaded();
                     });
 
