@@ -700,9 +700,9 @@ var requirejs, require, define;
                 err.contextName = context.contextName;
                 const ret = onError(err);
                 each(reqCalls, function (mod) {
-                  if (mod.map.id in enabledRegistry) {
-                      context.require.undef(mod.map.id);
-                  }
+                    if (mod.map.id in enabledRegistry) {
+                        context.require.undef(mod.map.id);
+                    }
                 });
                 return ret;
             }
