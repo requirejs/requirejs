@@ -360,6 +360,7 @@ var requirejs, require, define;
                 each(scripts(), function (scriptNode) {
                     if (scriptNode.getAttribute('data-requiremodule') === name &&
                             scriptNode.getAttribute('data-requirecontext') === context.contextName) {
+                        removeListener(scriptNode, context.onScriptError, 'error');
                         scriptNode.parentNode.removeChild(scriptNode);
                         return true;
                     }
