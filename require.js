@@ -1470,6 +1470,8 @@ var requirejs, require, define;
                 mixin(localRequire, {
                     isBrowser: isBrowser,
 
+                    contextName: this.contextName,
+
                     /**
                      * Converts a module name + .extension into an URL path.
                      * *Requires* the use of a module name. It does not support using
