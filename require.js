@@ -1780,7 +1780,7 @@ var requirejs, require, define;
                 deps = [];
             }
         }
-        
+
         // When a require() argument ends with a path delimiter (e.g., // "/"),
         // automatically append an "index.js" to perform a package lookup (a la
         // Python __init__).
