@@ -1779,10 +1779,12 @@ var requirejs, require, define;
             } else {
                 deps = [];
             }
-        } else if (isArray(deps)) {
-            // When a require() argument ends with a path delimiter (e.g.,
-            // "/"), automatically append an "index.js" to perform a package
-            // lookup (a la Python __init__).
+        }
+        
+        // When a require() argument ends with a path delimiter (e.g., // "/"),
+        // automatically append an "index.js" to perform a package lookup (a la
+        // Python __init__).
+        if (isArray(deps)) {
             deps.forEach(function(dep, ndx) {
                 if (typeof(dep) === 'string' && dep.match(/\/$/)) {
                     deps[ndx] += 'index.js';

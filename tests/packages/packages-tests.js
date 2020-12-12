@@ -10,8 +10,7 @@ require(
         {name: 'bar', location: 'bar/0.4', main: 'scripts/main'},
         {name: 'foo', location: 'foo/lib'}, {name: 'funky', main: 'index.js'},
         {name: 'baz', location: 'baz/lib', main: 'index'},
-        {name: 'dojox/window', location: 'dojox/window', main: 'window'},
-        {name: 'mypack/'}
+        {name: 'dojox/window', location: 'dojox/window', main: 'window'}
       ]
     },
     [
