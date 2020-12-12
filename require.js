@@ -1785,7 +1785,7 @@ var requirejs, require, define;
             // lookup (a la Python __init__).
             deps.forEach(function(dep, ndx) {
                 if (typeof(dep) === 'string' && dep.match(/\/$/)) {
-                    deps[ndx] += "index.js";
+                    deps[ndx] += 'index.js';
                 }
             });
         }
