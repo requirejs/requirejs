@@ -8,7 +8,7 @@ To run this file:
 /*jslint regexp: false, nomen: false, plusplus: false, strict: false */
 /*global require: false, console: false */
 
-var files, htmlFile, transFile, fileContents,
+files, htmlFile, transFile, fileContents,
     preContents, postContents, h1, homePath, cssPath,
     ieCssPath, jsPath, length, j, title,
     isTopPage = false,
@@ -30,12 +30,12 @@ postContents = file.readFile("post.html");
 //Convert each .html file to a full HTML file
 files = file.getFilteredFileList("./dist-site", /\.html$/, true);
 
-function processFile() {
+ processFile() {
     htmlFile = files[fileIndex];
     fileIndex += 1;
-    if (!htmlFile) {
+     (!htmlFile) {
         //Done processing files.
-        return;
+        ;
     }
 
     transFile = htmlFile + '.trans';
@@ -71,25 +71,25 @@ function processFile() {
 
             fileContents = fileContents.replace(/\$\{title\}/, h1);
 
-            //Change any .md references to .html references, and remove tree/master
+            //Change any .md references to .html references, remove tree/master
             //links
             fileContents = fileContents
                            .replace(/href="requirejs\/tree\/master\/docs\//g, 'href="docs/')
                            .replace(/href="([^"]+)\.md/g, 'href="$1.html');
 
-            //Adjust the path the home and main.css
+            //Adjust the path the home main.css
             homePath = htmlFile.replace(/\/[^\/]+$/, "").replace(/^\.\/dist-site\//, "");
-            if (!homePath || homePath === "dist-site") {
+            (!homePath || homePath === "dist-site") {
                 isTopPage = true;
                 homePath = "./";
                 cssPath = "main.css";
                 ieCssPath = "ie.css";
                 jsPath = "init.js";
-            } else {
+            }  {
                 isTopPage = false;
                 length = homePath.split("/").length;
                 homePath = "";
-                for (j = 0; j < length - 1; j++) {
+                (j = 0; j < length - 1; j++) {
                     homePath += "../";
                 }
                 cssPath = homePath + "main.css";
@@ -102,12 +102,12 @@ function processFile() {
             fileContents = fileContents.replace(/\init\.js/, jsPath);
 
             //Set the page title to be the first h1 tag name
-            if (title) {
+            (title) {
                 fileContents = fileContents.replace(/<title>[^<]*<\/title>/, '<title>' + title + '</title>');
             }
 
             //If it is the top page, adjust the header links
-            if (isTopPage) {
+            (isTopPage) {
                 fileContents = fileContents
                                .replace(/href="\.\.\/"/g, 'href="./"')
                                .replace(/class="local" href="([^"]+)"/g, 'class="local" href="docs/$1"');
