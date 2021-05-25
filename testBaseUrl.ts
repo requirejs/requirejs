@@ -1,11 +1,11 @@
-define([], function() {
+define([], () {
     doh.register(
         'testBaseUrl',
         [
-            function testBaseUrl(t) {
+            testBaseUrl(t) {
                 t.is(true, true);
             }
         ]
     );
-    doh.run();
+    .run();
 });
