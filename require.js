@@ -1637,11 +1637,15 @@ var requirejs, require, define;
                     return context.nameToUrl(bundleId, ext, skipExt);
                 }
 
+                //Check if exact module id is in config paths before assuming that -.js is a plain path
+                if (config.paths[moduleName]) {
+                    url = config.paths[moduleName];
+                    url = context.extendUrl(url, ext, skipExt);
                 //If a colon is in the URL, it indicates a protocol is used and it is just
                 //an URL to a file, or if it starts with a slash, contains a query arg (i.e. ?)
                 //or ends with .js, then assume the user meant to use an url and not a module id.
                 //The slash is important for protocol-less URLs as well as full paths.
-                if (req.jsExtRegExp.test(moduleName)) {
+                } else if (req.jsExtRegExp.test(moduleName)) {
                     //Just a plain path, not module name lookup, so just return it.
                     //Add extension if it is included. This is a bit wonky, only non-.js things pass
                     //an extension, this method probably needs to be reworked.
@@ -1671,12 +1675,18 @@ var requirejs, require, define;
 
                     //Join the path parts together, then figure out if baseUrl is needed.
                     url = syms.join('/');
-                    url += (ext || (/^data\:|^blob\:|\?/.test(url) || skipExt ? '' : '.js'));
-                    url = (url.charAt(0) === '/' || url.match(/^[\w\+\.\-]+:/) ? '' : config.baseUrl) + url;
+                    url = context.extendUrl(url, ext, skipExt);
                 }
 
                 return config.urlArgs && !/^blob\:/.test(url) ?
                        url + config.urlArgs(moduleName, url) : url;
+            },
+
+            //Internal function. Add extension and figure out if baseUrl is needed.
+            extendUrl: function (url, ext, skipExt) {
+                url += (ext || (/^data\:|^blob\:|\?/.test(url) || skipExt ? '' : '.js'));
+                url = (url.charAt(0) === '/' || url.match(/^[\w\+\.\-]+:/) ? '' : config.baseUrl) + url;
+                return url;
             },
 
             //Delegates to req.load. Broken out as a separate function to
