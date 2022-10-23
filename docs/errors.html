@@ -60,7 +60,7 @@
 <div class="section">
 <h2><a name="defineerror">Error evaluating module ...</a><span class="sectionMark">&sect; 3</span></h2>
 
-<p>An error occured when the define() function was called for the module given in the error message. It is an error with the code logic inside the define function. The error could happen inside a require callback.</p>
+<p>An error occurred when the define() function was called for the module given in the error message. It is an error with the code logic inside the define function. The error could happen inside a require callback.</p>
 
 <p>In Firefox and WebKit browsers, a line number and file name will be indicated in the error. It can be used to locate
 the source of the problem. Better isolation of the error can be done by using a debugger to place a
@@ -120,7 +120,7 @@ not scan the factory function for other dependencies. So, either do not pass in 
 
 <p>Be sure that <strong>require('name')</strong> only occurs inside a define() definition function or a require() callback function, never in the global space by its own.</p>
 
-<p><strong>In the RequreJS 1.0.x releases</strong>, there <a href="https://github.com/requirejs/requirejs/issues/265">is a bug</a> with having a space between the require and parens in WebKit browsers when using the simplified CommonJS wrapping (no dependency array):</p>
+<p><strong>In the RequireJS 1.0.x releases</strong>, there <a href="https://github.com/requirejs/requirejs/issues/265">is a bug</a> with having a space between the require and parens in WebKit browsers when using the simplified CommonJS wrapping (no dependency array):</p>
 
 <pre><code>define(function (require) {
     //Notice the space between require and the arguments.
@@ -175,7 +175,7 @@ not scan the factory function for other dependencies. So, either do not pass in 
 <ul>
     <li>If the module calls define(), make sure the define call was reached by debugging in a script debugger.</li>
     <li>If part of a shim config, make sure the shim config's exports check is correct.</li>
-    <li>If in IE, check for an HTTP 404 error or a JavaScript sytnax error by using a script debugger.</li>
+    <li>If in IE, check for an HTTP 404 error or a JavaScript syntax error by using a script debugger.</li>
 </ul>
 
 </div>
