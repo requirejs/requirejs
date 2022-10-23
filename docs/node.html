@@ -130,7 +130,7 @@ define(function(require) {
 
 <p>If you want to use RequireJS directly to code your module, and then export a module value to node so that it can be used in other Node programs without requiring that app to use RequireJS, you can use the approach listed in the next example.</p>
 
-<p>It is best to set the baseUrl specifically to the directory containing the module, so that it works properly when nested inside a node_modules heirarchy. Use the synchronous <code>requirejs('moduleId')</code> to fetch the module using the config and rules in requirejs, then use Node's module.exports to export your module value:</p>
+<p>It is best to set the baseUrl specifically to the directory containing the module, so that it works properly when nested inside a node_modules hierarchy. Use the synchronous <code>requirejs('moduleId')</code> to fetch the module using the config and rules in requirejs, then use Node's module.exports to export your module value:</p>
 
 <pre><code>var requirejs = require('requirejs');
 
