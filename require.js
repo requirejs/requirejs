@@ -1676,7 +1676,7 @@ var requirejs, require, define;
                 }
 
                 return config.urlArgs && !/^blob\:/.test(url) ?
-                       url + config.urlArgs(moduleName, url) : url;
+                       config.urlArgs(moduleName, url) : url;
             },
 
             //Delegates to req.load. Broken out as a separate function to
