@@ -1291,7 +1291,7 @@ var requirejs, require, define;
                 if (typeof cfg.urlArgs === 'string') {
                     var urlArgs = cfg.urlArgs;
                     cfg.urlArgs = function(id, url) {
-                        return (url.indexOf('?') === -1 ? '?' : '&') + urlArgs;
+                        return url + (url.indexOf('?') === -1 ? '?' : '&') + urlArgs;
                     };
                 }
 
@@ -1676,7 +1676,7 @@ var requirejs, require, define;
                 }
 
                 return config.urlArgs && !/^blob\:/.test(url) ?
-                       url + config.urlArgs(moduleName, url) : url;
+                       config.urlArgs(moduleName, url) : url;
             },
 
             //Delegates to req.load. Broken out as a separate function to
