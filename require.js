@@ -1291,7 +1291,7 @@ var requirejs, require, define;
                 if (typeof cfg.urlArgs === 'string') {
                     var urlArgs = cfg.urlArgs;
                     cfg.urlArgs = function(id, url) {
-                        return (url.indexOf('?') === -1 ? '?' : '&') + urlArgs;
+                        return url + (url.indexOf('?') === -1 ? '?' : '&') + urlArgs;
                     };
                 }
 
