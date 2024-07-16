@@ -33,7 +33,8 @@ var requirejs, require, define;
         contexts = {},
         cfg = {},
         globalDefQueue = [],
-        useInteractive = false;
+        useInteractive = false,
+        disallowedProps = ['__proto__', 'constructor'];
 
     //Could match something like ')//comment', do not lose the prefix to comment.
     function commentReplace(match, singlePrefix) {
@@ -94,7 +95,7 @@ var requirejs, require, define;
     function eachProp(obj, func) {
         var prop;
         for (prop in obj) {
-            if (hasProp(obj, prop)) {
+            if (hasProp(obj, prop) && disallowedProps.indexOf(prop) == -1) {
                 if (func(obj[prop], prop)) {
                     break;
                 }
