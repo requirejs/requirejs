@@ -695,10 +695,17 @@ var requirejs, require, define;
             });
 
             if (expired && noLoads.length) {
+                inCheckLoaded = false;
                 //If wait time expired, throw error of unloaded modules.
                 err = makeError('timeout', 'Load timeout for modules: ' + noLoads, null, noLoads);
                 err.contextName = context.contextName;
-                return onError(err);
+                var ret = onError(err);
+                each(reqCalls, function (mod) {
+                    if (mod.map.id in enabledRegistry) {
+                        context.require.undef(mod.map.id);
+                    }
+                });
+                return ret;
             }
 
             //Not expired, check for a cycle.
