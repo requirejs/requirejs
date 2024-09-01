@@ -16,6 +16,8 @@ var requirejs, require, define;
         cjsRequireRegExp = /[^.]\s*require\s*\(\s*["']([^'"\s]+)["']\s*\)/g,
         jsSuffixRegExp = /\.js$/,
         currDirRegExp = /^\.\//,
+        dataOrBlogRegExp = /^data\:|^blob\:|\?/,
+        hasDotRegExp = /(^|\/)\.([./]|$)/,
         op = Object.prototype,
         ostring = op.toString,
         hasOwn = op.hasOwnProperty,
@@ -223,7 +225,8 @@ var requirejs, require, define;
             urlFetched = {},
             bundlesMap = {},
             requireCounter = 1,
-            unnormalizedCounter = 1;
+            unnormalizedCounter = 1,
+            urlMap = {};
 
         /**
          * Trims the . and .. from an array of path segments.
@@ -276,35 +279,37 @@ var requirejs, require, define;
 
             //Adjust any relative paths.
             if (name) {
-                name = name.split('/');
-                lastIndex = name.length - 1;
-
                 // If wanting node ID compatibility, strip .js from end
                 // of IDs. Have to do this here, and not in nameToUrl
                 // because node allows either .js or non .js to map
                 // to same file.
-                if (config.nodeIdCompat && jsSuffixRegExp.test(name[lastIndex])) {
-                    name[lastIndex] = name[lastIndex].replace(jsSuffixRegExp, '');
+                if (config.nodeIdCompat && jsSuffixRegExp.test(name)) {
+                    name = name.replace(jsSuffixRegExp, '');
                 }
 
-                // Starts with a '.' so need the baseName
-                if (name[0].charAt(0) === '.' && baseParts) {
-                    //Convert baseName to array, and lop off the last part,
-                    //so that . matches that 'directory' and not name of the baseName's
-                    //module. For instance, baseName of 'one/two/three', maps to
-                    //'one/two/three.js', but we want the directory, 'one/two' for
-                    //this normalization.
-                    normalizedBaseParts = baseParts.slice(0, baseParts.length - 1);
-                    name = normalizedBaseParts.concat(name);
-                }
+                if (hasDotRegExp.test(name)) {
+                    if (name.charAt(0) === '.' && baseName) {
+                        //Convert baseName to array, and lop off the last part,
+                        //so that . matches that 'directory' and not name of the baseName's
+                        //module. For instance, baseName of 'one/two/three', maps to
+                        //'one/two/three.js', but we want the directory, 'one/two' for
+                        //this normalization.
+                        baseParts = baseName.split('/');
+                        normalizedBaseParts = baseParts.slice(0, baseParts.length - 1);
+                        nameParts = normalizedBaseParts.concat(name.split('/'));
+                    } else {
+                        nameParts = name.split('/');
+                    }
 
-                trimDots(name);
-                name = name.join('/');
+                    trimDots(nameParts);
+                    name = nameParts.join('/');
+                }
             }
 
             //Apply map config if available.
-            if (applyMap && map && (baseParts || starMap)) {
-                nameParts = name.split('/');
+            if (applyMap && map && (baseName || starMap)) {
+                nameParts = nameParts || name.split('/');
+                baseParts = baseParts || (baseName && baseName.split('/'));
 
                 outerLoop: for (i = nameParts.length; i > 0; i -= 1) {
                     nameSegment = nameParts.slice(0, i).join('/');
@@ -353,7 +358,7 @@ var requirejs, require, define;
             // the package main instead.
             pkgMain = getOwn(config.pkgs, name);
 
-            return pkgMain ? pkgMain : name;
+            return pkgMain || name;
         }
 
         function removeScript(name) {
@@ -502,7 +507,8 @@ var requirejs, require, define;
                 mod = getOwn(registry, id);
 
             if (!mod) {
-                mod = registry[id] = new context.Module(depMap);
+                mod = new context.Module(depMap);
+                registry[id] = mod;
             }
 
             return mod;
@@ -581,11 +587,11 @@ var requirejs, require, define;
             'exports': function (mod) {
                 mod.usingExports = true;
                 if (mod.map.isDefine) {
-                    if (mod.exports) {
-                        return (defined[mod.map.id] = mod.exports);
-                    } else {
-                        return (mod.exports = defined[mod.map.id] = {});
+                    if (!mod.exports) {
+                        mod.exports = {};
                     }
+                    defined[mod.map.id] = mod.exports;
+                    return mod.exports;
                 }
             },
             'module': function (mod) {
@@ -652,8 +658,11 @@ var requirejs, require, define;
             if (inCheckLoaded) {
                 return;
             }
-
             inCheckLoaded = true;
+
+            if (expired) {
+
+            }
 
             //Figure out the state of all the modules.
             eachProp(enabledRegistry, function (mod) {
@@ -669,10 +678,10 @@ var requirejs, require, define;
                     reqCalls.push(mod);
                 }
 
-                if (!mod.error) {
+                if (!mod.error && !mod.inited) {
                     //If the module should be executed, and it has not
                     //been inited and time is up, remember it.
-                    if (!mod.inited && expired) {
+                    if (expired) {
                         if (hasPathFallback(modId)) {
                             usingPathFallback = true;
                             stillLoading = true;
@@ -680,7 +689,7 @@ var requirejs, require, define;
                             noLoads.push(modId);
                             removeScript(modId);
                         }
-                    } else if (!mod.inited && mod.fetched && map.isDefine) {
+                    } else if (mod.fetched && map.isDefine) {
                         stillLoading = true;
                         if (!map.prefix) {
                             //No reason to keep looking for unfinished
@@ -740,6 +749,16 @@ var requirejs, require, define;
                this.enabled, this.fetched
             */
         };
+
+        function execCb(context, id, factory, depExports, exports) {
+            var result = {};
+            try {
+                result.exports = context.execCb(id, factory, depExports, exports);
+            } catch (e) {
+                result.err = e;
+            }
+            return result;
+        }
 
         Module.prototype = {
             init: function (depMaps, factory, errback, options) {
@@ -875,11 +894,9 @@ var requirejs, require, define;
                             //onError is set, use that.
                             if ((this.events.error && this.map.isDefine) ||
                                 req.onError !== defaultOnError) {
-                                try {
-                                    exports = context.execCb(id, factory, depExports, exports);
-                                } catch (e) {
-                                    err = e;
-                                }
+                                var result = execCb(context, id, factory, depExports, exports);
+                                exports = result.exports;
+                                err = result.err;
                             } else {
                                 exports = context.execCb(id, factory, depExports, exports);
                             }
@@ -1308,10 +1325,11 @@ var requirejs, require, define;
 
                 eachProp(cfg, function (value, prop) {
                     if (objs[prop]) {
-                        if (!config[prop]) {
-                            config[prop] = {};
+                        var c = config[prop];
+                        if (!c) {
+                            config[prop] = c = {};
                         }
-                        mixin(config[prop], value, true, true);
+                        mixin(c, value, true, true);
                     } else {
                         config[prop] = value;
                     }
@@ -1520,6 +1538,9 @@ var requirejs, require, define;
                         delete urlFetched[map.url];
                         delete undefEvents[id];
 
+                        //Clear entire URL map
+                        urlMap = {};
+
                         //Clean queued defines too. Go backwards
                         //in array so that the splices do not
                         //mess up the iteration.
@@ -1625,7 +1646,7 @@ var requirejs, require, define;
              */
             nameToUrl: function (moduleName, ext, skipExt) {
                 var paths, syms, i, parentModule, url,
-                    parentPath, bundleId,
+                    parentPath, bundleId, key,
                     pkgMain = getOwn(config.pkgs, moduleName);
 
                 if (pkgMain) {
@@ -1638,46 +1659,53 @@ var requirejs, require, define;
                     return context.nameToUrl(bundleId, ext, skipExt);
                 }
 
-                //If a colon is in the URL, it indicates a protocol is used and it is just
-                //an URL to a file, or if it starts with a slash, contains a query arg (i.e. ?)
-                //or ends with .js, then assume the user meant to use an url and not a module id.
-                //The slash is important for protocol-less URLs as well as full paths.
-                if (req.jsExtRegExp.test(moduleName)) {
-                    //Just a plain path, not module name lookup, so just return it.
-                    //Add extension if it is included. This is a bit wonky, only non-.js things pass
-                    //an extension, this method probably needs to be reworked.
-                    url = moduleName + (ext || '');
-                } else {
-                    //A module that needs to be converted to a path.
-                    paths = config.paths;
+                key = moduleName + '|' + ext + '|' + skipExt;
+                url = urlMap[key];
+                if (!url) {
 
-                    syms = moduleName.split('/');
-                    //For each module name segment, see if there is a path
-                    //registered for it. Start with most specific name
-                    //and work up from it.
-                    for (i = syms.length; i > 0; i -= 1) {
-                        parentModule = syms.slice(0, i).join('/');
+                    //If a colon is in the URL, it indicates a protocol is used and it is just
+                    //an URL to a file, or if it starts with a slash, contains a query arg (i.e. ?)
+                    //or ends with .js, then assume the user meant to use an url and not a module id.
+                    //The slash is important for protocol-less URLs as well as full paths.
+                    if (req.jsExtRegExp.test(moduleName)) {
+                        //Just a plain path, not module name lookup, so just return it.
+                        //Add extension if it is included. This is a bit wonky, only non-.js things pass
+                        //an extension, this method probably needs to be reworked.
+                        url = moduleName + (ext || '');
+                    } else {
+                        //A module that needs to be converted to a path.
+                        paths = config.paths;
 
-                        parentPath = getOwn(paths, parentModule);
-                        if (parentPath) {
-                            //If an array, it means there are a few choices,
-                            //Choose the one that is desired
-                            if (isArray(parentPath)) {
-                                parentPath = parentPath[0];
+                        syms = moduleName.split('/');
+                        //For each module name segment, see if there is a path
+                        //registered for it. Start with most specific name
+                        //and work up from it.
+                        for (i = syms.length; i > 0; i -= 1) {
+                            parentModule = syms.slice(0, i).join('/');
+
+                            parentPath = getOwn(paths, parentModule);
+                            if (parentPath) {
+                                //If an array, it means there are a few choices,
+                                //Choose the one that is desired
+                                if (isArray(parentPath)) {
+                                    parentPath = parentPath[0];
+                                }
+                                syms.splice(0, i, parentPath);
+                                break;
                             }
-                            syms.splice(0, i, parentPath);
-                            break;
                         }
+
+                        //Join the path parts together, then figure out if baseUrl is needed.
+                        url = syms.join('/');
+                        url += (ext || (dataOrBlogRegExp.test(url) || skipExt ? '' : '.js'));
+                        url = (url.charAt(0) === '/' || url.match(/^[\w\+\.\-]+:/) ? '' : config.baseUrl) + url;
                     }
 
-                    //Join the path parts together, then figure out if baseUrl is needed.
-                    url = syms.join('/');
-                    url += (ext || (/^data\:|^blob\:|\?/.test(url) || skipExt ? '' : '.js'));
-                    url = (url.charAt(0) === '/' || url.match(/^[\w\+\.\-]+:/) ? '' : config.baseUrl) + url;
+                    urlMap[key] = url;
                 }
 
-                return config.urlArgs && !/^blob\:/.test(url) ?
-                       url + config.urlArgs(moduleName, url) : url;
+                return config.urlArgs && !dataOrBlogRegExp.test(url) ?
+                url + config.urlArgs(moduleName, url) : url;
             },
 
             //Delegates to req.load. Broken out as a separate function to
@@ -1883,6 +1911,33 @@ var requirejs, require, define;
         return node;
     };
 
+    function loadWebWorker(context, moduleName, url) {
+        try {
+            //In a web worker, use importScripts. This is not a very
+            //efficient use of importScripts, importScripts will block until
+            //its script is downloaded and evaluated. However, if web workers
+            //are in play, the expectation is that a build has been done so
+            //that only one script needs to be loaded anyway. This may need
+            //to be reevaluated if other use cases become common.
+
+            // Post a task to the event loop to work around a bug in WebKit
+            // where the worker gets garbage-collected after calling
+            // importScripts(): https://webkit.org/b/153317
+            setTimeout(function () {
+            }, 0);
+            importScripts(url);
+
+            //Account for anonymous modules
+            context.completeLoad(moduleName);
+        } catch (e) {
+            context.onError(makeError('importscripts',
+                'importScripts failed for ' +
+                moduleName + ' at ' + url,
+                e,
+                [moduleName]));
+        }
+    }
+
     /**
      * Does the request to load a module for the browser case.
      * Make this a separate function to allow other environments
@@ -1965,29 +2020,7 @@ var requirejs, require, define;
 
             return node;
         } else if (isWebWorker) {
-            try {
-                //In a web worker, use importScripts. This is not a very
-                //efficient use of importScripts, importScripts will block until
-                //its script is downloaded and evaluated. However, if web workers
-                //are in play, the expectation is that a build has been done so
-                //that only one script needs to be loaded anyway. This may need
-                //to be reevaluated if other use cases become common.
-
-                // Post a task to the event loop to work around a bug in WebKit
-                // where the worker gets garbage-collected after calling
-                // importScripts(): https://webkit.org/b/153317
-                setTimeout(function() {}, 0);
-                importScripts(url);
-
-                //Account for anonymous modules
-                context.completeLoad(moduleName);
-            } catch (e) {
-                context.onError(makeError('importscripts',
-                                'importScripts failed for ' +
-                                    moduleName + ' at ' + url,
-                                e,
-                                [moduleName]));
-            }
+            loadWebWorker(context, moduleName, url);
         }
     };
 
