@@ -1273,7 +1273,6 @@ var requirejs, require, define;
             defQueueMap: {},
             Module: Module,
             makeModuleMap: makeModuleMap,
-            nextTick: req.nextTick,
             onError: onError,
 
             /**
@@ -1446,24 +1445,17 @@ var requirejs, require, define;
                     //Grab defines waiting in the global queue.
                     intakeDefines();
 
-                    //Mark all the dependencies as needing to be loaded.
-                    context.nextTick(function () {
-                        //Some defines could have been added since the
-                        //require call, collect them.
-                        intakeDefines();
+                    requireMod = getModule(makeModuleMap(null, relMap));
 
-                        requireMod = getModule(makeModuleMap(null, relMap));
+                    //Store if map config should be applied to this require
+                    //call for dependencies.
+                    requireMod.skipMap = options.skipMap;
 
-                        //Store if map config should be applied to this require
-                        //call for dependencies.
-                        requireMod.skipMap = options.skipMap;
-
-                        requireMod.init(deps, callback, errback, {
-                            enabled: true
-                        });
-
-                        checkLoaded();
+                    requireMod.init(deps, callback, errback, {
+                        enabled: true
                     });
+
+                    checkLoaded();
 
                     return localRequire;
                 }
@@ -1805,16 +1797,6 @@ var requirejs, require, define;
     req.config = function (config) {
         return req(config);
     };
-
-    /**
-     * Execute something after the current tick
-     * of the event loop. Override for other envs
-     * that have a better solution than setTimeout.
-     * @param  {Function} fn function to execute later.
-     */
-    req.nextTick = typeof setTimeout !== 'undefined' ? function (fn) {
-        setTimeout(fn, 4);
-    } : function (fn) { fn(); };
 
     /**
      * Export require as a global, but only if it does not already exist.
