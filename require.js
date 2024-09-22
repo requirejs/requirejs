@@ -1672,11 +1672,11 @@ var requirejs, require, define;
 
                     //Join the path parts together, then figure out if baseUrl is needed.
                     url = syms.join('/');
-                    url += (ext || (/^data\:|^blob\:|\?/.test(url) || skipExt ? '' : '.js'));
-                    url = (url.charAt(0) === '/' || url.match(/^[\w\+\.\-]+:/) ? '' : config.baseUrl) + url;
+                    url += (ext || (/^data:|^blob:|\?/.test(url) || skipExt ? '' : '.js'));
+                    url = (url.charAt(0) === '/' || url.match(/^[\w+.-]+:/) ? '' : config.baseUrl) + url;
                 }
 
-                return config.urlArgs && !/^blob\:/.test(url) ?
+                return config.urlArgs && !/^blob:/.test(url) ?
                        url + config.urlArgs(moduleName, url) : url;
             },
 
