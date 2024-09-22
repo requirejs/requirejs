@@ -1943,7 +1943,16 @@ var requirejs, require, define;
                 node.addEventListener('load', context.onScriptLoad, false);
                 node.addEventListener('error', context.onScriptError, false);
             }
-            node.src = url;
+            
+            try {
+                // Mixed Content
+                // Sane browsers do not reject mixed content until the node is appended to the DOM.
+                // However, IE throws earlier and prevents the node event listener to call our 'error' callback. 
+                // Result: The request is never sent and we get no notification on either 'load' or 'error' callbacks. 
+                node.src = url;
+            } catch (e) {
+                return context.onError(makeError('scripterror', 'Script error for: ' + moduleName + ' at ' + url, e, [moduleName]));
+            }
 
             //Calling onNodeCreated after all properties on the node have been
             //set, but before it is placed in the DOM.
