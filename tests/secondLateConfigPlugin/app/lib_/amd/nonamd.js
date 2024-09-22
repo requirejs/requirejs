@@ -133,7 +133,7 @@ define(["module", "text"], function(module, text) {
    *    When unspecified, the module value must instead be returned by the 
    *    code in the more general `postscript` option.
    * @param {Object.<string, string>} [moduleConfig.deps] A map of dependencies of the module, 
-   *    having as keys the module's define function argument names and as values the correposding module ids.
+   *    having as keys the module's define function argument names and as values the corresponding module ids.
    * @param {boolean} [isBuild=false] Whether running in build mode, under r.js.
    */
   function compileNonAmd(jsText, moduleConfig, isBuild) {
