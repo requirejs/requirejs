@@ -1853,7 +1853,9 @@ var requirejs, require, define;
     });
 
     if (isBrowser) {
-        head = s.head = document.getElementsByTagName('head')[0];
+        // Pure XML documents do not have HEAD, so we instead get the
+        // root's first child.
+        head = s.head = document.getElementsByTagName('head')[0] || document.firstElementChild;
         //If BASE tag is in play, using appendChild is a problem for IE6.
         //When that browser dies, this can be removed. Details in this jQuery bug:
         //http://dev.jquery.com/ticket/2709
