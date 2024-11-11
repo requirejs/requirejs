@@ -1683,6 +1683,10 @@ var requirejs, require, define;
             //Delegates to req.load. Broken out as a separate function to
             //allow overriding in the optimizer.
             load: function (id, url) {
+                if (config.disableAutoJsExt && url.match(/\..*\.js$/)) {
+                    url = url.replace(/\.js$/, '');
+                }
+
                 req.load(context, id, url);
             },
 
