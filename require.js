@@ -1198,9 +1198,9 @@ var requirejs, require, define;
             }
         };
 
-        function callGetModule(args) {
+        function callGetModule(args, force) {
             //Skip modules already defined.
-            if (!hasProp(defined, args[0])) {
+            if (force || !hasProp(defined, args[0])) {
                 getModule(makeModuleMap(args[0], null, true)).init(args[1], args[2]);
             }
         }
@@ -1596,8 +1596,10 @@ var requirejs, require, define;
                 //of those calls/init calls changes the registry.
                 mod = getOwn(registry, moduleName);
 
-                if (!found && !hasProp(defined, moduleName) && mod && !mod.inited) {
-                    if (config.enforceDefine && (!shExports || !getGlobal(shExports))) {
+                if (!found && mod && !mod.inited) {
+                    if (!hasProp(defined, moduleName) && config.enforceDefine &&
+                        (!shExports || !getGlobal(shExports))
+                    ) {
                         if (hasPathFallback(moduleName)) {
                             return;
                         } else {
@@ -1609,7 +1611,7 @@ var requirejs, require, define;
                     } else {
                         //A script that does not call define(), so just simulate
                         //the call for it.
-                        callGetModule([moduleName, (shim.deps || []), shim.exportsFn]);
+                        callGetModule([moduleName, (shim.deps || []), shim.exportsFn], true);
                     }
                 }
 
