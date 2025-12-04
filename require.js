@@ -1703,11 +1703,14 @@ var requirejs, require, define;
              * that was loaded.
              */
             onScriptLoad: function (evt) {
+		//this pointer has readyState which will be sent by IE6-8.
+		evt = evt || this;
                 //Using currentTarget instead of target for Firefox 2.0's sake. Not
                 //all old browsers will be supported, but this one was easy enough
                 //to support and still makes sense.
                 if (evt.type === 'load' ||
-                        (readyRegExp.test((evt.currentTarget || evt.srcElement).readyState))) {
+                        ((evt.currentTarget || evt.srcElement) && readyRegExp.test((evt.currentTarget || evt.srcElement).readyState))) ||
+			(onReadyExp.test(evt.readyState)) {
                     //Reset interactive script so a script node is not held onto for
                     //to long.
                     interactiveScript = null;
