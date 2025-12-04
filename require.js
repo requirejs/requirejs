@@ -1624,8 +1624,9 @@ var requirejs, require, define;
              */
             nameToUrl: function (moduleName, ext, skipExt) {
                 var paths, syms, i, parentModule, url,
-                    parentPath, bundleId,
-                    pkgMain = getOwn(config.pkgs, moduleName);
+                    parentPath, bundleId, pathSplit,
+                    pkgMain = getOwn(config.pkgs, moduleName),
+                    versionSuffix = 1;
 
                 if (pkgMain) {
                     moduleName = pkgMain;
@@ -1658,6 +1659,12 @@ var requirejs, require, define;
                         parentModule = syms.slice(0, i).join('/');
 
                         parentPath = getOwn(paths, parentModule);
+                        // attach version number to js files
+                        if (typeof parentPath === 'string' && parentPath.indexOf('?') != -1) {
+                            pathSplit = parentPath.split('?');
+                            parentPath = pathSplit[0];
+                            versionSuffix = pathSplit[1];
+                        }
                         if (parentPath) {
                             //If an array, it means there are a few choices,
                             //Choose the one that is desired
@@ -1671,7 +1678,7 @@ var requirejs, require, define;
 
                     //Join the path parts together, then figure out if baseUrl is needed.
                     url = syms.join('/');
-                    url += (ext || (/^data\:|^blob\:|\?/.test(url) || skipExt ? '' : '.js'));
+                    url += (ext || (/^data\:|^blob\:|\?/.test(url) || skipExt ? '' : '.js?v=' + versionSuffix));
                     url = (url.charAt(0) === '/' || url.match(/^[\w\+\.\-]+:/) ? '' : config.baseUrl) + url;
                 }
 
