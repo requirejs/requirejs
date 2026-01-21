@@ -70,8 +70,8 @@ So when the above clones are done, the directory structure should look like:
 * text
 * requirejs (this repo)
 
-You will need to be connected to the internet because the JSONP and
-remoteUrls tests access the internet to complete their tests.
+You will need to be connected to the Internet because the JSONP and
+remoteUrls tests access the Internet to complete their tests.
 
 Serve the directory with these 4 siblings from a web server. It can be a local web server.
 
