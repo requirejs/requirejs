@@ -392,7 +392,7 @@ doh.registerGroup = function(	/*String*/ group,
 	// setUp: a function for initializing the test group
 	// tearDown: a function for initializing the test group
 	// type: The type of tests these are, such as a group of performance tests
-	//		null/undefied are standard DOH tests, the valye 'perf' enables
+	//		null/undefied are standard DOH tests, the value 'perf' enables
 	//		registering them as performance tests.
 	if(tests){
 		this.register(group, tests, type);

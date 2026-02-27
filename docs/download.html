@@ -21,14 +21,12 @@
 <div class="section">
 <h2><a name="latest">Latest Release</a><span class="sectionMark">&sect; 1</span></h2>
 
-<span class="note">If you want 1.0: <a href="1.0/">Link to 1.0</a>.</span>
-
 <div class="subSection">
 <h4 class="hbox">
-<a name="requirejs">require.js 2.2.0</a>
+<a name="requirejs">require.js 2.3.8</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/2.2.0/minified/require.js">Minified</a>
-<a class="download" href="http://requirejs.org/docs/release/2.2.0/comments/require.js">With Comments</a>
+<a class="download" href="https://requirejs.org/docs/release/2.3.8/minified/require.js">Minified</a>
+<a class="download" href="https://requirejs.org/docs/release/2.3.8/comments/require.js">With Comments</a>
 </h4>
 
 <p>All you need to start using require.js in the browser.</p>
@@ -38,7 +36,7 @@
 <h4 class="hbox">
 <a name="rjs">r.js: Optimizer and Node/Rhino/Nashorn/xpcshell adapter</a>
 <span class="boxFlex"></span>
-<a class="download" href="http://requirejs.org/docs/release/2.2.0/r.js">Download</a>
+<a class="download" href="https://requirejs.org/docs/release/2.3.8/r.js">Download</a>
 </h4>
 
 <p>The r.js file allows you to run the optimizer as well as run modules in Node, Rhino, Nashorn or xpcshell.</p>
@@ -98,9 +96,72 @@ logic until the DOM is ready for querying/modification.</p>
 <div class="section">
 <h2><a name="releasenotes">Release Notes</a><span class="sectionMark">&sect; 3</span></h2>
 
+<h3 id="2-3-8">2.3.8</h3>
+
+<ul>
+  <li><a href="hhttps://github.com/requirejs/requirejs/issues/1866">proto/constructor check that works in ie6-8</a></li>
+</ul>
+
+<h3 id="2-3-7">2.3.7</h3>
+
+<ul>
+  <li><a href="hhttps://github.com/requirejs/requirejs/issues/1854">Security Vulnerability: Prototype pollution</a></li>
+</ul>
+
+<h3 id="2-3-6">2.3.6</h3>
+
+<p>Small updates to the optimizer.</p>
+
+<ul>
+  <li><a href="https://github.com/requirejs/r.js/milestone/47?closed=1">Fixed r.js issues</a></li>
+</ul>
+
+<h3 id="2-3-5">2.3.5</h3>
+
+<p>Just updates to the optimizer, mainly an update to UglifyJS 2.8.29.</p>
+
+<ul>
+  <li><a href="https://github.com/requirejs/r.js/milestone/46?closed=1">Fixed r.js issues</a></li>
+</ul>
+
+<h3 id="2-3-4">2.3.4</h3>
+
+<p><a href="https://github.com/requirejs/r.js/issues/963">Just an update to the optimizer to use Esprima 4.0.</a></p>
+
+<h3 id="2-3-3">2.3.3</h3>
+
+<p>Optimizer updates for esprima and uglify-js dependencies, and a fix for map config used by plugins in builds. require.js fix for calling plugin normalization more than once. <a href="https://github.com/requirejs/alameda/milestone/11?closed=1">alameda 1.1.1</a> also fixes calling plugin normalization more than once.</p>
+
+<ul>
+    <li><a href="https://github.com/requirejs/requirejs/milestone/48?closed=1">Fixed requirejs issues</a></li>
+    <li><a href="https://github.com/requirejs/r.js/milestone/44?closed=1">Fixed r.js issues</a></li>
+</ul>
+
+<h3 id="2-3-2">2.3.2</h3>
+
+<p>Fixes an issue that prevented the 2.3.x optimizer from running in Java's 8+'s jjs. There was a <a href="https://github.com/requirejs/requirejs/issues/1588">change in require.js</a> and a <a href="https://github.com/requirejs/r.js/issues/933">change in the r.js optimizer</a>.</p>
+
+<h3 id="2-3-1">2.3.1</h3>
+
+<p>Only one change from 2.3.0, and it is in the optimizer. <a href="https://github.com/requirejs/r.js/issues/929">It fixes how the bundled uglifyjs declares the addFile function</a>. Without the fix, it causes an error in Node 0.10/0.12. Newer versions of Node are not affected.</p>
+
+
+<h3 id="2-3-0">2.3.0</h3>
+
+<p>The way dependencies are found for the <a href="https://requirejs.org/docs/whyamd.html#sugar">sugared syntax</a> changed slightly in <a href="https://github.com/requirejs/requirejs/pull/1582">#1582</a>. It is now faster and should catch more legitimate dependency cases. You should not notice any negative consequences to the change, but given how important that mechanism is, it was best to rev the minor version to 2.3. The r.js optimizer also <a href="https://github.com/requirejs/r.js/issues/921">handles larger directory changes better</a>. If you are using 2.2, you are encouraged to update to 2.3.</p>
+
+<p><a href="https://github.com/requirejs/alameda/releases/tag/1.1.0">alameda was also updated to 1.1.0</a> to include the same dependency searching change as requirejs 2.3.</p>
+
+<p>Full list of changes:</p>
+
+<ul>
+    <li><a href="https://github.com/requirejs/requirejs/issues?q=milestone%3A2.3.0+is%3Aclosed">Fixed requirejs issues</a></li>
+    <li><a href="https://github.com/requirejs/r.js/issues?q=milestone%3A2.3.0+is%3Aclosed">Fixed r.js issues</a></li>
+</ul>
+
 <h3 id="2-2-0">2.2.0</h3>
 
-<p><a href="http://jrburke.com/2016/03/17/requirejs-2.2-alameda-1.0-released/">More details on the higher level motivations for the 2.2 release.</a></p>
+<p><a href="https://jrburke.com/2016/03/17/requirejs-2.2-alameda-1.0-released/">More details on the higher level motivations for the 2.2 release.</a></p>
 
 <p>Full list of changes:</p>
 
@@ -330,7 +391,7 @@ and the optimizer is the same as 2.1.3 except for this one fix:</p>
 
 <p>Maintenance release. A change that may be noticeable:</p>
 
-<p><a href="http://requirejs.org/docs/api.html#modulenotes-urls">require.toUrl()</a>
+<p><a href="https://requirejs.org/docs/api.html#modulenotes-urls">require.toUrl()</a>
     now correctly generates URLs for string values passed to it without an
     extension. Previous versions of toUrl() would append a
     ".js" extension automatically. If you relied on that behavior, when you

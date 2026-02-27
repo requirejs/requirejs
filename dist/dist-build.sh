@@ -33,6 +33,7 @@ cp $myDir/../require.js $version/comments/require.js
 
 # Minify any of the browser-based JS files
 cd $version/comments
-java -jar ../../../r.js/lib/closure/compiler.jar --js require.js --js_output_file ../minified/require.js
+
+uglifyjs require.js -mc --comments -o ../minified/require.js
 
 cd ../../../

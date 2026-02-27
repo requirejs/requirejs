@@ -59,11 +59,6 @@ cd ../cajon/tools
 ./build-cajon.js
 cd ../../requirejs
 
-# The require-cs project
-echo "Updating the require-cs CoffeeScript plugin"
-cp require.js ../require-cs/demo/lib/require.js
-cp ../r.js/r.js ../require-cs/tools/r.js
-
 # The npm container stuff
 echo "Updating requirejs-npm"
 cp require.js ../requirejs-npm/requirejs/require.js

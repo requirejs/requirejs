@@ -2,36 +2,36 @@
 
 RequireJS loads plain JavaScript files as well as more defined modules. It is
 optimized for in-browser use, including in
-[a Web Worker](http://requirejs.org/docs/api.html#webworker), but it can be used
+[a Web Worker](https://requirejs.org/docs/api.html#webworker), but it can be used
 in other JavaScript environments, like Rhino and
-[Node](http://requirejs.org/docs/node.html). It implements the
+[Node](https://requirejs.org/docs/node.html). It implements the
 [Asynchronous Module](https://github.com/amdjs/amdjs-api/wiki/AMD)
 API.
 
 RequireJS uses plain script tags to load modules/files, so it should allow for
 easy debugging. It can be used
-[simply to load existing JavaScript files](http://requirejs.org/docs/api.html#jsfiles),
+[simply to load existing JavaScript files](https://requirejs.org/docs/api.html#jsfiles),
 so you can add it to your existing project without having to re-write your
 JavaScript files.
 
-RequireJS includes [an optimization tool](http://requirejs.org/docs/optimization.html)
+RequireJS includes [an optimization tool](https://requirejs.org/docs/optimization.html)
 you can run as part of your packaging steps for deploying your code. The
 optimization tool can combine and minify your JavaScript files to allow for
 better performance.
 
 If the JavaScript file defines a JavaScript module via
-[define()](http://requirejs.org/docs/api.html#define), then there are other benefits
-RequireJS can offer: [improvements over traditional CommonJS modules](http://requirejs.org/docs/commonjs.html)
-and [loading multiple versions](http://requirejs.org/docs/api.html#multiversion)
+[define()](https://requirejs.org/docs/api.html#define), then there are other benefits
+RequireJS can offer: [improvements over traditional CommonJS modules](https://requirejs.org/docs/commonjs.html)
+and [loading multiple versions](https://requirejs.org/docs/api.html#multiversion)
 of a module in a page. RequireJS also has a plugin system that supports features like
-[i18n string bundles](http://requirejs.org/docs/api.html#i18n), and
-[text file dependencies](http://requirejs.org/docs/api.html#text).
+[i18n string bundles](https://requirejs.org/docs/api.html#i18n), and
+[text file dependencies](https://requirejs.org/docs/api.html#text).
 
 RequireJS does not have any dependencies on a JavaScript framework.
 
 RequireJS works in IE 6+, Firefox 2+, Safari 3.2+, Chrome 3+, and Opera 10+.
 
-[Latest Release](http://requirejs.org/docs/download.html)
+[Latest Release](https://requirejs.org/docs/download.html)
 
 ## License
 

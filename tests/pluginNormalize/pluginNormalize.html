@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>require.js: Remote URL Test</title>
+    <script type="text/javascript" src="../../require.js"></script>
+    <script type="text/javascript" src="../doh/runner.js"></script>
+    <script type="text/javascript" src="../doh/_browserRunner.js"></script>
+    <script type="text/javascript">
+
+        define("Plugin", function() {
+            return {
+                load: function(name, parentRequire, onload, config) {
+                    onload(name);
+                },
+                normalize: function(name, normalize) {
+                    return name + '.xyz';
+                }
+            }
+        });
+
+		require({
+		        baseUrl: "./"
+		    },
+		    ["Plugin!hello", "Plugin!world"],
+		    function(hello, world) {
+		        doh.register(
+		            "pluginNormalize",
+		            [
+		                function pluginNormalize(t){
+		                    t.is("hello.xyz", hello);
+		                    t.is("world.xyz", world);
+		                }
+		            ]
+		        );
+
+		        doh.run();
+		    }
+		);
+
+
+    </script>
+</head>
+<body>
+    <h1>require.js: Plugin Normalize Test</h1>
+    <p>Check console for messages</p>
+</body>
+</html>
